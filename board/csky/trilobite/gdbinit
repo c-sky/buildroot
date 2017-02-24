@@ -1,0 +1,21 @@
+tar jtag jtag://127.0.0.1:1025
+
+set $cr18=0x7d
+
+# for trilobite
+set *0x10001060=0x010c
+set *0x10001000=0x00143388
+set $gcr=0x00
+
+# pass devicetree blob
+# r2 is magic
+# r3 is address
+set $r0 = 0x20150401
+set $r1 = 0x8F000000
+restore trilobite.dtb binary 0x8F000000
+
+# flush cache
+set $cr17 = 0x33
+
+load
+

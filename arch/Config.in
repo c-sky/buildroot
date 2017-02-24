@@ -240,6 +240,14 @@ config BR2_xtensa
 	  http://en.wikipedia.org/wiki/Xtensa
 	  http://www.tensilica.com/
 
+config BR2_csky
+	bool "csky"
+	select BR2_ARCH_HAS_MMU_MANDATORY
+	help
+	  csky is processor IP from china.
+	  http://www.c-sky.com/
+	  http://www.github.com/c-sky
+
 endchoice
 
 # The following string values are defined by the individual
@@ -407,6 +415,10 @@ endif
 
 if BR2_xtensa
 source "arch/Config.in.xtensa"
+endif
+
+if BR2_csky
+source "arch/Config.in.csky"
 endif
 
 endmenu # Target options

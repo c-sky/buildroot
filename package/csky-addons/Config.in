@@ -1,0 +1,12 @@
+# Prompt-less option, because this package is not doing anything except
+# downloading source. The real work is done by a Linux
+# extension.
+config BR2_PACKAGE_CSKY_ADDONS
+	bool
+	depends on BR2_LINUX_KERNEL
+	help
+	  Linux addons for C-CSKY CPU
+
+	  This is only the download helper for the kernel patch.
+
+	  https://github.com/c-sky/addons-linux

@@ -1,0 +1,108 @@
+/dts-v1/;
+/ {
+	model = "csky eragon";
+	compatible = "csky,eragon";
+	#address-cells = <1>;
+	#size-cells = <1>;
+
+	memory {
+		device_type = "memory";
+		reg = <0x00000000 0x18000000>;
+	};
+
+	aliases {
+		serial2 = &uart2;
+		ethernet0 = &gmac;
+	};
+
+	soc {
+		#address-cells = <1>;
+		#size-cells = <1>;
+		compatible = "simple-bus";
+		ranges;
+
+		dummy_apb: apb-clock {
+			compatible = "fixed-clock";
+			clock-frequency = <50000000>;
+			clock-output-names = "dummy_apb";
+			#clock-cells = <0>;
+		};
+
+		intc: interrupt-controller {
+			compatible = "csky,intc-v1";
+			reg = <0x1FBA3000 0x1000>;
+			interrupt-controller;
+			#interrupt-cells = <1>;
+		};
+
+		/* clockevent */
+		timer0 {
+			compatible = "snps,dw-apb-timer";
+			reg = <0x1FBA2000 0x1000>;
+			clocks = <&dummy_apb>;
+			clock-names = "timer";
+			interrupts = <4>;
+			interrupt-parent = <&intc>;
+		};
+
+		/* clocksource */
+		timer1 {
+			compatible = "snps,dw-apb-timer";
+			reg = <0x1FBA2014 0x800>;
+			clocks = <&dummy_apb>;
+			clock-names = "timer";
+			interrupts = <5>;
+			interrupt-parent = <&intc>;
+		};
+
+		uart2: serial@1FBA4000 {
+			compatible = "ns16550a";
+			reg = <0x1FBA4000 0x1000>;
+			interrupt-parent = <&intc>;
+			interrupts = <11>;
+			clocks = <&dummy_apb>;
+			baud = <115200>;
+			reg-shift = <2>;
+			reg-io-width = <1>;
+		};
+
+		gmac: ethernet@1FB10000 {
+			compatible = "snps,dwmac";
+			reg = <0x1FB10000 0x2000>;
+			interrupt-parent = <&intc>;
+			interrupts = <34>;
+			interrupt-names = "macirq";
+			clocks = <&dummy_apb>;
+			clock-names = "stmmaceth";
+			phy-mode = "mii";
+			snps,pbl = <32>;
+			snps,fixed-burst;
+		};
+
+		sdhc1: sdhc1@1FB13000 {
+			#address-cells = <1>;
+			#size-cells = <0>;
+			compatible = "snps,dw-mshc";
+			reg = <0x1FB13000 0x1000>;
+			interrupt-parent = <&intc>;
+			interrupts = <33>;
+			clock-frequency = <50000000>;
+			num-slots = <0x1>;
+			/* fifo-depth = <32>; */
+			card-detect-delay = <200>;
+			cap-mmc-highspeed;
+			non-removable;
+			bus-width = <0x8>;
+
+			emmc: emmc@0 {
+				reg = <0>;
+				compatible = "mmc-card";
+				broken-hpi;
+			};
+		};
+	};
+
+	chosen {
+		bootargs = "console=ttyS2,115200 init=/sbin/init root=/dev/nfs rw nfsroot=172.16.28.169:/home/rtos_nfs/rootfsle-ck810-glibc,v3,tcp,nolock ip=172.16.150.100::172.16.150.254:255.255.255.0";
+	};
+};

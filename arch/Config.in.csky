@@ -1,0 +1,57 @@
+choice
+	prompt "Target Architecture Variant"
+	depends on BR2_csky
+	default BR2_ck810
+	help
+	  Specific CPU variant to use
+
+config BR2_ck810
+	bool "ck810"
+config BR2_ck807
+	bool "ck807"
+config BR2_ck610
+	bool "ck610"
+endchoice
+
+config BR2_CSKY_FPU
+	bool "Enable FPU coprocessor"
+	depends on BR2_ck810 || BR2_ck807
+	default n
+	help
+	  You can say N here if you C-SKY CPU don't have Floating-Point Coprocessor
+	  or the user program need not to support FPU.
+
+	  You'll have say N here if you C-SKY CPU have Floating-Point Coprocessor
+	  and the user program need to support FPU. Floating-Point Coprocessor (FPC)
+	  is a coprocessor of CK serial processor. The function of FPC is to provide
+	  low-cost high-speed float point computation, which is full compliance with
+	  ANSI/IEEE Std 754, IEEE Standard for Binary Floating-Point Arithmetic.
+
+config BR2_CSKY_DSP
+	bool "CPU support DSP enhanced instruction"
+	depends on BR2_ck810 || BR2_ck807
+	default n
+
+# From Config.in requirement
+config BR2_ARCH
+	default "csky"
+
+config BR2_ENDIAN
+	default "LITTLE"
+
+config BR2_GCC_TARGET_ARCH
+	default "ck610"	if BR2_ck610
+	default "ck807"	if BR2_ck807
+	default "ck810"	if BR2_ck810
+
+config BR2_GCC_TARGET_CPU
+	default "ck610"		if (BR2_ck610 && !BR2_CSKY_FPU && !BR2_CSKY_DSP)
+	default "ck807"		if (BR2_ck807 && !BR2_CSKY_FPU && !BR2_CSKY_DSP)
+	default "ck807e"	if (BR2_ck807 && !BR2_CSKY_FPU &&  BR2_CSKY_DSP)
+	default "ck807f"	if (BR2_ck807 &&  BR2_CSKY_FPU && !BR2_CSKY_DSP)
+	default "ck807ef"	if (BR2_ck807 &&  BR2_CSKY_FPU &&  BR2_CSKY_DSP)
+	default "ck810"		if (BR2_ck810 && !BR2_CSKY_FPU && !BR2_CSKY_DSP)
+	default "ck810e"	if (BR2_ck810 && !BR2_CSKY_FPU &&  BR2_CSKY_DSP)
+	default "ck810f"	if (BR2_ck810 &&  BR2_CSKY_FPU && !BR2_CSKY_DSP)
+	default "ck810ef"	if (BR2_ck810 &&  BR2_CSKY_FPU &&  BR2_CSKY_DSP)
+

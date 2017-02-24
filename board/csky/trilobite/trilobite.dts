@@ -1,0 +1,86 @@
+/dts-v1/;
+/ {
+	model = "csky trilobite";
+	compatible = "csky,trilobite";
+	#address-cells = <1>;
+	#size-cells = <1>;
+
+	memory {
+		device_type = "memory";
+		reg = <0x08000000 0x08000000>;
+	};
+
+	aliases {
+		serial0 = &uart0;
+		ethernet0 = &gmac;
+	};
+
+	soc {
+		#address-cells = <1>;
+		#size-cells = <1>;
+		compatible = "simple-bus";
+		ranges;
+
+		dummy_apb: apb-clock {
+			compatible = "fixed-clock";
+			clock-frequency = <40000000>;
+			clock-output-names = "dummy_apb";
+			#clock-cells = <0>;
+		};
+
+		intc: interrupt-controller {
+			compatible = "csky,intc-v1";
+			reg = <0x10010000 0x1000>;
+			interrupt-controller;
+			#interrupt-cells = <1>;
+		};
+
+		/* clockevent */
+		timer0 {
+			compatible = "snps,dw-apb-timer";
+			reg = <0x10011000 0x1000>;
+			clocks = <&dummy_apb>;
+			clock-names = "timer";
+			interrupts = <12>;
+			interrupt-parent = <&intc>;
+		};
+
+		/* clocksource */
+		timer1 {
+			compatible = "snps,dw-apb-timer";
+			reg = <0x10011014 0x800>;
+			clocks = <&dummy_apb>;
+			clock-names = "timer";
+			interrupts = <13>;
+			interrupt-parent = <&intc>;
+		};
+
+		uart0: serial@10015000 {
+			compatible = "ns16550a";
+			reg = <0x10015000 0x1000>;
+			interrupt-parent = <&intc>;
+			interrupts = <16>;
+			clocks = <&dummy_apb>;
+			baud = <115200>;
+			reg-shift = <2>;
+			reg-io-width = <1>;
+		};
+
+		gmac: ethernet@10006000 {
+			compatible = "snps,dwmac";
+			reg = <0x10006000 0x2000>;
+			interrupt-parent = <&intc>;
+			interrupts = <26>;
+			interrupt-names = "macirq";
+			clocks = <&dummy_apb>;
+			clock-names = "stmmaceth";
+			phy-mode = "mii";
+			snps,pbl = <32>;
+			snps,fixed-burst;
+		};
+	};
+
+	chosen {
+		bootargs = "console=ttyS0,115200 init=/sbin/init root=/dev/nfs rw nfsroot=172.16.28.169:/home/rtos_nfs/rootfsle-ck810-glibc,v3,tcp,nolock ip=172.16.28.170";
+	};
+};
