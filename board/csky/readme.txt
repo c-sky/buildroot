@@ -23,8 +23,9 @@ For C-SKY linux kernel it's made up of three components:
 
 3. Official Linux kernel source from www.kernel.org :)
 
-Buildroot make them together to build in, and setup rootfs with
-the packages which spicified in buildroot configuration.
+Buildroot will download cross compiler tools and make them together building,
+finally setup the rootfs with the packages which spicified in buildroot 
+configuration.
 
 How to build it
 ===============
@@ -47,7 +48,7 @@ Build everything
 Note: you will need to have access to the network, since Buildroot will
 download the packages' sources.
 
-  $ make
+  $ make # All will be done, just wait :)
 
 Result of the build
 -------------------
