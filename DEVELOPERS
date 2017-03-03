@@ -106,6 +106,7 @@ N:	Arnout Vandecappelle <arnout@mind.be>
 F:	package/freescale-imx/firmware-imx/
 F:	package/freescale-imx/imx-lib/
 F:	package/gstreamer/gst-fsl-plugins/
+F:	package/lua-bit32/
 F:	package/owfs/
 F:	package/python-bottle/
 F:	package/sqlcipher/
@@ -430,6 +431,7 @@ N:	Eric Le Bihan <eric.le.bihan.dev@free.fr>
 F:	package/adwaita-icon-theme/
 F:	package/darkhttpd/
 F:	package/eudev/
+F:	package/execline/
 F:	package/hicolor-icon-theme/
 F:	package/jemalloc/
 F:	package/ninja/
@@ -744,6 +746,7 @@ F:	package/zd1211-firmware/
 
 N:	Gwenhael Goavec-Merou <gwenhael.goavec-merou@trabucayre.com>
 F:	package/gnuradio/
+F:	package/gqrx/
 F:	package/gr-osmosdr/
 F:	package/libusbgx/
 F:	package/python-cheetah/
@@ -764,6 +767,9 @@ F:	package/python-rpi-gpio/
 
 N:	Ignacy Gawędzki <ignacy.gawedzki@green-communications.fr>
 F:	package/angularjs/
+
+N:	Ilias Apalodimas <apalos@gmail.com>
+F:	package/keepalived/
 
 N:	James Knight <james.knight@rockwellcollins.com>
 F:	package/atkmm/
@@ -1169,6 +1175,7 @@ F:	configs/orangepi_pc_defconfig
 F:	package/flickcurl/
 F:	package/libfastjson/
 F:	package/lzop/
+F:	package/memtool/
 F:	package/mosquitto/
 F:	package/python-alsaaudio/
 F:	package/python-enum/
@@ -1282,6 +1289,7 @@ F:	package/expedite/
 F:	package/iqvlinux/
 F:	package/liblinear/
 F:	package/linux-syscall-support/
+F:	package/lugaru/
 F:	package/mcelog/
 F:	package/openpowerlink/
 F:	package/stress-ng/
