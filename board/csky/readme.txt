@@ -66,9 +66,12 @@ How to run it
 
 1. Download the Jtag-Server here:
 
-   https://pan.baidu.com/s/1o7VEPbO
+   https://github.com/c-sky/tools/raw/master/DebugServerConsole-linux-x86_64-V4.2.00-20161213.sh
 
-   install it and run it:
+   install it:
+   sudo ./DebugServerConsole-linux-x86_64-V4.2.00-20161213.sh -i
+
+   run it:
 
    $ DebugServerConsole -ddc -rstwait 1000 -prereset -port 1025
 
@@ -88,6 +91,7 @@ rw nfsroot=192.168.101.230:/opt/nfs/test,v3,tcp,nolock ip=192.168.101.25";
    You need cd to buildroot dir and '$ make' again to update the dts in
    output/images
 
+   <board>.dts also contains the IP devices and drivers supported.
 
 4. Setup the Console with the rate 115200/8-N-1.
 
