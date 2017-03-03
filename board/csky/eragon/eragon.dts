@@ -27,6 +27,12 @@
 			clock-output-names = "dummy_apb";
 			#clock-cells = <0>;
 		};
+		dummy_rtc_clock: rtc-clock {
+			compatible = "fixed-clock";
+			clock-frequency = <1000000>;
+			clock-output-names = "dummy_rtc_clock";
+			#clock-cells = <0>;
+		};
 
 		intc: interrupt-controller {
 			compatible = "csky,intc-v1";
@@ -78,7 +84,28 @@
 			snps,pbl = <32>;
 			snps,fixed-burst;
 		};
+/*
+		sdhc0: sdhc0@1FB12000 {
+			#address-cells = <1>;
+			#size-cells = <0>;
+			compatible = "snps,dw-mshc";
+			reg = <0x1FB12000 0x1000>;
+			interrupt-parent = <&intc>;
+			interrupts = <32>;
+			clocks = <&dummy_apb>, <&dummy_apb>;
+			clock-names = "ciu", "biu";
+			num-slots = <0x1>;
+			card-detect-delay = <200>;
+			cap-mmc-highspeed;
+			bus-width = <4>;
 
+			mmccard: mmccard@0 {
+				reg = <0>;
+				compatible = "mmc-card";
+				broken-hpi;
+			};
+		};
+*/
 		sdhc1: sdhc1@1FB13000 {
 			#address-cells = <1>;
 			#size-cells = <0>;
@@ -86,23 +113,38 @@
 			reg = <0x1FB13000 0x1000>;
 			interrupt-parent = <&intc>;
 			interrupts = <33>;
-			clock-frequency = <50000000>;
+			clocks = <&dummy_apb>, <&dummy_apb>;
+			clock-names = "ciu", "biu";
 			num-slots = <0x1>;
-			/* fifo-depth = <32>; */
+			// fifo-depth = <32>;
 			card-detect-delay = <200>;
 			cap-mmc-highspeed;
 			non-removable;
 			bus-width = <0x8>;
-
+			/*
 			emmc: emmc@0 {
 				reg = <0>;
 				compatible = "mmc-card";
 				broken-hpi;
 			};
+			*/
+		};
+
+		rtc: rtc@1FBA1000 {
+			compatible = "apm,xgene-rtc";
+			reg = <0x1FBA1000 0x1000>;
+			interrupt-parent = <&intc>;
+			interrupts = <8>;
+			clocks = <&dummy_rtc_clock>;
+		};
+
+		pinctrl: pinctrl {
+			compatible = "csky,eragon-pinctrl";
 		};
 	};
 
 	chosen {
-		bootargs = "console=ttyS2,115200 init=/sbin/init root=/dev/nfs rw nfsroot=172.16.28.169:/home/rtos_nfs/rootfsle-ck810-glibc,v3,tcp,nolock ip=172.16.150.100::172.16.150.254:255.255.255.0";
+		bootargs = "console=ttyS2,115200 init=/sbin/init root=/dev/nfs rw nfsroot=172.16.28.184:/home/rtos_nfs/rootfsle-ck810-glibc,v3,tcp,nolock ip=172.16.150.100::172.16.150.254:255.255.255.0";
+		// bootargs = "console=ttyS2,115200 rdinit=/sbin/init root=/dev/ram0";
 	};
 };
