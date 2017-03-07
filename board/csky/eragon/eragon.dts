@@ -13,6 +13,11 @@
 	aliases {
 		serial2 = &uart2;
 		ethernet0 = &gmac;
+		i2c0 = &i2c0;
+		i2c1 = &i2c1;
+		i2c2 = &i2c2;
+		i2c3 = &i2c3;
+		i2c4 = &i2c4;
 	};
 
 	soc {
@@ -141,6 +146,63 @@
 		pinctrl: pinctrl {
 			compatible = "csky,eragon-pinctrl";
 		};
+
+		i2c0: i2c@1FB16000 {
+			#address-cells = <1>;
+			#size-cells = <0>;
+			compatible = "snps,designware-i2c";
+			reg = <0x1FB16000 0x1000>;
+			interrupt-parent = <&intc>;
+			interrupts = <16>;
+			clocks = <&dummy_apb>;
+		};
+
+		i2c1: i2c@1FB17000 {
+			#address-cells = <1>;
+			#size-cells = <0>;
+			compatible = "snps,designware-i2c";
+			reg = <0x1FB17000 0x1000>;
+			clocks = <&dummy_apb>;
+			interrupt-parent = <&intc>;
+			interrupts = <17>;
+		};
+
+		i2c2: i2c@1FBA7000 {
+			#address-cells = <1>;
+			#size-cells = <0>;
+			compatible = "snps,designware-i2c";
+			reg = <0x1FBA7000 0x1000>;
+			clocks = <&dummy_apb>;
+			interrupt-parent = <&intc>;
+			interrupts = <18>;
+		};
+
+		i2c3: i2c@1FBA8000 {
+			#address-cells = <1>;
+			#size-cells = <0>;
+			compatible = "snps,designware-i2c";
+			reg = <0x1FBA8000 0x1000>;
+			clocks = <&dummy_apb>;
+			interrupt-parent = <&intc>;
+			interrupts = <19>;
+			clock-frequency = <100000>;
+
+			pcf8563: pcf8563@51 {
+				compatible = "nxp,pcf8563";
+				reg = <0x51>;
+			};
+		};
+
+		i2c4: i2c@1FBA9000 {
+			#address-cells = <1>;
+			#size-cells = <0>;
+			compatible = "snps,designware-i2c";
+			reg = <0x1FBA9000 0x1000>;
+			clocks = <&dummy_apb>;
+			interrupt-parent = <&intc>;
+			interrupts = <20>;
+		};
+
 	};
 
 	chosen {
