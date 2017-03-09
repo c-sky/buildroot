@@ -1,0 +1,54 @@
+/dts-v1/;
+/ {
+	model = "Silan sc6138a";
+	compatible = "csky,silan-sc6138a";
+	#address-cells = <1>;
+	#size-cells = <1>;
+
+	memory {
+		device_type = "memory";
+		reg = <0x00000000 0x02000000>;
+	};
+
+	soc {
+		#address-cells = <1>;
+		#size-cells = <1>;
+		compatible = "simple-bus";
+		ranges;
+
+		dummy_apb: apb-clock {
+			compatible = "fixed-clock";
+			clock-frequency = <150000000>;
+			clock-output-names = "dummy_apb";
+			#clock-cells = <0>;
+		};
+
+		intc: interrupt-controller {
+			compatible = "silan,sc6138a";
+			reg = <0x1A090000 0x400>;
+			interrupt-controller;
+			#interrupt-cells = <1>;
+		};
+
+		timer0 {
+			compatible = "silan,timer-sc6138a";
+			reg = <0x1a0a0000 0x1000>;
+			clock-frequency = <150000000>;
+			interrupts = <8>;
+			interrupt-parent = <&intc>;
+		};
+
+		uart0: serial@1fbc0000 {
+			compatible = "arm,sbsa-uart";
+			reg = <0x1e010000 0x1000>;
+			current-speed = <115200>;
+			clocks = <&dummy_apb>;
+			interrupts = <29>;
+			interrupt-parent = <&intc>;
+		};
+	};
+
+	chosen {
+		bootargs = "console=ttyAMA0,115200 rdinit=/sbin/init root=/dev/ram0";
+	};
+};

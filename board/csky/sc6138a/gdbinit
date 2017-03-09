@@ -1,0 +1,20 @@
+target jtag jtag://127.0.0.1:1025
+#file reset
+#lo
+#c
+file u-boot
+lo
+c
+set $cr18=0x7d
+
+# pass devicetree blob
+# r2 is magic
+# r3 is address
+set $r2 = 0x20150401
+set $r3 = 0x81000000
+restore sc6138a.dtb binary 0x81000000
+
+
+file vmlinux  
+lo
+
