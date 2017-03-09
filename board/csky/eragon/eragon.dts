@@ -206,7 +206,7 @@
 	};
 
 	chosen {
-		bootargs = "console=ttyS2,115200 init=/sbin/init root=/dev/nfs rw nfsroot=172.16.28.184:/home/rtos_nfs/rootfsle-ck810-glibc,v3,tcp,nolock ip=172.16.150.100::172.16.150.254:255.255.255.0";
-		// bootargs = "console=ttyS2,115200 rdinit=/sbin/init root=/dev/ram0";
+		// bootargs = "console=ttyS2,115200 init=/sbin/init root=/dev/nfs rw nfsroot=172.16.28.184:/home/rtos_nfs/br/rootfs,v3,tcp,nolock ip=172.16.150.100::172.16.150.254:255.255.255.0";
+		bootargs = "console=ttyS2,115200 rdinit=/sbin/init root=/dev/ram0";
 	};
 };
