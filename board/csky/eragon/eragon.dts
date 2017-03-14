@@ -1,4 +1,7 @@
 /dts-v1/;
+#include <../../../../include/dt-bindings/gpio/gpio.h>
+#include <../../../../include/dt-bindings/input/input.h>
+
 / {
 	model = "csky eragon";
 	compatible = "csky,eragon";
@@ -52,6 +55,150 @@
 			reg = <0x1FBA3000 0x1000>;
 			interrupt-controller;
 			#interrupt-cells = <1>;
+		};
+
+		pinctrl: pinctrl@1fbac008 {
+			compatible = "csky,eragon-pinctrl";
+			/*rockchip,grf = <&grf>;*/
+			/*rockchip,pmu = <&pmu>;*/
+			reg = <0x1fbac008 0x4>;
+
+			#address-cells = <1>;
+			#size-cells = <1>;
+			ranges;
+
+			gpio0: gpio0@1fbac000 {
+				compatible = "csky,eragon-gpio-bank";
+				reg = <0x1fbac000 0x1000>;
+				interrupts = <0>;
+				/*clocks = <&cru PCLK_GPIO0>;*/
+
+				gpio-controller;
+				#gpio-cells = <2>;
+
+				//interrupt-controller;
+				//interrupt-parent = <&intc>;
+				//#interrupt-cells = <2>;
+			};
+
+			gpio1: gpio1@1fbad000 {
+				compatible = "csky,eragon-gpio-bank";
+				reg = <0x1fbad000 0x1000>;
+				interrupts = <1>;
+				/*clocks = <&cru PCLK_GPIO1>;*/
+
+				gpio-controller;
+				#gpio-cells = <2>;
+
+				//interrupt-controller;
+				//interrupt-parent = <&intc>;
+				//#interrupt-cells = <2>;
+			};
+
+			gpio2: gpio2@1fbae000 {
+				compatible = "csky,eragon-gpio-bank";
+				reg = <0x1fbae000 0x1000>;
+				interrupts = <2>;
+				/*clocks = <&cru PCLK_GPIO2>;*/
+
+				gpio-controller;
+				#gpio-cells = <2>;
+
+				//interrupt-controller;
+				//interrupt-parent = <&intc>;
+				//#interrupt-cells = <2>;
+			};
+
+			gpio3: gpio3@1fbaf000 {
+				compatible = "csky,eragon-gpio-bank";
+				reg = <0x1fbaf000 0x1000>;
+				interrupts = <3>;
+				/*clocks = <&cru PCLK_GPIO3>;*/
+
+				gpio-controller;
+				#gpio-cells = <2>;
+
+				//interrupt-controller;
+				//interrupt-parent = <&intc>;
+				//#interrupt-cells = <2>;
+			};
+
+			pcfg_pull_up: pcfg_pull_up {
+				bias-pull-up;
+			};
+
+			pcfg_pull_down: pcfg_pull_down {
+				bias-pull-down;
+			};
+
+			pcfg_pull_none: pcfg_pull_none {
+				bias-disable;
+			};
+		};
+
+		gpio-leds {
+			compatible = "gpio-leds";
+
+			green0 {
+				label = "green0";
+				gpios = <&gpio0 0 GPIO_ACTIVE_LOW>;
+				default-state = "on";
+			};
+
+			green1 {
+				label = "green1";
+				gpios = <&gpio0 2 GPIO_ACTIVE_LOW>;
+				default-state = "off";
+			};
+
+			red0 {
+				label = "red0";
+				gpios = <&gpio0 1 GPIO_ACTIVE_LOW>;
+				default-state = "on";
+			};
+
+			red1 {
+				label = "red1";
+				gpios = <&gpio0 3 GPIO_ACTIVE_LOW>;
+				default-state = "off";
+			};
+		};
+
+		gpio-keys {
+			compatible = "gpio-keys";
+			autorepeat;
+
+			power_led_green0 {
+				gpios = <&gpio0 4 GPIO_ACTIVE_LOW>;
+				linux,code = <KEY_F1>;
+				label = "power_led_green0";
+				linux,input-type = <1>;
+				debounce-interval = <50>;
+			};
+
+			power_led_green1 {
+				gpios = <&gpio0 5 GPIO_ACTIVE_LOW>;
+				linux,code = <KEY_F2>;
+				label = "power_led_green1";
+				linux,input-type = <1>;
+				debounce-interval = <50>;
+			};
+
+			power_led_red0 {
+				gpios = <&gpio0 6 GPIO_ACTIVE_LOW>;
+				linux,code = <KEY_F3>;
+				label = "power_led_red0";
+				linux,input-type = <1>;
+				debounce-interval = <50>;
+			};
+
+			power_led_red1 {
+				gpios = <&gpio0 7 GPIO_ACTIVE_LOW>;
+				linux,code = <KEY_F4>;
+				label = "power_led_red1";
+				linux,input-type = <1>;
+				debounce-interval = <50>;
+			};
 		};
 
 		/* clockevent */
@@ -195,10 +342,6 @@
 			clocks = <&dummy_rtc_clock>;
 		};
 
-		pinctrl: pinctrl {
-			compatible = "csky,eragon-pinctrl";
-		};
-
 		i2c0: i2c@1FB16000 {
 			#address-cells = <1>;
 			#size-cells = <0>;
@@ -274,3 +417,10 @@
 		bootargs = "console=ttyS2,115200 rdinit=/sbin/init root=/dev/ram0";
 	};
 };
+
+&pinctrl {
+	pcfg_output_low: pcfg-output-low {
+		output-low;
+	};
+};
+
