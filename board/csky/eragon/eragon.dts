@@ -11,7 +11,11 @@
 	};
 
 	aliases {
+		serial0 = &uart0;
+		serial1 = &uart1;
 		serial2 = &uart2;
+		serial3 = &uart3;
+		serial4 = &uart4;
 		ethernet0 = &gmac;
 		i2c0 = &i2c0;
 		i2c1 = &i2c1;
@@ -66,11 +70,55 @@
 			interrupt-parent = <&intc>;
 		};
 
+		uart0: serial@1FB14000 {
+			compatible = "ns16550a";
+			reg = <0x1FB14000 0x1000>;
+			interrupt-parent = <&intc>;
+			interrupts = <9>;
+			clocks = <&dummy_apb>;
+			baud = <115200>;
+			reg-shift = <2>;
+			reg-io-width = <1>;
+		};
+
+		uart1: serial@1FB15000 {
+			compatible = "ns16550a";
+			reg = <0x1FB15000 0x1000>;
+			interrupt-parent = <&intc>;
+			interrupts = <10>;
+			clocks = <&dummy_apb>;
+			baud = <115200>;
+			reg-shift = <2>;
+			reg-io-width = <1>;
+		};
+
 		uart2: serial@1FBA4000 {
 			compatible = "ns16550a";
 			reg = <0x1FBA4000 0x1000>;
 			interrupt-parent = <&intc>;
 			interrupts = <11>;
+			clocks = <&dummy_apb>;
+			baud = <115200>;
+			reg-shift = <2>;
+			reg-io-width = <1>;
+		};
+
+		uart3: serial@1FBA5000 {
+			compatible = "ns16550a";
+			reg = <0x1FBA5000 0x1000>;
+			interrupt-parent = <&intc>;
+			interrupts = <12>;
+			clocks = <&dummy_apb>;
+			baud = <115200>;
+			reg-shift = <2>;
+			reg-io-width = <1>;
+		};
+
+		uart4: serial@1FBA6000 {
+			compatible = "ns16550a";
+			reg = <0x1FBA6000 0x1000>;
+			interrupt-parent = <&intc>;
+			interrupts = <13>;
 			clocks = <&dummy_apb>;
 			baud = <115200>;
 			reg-shift = <2>;
@@ -175,6 +223,12 @@
 			clocks = <&dummy_apb>;
 			interrupt-parent = <&intc>;
 			interrupts = <18>;
+			clock-frequency = <100000>;
+
+			pcf8563_2: pcf8563_2@51 {
+				compatible = "nxp,pcf8563";
+				reg = <0x51>;
+			};
 		};
 
 		i2c3: i2c@1FBA8000 {
@@ -187,7 +241,7 @@
 			interrupts = <19>;
 			clock-frequency = <100000>;
 
-			pcf8563: pcf8563@51 {
+			pcf8563_3: pcf8563_3@51 {
 				compatible = "nxp,pcf8563";
 				reg = <0x51>;
 			};
@@ -201,6 +255,12 @@
 			clocks = <&dummy_apb>;
 			interrupt-parent = <&intc>;
 			interrupts = <20>;
+			clock-frequency = <100000>;
+
+			pcf8563_4: pcf8563_4@51 {
+				compatible = "nxp,pcf8563";
+				reg = <0x51>;
+			};
 		};
 
 	};
