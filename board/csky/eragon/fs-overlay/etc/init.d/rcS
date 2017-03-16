@@ -1,0 +1,16 @@
+#!/bin/sh
+
+echo "rcS"
+mount -t devpts devpts /dev/pts
+echo /sbin/mdev > /proc/sys/kernel/hotplug
+mdev -s
+
+#
+# To mount NFS
+#
+# ifconfig eth0 up
+# ifconfig eth0 172.16.150.100 netmask 255.255.255.0
+# route add default gw 172.16.150.254
+# mkdir -p /home/rtos_nfs
+# mount -t nfs 172.16.28.184:/home/rtos_nfs/test/rootfsle-ck810-glibc  /home/rtos_nfs  -o nolock,tcp
+
