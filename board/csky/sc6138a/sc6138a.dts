@@ -43,7 +43,7 @@
 			reg = <0x1e010000 0x1000>;
 			current-speed = <115200>;
 			clocks = <&dummy_apb>;
-			interrupts = <29>;
+			interrupts = <30>;
 			interrupt-parent = <&intc>;
 		};
 	};
