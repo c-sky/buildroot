@@ -65,7 +65,7 @@ How to run it with jtag
    Check the output/images/.gdbinit on first line, they must be the same.
 
    $ cd output/images
-   $ csky-linux-gdb vmlinux
+   $ csky-linux-gdb ../build/<linux-kernel-dir>/vmlinux
 
 Finish
 ======
