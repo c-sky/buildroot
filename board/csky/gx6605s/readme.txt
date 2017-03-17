@@ -43,7 +43,7 @@ Where /dev/sdX is the device node of your USB drive.
 Insert the USB in the dev board, setup the console with the
 rate 115200/8-N-1. Power On.
 
-How to run it with Jtag
+How to run it with jtag
 =======================
 
 1. Prepare Jtag-Server:
@@ -53,12 +53,15 @@ How to run it with Jtag
    install it:
    sudo ./DebugServerConsole-linux-x86_64-V4.2.00-20161213.sh -i
 
-   run it:
+2. run it:
 
    $ DebugServerConsole -ddc -rstwait 1000 -prereset -port 1025
+
+   It will display ip and port for your gdb to connect, eg:
+
    target jtag jtag://127.0.0.1:1025
 
-2. Please remember the DebugServer IP address and port which displayed above.
+   Please remember the DebugServer IP address and port which displayed above.
    Check the output/images/.gdbinit on first line, they must be the same.
 
    $ cd output/images
