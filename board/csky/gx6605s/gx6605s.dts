@@ -1,0 +1,61 @@
+/dts-v1/;
+/ {
+	model = "Nationalchip csky gx6605s";
+	compatible = "csky,nationalchip-gx6605s";
+	#address-cells = <1>;
+	#size-cells = <1>;
+
+	memory {
+		device_type = "memory";
+		reg = <0x10000000 0x04000000>;
+	};
+
+	soc {
+		#address-cells = <1>;
+		#size-cells = <1>;
+		compatible = "simple-bus";
+		ranges;
+
+		intc: interrupt-controller {
+			compatible = "nationalchip,intc-v1,ave";
+			reg = <0x00500000 0x400>;
+			interrupt-controller;
+			#interrupt-cells = <1>;
+		};
+
+		timer0 {
+			compatible = "nationalchip,timer-v1";
+			reg = <0x0020a000 0x400>;
+			clock-frequency = <1000000>;
+			interrupts = <10>;
+			interrupt-parent = <&intc>;
+		};
+
+		ehci: ehci-hcd {
+			compatible = "generic-ehci";
+			reg = <0x00900000 0x400>;
+			interrupt-parent = <&intc>;
+			interrupts = <59>;
+		};
+
+		uart0: serial@403000 {
+			compatible = "ns16550a";
+			reg = <0x00403000 0x400>;
+			interrupt-parent = <&intc>;
+			interrupts = <15>;
+			clock-frequency = <29491200>;
+			baud = <115200>;
+			reg-shift = <2>;
+			reg-io-width = <1>;
+		};
+	};
+
+	chosen {
+		/*
+		 * fixme:
+		 * Seems kernel won't wait /dev/sda1 to mount, when there is no 'ip=' option.
+		 * /dev/sda1 is from USB drive.
+		 */
+		bootargs = "console=ttyS0,115200 init=/sbin/init root=/dev/sda2 rw ip=0.0.0.0";
+	};
+};
