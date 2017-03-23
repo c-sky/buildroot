@@ -59,9 +59,6 @@ Run
 How to run it with jtag
 =======================
 
-Prepare Jtag-Server
--------------------
-
 1. Download the Jtag-Server here:
 
   https://github.com/c-sky/tools/raw/master/DebugServerConsole-linux-x86_64-V4.2.00-20161213.tar.gz
@@ -74,18 +71,10 @@ Prepare Jtag-Server
 
   $ sudo ./DebugServerConsole -ddc -rstwait 1000 -prereset -port 1025
 
-Run
----
+  (console will show a gdbint example, like this: target jtag jtag://127.0.0.1:1025)
 
-   $ DebugServerConsole -ddc -rstwait 1000 -prereset -port 1025
+3. Check the gdbinit, the IP and Port must be the same as above.
 
-   (It will display ip and port for your gdb to connect, eg:)
-
-   target jtag jtag://127.0.0.1:1025
-
-   (Please remember the DebugServer IP address and port which displayed above.
-    Check the output/images/gdbinit on first line, they must be the same.)
-
-   $ cd output/images
-   $ ../host/usr/bin/csky-linux-gdb -x gdbinit ../build/<linux-kernel-dir>/vmlinux
+  $ cd output/images
+  $ ../host/usr/bin/csky-linux-gdb -x gdbinit ../build/<linux-kernel-dir>/vmlinux
 
