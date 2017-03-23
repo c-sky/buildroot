@@ -4,10 +4,6 @@ BOARD_DIR="$(dirname $0)"
 GENIMAGE_CFG="${BOARD_DIR}/genimage.cfg"
 GENIMAGE_TMP="${BUILD_DIR}/genimage.tmp"
 
-if [ ! -f $BINARIES_DIR/gdbinit ]; then
-	cp -af $BOARD_DIR/gdbinit $BINARIES_DIR/gdbinit
-fi
-
 rm -rf "${GENIMAGE_TMP}"
 
 genimage                           \

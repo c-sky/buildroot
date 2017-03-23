@@ -22,8 +22,7 @@ After building, you should obtain this tree:
     output/images/
     ├── vmlinux
     ├── rootfs.tar
-    ├── sc8925.dtb
-    └── gdbinit
+    └── sc8925.dtb
 
 How to run it
 =============
@@ -53,5 +52,5 @@ How to run it
 
 5. run.
    $ cd output/images
-   $ ../host/usr/bin/csky-abiv2-linux-gdb -x gdbinit vmlinux
+   $ ../host/usr/bin/csky-abiv2-linux-gdb -x ../../board/csky/sc8925/gdbinit vmlinux
 

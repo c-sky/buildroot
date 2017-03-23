@@ -29,7 +29,6 @@ After building, you should obtain this tree:
 
     output/images/
     ├── boot.vfat
-    ├── gdbinit
     ├── gx6605s.dtb
     ├── rootfs.ext2
     ├── rootfs.ext4
@@ -76,5 +75,5 @@ How to run it with jtag
 3. Check the gdbinit, the IP and Port must be the same as above.
 
   $ cd output/images
-  $ ../host/usr/bin/csky-linux-gdb -x gdbinit ../build/<linux-kernel-dir>/vmlinux
+  $ ../host/usr/bin/csky-linux-gdb -x ../../board/csky/gx6605s/gdbinit ../build/<linux-kernel-dir>/vmlinux
 
