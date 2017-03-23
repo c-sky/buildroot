@@ -3,9 +3,18 @@ C-SKY Development Kit
 Intro
 =====
 
-Gx6605s SOC is from HangZhou Nationalchip, and with C-SKY CPU inside.
+C-SKY is a CPU Architecture from www.c-sky.com and has it own instruction set.
+Just like arm and mips in linux/arch, it named as 'csky'.
 
-www.c-sky.com
+gx6605s develop board is made by Hangzhou Nationalchip and C-SKY.
+
+Hardware Spec:
+  * CPU: ck610 up to 594Mhz
+  * Integrate with 64MB ddr2 in SOC.
+  * Integrate with hardware Jtag.
+  * Integrate with usb-to-serial chip.
+  * USB ehci controller in SOC.
+  * Power Supply: DC 5V from two micro-usb.
 
 How to build it
 ===============
@@ -20,7 +29,7 @@ After building, you should obtain this tree:
 
     output/images/
     ├── boot.vfat
-    ├── .gdbinit
+    ├── gdbinit
     ├── gx6605s.dtb
     ├── rootfs.ext2
     ├── rootfs.ext4
@@ -31,8 +40,8 @@ After building, you should obtain this tree:
 How to run it with usb drive
 ============================
 
-Once the build process is finished you will have an image called "usb.img"
-in the output/images/ directory.
+Prepare the bootable usb drive
+------------------------------
 
 Copy the bootable "usb.img" onto an USB drive with "dd":
 
@@ -40,42 +49,43 @@ Copy the bootable "usb.img" onto an USB drive with "dd":
 
 Where /dev/sdX is the device node of your USB drive.
 
-Insert the USB in the dev board, setup the console with the
-rate 115200/8-N-1. Power On.
+Run
+---
+
+1. Insert the USB in the dev board.
+2. Setup the console with the rate 115200/8-N-1.
+3. Power On.
 
 How to run it with jtag
 =======================
 
-1. Prepare Jtag-Server:
+Prepare Jtag-Server
+-------------------
 
-   https://github.com/c-sky/tools/raw/master/DebugServerConsole-linux-x86_64-V4.2.00-20161213.sh
+1. Download the Jtag-Server here:
 
-   install it:
-   sudo ./DebugServerConsole-linux-x86_64-V4.2.00-20161213.sh -i
+  https://github.com/c-sky/tools/raw/master/DebugServerConsole-linux-x86_64-V4.2.00-20161213.tar.gz
 
-2. run it:
+2. Go to the unpacked directory:
+
+  $./DebugServerConsole -ddc -rstwait 1000 -prereset -port 1025
+
+  (Perhaps you need to use "sudo", which need libusb to detect c510:b210)
+
+  $ sudo ./DebugServerConsole -ddc -rstwait 1000 -prereset -port 1025
+
+Run
+---
 
    $ DebugServerConsole -ddc -rstwait 1000 -prereset -port 1025
 
-   It will display ip and port for your gdb to connect, eg:
+   (It will display ip and port for your gdb to connect, eg:)
 
    target jtag jtag://127.0.0.1:1025
 
-   Please remember the DebugServer IP address and port which displayed above.
-   Check the output/images/.gdbinit on first line, they must be the same.
+   (Please remember the DebugServer IP address and port which displayed above.
+    Check the output/images/gdbinit on first line, they must be the same.)
 
    $ cd output/images
-   $ csky-linux-gdb ../build/<linux-kernel-dir>/vmlinux
-
-Finish
-======
-
-Any question contact me here:
-
-ren_guo@c-sky.com
-
------------
-Best Regards
-
-Guo Ren
+   $ ../host/usr/bin/csky-linux-gdb -x gdbinit ../build/<linux-kernel-dir>/vmlinux
 
