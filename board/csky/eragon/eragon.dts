@@ -39,7 +39,7 @@
 
 		dummy_apb: apb-clock {
 			compatible = "fixed-clock";
-			clock-frequency = <50000000>;
+			clock-frequency = <60000000>;
 			clock-output-names = "dummy_apb";
 			#clock-cells = <0>;
 		};
@@ -410,6 +410,15 @@
 			};
 		};
 
+		usb@1fb00000 {
+			compatible = "csky,eragon-usb", "snps,dwc2";
+			reg = <0x1fb00000 0x10000>;
+			interrupt-parent = <&intc>;
+			interrupts = <35>;
+			clocks = <&dummy_apb>;
+			clock-names = "otg";
+			dr_mode = "host";
+		};
 	};
 
 	chosen {
