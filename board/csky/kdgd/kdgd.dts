@@ -1,0 +1,436 @@
+/dts-v1/;
+#include <../../../../include/dt-bindings/gpio/gpio.h>
+#include <../../../../include/dt-bindings/input/input.h>
+
+/ {
+	model = "csky kdgd";
+	compatible = "csky,kdgd";
+	#address-cells = <1>;
+	#size-cells = <1>;
+
+	memory {
+		device_type = "memory";
+		reg = <0x00000000 0x18000000>;
+	};
+
+	aliases {
+		ethernet0 = &gmac;
+		i2c0 = &i2c0;
+		i2c1 = &i2c1;
+		i2c2 = &i2c2;
+		i2c3 = &i2c3;
+		i2c4 = &i2c4;
+		rtc0 = &rtc;
+		rtc2 = &pcf8563_2;
+		rtc3 = &pcf8563_3;
+		rtc4 = &pcf8563_4;
+		serial0 = &uart0;
+		serial1 = &uart1;
+		serial2 = &uart2;
+		serial3 = &uart3;
+		serial4 = &uart4;
+	};
+
+	soc {
+		#address-cells = <1>;
+		#size-cells = <1>;
+		compatible = "simple-bus";
+		ranges;
+
+		dummy_apb: apb-clock {
+			compatible = "fixed-clock";
+			clock-frequency = <60000000>;
+			clock-output-names = "dummy_apb";
+			#clock-cells = <0>;
+		};
+		dummy_rtc_clock: rtc-clock {
+			compatible = "fixed-clock";
+			clock-frequency = <1000000>;
+			clock-output-names = "dummy_rtc_clock";
+			#clock-cells = <0>;
+		};
+
+		intc: interrupt-controller {
+			compatible = "csky,intc-v1";
+			reg = <0x1FBA3000 0x1000>;
+			interrupt-controller;
+			#interrupt-cells = <1>;
+		};
+
+		pinctrl: pinctrl@1fbac008 {
+			compatible = "csky,eragon-pinctrl";
+			/*rockchip,grf = <&grf>;*/
+			/*rockchip,pmu = <&pmu>;*/
+			reg = <0x1fbac008 0x4>;
+
+			#address-cells = <1>;
+			#size-cells = <1>;
+			ranges;
+
+			gpio0: gpio0@1fbac000 {
+				compatible = "csky,eragon-gpio-bank";
+				reg = <0x1fbac000 0x1000>;
+				interrupts = <0>;
+				/*clocks = <&cru PCLK_GPIO0>;*/
+
+				gpio-controller;
+				#gpio-cells = <2>;
+
+				//interrupt-controller;
+				//interrupt-parent = <&intc>;
+				//#interrupt-cells = <2>;
+			};
+
+			gpio1: gpio1@1fbad000 {
+				compatible = "csky,eragon-gpio-bank";
+				reg = <0x1fbad000 0x1000>;
+				interrupts = <1>;
+				/*clocks = <&cru PCLK_GPIO1>;*/
+
+				gpio-controller;
+				#gpio-cells = <2>;
+
+				//interrupt-controller;
+				//interrupt-parent = <&intc>;
+				//#interrupt-cells = <2>;
+			};
+
+			gpio2: gpio2@1fbae000 {
+				compatible = "csky,eragon-gpio-bank";
+				reg = <0x1fbae000 0x1000>;
+				interrupts = <2>;
+				/*clocks = <&cru PCLK_GPIO2>;*/
+
+				gpio-controller;
+				#gpio-cells = <2>;
+
+				//interrupt-controller;
+				//interrupt-parent = <&intc>;
+				//#interrupt-cells = <2>;
+			};
+
+			gpio3: gpio3@1fbaf000 {
+				compatible = "csky,eragon-gpio-bank";
+				reg = <0x1fbaf000 0x1000>;
+				interrupts = <3>;
+				/*clocks = <&cru PCLK_GPIO3>;*/
+
+				gpio-controller;
+				#gpio-cells = <2>;
+
+				//interrupt-controller;
+				//interrupt-parent = <&intc>;
+				//#interrupt-cells = <2>;
+			};
+
+			pcfg_pull_up: pcfg_pull_up {
+				bias-pull-up;
+			};
+
+			pcfg_pull_down: pcfg_pull_down {
+				bias-pull-down;
+			};
+
+			pcfg_pull_none: pcfg_pull_none {
+				bias-disable;
+			};
+		};
+
+		gpio-leds {
+			compatible = "gpio-leds";
+
+			green0 {
+				label = "green0";
+				gpios = <&gpio0 0 GPIO_ACTIVE_LOW>;
+				default-state = "on";
+			};
+
+			green1 {
+				label = "green1";
+				gpios = <&gpio0 2 GPIO_ACTIVE_LOW>;
+				default-state = "off";
+			};
+
+			red0 {
+				label = "red0";
+				gpios = <&gpio0 1 GPIO_ACTIVE_LOW>;
+				default-state = "on";
+			};
+
+			red1 {
+				label = "red1";
+				gpios = <&gpio0 3 GPIO_ACTIVE_LOW>;
+				default-state = "off";
+			};
+		};
+
+		gpio-keys {
+			compatible = "gpio-keys";
+			autorepeat;
+
+			power_led_green0 {
+				gpios = <&gpio0 4 GPIO_ACTIVE_LOW>;
+				linux,code = <KEY_F1>;
+				label = "power_led_green0";
+				linux,input-type = <1>;
+				debounce-interval = <50>;
+			};
+
+			power_led_green1 {
+				gpios = <&gpio0 5 GPIO_ACTIVE_LOW>;
+				linux,code = <KEY_F2>;
+				label = "power_led_green1";
+				linux,input-type = <1>;
+				debounce-interval = <50>;
+			};
+
+			power_led_red0 {
+				gpios = <&gpio0 6 GPIO_ACTIVE_LOW>;
+				linux,code = <KEY_F3>;
+				label = "power_led_red0";
+				linux,input-type = <1>;
+				debounce-interval = <50>;
+			};
+
+			power_led_red1 {
+				gpios = <&gpio0 7 GPIO_ACTIVE_LOW>;
+				linux,code = <KEY_F4>;
+				label = "power_led_red1";
+				linux,input-type = <1>;
+				debounce-interval = <50>;
+			};
+		};
+
+		/* clockevent */
+		timer0 {
+			compatible = "snps,dw-apb-timer";
+			reg = <0x1FBA2000 0x1000>;
+			clocks = <&dummy_apb>;
+			clock-names = "timer";
+			interrupts = <4>;
+			interrupt-parent = <&intc>;
+		};
+
+		/* clocksource */
+		timer1 {
+			compatible = "snps,dw-apb-timer";
+			reg = <0x1FBA2014 0x800>;
+			clocks = <&dummy_apb>;
+			clock-names = "timer";
+			interrupts = <5>;
+			interrupt-parent = <&intc>;
+		};
+
+		uart0: serial@1FB14000 {
+			compatible = "ns16550a";
+			reg = <0x1FB14000 0x1000>;
+			interrupt-parent = <&intc>;
+			interrupts = <9>;
+			clocks = <&dummy_apb>;
+			baud = <115200>;
+			reg-shift = <2>;
+			reg-io-width = <1>;
+		};
+
+		uart1: serial@1FB15000 {
+			compatible = "ns16550a";
+			reg = <0x1FB15000 0x1000>;
+			interrupt-parent = <&intc>;
+			interrupts = <10>;
+			clocks = <&dummy_apb>;
+			baud = <115200>;
+			reg-shift = <2>;
+			reg-io-width = <1>;
+		};
+
+		uart2: serial@1FBA4000 {
+			compatible = "ns16550a";
+			reg = <0x1FBA4000 0x1000>;
+			interrupt-parent = <&intc>;
+			interrupts = <11>;
+			clocks = <&dummy_apb>;
+			baud = <115200>;
+			reg-shift = <2>;
+			reg-io-width = <1>;
+		};
+
+		uart3: serial@1FBA5000 {
+			compatible = "ns16550a";
+			reg = <0x1FBA5000 0x1000>;
+			interrupt-parent = <&intc>;
+			interrupts = <12>;
+			clocks = <&dummy_apb>;
+			baud = <115200>;
+			reg-shift = <2>;
+			reg-io-width = <1>;
+		};
+
+		uart4: serial@1FBA6000 {
+			compatible = "ns16550a";
+			reg = <0x1FBA6000 0x1000>;
+			interrupt-parent = <&intc>;
+			interrupts = <13>;
+			clocks = <&dummy_apb>;
+			baud = <115200>;
+			reg-shift = <2>;
+			reg-io-width = <1>;
+		};
+
+		gmac: ethernet@1FB10000 {
+			compatible = "snps,dwmac";
+			reg = <0x1FB10000 0x2000>;
+			interrupt-parent = <&intc>;
+			interrupts = <34>;
+			interrupt-names = "macirq";
+			clocks = <&dummy_apb>;
+			clock-names = "stmmaceth";
+			phy-mode = "mii";
+			snps,pbl = <32>;
+			snps,fixed-burst;
+		};
+/*
+		sdhc0: sdhc0@1FB12000 {
+			#address-cells = <1>;
+			#size-cells = <0>;
+			compatible = "snps,dw-mshc";
+			reg = <0x1FB12000 0x1000>;
+			interrupt-parent = <&intc>;
+			interrupts = <32>;
+			clocks = <&dummy_apb>, <&dummy_apb>;
+			clock-names = "ciu", "biu";
+			num-slots = <0x1>;
+			card-detect-delay = <200>;
+			cap-mmc-highspeed;
+			bus-width = <4>;
+
+			mmccard: mmccard@0 {
+				reg = <0>;
+				compatible = "mmc-card";
+				broken-hpi;
+			};
+		};
+
+		sdhc1: sdhc1@1FB13000 {
+			#address-cells = <1>;
+			#size-cells = <0>;
+			compatible = "snps,dw-mshc";
+			reg = <0x1FB13000 0x1000>;
+			interrupt-parent = <&intc>;
+			interrupts = <33>;
+			clocks = <&dummy_apb>, <&dummy_apb>;
+			clock-names = "ciu", "biu";
+			num-slots = <0x1>;
+			// fifo-depth = <32>;
+			card-detect-delay = <200>;
+			cap-mmc-highspeed;
+			non-removable;
+			bus-width = <0x8>;
+			//
+			emmc: emmc@0 {
+				reg = <0>;
+				compatible = "mmc-card";
+				broken-hpi;
+			};
+			//
+		};
+*/
+
+		rtc: rtc@1FBA1000 {
+			compatible = "apm,xgene-rtc";
+			reg = <0x1FBA1000 0x1000>;
+			interrupt-parent = <&intc>;
+			interrupts = <8>;
+			clocks = <&dummy_rtc_clock>;
+		};
+
+		i2c0: i2c@1FB16000 {
+			#address-cells = <1>;
+			#size-cells = <0>;
+			compatible = "snps,designware-i2c";
+			reg = <0x1FB16000 0x1000>;
+			interrupt-parent = <&intc>;
+			interrupts = <16>;
+			clocks = <&dummy_apb>;
+		};
+
+		i2c1: i2c@1FB17000 {
+			#address-cells = <1>;
+			#size-cells = <0>;
+			compatible = "snps,designware-i2c";
+			reg = <0x1FB17000 0x1000>;
+			clocks = <&dummy_apb>;
+			interrupt-parent = <&intc>;
+			interrupts = <17>;
+		};
+
+		i2c2: i2c@1FBA7000 {
+			#address-cells = <1>;
+			#size-cells = <0>;
+			compatible = "snps,designware-i2c";
+			reg = <0x1FBA7000 0x1000>;
+			clocks = <&dummy_apb>;
+			interrupt-parent = <&intc>;
+			interrupts = <18>;
+			clock-frequency = <100000>;
+
+			pcf8563_2: pcf8563_2@51 {
+				compatible = "nxp,pcf8563";
+				reg = <0x51>;
+			};
+		};
+
+		i2c3: i2c@1FBA8000 {
+			#address-cells = <1>;
+			#size-cells = <0>;
+			compatible = "snps,designware-i2c";
+			reg = <0x1FBA8000 0x1000>;
+			clocks = <&dummy_apb>;
+			interrupt-parent = <&intc>;
+			interrupts = <19>;
+			clock-frequency = <100000>;
+
+			pcf8563_3: pcf8563_3@51 {
+				compatible = "nxp,pcf8563";
+				reg = <0x51>;
+			};
+		};
+
+		i2c4: i2c@1FBA9000 {
+			#address-cells = <1>;
+			#size-cells = <0>;
+			compatible = "snps,designware-i2c";
+			reg = <0x1FBA9000 0x1000>;
+			clocks = <&dummy_apb>;
+			interrupt-parent = <&intc>;
+			interrupts = <20>;
+			clock-frequency = <100000>;
+
+			pcf8563_4: pcf8563_4@51 {
+				compatible = "nxp,pcf8563";
+				reg = <0x51>;
+			};
+		};
+
+		usb@1fb00000 {
+			compatible = "csky,eragon-usb", "snps,dwc2";
+			reg = <0x1fb00000 0x10000>;
+			interrupt-parent = <&intc>;
+			interrupts = <35>;
+			clocks = <&dummy_apb>;
+			clock-names = "otg";
+			dr_mode = "host";
+		};
+	};
+
+	chosen {
+		// bootargs = "console=ttyS2,115200 init=/sbin/init root=/dev/nfs rw nfsroot=172.16.28.184:/home/rtos_nfs/br/rootfs,v3,tcp,nolock ip=172.16.150.100::172.16.150.254:255.255.255.0";
+		bootargs = "console=ttyS2,115200 rdinit=/sbin/init root=/dev/ram0";
+	};
+};
+
+&pinctrl {
+	pcfg_output_low: pcfg-output-low {
+		output-low;
+	};
+};
+

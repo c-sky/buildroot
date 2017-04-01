@@ -1,0 +1,51 @@
+diff --git a/drivers/usb/dwc2/platform.c b/drivers/usb/dwc2/platform.c
+index 8e1728b..614e302 100644
+--- a/drivers/usb/dwc2/platform.c
++++ b/drivers/usb/dwc2/platform.c
+@@ -214,6 +214,38 @@ static const struct dwc2_core_params params_amlogic = {
+ 	.hibernation			= -1,
+ };
+ 
++static const struct dwc2_core_params params_eragon = {
++	.otg_cap			= DWC2_CAP_PARAM_NO_HNP_SRP_CAPABLE,
++	.otg_ver			= -1,
++	.dma_enable			= 0,	/* Disable, not support yet */
++	.dma_desc_enable		= 0,
++	.dma_desc_fs_enable		= 0,
++	.speed				= 1,	/* 1:12M for FPGA version */
++	.enable_dynamic_fifo		= -1,
++	.en_multiple_tx_fifo		= -1,
++	.host_rx_fifo_size		= 512,
++	.host_nperio_tx_fifo_size	= 500,
++	.host_perio_tx_fifo_size	= 500,
++	.max_transfer_size		= -1,
++	.max_packet_count		= -1,
++	.host_channels			= 8,	/* 16 is not valid for Eragon*/
++	.phy_type			= DWC2_PHY_TYPE_PARAM_ULPI,
++	.phy_utmi_width			= -1,
++	.phy_ulpi_ddr			= -1,
++	.phy_ulpi_ext_vbus		= -1,
++	.i2c_enable			= -1,
++	.ulpi_fs_ls			= -1,
++	.host_support_fs_ls_low_power	= -1,
++	.host_ls_low_power_phy_clk	= -1,
++	.ts_dline			= -1,
++	.reload_ctl			= -1,
++	.ahbcfg				= GAHBCFG_HBSTLEN_INCR16 <<
++					  GAHBCFG_HBSTLEN_SHIFT,
++	.uframe_sched			= -1,
++	.external_id_pin_ctl		= -1,
++	.hibernation			= -1,
++};
++
+ /*
+  * Check the dr_mode against the module configuration and hardware
+  * capabilities.
+@@ -520,6 +552,7 @@ static const struct of_device_id dwc2_of_match_table[] = {
+ 	{ .compatible = "samsung,s3c6400-hsotg", .data = NULL},
+ 	{ .compatible = "amlogic,meson8b-usb", .data = &params_amlogic },
+ 	{ .compatible = "amlogic,meson-gxbb-usb", .data = &params_amlogic },
++	{ .compatible = "csky,eragon-usb", .data = &params_eragon},
+ 	{},
+ };
+ MODULE_DEVICE_TABLE(of, dwc2_of_match_table);
