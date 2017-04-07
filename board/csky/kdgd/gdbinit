@@ -20,7 +20,7 @@ set $cr31 = (1 << 4)
 # r3 is address
 set $r0 = 0x20150401
 set $r1 = 0x8F000000
-restore output/images/eragon.dtb binary 0x8F000000
+restore output/images/kdgd.dtb binary 0x8F000000
 
 # flush cache
 set $cr17 = 0x33
