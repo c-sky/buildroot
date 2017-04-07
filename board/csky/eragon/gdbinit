@@ -1,4 +1,5 @@
-tar jtag jtag://172.0.0.1:1025
+tar jtag jtag://172.16.150.77:1025
+#tar jtag jtag://172.16.150.20:1025
 
 set $cr18=0x7d
 
@@ -6,15 +7,20 @@ set $cr18=0x7d
 # set *0x10001060=0x010c
 # set *0x10001000=0x00143388
 set $gcr=0x00
-# enable prefetch (bit 8) and preload (bit 2)
-# set $cr31 = (1 << 8) | (1 << 2)
+
+# ck810:
+# enable prefetch (bit 4) and preload (bit 2)
+# set $cr31 = (1 << 4) | (1 << 2)
+# ck807:
+# enable prefetch (bit 4)
+set $cr31 = (1 << 4)
 
 # pass devicetree blob
 # r2 is magic
 # r3 is address
 set $r0 = 0x20150401
 set $r1 = 0x8F000000
-restore eragon.dtb binary 0x8F000000
+restore output/images/eragon.dtb binary 0x8F000000
 
 # flush cache
 set $cr17 = 0x33
