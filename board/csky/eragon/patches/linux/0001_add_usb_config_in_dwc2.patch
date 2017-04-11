@@ -9,10 +9,10 @@ index 8e1728b..614e302 100644
 +static const struct dwc2_core_params params_eragon = {
 +	.otg_cap			= DWC2_CAP_PARAM_NO_HNP_SRP_CAPABLE,
 +	.otg_ver			= -1,
-+	.dma_enable			= 0,	/* Disable, not support yet */
++	.dma_enable			= 1,
 +	.dma_desc_enable		= 0,
 +	.dma_desc_fs_enable		= 0,
-+	.speed				= 1,	/* 1:12M for FPGA version */
++	.speed				= DWC2_SPEED_PARAM_HIGH,
 +	.enable_dynamic_fifo		= -1,
 +	.en_multiple_tx_fifo		= -1,
 +	.host_rx_fifo_size		= 512,
