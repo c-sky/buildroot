@@ -1,0 +1,62 @@
+diff --git a/drivers/tty/serial/8250/8250_port.c b/drivers/tty/serial/8250/8250_port.c
+index 1731b98..ef85e82 100644
+--- a/drivers/tty/serial/8250/8250_port.c
++++ b/drivers/tty/serial/8250/8250_port.c
+@@ -1810,6 +1810,13 @@ int serial8250_handle_irq(struct uart_port *port, unsigned int iir)
+ 	unsigned long flags;
+ 	struct uart_8250_port *up = up_to_u8250p(port);
+ 
++	/* The busy interrupt triggered */
++	if ((iir & UART_IIR_ID_ERAGON) == UART_IIR_BUSY) {
++		/* read USR to clear the busy interrupt */
++		status = serial_port_in(port, UART_USR);
++		return 1;
++	}
++
+ 	if (iir & UART_IIR_NO_INT)
+ 		return 0;
+ 
+diff --git a/include/uapi/linux/serial_reg.h b/include/uapi/linux/serial_reg.h
+index b4c0484..572d656 100644
+--- a/include/uapi/linux/serial_reg.h
++++ b/include/uapi/linux/serial_reg.h
+@@ -2,10 +2,10 @@
+  * include/linux/serial_reg.h
+  *
+  * Copyright (C) 1992, 1994 by Theodore Ts'o.
+- * 
+- * Redistribution of this file is permitted under the terms of the GNU 
++ *
++ * Redistribution of this file is permitted under the terms of the GNU
+  * Public License (GPL)
+- * 
++ *
+  * These are the UART port assignments, expressed as offsets from the base
+  * register.  These assignments should hold for any serial port based on
+  * a 8250, 16450, or 16550(A).
+@@ -33,6 +33,7 @@
+ #define UART_IIR	2	/* In:  Interrupt ID Register */
+ #define UART_IIR_NO_INT		0x01 /* No interrupts pending */
+ #define UART_IIR_ID		0x0e /* Mask for the interrupt ID */
++#define UART_IIR_ID_ERAGON	0x0f /* Mask for the interrupt ID */
+ #define UART_IIR_MSI		0x00 /* Modem status interrupt */
+ #define UART_IIR_THRI		0x02 /* Transmitter holding register empty */
+ #define UART_IIR_RDI		0x04 /* Receiver data interrupt */
+@@ -96,7 +97,7 @@
+ 
+ #define UART_LCR	3	/* Out: Line Control Register */
+ /*
+- * Note: if the word length is 5 bits (UART_LCR_WLEN5), then setting 
++ * Note: if the word length is 5 bits (UART_LCR_WLEN5), then setting
+  * UART_LCR_STOP will select 1.5 stop bits, not 2 stop bits.
+  */
+ #define UART_LCR_DLAB		0x80 /* Divisor latch access bit */
+@@ -376,6 +377,8 @@
+ #define UART_EXAR_TXTRG		0x0a	/* Tx FIFO trigger level write-only */
+ #define UART_EXAR_RXTRG		0x0b	/* Rx FIFO trigger level write-only */
+ 
++#define UART_USR		0x1f	/* UART Status Register read-only */
++
+ /*
+  * These are definitions for the Altera ALTR_16550_F32/F64/F128
+  * Normalized from 0x100 to 0x40 because of shift by 2 (32 bit regs).
