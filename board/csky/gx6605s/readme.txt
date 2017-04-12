@@ -64,11 +64,11 @@ How to run it with jtag
 
 2. Go to the unpacked directory:
 
-  $./DebugServerConsole -ddc -rstwait 1000 -prereset -port 1025
+  $./DebugServerConsole.elf -ddc -rstwait 1000 -prereset -port 1025
 
   (Perhaps you need to use "sudo", which need libusb to detect c510:b210)
 
-  $ sudo ./DebugServerConsole -ddc -rstwait 1000 -prereset -port 1025
+  $ sudo ./DebugServerConsole.elf -ddc -rstwait 1000 -prereset -port 1025
 
   (console will show a gdbint example, like this: target jtag jtag://127.0.0.1:1025)
 
