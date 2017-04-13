@@ -8,7 +8,7 @@
 
 	memory {
 		device_type = "memory";
-		reg = <0x00000000 0x8000000>;
+		reg = <0x00000000 0x18000000>;
 	};
 
 	soc {
@@ -31,9 +31,9 @@
 
 		timer0: timer@1fcb1000 {
 			compatible = "arm,sp804";
-			reg = <0x1fcb1000 0x1000>;
+			reg = <0x1fbc7000 0x1000>;
 			clocks = <&silan_clk0 34>;
-			interrupts = <63>;
+			interrupts = <17>;
 			interrupt-parent = <&intc>;
 		};
 
