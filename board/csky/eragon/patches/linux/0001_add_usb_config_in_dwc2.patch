@@ -12,7 +12,7 @@ index 8e1728b..614e302 100644
 +	.dma_enable			= 1,
 +	.dma_desc_enable		= 0,
 +	.dma_desc_fs_enable		= 0,
-+	.speed				= DWC2_SPEED_PARAM_HIGH,
++	.speed				= DWC2_SPEED_PARAM_FULL,
 +	.enable_dynamic_fifo		= -1,
 +	.en_multiple_tx_fifo		= -1,
 +	.host_rx_fifo_size		= 512,
