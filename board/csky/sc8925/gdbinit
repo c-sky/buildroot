@@ -1,6 +1,8 @@
 tar jtag jtag://127.0.0.1:1025
 
-set $cr18=0x7d
+set $cr18=0x417d
+set $cr31=0xc
+
 # pass devicetree blob
 # r2 is magic
 # r3 is address
