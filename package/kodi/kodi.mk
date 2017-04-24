@@ -6,7 +6,7 @@
 
 KODI_VERSION = 16.1-Jarvis
 KODI_SITE = $(call github,xbmc,xbmc,$(KODI_VERSION))
-KODI_LICENSE = GPLv2
+KODI_LICENSE = GPL-2.0
 KODI_LICENSE_FILES = LICENSE.GPL
 # needed for binary addons
 KODI_INSTALL_STAGING = YES
@@ -69,7 +69,7 @@ KODI_CONF_ENV = \
 	USE_TEXTUREPACKER_NATIVE_ROOT="$(HOST_DIR)/usr" \
 	TEXTUREPACKER_NATIVE_ROOT="$(HOST_DIR)/usr"
 
-KODI_CONF_OPTS +=  \
+KODI_CONF_OPTS += \
 	--with-ffmpeg=shared \
 	--disable-joystick \
 	--disable-openmax \

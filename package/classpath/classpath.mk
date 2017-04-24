@@ -18,7 +18,7 @@ CLASSPATH_CONF_OPTS = \
 # don't support qt4 on X11
 CLASSPATH_CONF_OPTS += --disable-qt-peer
 CLASSPATH_DEPENDENCIES = host-pkgconf
-CLASSPATH_LICENSE = GPLv2+ with exception
+CLASSPATH_LICENSE = GPL-2.0+ with exception
 CLASSPATH_LICENSE_FILES = COPYING
 
 # Needs ALSA pcm and sequencer (midi) support
@@ -52,7 +52,7 @@ else
 CLASSPATH_CONF_OPTS += --disable-gtk-peer --disable-gstreamer-peer
 endif
 
-ifeq ($(BR2_PACKAGE_LIBXML2)$(BR2_PACKAGE_LIBXSLT),yy)
+ifeq ($(BR2_PACKAGE_LIBXML2)$(BR2_PACKAGE_LIBXSLT)$(BR2_TOOLCHAIN_HAS_THREADS),yyy)
 CLASSPATH_CONF_OPTS += --enable-xmlj
 CLASSPATH_DEPENDENCIES += libxml2 libxslt
 else

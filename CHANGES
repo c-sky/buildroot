@@ -1,3 +1,42 @@
+2017.02.1, Released April 4th, 2017
+
+	Important / security related fixes.
+
+	Fix a variable clashing issue in the mkusers script with
+	internal bash variables.
+
+	Improve external toolchain version detection.
+
+	Correct permissions for /dev/pts/ptmx when systemd is used
+	with recent glibc versions.
+
+	Fix python module name clash for graph-depends.
+
+	Fakeroot now links against libacl to fix issues on
+	distributions using acls.
+
+	Ensure that the git download infrastructure creates GNU format
+	tar files.
+
+	br2-external: Improve error reporting.
+
+	Updated/fixed packages: acl, apr, audiofile, busybox, cairo,
+	dbus-cpp, dbus-glib, dbus-triggerd, domoticz, elfutils,
+	fakeroot, filemq, fmc, gdb, git, gnutls, gst-ffmpeg,
+	gst1-plygins-bad, harfbuzz, htop, imagemagick, jasper, libcec,
+	libiio, libplatform, librsvg, libselinux, libsidplay2, libsoc,
+	libwebsockets, libxkbcommon, linux-firmware, logrotate,
+	lpt-testsuite, lttng-libust, mariadb, mbedtls, memcached,
+	mesa3d, mpd, mplayer, nbd, ncftp, ntp, openssh, opentyrian,
+	pcre, perl-gd, python, qt5base, rpi-userland, rpm, samba4,
+	skalibs, slang, sngrep, squashfs, syslog-ng, taglib,
+	tcpreplay, tor, upmpdcli, wget, wireshark,
+	xdriver_xf86-video-vmware, xlib_libXv, zmqpp
+
+	Issues resolved (http://bugs.buildroot.org):
+
+	#9456: mkusers script bash errors
+
 2017.02, Released February 28th, 2017
 
 	Minor fixes, mainly fixing autobuilder issues.
@@ -155,6 +194,14 @@
 	#9571: buildroot fails while building opencv for arm64 platform
 	#9576: External tree with BR 2016.11 does not work anymore
 	#9606: xorg-server cannot build for ARM target
+
+2016.11.3, Released March 9th, 2017
+
+	Important / security related fixes.
+
+	Updated/fixed packages: bind, dbus, gnutls, imagemagick,
+	lcms2, libcurl, ntfs-3g, ntp, openssl, php, quagga, redis,
+	squid, stunnel, tcpdump, vim, wavpack, wireshark, xlib_libXpm
 
 2016.11.2, Released January 25th, 2017
 

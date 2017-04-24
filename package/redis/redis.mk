@@ -6,7 +6,7 @@
 
 REDIS_VERSION = 3.2.8
 REDIS_SITE = http://download.redis.io/releases
-REDIS_LICENSE = BSD-3c (core); MIT and BSD family licenses (Bundled components)
+REDIS_LICENSE = BSD-3-Clause (core); MIT and BSD family licenses (Bundled components)
 REDIS_LICENSE_FILES = COPYING
 
 define REDIS_USERS
@@ -23,7 +23,7 @@ endif
 # instead.
 REDIS_BUILDOPTS = $(TARGET_CONFIGURE_OPTS) \
 	LDFLAGS="$(TARGET_LDFLAGS) $(REDIS_LIBATOMIC)" \
-	PREFIX=$(TARGET_DIR)/usr MALLOC=libc \
+	PREFIX=$(TARGET_DIR)/usr MALLOC=libc
 
 define REDIS_BUILD_CMDS
 	$(TARGET_MAKE_ENV) $(MAKE) $(REDIS_BUILDOPTS) -C $(@D)
