@@ -38,6 +38,21 @@
 			interrupts = <59>;
 		};
 
+		ohci0: ohci-hcd0 {
+			compatible = "generic-ohci";
+			reg = <0x00a00000 0x400>;
+			interrupt-parent = <&intc>;
+			interrupts = <58>;
+		};
+
+		ohci1: ohci-hcd1 {
+			compatible = "generic-ohci";
+			reg = <0x00b00000 0x400>;
+			interrupt-parent = <&intc>;
+			interrupts = <57>;
+		};
+
+
 		uart0: serial@403000 {
 			compatible = "ns16550a";
 			reg = <0x00403000 0x400>;
