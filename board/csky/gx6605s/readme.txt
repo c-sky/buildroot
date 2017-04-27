@@ -46,7 +46,7 @@ Copy the bootable "usb.img" onto an USB drive with "dd":
 
   $ sudo dd if=output/images/usb.img of=/dev/sdX
 
-Where /dev/sdX is the device node of your USB drive.
+Where /dev/sdX is the device node of your entire USB drive, not a partition.
 
 Run
 ---
