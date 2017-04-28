@@ -1,4 +1,6 @@
 /dts-v1/;
+#include <dt-bindings/gpio/gpio.h>
+
 / {
 	model = "Nationalchip csky gx6605s";
 	compatible = "csky,nationalchip-gx6605s";
@@ -52,7 +54,6 @@
 			interrupts = <57>;
 		};
 
-
 		uart0: serial@403000 {
 			compatible = "ns16550a";
 			reg = <0x00403000 0x400>;
@@ -62,6 +63,14 @@
 			baud = <115200>;
 			reg-shift = <2>;
 			reg-io-width = <1>;
+		};
+
+		gpio0: gpio0 {
+			compatible = "wd,mbl-gpio";
+			reg-names = "dirout", "dat", "set", "clr";
+			reg = <0x305000 4>, <0x305004 4>, <0x305008 4>, <0x30500c 4>;
+			#gpio-cells = <2>;
+			gpio-controller;
 		};
 	};
 
