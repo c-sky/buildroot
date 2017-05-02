@@ -1,0 +1,7 @@
+config BR2_PACKAGE_PYTHON_GPIO
+	bool "python-gpio"
+	help
+	  A Python module to control the GPIO.
+
+	  https://pypi.python.org/pypi/gpio/0.2.0
+
