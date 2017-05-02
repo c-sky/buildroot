@@ -419,6 +419,22 @@
 			clock-names = "otg";
 			dr_mode = "host";
 		};
+
+		vpu_iram: sram@98000000 {
+			compatible = "mmio-sram";
+			reg = <0x98000000 0x20000>;
+			clocks = <&dummy_apb>;
+		};
+
+		vpu: vpu@1fa10000 {
+			compatible = "csky,eragon-vpu", "cnm,coda7541";
+			reg = <0x1fa10000 0x10000>;
+			interrupt-parent = <&intc>;
+			interrupts = <41>;
+			clocks = <&dummy_apb>, <&dummy_apb>;
+			clock-names = "ahb", "per";
+			iram = <&vpu_iram>;
+		};
 	};
 
 	chosen {

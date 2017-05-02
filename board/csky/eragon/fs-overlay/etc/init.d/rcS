@@ -14,11 +14,11 @@ mdev -s
 # To config network
 #
 # ifconfig eth0 up
-# ifconfig eth0 172.16.150.100 netmask 255.255.255.0
+# ifconfig eth0 172.16.150.120 netmask 255.255.255.0
 # route add default gw 172.16.150.254
 
 #
 # To mount NFS
 #
-# mkdir -p /home/nfs
-# mount -t nfs 172.16.28.184:/home/ztw/work/nfs_share  /home/nfs  -o nolock,tcp,sync
+# mkdir -p /mnt/nfs
+# mount -t nfs 172.16.28.159:/home/ztw/work/nfs_share  /mnt/nfs  -o nolock,tcp,sync
