@@ -12,6 +12,16 @@
 		reg = <0x10000000 0x04000000>;
 	};
 
+	cpus {
+		#address-cells = <0>;
+		#size-cells = <0>;
+
+		cpu {
+			compatible = "csky,ck610";
+			device_type = "cpu";
+		};
+	};
+
 	soc {
 		#address-cells = <1>;
 		#size-cells = <1>;
@@ -69,6 +79,7 @@
 			compatible = "wd,mbl-gpio";
 			reg-names = "dirout", "dat", "set", "clr";
 			reg = <0x305000 4>, <0x305004 4>, <0x305008 4>, <0x30500c 4>;
+			bgpio-base = <0>;
 			#gpio-cells = <2>;
 			gpio-controller;
 		};

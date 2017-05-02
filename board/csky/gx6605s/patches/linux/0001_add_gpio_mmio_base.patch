@@ -1,0 +1,14 @@
+diff --git a/drivers/gpio/gpio-mmio.c b/drivers/gpio/gpio-mmio.c
+index d7d03ad..df60d77 100644
+--- a/drivers/gpio/gpio-mmio.c
++++ b/drivers/gpio/gpio-mmio.c
+@@ -592,7 +592,8 @@ static struct bgpio_pdata *bgpio_parse_dt(struct platform_device *pdev,
+ 	if (!pdata)
+ 		return ERR_PTR(-ENOMEM);
+ 
+-	pdata->base = -1;
++	if (of_property_read_s32(pdev->dev.of_node, "bgpio-base", &pdata->base))
++		pdata->base = -1;
+ 
+ 	if (of_device_is_big_endian(pdev->dev.of_node))
+ 		*flags |= BGPIOF_BIG_ENDIAN_BYTE_ORDER;
