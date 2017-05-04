@@ -162,9 +162,18 @@ index b662504..2bf6a6a 100644
  		if (val == 0) {
  			/* not enough bitstream data */
 diff --git a/drivers/media/platform/coda/coda-common.c b/drivers/media/platform/coda/coda-common.c
-index c39718a..137f391 100644
+index c39718a..a6a4245 100644
 --- a/drivers/media/platform/coda/coda-common.c
 +++ b/drivers/media/platform/coda/coda-common.c
+@@ -58,7 +58,7 @@
+ 
+ #define fh_to_ctx(__fh)	container_of(__fh, struct coda_ctx, fh)
+ 
+-int coda_debug;
++int coda_debug = 2;
+ module_param(coda_debug, int, 0644);
+ MODULE_PARM_DESC(coda_debug, "Debug level (0-2)");
+ 
 @@ -316,6 +316,7 @@ const char *coda_product_name(int product)
  	case CODA_DX6:
  		return "CodaDx6";
