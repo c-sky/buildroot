@@ -11,12 +11,4 @@ PYTHON_GPIO_LICENSE = MIT
 PYTHON_GPIO_LICENSE_FILES = LICENCE.txt
 PYTHON_GPIO_SETUP_TYPE = distutils
 
-define PYTHON_GPIO_INSTALL
-	rm $(TARGET_DIR)/python-gpio/ -rf
-	mkdir $(TARGET_DIR)/python-gpio/ -p
-	cp output/build/python-gpio-0.2.0/build/lib/gpio.py $(TARGET_DIR)/python-gpio/ -rf
-endef
-
-PYTHON_GPIO_POST_INSTALL_TARGET_HOOKS += PYTHON_GPIO_INSTALL
-
 $(eval $(python-package))
