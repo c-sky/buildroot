@@ -11,6 +11,29 @@
 		reg = <0x00000000 0x18000000>;
 	};
 
+	cpus {
+		#address-cells = <0>;
+		#size-cells = <0>;
+
+		cpu {
+			compatible = "csky,ck810";
+			device_type = "cpu";
+			ccr_ie   = <1>;
+			ccr_de   = <1>;
+			ccr_wb   = <1>;
+			ccr_rs   = <1>;
+			ccr_z    = <1>;
+			ccr_btb  = <1>;
+			ccr_wbr  = <1>;
+			ccr_dle  = <1>;
+			hint_burst = <1>;
+			hint_pld = <1>;
+			hint_mb  = <1>;
+			hint_lru = <1>;
+			hint_ipld = <1>;
+		};
+	};
+
 	soc {
 		#address-cells = <1>;
 		#size-cells = <1>;
