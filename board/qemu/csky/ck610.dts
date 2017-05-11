@@ -1,0 +1,92 @@
+/dts-v1/;
+
+/ {
+	model = "csky";
+	compatible = "csky";
+	#address-cells = <1>;
+	#size-cells = <1>;
+
+	memory {
+		device_type = "memory";
+		reg = <0x08000000 0x08000000>;
+	};
+
+	cpus {
+		#address-cells = <0>;
+		#size-cells = <0>;
+
+		cpu {
+			compatible = "csky,ck610";
+			device_type = "cpu";
+			ccr_ie   = <1>;
+			ccr_de   = <1>;
+			ccr_wb   = <1>;
+			ccr_rs   = <1>;
+			ccr_z    = <1>;
+			hint_pld = <1>;
+			hint_mb  = <1>;
+			hint_lru = <1>;
+		};
+	};
+
+	aliases {
+		serial0 = &uart0;
+	};
+
+	soc {
+		#address-cells = <1>;
+		#size-cells = <1>;
+		compatible = "simple-bus";
+		ranges;
+
+		dummy_apb: apb-clock {
+			compatible = "fixed-clock";
+			clock-frequency = <40000000>;
+			clock-output-names = "dummy_apb";
+			#clock-cells = <0>;
+		};
+
+		intc: interrupt-controller {
+			compatible = "csky,intc-v1";
+			reg = <0x10010000 0x1000>;
+			interrupt-controller;
+			#interrupt-cells = <1>;
+		};
+
+		/* clockevent */
+		timer0 {
+			compatible = "snps,dw-apb-timer";
+			reg = <0x10011000 0x1000>;
+			clocks = <&dummy_apb>;
+			clock-names = "timer";
+			interrupts = <12>;
+			interrupt-parent = <&intc>;
+		};
+
+		/* clocksource */
+		timer1 {
+			compatible = "snps,dw-apb-timer";
+			reg = <0x10011014 0x800>;
+			clocks = <&dummy_apb>;
+			clock-names = "timer";
+			interrupts = <13>;
+			interrupt-parent = <&intc>;
+		};
+
+		uart0: serial@10015000 {
+			compatible = "ns16550a";
+			reg = <0x10015000 0x1000>;
+			interrupt-parent = <&intc>;
+			interrupts = <16>;
+			clocks = <&dummy_apb>;
+			baud = <115200>;
+			reg-shift = <2>;
+			reg-io-width = <1>;
+		};
+	};
+
+	chosen {
+		bootargs = "console=ttyS0,115200 rdinit=/sbin/init root=/dev/ram0";
+		//bootargs = "console=ttyS0,115200 init=/sbin/init root=/dev/nfs rw nfsroot=172.16.28.35:/home/chenlf/sourcecode/buildroot2/output/target,v3,tcp,nolock ip=172.16.28.36";
+	};
+};
