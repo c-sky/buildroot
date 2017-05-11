@@ -435,6 +435,36 @@
 			clock-names = "ahb", "per";
 			iram = <&vpu_iram>;
 		};
+
+		lcdc: lcdc@1fa00000 {
+			compatible = "csky,eragon-lcdc";
+			reg = <0x1fa00000 0x10000>;
+			interrupt-parent = <&intc>;
+			interrupts = <40>;
+			clocks = <&dummy_apb>;
+			clock-names = "lcdc";
+			bits-per-pixel = <32>;
+			pixel-clock-source = <0>; /* 0=HCLK, 1=external clock */
+			pcd = <1>; /* pixel clock divider. f=HCLK/2(pcd+1) */
+			hsync-pulse-pol = <1>; /* HSYNC pulse polarity. 1=active low */
+			vsync-pulse-pol = <1>; /* VSYNC pulse polarity. 1=active low */
+			pixel-clock-pol = <0>; /* 0=data is driven on the rising edge */
+
+			display-timings {
+				native-mode = <&lcd_timing>;
+				lcd_timing: 800x480 {
+					clock-frequency = <7500000>;
+					hactive = <800>;
+					vactive = <480>;
+					hfront-porch = <82>;
+					hback-porch = <43>;
+					hsync-len = <3>;
+					vback-porch = <20>;
+					vfront-porch = <22>;
+					vsync-len = <3>;
+				};
+			};
+		};
 	};
 
 	chosen {
