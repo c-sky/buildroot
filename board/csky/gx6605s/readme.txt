@@ -30,11 +30,12 @@ After building, you should obtain this tree:
     output/images/
     ├── boot.vfat
     ├── gx6605s.dtb
+    ├── gx6622.dtb
     ├── rootfs.ext2
     ├── rootfs.ext4
     ├── rootfs.tar
     ├── usb.img
-    └── zImage
+    └── uImage
 
 How to run it with usb drive
 ============================
@@ -44,9 +45,11 @@ Prepare the bootable usb drive
 
 Copy the bootable "usb.img" onto an USB drive with "dd":
 
-  $ sudo dd if=output/images/usb.img of=/dev/sdX
+  $ sudo umount /dev/sd[X][1,2,3...]
+  $ sudo dd if=output/images/usb.img of=/dev/sd[X]
 
-Where /dev/sdX is the device node of your entire USB drive, not a partition.
+Where sd[X] is the device node of the entire USB drive.
+Eg: sda sdb sdc... not partition!
 
 Run
 ---
