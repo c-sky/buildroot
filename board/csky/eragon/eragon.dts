@@ -438,7 +438,8 @@
 
 		lcdc: lcdc@1fa00000 {
 			compatible = "csky,eragon-lcdc";
-			reg = <0x1fa00000 0x10000>;
+			reg = <0x1fa00000 0x10000>,
+			      <0x1fbd0000 0x800>; /* chip_ctrl */
 			interrupt-parent = <&intc>;
 			interrupts = <40>;
 			clocks = <&dummy_apb>;
