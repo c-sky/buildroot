@@ -1,9 +1,14 @@
 #!/bin/sh
 
-echo "rcS"
-mount -t devpts devpts /dev/pts
+# To start mdev
+echo "Starting mdev..."
 echo /sbin/mdev > /proc/sys/kernel/hotplug
 mdev -s
+
+# To start network
+printf "Starting network: "
+/sbin/ifup -a
+[ $? = 0 ] && echo "OK" || echo "FAIL"
 
 #
 # To enable telnetd
