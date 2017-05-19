@@ -1,0 +1,10 @@
+config BR2_PACKAGE_ALIYUN_IOT_DEVICE_SDK
+	bool "aliyun-iot-device-sdk"
+	help
+	  aliyun-iot-device-sdk is from aliyun, See:
+
+	  http://www.c-sky.club/showdoc/index.php?s=/6&page_id=50
+
+	  https://help.aliyun.com/document_detail/42648.html?spm=5176.60471.237208.5.sUwAzq
+
+	  https://help.aliyun.com/document_detail/42655.html?spm=5176.doc42648.6.563.NKpXhK
