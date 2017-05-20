@@ -21,12 +21,12 @@ define ALIYUN_IOT_DEVICE_SDK_CONFIGURE_CMDS
 endef
 
 define ALIYUN_IOT_DEVICE_SDK_BUILD_CMDS
-	cd $(@D); make; cd -
+	make -C $(@D)
 endef
 
 define ALIYUN_IOT_DEVICE_SDK_INSTALL_TARGET_CMDS
 	mkdir -p $(TARGET_DIR)/aliyun-iot-device-sdk/examples/linux/mqtt/
-	cp $(@D)/examples/linux/mqtt/demo $(TARGET_DIR)/aliyun-iot-device-sdk/examples/linux/mqtt/
+	cp -f $(@D)/examples/linux/mqtt/demo $(TARGET_DIR)/aliyun-iot-device-sdk/examples/linux/mqtt/demo
 endef
 
 # It's not autotools-based
