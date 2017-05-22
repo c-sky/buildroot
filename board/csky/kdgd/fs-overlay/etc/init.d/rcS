@@ -1,16 +1,24 @@
 #!/bin/sh
 
-echo "rcS"
-mount -t devpts devpts /dev/pts
+# To start mdev
+echo "Starting mdev..."
 echo /sbin/mdev > /proc/sys/kernel/hotplug
 mdev -s
+
+# To start network
+printf "Starting network: "
+/sbin/ifup -a
+[ $? = 0 ] && echo "OK" || echo "FAIL"
+
+#
+# To config network
+#
+# ifconfig eth0 up
+# ifconfig eth0 172.16.150.120 netmask 255.255.255.0
+# route add default gw 172.16.150.254
 
 #
 # To mount NFS
 #
-# ifconfig eth0 up
-# ifconfig eth0 172.16.150.100 netmask 255.255.255.0
-# route add default gw 172.16.150.254
-# mkdir -p /home/rtos_nfs
-# mount -t nfs 172.16.28.184:/home/rtos_nfs/test/rootfsle-ck810-glibc  /home/rtos_nfs  -o nolock,tcp
-
+# mkdir -p /mnt/nfs
+# mount -t nfs 172.16.28.159:/home/ztw/work/nfs_share  /mnt/nfs  -o nolock,tcp,sync
