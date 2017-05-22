@@ -8,3 +8,23 @@ config BR2_PACKAGE_ALIYUN_IOT_DEVICE_SDK
 	  https://help.aliyun.com/document_detail/42648.html?spm=5176.60471.237208.5.sUwAzq
 
 	  https://help.aliyun.com/document_detail/42655.html?spm=5176.doc42648.6.563.NKpXhK
+
+if BR2_PACKAGE_ALIYUN_IOT_DEVICE_SDK
+
+menu "aliyun iot key setting"
+
+comment "setup key to connect the aliyun cloud."
+
+config BR2_PACKAGE_ALIYUN_IOT_DEVICE_SDK_PRODUCT_KEY
+	string "Product Key"
+
+config BR2_PACKAGE_ALIYUN_IOT_DEVICE_SDK_PRODUCT_SECRET
+	string "Product Secret"
+
+config BR2_PACKAGE_ALIYUN_IOT_DEVICE_SDK_DEVICE_NAME
+	string "Device Name"
+
+config BR2_PACKAGE_ALIYUN_IOT_DEVICE_SDK_DEVICE_SECRET
+	string "Device Secret"
+endmenu
+endif

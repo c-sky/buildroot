@@ -21,6 +21,15 @@ define ALIYUN_IOT_DEVICE_SDK_CONFIGURE_CMDS
 endef
 
 define ALIYUN_IOT_DEVICE_SDK_BUILD_CMDS
+	sed -i '10,13d' $(@D)/examples/linux/mqtt/demo.c
+	sed -i '10i #define PRODUCT_KEY $(BR2_PACKAGE_ALIYUN_IOT_DEVICE_SDK_PRODUCT_KEY)' \
+		$(@D)/examples/linux/mqtt/demo.c
+	sed -i '10i #define PRODUCT_SECRET $(BR2_PACKAGE_ALIYUN_IOT_DEVICE_SDK_PRODUCT_SECRET)' \
+		$(@D)/examples/linux/mqtt/demo.c
+	sed -i '10i #define DEVICE_NAME $(BR2_PACKAGE_ALIYUN_IOT_DEVICE_SDK_DEVICE_NAME)' \
+		$(@D)/examples/linux/mqtt/demo.c
+	sed -i '10i #define DEVICE_SECRET $(BR2_PACKAGE_ALIYUN_IOT_DEVICE_SDK_DEVICE_SECRET)' \
+		$(@D)/examples/linux/mqtt/demo.c
 	make -C $(@D)
 endef
 
