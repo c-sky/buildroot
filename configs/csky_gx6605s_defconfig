@@ -3,8 +3,9 @@ BR2_ck610=y
 BR2_OPTIMIZE_2=y
 BR2_GLOBAL_PATCH_DIR="board/csky/gx6605s/patches"
 BR2_TOOLCHAIN_EXTERNAL=y
+
 BR2_TOOLCHAIN_EXTERNAL_DOWNLOAD=y
-BR2_TOOLCHAIN_EXTERNAL_URL="https://github.com/c-sky/tools/raw/master/csky-linux-tools-x86_64-glibc-linux-4.9.2-20170227.tar.gz"
+BR2_TOOLCHAIN_EXTERNAL_URL="https://github.com/c-sky/tools/raw/master/csky-linux-tools-x86_64-glibc-linux-4.9.25-20170522.tar.gz"
 BR2_TOOLCHAIN_EXTERNAL_CUSTOM_PREFIX="csky-linux"
 BR2_TOOLCHAIN_EXTERNAL_GCC_4_5=y
 BR2_TOOLCHAIN_EXTERNAL_HEADERS_4_9=y
