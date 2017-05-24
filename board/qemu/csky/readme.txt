@@ -11,8 +11,8 @@ trilobite develop board is made by Hangzhou Nationalchip and C-SKY.
 Hardware Spec:
   * CPU: ck610/ck810/ck807
 
-How to build it, take ck810 as an example
-===============
+How to build it, eg: 810
+========================
 
   $ make qemu_ck810_defconfig
   $ make
@@ -31,37 +31,47 @@ After building, you should obtain this tree:
 How to run it with csky-qemu
 ============================
 
-1. Download csky-qemu:
+Run qemu
+--------
 
-  https://???
+  $ cd output/images
+  $ sudo ../../host/csky-qemu/cskysim -cpu ck810 -soc ../../host/csky-qemu/soccfg/cskyv2/trilobite_810f_cfg.xml -kernel vmlinux -gdb tcp::12345 -nographic -S
 
-2. Config tap0 on linux host:
-
-  modify /etc/network/interfaces:
-
-    auto lo
-    iface lo inet loopback
-
-    +auto br0
-    +iface br0 inet static
-    +bridge_ports eth0 tap0
-    +address 172.16.28.35
-    +netmask 255.255.255.0
-    +gateway 172.16.28.254
-
-3. Go to the csky-qemu directory:
-
-  ck810:
-  $ sudo ./bin/cskysim -soc soccfg/cskyv2/trilobite_810f_cfg.xml -kernel <buildroot-dir>/output/build/<linux-kernel-dir>/vmlinux -cpu ck810 -gdb tcp::12345 -net nic -net tap,ifname=tap0 -nographic -S
-
-  ck610:
-  $ sudo ./bin/cskysim -soc soccfg/cskyv1/trilobite_610em_cfg.xml -kernel <buildroot-dir>/output/build/<linux-kernel-dir>/vmlinux -cpu ck610 -gdb tcp::12345 -net nic -net tap,ifname=tap0 -nographic -S
-
-  ck807:
-  $ sudo ./bin/cskysim -soc soccfg/cskyv2/trilobite_807_cfg.xml -kernel <buildroot-dir>/output/build/<linux-kernel-dir>/vmlinux -cpu ck807 -gdb tcp::12345 -net nic -net tap,ifname=tap0 -nographic -S
-
-4. Check the gdbinit, the IP and Port must be the same as above.
+Run gdb connect the qemu
+------------------------
 
   $ cd output/images/
-  $ ../host/usr/bin/csky-abiv2-linux-gdb -x ../../board/qemu/csky/gdbinit ../build/<linux-kernel-dir>/vmlinux
+  $ ../host/usr/bin/csky-abiv2-linux-gdb -x ../../board/qemu/csky/gdbinit_810 vmlinux
+
+About the cskysim args
+----------------------
+
+  1. -cpu: ck610/ck807/ck810
+
+  2. -soc:	trilobite_610em_cfg.xml
+		trilobite_807_cfg.xml
+		trilobite_810f_cfg.xml
+
+Connect to host network
+=======================
+
+Config tap0 on linux host
+-------------------------
+
+   modify /etc/network/interfaces:
+
+   auto lo
+   iface lo inet loopback
+
+   +auto br0
+   +iface br0 inet static
+   +bridge_ports eth0 tap0
+   +address 172.16.28.35
+   +netmask 255.255.255.0
+   +gateway 172.16.28.254
+
+Change the cskysim command like this
+------------------------------------
+
+   $ sudo ../../host/csky-qemu/cskysim -cpu ck810 -soc soccfg/cskyv2/trilobite_810f_cfg.xml -kernel vmlinux -gdb tcp::12345 -net nic -net tap,ifname=tap0 -nographic -S
 

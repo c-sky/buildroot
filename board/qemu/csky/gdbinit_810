@@ -5,14 +5,8 @@ set $cr18=0x7d
 # pass devicetree blob
 # arg0 is magic
 # arg1 is address
-
-# for CK810
 set $r0 = 0x20150401
 set $r1 = 0x8F000000
-# for CK610
-# set $r2 = 0x20150401
-# set $r3 = 0x8F000000
-
 restore ck810.dtb binary 0x8F000000
 
 load

@@ -1,0 +1,14 @@
+target remote 127.0.0.1:12345
+
+set $cr18=0x7d
+
+# pass devicetree blob
+# arg0 is magic
+# arg1 is address
+set $r2 = 0x20150401
+set $r3 = 0x8F000000
+
+restore ck610.dtb binary 0x8F000000
+
+load
+
