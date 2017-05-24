@@ -35,7 +35,6 @@ before_script:
         expire_in: 2 weeks
         paths:
             - build.log
-            - output/images/
             - output/build/build-time.log
             - output/build/packages-file-list.txt
 
