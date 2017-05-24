@@ -57,6 +57,34 @@
 			#interrupt-cells = <1>;
 		};
 
+		dmac0@1fb19000 {
+			compatible = "snps,dma-spear1340";
+			reg = <0x1fb19000 0x1000>;
+			interrupt-parent = <&intc>;
+			interrupts = <25>;
+			clocks = <&dummy_apb>;
+			clock-names = "hclk";
+
+			//dma-channels = <4>;
+			//block_size = <4095>;
+			//dma-masters = <2>;
+			//data-width = <4 4>;
+		};
+
+		dmac1@1fb94000 {
+			compatible = "snps,dma-spear1340";
+			reg = <0x1fb94000 0x1000>;
+			interrupt-parent = <&intc>;
+			interrupts = <26>;
+			clocks = <&dummy_apb>;
+			clock-names = "hclk";
+
+			//dma-channels = <4>;
+			//block_size = <4095>;
+			//dma-masters = <2>;
+			//data-width = <4 4>;
+		};
+
 		pinctrl: pinctrl@1fbac008 {
 			compatible = "csky,eragon-pinctrl";
 			/*rockchip,grf = <&grf>;*/

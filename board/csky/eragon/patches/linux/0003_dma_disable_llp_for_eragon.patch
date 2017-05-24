@@ -1,0 +1,24 @@
+diff --git a/drivers/dma/dw/core.c b/drivers/dma/dw/core.c
+index c2c0a61..f13344a 100644
+--- a/drivers/dma/dw/core.c
++++ b/drivers/dma/dw/core.c
+@@ -52,8 +52,8 @@
+ 								\
+ 		(DWC_CTLL_DST_MSIZE(_dmsize)			\
+ 		 | DWC_CTLL_SRC_MSIZE(_smsize)			\
+-		 | DWC_CTLL_LLP_D_EN				\
+-		 | DWC_CTLL_LLP_S_EN				\
++		 | /* DWC_CTLL_LLP_D_EN */ 0			\
++		 | /* DWC_CTLL_LLP_S_EN	*/ 0			\
+ 		 | DWC_CTLL_DMS(_dms)				\
+ 		 | DWC_CTLL_SMS(_sms));				\
+ 	})
+@@ -1571,6 +1571,8 @@ int dw_dma_probe(struct dw_dma_chip *chip)
+ 			dwc->block_size = pdata->block_size;
+ 			dwc->nollp = pdata->is_nollp;
+ 		}
++
++		dwc->nollp = 1; /* There is no LLP in Eragon */
+ 	}
+ 
+ 	/* Clear all interrupts on all channels. */
