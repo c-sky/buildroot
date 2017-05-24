@@ -1,4 +1,4 @@
-config BR2_PACKAGE_CSKY_DEBUG
+config BR2_PACKAGE_HOST_CSKY_DEBUG
 	bool "csky-debug"
 	help
 	  C-SKY Jtag Debuger Sever

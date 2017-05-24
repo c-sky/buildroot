@@ -1,0 +1,5 @@
+config BR2_PACKAGE_HOST_CSKY_QEMU
+	bool "csky-qemu"
+	help
+	  C-SKY qemu
+

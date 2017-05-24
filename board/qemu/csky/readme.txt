@@ -31,16 +31,14 @@ After building, you should obtain this tree:
 How to run it with csky-qemu
 ============================
 
-Run qemu
---------
+1. Run Qemu
+
+  $ cd output/host/csky-qemu
+  $ sudo ./bin/cskysim -cpu ck810 -soc ./soccfg/cskyv2/trilobite_810f_cfg.xml -kernel ../../images/vmlinux -gdb tcp::12345 -nographic -S
+
+2. Check the gdbinit, the Port must be the same as above.
 
   $ cd output/images
-  $ sudo ../../host/csky-qemu/cskysim -cpu ck810 -soc ../../host/csky-qemu/soccfg/cskyv2/trilobite_810f_cfg.xml -kernel vmlinux -gdb tcp::12345 -nographic -S
-
-Run gdb connect the qemu
-------------------------
-
-  $ cd output/images/
   $ ../host/usr/bin/csky-abiv2-linux-gdb -x ../../board/qemu/csky/gdbinit_810 vmlinux
 
 About the cskysim args
@@ -73,5 +71,5 @@ Config tap0 on linux host
 Change the cskysim command like this
 ------------------------------------
 
-   $ sudo ../../host/csky-qemu/cskysim -cpu ck810 -soc soccfg/cskyv2/trilobite_810f_cfg.xml -kernel vmlinux -gdb tcp::12345 -net nic -net tap,ifname=tap0 -nographic -S
+   $ sudo ../host/csky-qemu/bin/cskysim -cpu ck810 -soc ../host/csky-qemu/soccfg/cskyv2/trilobite_810f_cfg.xml -kernel vmlinux -gdb tcp::12345 -net nic -net tap,ifname=tap0 -nographic -S
 
