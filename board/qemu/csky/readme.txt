@@ -34,7 +34,7 @@ How to run it with csky-qemu
 1. Run Qemu
 
   $ cd output/host/csky-qemu
-  $ sudo ./bin/cskysim -cpu ck810 -soc ./soccfg/cskyv2/trilobite_810f_cfg.xml -kernel ../../images/vmlinux -gdb tcp::12345 -nographic -S
+  $ sudo bin/cskysim -cpu ck810 -soc soccfg/cskyv2/trilobite_810f_cfg.xml -kernel ../../images/vmlinux -gdb tcp::12345 -nographic -S
 
 2. Check the gdbinit, the Port must be the same as above.
 
@@ -46,9 +46,11 @@ About the cskysim args
 
   1. -cpu: ck610/ck807/ck810
 
-  2. -soc:	trilobite_610em_cfg.xml
-		trilobite_807_cfg.xml
-		trilobite_810f_cfg.xml
+  2. -soc:	soccfg/cskyv1/trilobite_610em_cfg.xml
+		soccfg/cskyv2/trilobite_807_cfg.xml
+		soccfg/cskyv2/trilobite_810f_cfg.xml
+
+  3. for ck610: pls use gdbinit_610
 
 Connect to host network
 =======================
@@ -71,5 +73,5 @@ Config tap0 on linux host
 Change the cskysim command like this
 ------------------------------------
 
-   $ sudo ../host/csky-qemu/bin/cskysim -cpu ck810 -soc ../host/csky-qemu/soccfg/cskyv2/trilobite_810f_cfg.xml -kernel vmlinux -gdb tcp::12345 -net nic -net tap,ifname=tap0 -nographic -S
+  $ sudo bin/cskysim -cpu ck810 -soc soccfg/cskyv2/trilobite_810f_cfg.xml -kernel ../../images/vmlinux -gdb tcp::12345 -nographic -S -net nic -net tap,ifname=tap0
 
