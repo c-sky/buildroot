@@ -1,0 +1,6 @@
+# sha256sum Locally calculated
+sha256 ac4f4acb3d165bee94bda2e3179c18db70b733b67eb1afbe307a1fbab566be82 csky-abiv2-linux-tools-x86_64-glibc-linux-4.9.25-20170522.tar.gz
+sha256 883d40241d72abec5a7eb95b2c7ceedd1e97acdd3bd6b94e1ddf3853ddf31d9c csky-abiv2-linux-tools-x86_64-uclibc-linux-4.9.25-20170521.tar.gz
+sha256 35ef2cc07026e0040028bcdc2ed9ee633d9efe331ad358b2d75bcb0c1e8aac07 csky-linux-tools-x86_64-glibc-linux-4.9.25-20170522.tar.gz
+sha256 2dce8ee7265953eb4ddfa925a507c37e06fb115b3f44f77058e9e1060f4c2229 csky-linux-tools-x86_64-uclibc-linux-4.9.25-20170521.tar.gz
+

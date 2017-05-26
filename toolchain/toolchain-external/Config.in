@@ -25,6 +25,9 @@ source "toolchain/toolchain-external/toolchain-external-codesourcery-arm/Config.
 # ARM big-endian
 source "toolchain/toolchain-external/toolchain-external-linaro-armeb/Config.in"
 
+# CSKY
+source "toolchain/toolchain-external/toolchain-external-csky/Config.in"
+
 # MIPS (use codesourcery toolchain by default)
 source "toolchain/toolchain-external/toolchain-external-codesourcery-mips/Config.in"
 source "toolchain/toolchain-external/toolchain-external-codescape-img-mips/Config.in"
@@ -118,6 +121,9 @@ source "toolchain/toolchain-external/toolchain-external-codesourcery-arm/Config.
 
 # ARM big-endian
 source "toolchain/toolchain-external/toolchain-external-linaro-armeb/Config.in.options"
+
+# CSKY
+source "toolchain/toolchain-external/toolchain-external-csky/Config.in.options"
 
 # MIPS
 source "toolchain/toolchain-external/toolchain-external-codesourcery-mips/Config.in.options"

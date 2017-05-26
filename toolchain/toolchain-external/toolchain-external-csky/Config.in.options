@@ -1,0 +1,104 @@
+if BR2_TOOLCHAIN_EXTERNAL_CSKY
+
+config BR2_TOOLCHAIN_EXTERNAL_PREFIX
+	default "csky-linux"		if BR2_ck610
+	default "csky-abiv2-linux"	if BR2_ck807
+	default "csky-abiv2-linux"	if BR2_ck810
+
+config BR2_PACKAGE_PROVIDES_TOOLCHAIN_EXTERNAL
+	default "toolchain-external-csky"
+choice
+	prompt "C-SKY External toolchain C library"
+	default BR2_TOOLCHAIN_EXTERNAL_CSKY_GLIBC
+
+config BR2_TOOLCHAIN_EXTERNAL_CSKY_UCLIBC
+	bool "uClibc/uClibc-ng"
+	select BR2_TOOLCHAIN_EXTERNAL_UCLIBC
+	# For the time being, we assume that all custom external
+	# toolchains have shadow password support.
+	select BR2_TOOLCHAIN_HAS_SHADOW_PASSWORDS
+	help
+	  Select this option if your external toolchain uses the
+	  uClibc (available from http://www.uclibc.org/)
+	  or uClibc-ng (available from http://www.uclibc-ng.org)
+	  C library.
+
+config BR2_TOOLCHAIN_EXTERNAL_CSKY_GLIBC
+	bool "glibc"
+	depends on !BR2_STATIC_LIBS
+	select BR2_TOOLCHAIN_EXTERNAL_GLIBC
+	help
+	  Select this option if your external toolchain uses the GNU C
+	  library (available from https://www.gnu.org/software/libc/)
+	  or its variant the eglibc library (http://www.eglibc.org/).
+
+	  Note: eglibc is a variant of glibc that (among other things)
+	  can be configured to exclude some of its features. Using a
+	  toolchain with eglibc configured to exclude key features may
+	  cause build failures to some packages.
+
+endchoice
+
+if BR2_TOOLCHAIN_EXTERNAL_CSKY_UCLIBC
+
+config BR2_TOOLCHAIN_EXTERNAL_WCHAR
+	bool "Toolchain has WCHAR support?"
+	select BR2_USE_WCHAR
+	help
+	  Select this option if your external toolchain supports
+	  WCHAR. If you don't know, leave the default value, Buildroot
+	  will tell you if it's correct or not.
+
+config BR2_TOOLCHAIN_EXTERNAL_LOCALE
+	bool "Toolchain has locale support?"
+	select BR2_TOOLCHAIN_EXTERNAL_WCHAR
+	select BR2_ENABLE_LOCALE
+	help
+	  Select this option if your external toolchain has locale
+	  support. If you don't know, leave the default value,
+	  Buildroot will tell you if it's correct or not.
+
+config BR2_TOOLCHAIN_EXTERNAL_HAS_THREADS
+	bool "Toolchain has threads support?"
+	select BR2_TOOLCHAIN_HAS_THREADS
+	default y
+	help
+	  Select this option if your external toolchain has thread
+	  support. If you don't know, leave the default value,
+	  Buildroot will tell you if it's correct or not.
+
+if BR2_TOOLCHAIN_EXTERNAL_HAS_THREADS
+
+config BR2_TOOLCHAIN_EXTERNAL_HAS_THREADS_DEBUG
+	bool "Toolchain has threads debugging support?"
+	select BR2_TOOLCHAIN_HAS_THREADS_DEBUG
+	default y
+	help
+	  Select this option if your external toolchain has thread
+	  debugging support. If you don't know, leave the default
+	  value, Buildroot will tell you if it's correct or not.
+
+config BR2_TOOLCHAIN_EXTERNAL_HAS_THREADS_NPTL
+	bool "Toolchain has NPTL threads support?"
+	select BR2_TOOLCHAIN_HAS_THREADS_NPTL
+	default y
+	help
+	  Select this option if your external toolchain uses the NPTL
+	  (Native Posix Thread Library) implementation of Posix
+	  threads. If you don't know, leave the default value,
+	  Buildroot will tell you if it's correct or not.
+
+endif # BR2_TOOLCHAIN_EXTERNAL_HAS_THREADS
+
+endif # BR2_TOOLCHAIN_EXTERNAL_CSKY_UCLIBC
+
+config BR2_TOOLCHAIN_EXTERNAL_INET_RPC
+	bool "Toolchain has RPC support?"
+	select BR2_TOOLCHAIN_HAS_NATIVE_RPC
+	depends on !BR2_TOOLCHAIN_EXTERNAL_MUSL
+	default y if BR2_TOOLCHAIN_EXTERNAL_GLIBC
+	help
+	  Select this option if your external toolchain supports
+	  RPC. If you don't know, leave the default value, Buildroot
+	  will tell you if it's correct or not.
+endif
