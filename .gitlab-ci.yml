@@ -36,6 +36,7 @@ before_script:
         paths:
             - build.log
             - output/build/build-time.log
+            - output/images/
             - output/build/packages-file-list.txt
 
 csky_gx6605s_defconfig: *defconfig
