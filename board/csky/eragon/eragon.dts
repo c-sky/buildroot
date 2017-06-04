@@ -1,7 +1,7 @@
 /dts-v1/;
-#include <../../../../include/dt-bindings/gpio/gpio.h>
-#include <../../../../include/dt-bindings/input/input.h>
-#include <../../../../addons/drivers/pinctrl/pinctrl-csky.h>
+#include <dt-bindings/gpio/gpio.h>
+#include <dt-bindings/input/input.h>
+#include "../../../../addons/drivers/pinctrl/pinctrl-csky.h"
 
 / {
 	model = "csky eragon";
