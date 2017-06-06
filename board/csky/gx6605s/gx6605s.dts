@@ -1,5 +1,6 @@
 /dts-v1/;
 #include <dt-bindings/gpio/gpio.h>
+#include <dt-bindings/input/input.h>
 
 / {
 	model = "Nationalchip csky gx6605s";
@@ -72,7 +73,7 @@
 			interrupts = <57>;
 		};
 
-		uart0: serial@403000 {
+		uart0: serial {
 			compatible = "ns16550a";
 			reg = <0x00403000 0x400>;
 			interrupt-parent = <&intc>;
@@ -83,13 +84,79 @@
 			reg-io-width = <1>;
 		};
 
-		gpio0: gpio0 {
+		gpio0: gpio {
 			compatible = "wd,mbl-gpio";
 			reg-names = "dirout", "dat", "set", "clr";
 			reg = <0x305000 4>, <0x305004 4>, <0x305008 4>, <0x30500c 4>;
 			bgpio-base = <0>;
 			#gpio-cells = <2>;
 			gpio-controller;
+		};
+
+		gpio_buttons {
+			compatible = "gpio-keys-polled";
+			#address-cells = <1>;
+			#size-cells = <0>;
+			poll-interval = <100>;
+			autorepeat;
+
+			button0 {
+				label = "left";
+				linux,code = <KEY_LEFT>;
+				gpios = <&gpio0 8 GPIO_ACTIVE_LOW>;
+			};
+
+			button1 {
+				label = "right";
+				linux,code = <KEY_RIGHT>;
+				gpios = <&gpio0 6 GPIO_ACTIVE_LOW>;
+			};
+
+			button2 {
+				label = "up";
+				linux,code = <KEY_UP>;
+				gpios = <&gpio0 5 GPIO_ACTIVE_LOW>;
+			};
+
+			button3 {
+				label = "down";
+				linux,code = <KEY_DOWN>;
+				gpios = <&gpio0 9 GPIO_ACTIVE_LOW>;
+			};
+
+			button4 {
+				label = "enter";
+				linux,code = <KEY_ENTER>;
+				gpios = <&gpio0 7 GPIO_ACTIVE_LOW>;
+			};
+		};
+
+		gpio_leds {
+			compatible = "gpio-leds";
+
+			led0 {
+				label = "led10";
+				gpios = <&gpio0 10 GPIO_ACTIVE_LOW>;
+				linux,default-trigger = "heartbeat";
+			};
+
+			led1 {
+				label = "led11";
+				gpios = <&gpio0 11 GPIO_ACTIVE_LOW>;
+				linux,default-trigger = "timer";
+			};
+
+			led2 {
+				label = "led12";
+				gpios = <&gpio0 12 GPIO_ACTIVE_LOW>;
+				linux,default-trigger = "default-on";
+			};
+
+			led3 {
+				label = "led13";
+				gpios = <&gpio0 13 GPIO_ACTIVE_LOW>;
+				linux,default-trigger = "default-on";
+			};
 		};
 	};
 
