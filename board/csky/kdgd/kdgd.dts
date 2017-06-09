@@ -24,8 +24,6 @@
 		rtc2 = &pcf8563_2;
 		rtc3 = &pcf8563_3;
 		rtc4 = &pcf8563_4;
-		serial0 = &uart0;
-		serial1 = &uart1;
 		serial2 = &uart2;
 		serial3 = &uart3;
 		serial4 = &uart4;
@@ -55,6 +53,17 @@
 			reg = <0x1FBA3000 0x1000>;
 			interrupt-controller;
 			#interrupt-cells = <1>;
+		};
+
+		dmac_hsp: dmac0@1fa00000 {
+			compatible = "snps,dma-spear1340";
+			reg = <0x1fa00000 0x1000>;
+			interrupt-parent = <&intc>;
+			interrupts = <25>;
+			clocks = <&dummy_apb>;
+			clock-names = "hclk";
+			#dma-cells = <3>;
+			master-id = <0>;
 		};
 
 		pinctrl: pinctrl@1fbac008 {
@@ -221,28 +230,6 @@
 			interrupt-parent = <&intc>;
 		};
 
-		uart0: serial@1FB14000 {
-			compatible = "snps,dw-apb-uart";
-			reg = <0x1FB14000 0x1000>;
-			interrupt-parent = <&intc>;
-			interrupts = <9>;
-			clocks = <&dummy_apb>;
-			clock-names = "baudclk";
-			reg-shift = <2>;
-			reg-io-width = <1>;
-		};
-
-		uart1: serial@1FB15000 {
-			compatible = "snps,dw-apb-uart";
-			reg = <0x1FB15000 0x1000>;
-			interrupt-parent = <&intc>;
-			interrupts = <10>;
-			clocks = <&dummy_apb>;
-			clock-names = "baudclk";
-			reg-shift = <2>;
-			reg-io-width = <1>;
-		};
-
 		uart2: serial@1FBA4000 {
 			compatible = "snps,dw-apb-uart";
 			reg = <0x1FBA4000 0x1000>;
@@ -309,7 +296,7 @@
 				broken-hpi;
 			};
 		};
-
+*/
 		sdhc1: sdhc1@1FB13000 {
 			#address-cells = <1>;
 			#size-cells = <0>;
@@ -333,7 +320,6 @@
 			};
 			//
 		};
-*/
 
 		rtc: rtc@1FBA1000 {
 			compatible = "apm,xgene-rtc";

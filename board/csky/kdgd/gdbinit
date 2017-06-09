@@ -10,10 +10,10 @@ set $gcr=0x00
 
 # ck810:
 # enable prefetch (bit 4) and preload (bit 2)
-# set $cr31 = (1 << 4) | (1 << 2)
+set $cr31 = (1 << 4) | (1 << 2)
 # ck807:
 # enable prefetch (bit 4)
-set $cr31 = (1 << 4)
+# set $cr31 = (1 << 4)
 
 # pass devicetree blob
 # r2 is magic

@@ -1,0 +1,94 @@
+diff --git a/drivers/dma/dw/core.c b/drivers/dma/dw/core.c
+index c2c0a61..8112bce 100644
+--- a/drivers/dma/dw/core.c
++++ b/drivers/dma/dw/core.c
+@@ -52,8 +52,8 @@
+ 								\
+ 		(DWC_CTLL_DST_MSIZE(_dmsize)			\
+ 		 | DWC_CTLL_SRC_MSIZE(_smsize)			\
+-		 | DWC_CTLL_LLP_D_EN				\
+-		 | DWC_CTLL_LLP_S_EN				\
++		 | /* DWC_CTLL_LLP_D_EN */ 0			\
++		 | /* DWC_CTLL_LLP_S_EN	*/ 0			\
+ 		 | DWC_CTLL_DMS(_dms)				\
+ 		 | DWC_CTLL_SMS(_sms));				\
+ 	})
+@@ -1138,6 +1138,11 @@ static int dwc_alloc_chan_resources(struct dma_chan *chan)
+ 		return -EINVAL;
+ 	}
+ 
++	if (chan->private == NULL) {
++		printk("master id: %d\n", dw->default_master);
++		dwc->dws.m_master = dwc->dws.p_master = dw->default_master;
++	}
++
+ 	/* Enable controller here if needed */
+ 	if (!dw->in_use)
+ 		dw_dma_on(dw);
+@@ -1451,6 +1456,7 @@ int dw_dma_probe(struct dw_dma_chip *chip)
+ 
+ 	dw->regs = chip->regs;
+ 	chip->dw = dw;
++	dw->default_master = chip->default_master;
+ 
+ 	pm_runtime_get_sync(chip->dev);
+ 
+@@ -1571,6 +1577,8 @@ int dw_dma_probe(struct dw_dma_chip *chip)
+ 			dwc->block_size = pdata->block_size;
+ 			dwc->nollp = pdata->is_nollp;
+ 		}
++
++		dwc->nollp = 1; /* There is no LLP in Eragon */
+ 	}
+ 
+ 	/* Clear all interrupts on all channels. */
+diff --git a/drivers/dma/dw/platform.c b/drivers/dma/dw/platform.c
+index 5bda0eb..0307325 100644
+--- a/drivers/dma/dw/platform.c
++++ b/drivers/dma/dw/platform.c
+@@ -163,6 +163,13 @@ static int dw_probe(struct platform_device *pdev)
+ 	struct resource *mem;
+ 	const struct dw_dma_platform_data *pdata;
+ 	int err;
++	unsigned int default_master;
++
++	if (of_property_read_u32(pdev->dev.of_node,
++				 "master-id", &default_master)) {
++		printk("error: master id not defined in dts\n");
++		return -EINVAL;
++	}
+ 
+ 	chip = devm_kzalloc(dev, sizeof(*chip), GFP_KERNEL);
+ 	if (!chip)
+@@ -187,6 +194,7 @@ static int dw_probe(struct platform_device *pdev)
+ 
+ 	chip->dev = dev;
+ 	chip->pdata = pdata;
++	chip->default_master = default_master;
+ 
+ 	chip->clk = devm_clk_get(chip->dev, "hclk");
+ 	if (IS_ERR(chip->clk))
+diff --git a/drivers/dma/dw/regs.h b/drivers/dma/dw/regs.h
+index f65dd10..f34ea3f 100644
+--- a/drivers/dma/dw/regs.h
++++ b/drivers/dma/dw/regs.h
+@@ -280,6 +280,7 @@ struct dw_dma {
+ 
+ 	/* platform data */
+ 	struct dw_dma_platform_data	*pdata;
++	unsigned int		default_master;
+ };
+ 
+ static inline struct dw_dma_regs __iomem *__dw_regs(struct dw_dma *dw)
+diff --git a/include/linux/dma/dw.h b/include/linux/dma/dw.h
+index ccfd0c3..99ba4ad 100644
+--- a/include/linux/dma/dw.h
++++ b/include/linux/dma/dw.h
+@@ -37,6 +37,7 @@ struct dw_dma_chip {
+ 	struct dw_dma	*dw;
+ 
+ 	const struct dw_dma_platform_data	*pdata;
++	unsigned int	default_master;
+ };
+ 
+ /* Export to the platform drivers */
