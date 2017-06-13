@@ -1,5 +1,5 @@
 diff --git a/drivers/media/platform/Kconfig b/drivers/media/platform/Kconfig
-index ce4a96f..4520591 100644
+index 5ff803e..6f2e4b5 100644
 --- a/drivers/media/platform/Kconfig
 +++ b/drivers/media/platform/Kconfig
 @@ -151,7 +151,7 @@ if V4L_MEM2MEM_DRIVERS
@@ -22,7 +22,7 @@ index 9342ac5..5c11969 100644
  coda-objs := coda-common.o coda-bit.o coda-gdi.o coda-h264.o coda-jpeg.o
  
 diff --git a/drivers/media/platform/coda/coda-bit.c b/drivers/media/platform/coda/coda-bit.c
-index b662504..86df8e8 100644
+index b662504..f8dc0a0 100644
 --- a/drivers/media/platform/coda/coda-bit.c
 +++ b/drivers/media/platform/coda/coda-bit.c
 @@ -68,7 +68,8 @@ static void coda_command_async(struct coda_ctx *ctx, int cmd)
@@ -147,7 +147,24 @@ index b662504..86df8e8 100644
  		int max_mb_x = 1920 / 16;
  		int max_mb_y = 1088 / 16;
  		int max_mb_num = max_mb_x * max_mb_y;
-@@ -1785,6 +1802,7 @@ static int coda_prepare_decode(struct coda_ctx *ctx)
+@@ -1776,7 +1793,15 @@ static int coda_prepare_decode(struct coda_ctx *ctx)
+ 		reg_stride = CODA_CMD_DEC_PIC_ROT_STRIDE;
+ 	}
+ 	coda_write_base(ctx, q_data_dst, dst_buf, reg_addr);
+-	coda_write(dev, q_data_dst->bytesperline, reg_stride);
++
++	if (dev->devtype->product != CODA_7541_ERAGON) {
++		coda_write(dev, q_data_dst->bytesperline, reg_stride);
++	}
++	else {
++		/* Eragon only support 800x480 display on LCD (2017-06-12) */
++		coda_write(dev, 800, reg_stride);
++		coda_write(dev, 800, CODA_CMD_DEC_PIC_CHUNK_SIZE);
++	}
+ 
+ 	coda_write(dev, CODA_ROT_MIR_ENABLE | ctx->params.rot_mode,
+ 			CODA_CMD_DEC_PIC_ROT_MODE);
+@@ -1785,6 +1810,7 @@ static int coda_prepare_decode(struct coda_ctx *ctx)
  	case CODA_DX6:
  		/* TBD */
  	case CODA_7541:
@@ -155,7 +172,7 @@ index b662504..86df8e8 100644
  		coda_write(dev, CODA_PRE_SCAN_EN, CODA_CMD_DEC_PIC_OPTION);
  		break;
  	case CODA_960:
-@@ -1888,9 +1906,17 @@ static void coda_finish_decode(struct coda_ctx *ctx)
+@@ -1888,9 +1914,17 @@ static void coda_finish_decode(struct coda_ctx *ctx)
  				 ctx->slicebuf.size);
  	}
  
@@ -176,7 +193,7 @@ index b662504..86df8e8 100644
  
  	q_data_dst = get_q_data(ctx, V4L2_BUF_TYPE_VIDEO_CAPTURE);
  
-@@ -1923,7 +1949,8 @@ static void coda_finish_decode(struct coda_ctx *ctx)
+@@ -1923,7 +1957,8 @@ static void coda_finish_decode(struct coda_ctx *ctx)
  		v4l2_err(&dev->v4l2_dev,
  			 "errors in %d macroblocks\n", err_mb);
  
@@ -186,7 +203,7 @@ index b662504..86df8e8 100644
  		val = coda_read(dev, CODA_RET_DEC_PIC_OPTION);
  		if (val == 0) {
  			/* not enough bitstream data */
-@@ -1984,11 +2011,16 @@ static void coda_finish_decode(struct coda_ctx *ctx)
+@@ -1984,11 +2019,16 @@ static void coda_finish_decode(struct coda_ctx *ctx)
  			 * should be enough to detect most errors and saves us
  			 * from doing different things based on the format.
  			 */
@@ -208,15 +225,17 @@ index b662504..86df8e8 100644
  			}
  			ctx->frame_metas[decoded_idx] = *meta;
  			kfree(meta);
-@@ -2040,6 +2072,13 @@ static void coda_finish_decode(struct coda_ctx *ctx)
+@@ -2040,6 +2080,15 @@ static void coda_finish_decode(struct coda_ctx *ctx)
  		dst_buf->flags |= ctx->frame_types[ctx->display_idx];
  		meta = &ctx->frame_metas[ctx->display_idx];
  		dst_buf->timecode = meta->timecode;
 +
 +		if (dev->devtype->product == CODA_7541_ERAGON) {
-+			/* Use palyload to transer YUV phy address */
-+			unsigned int *paddr = (void*)(dst_buf->timecode.userbits);
-+			*paddr = ctx->internal_frames[display_idx].paddr;
++			/* Use timecode.userbits to transer YUV phy address */
++			dma_addr_t *disp_paddr = (dma_addr_t*)(dst_buf->timecode.userbits);
++			dma_addr_t *p_disp_paddr = (dma_addr_t*)vb2_dma_contig_memops.cookie(
++					dst_buf->vb2_buf.planes[0].mem_priv);
++			*disp_paddr = *p_disp_paddr;
 +		}
 +
  		dst_buf->vb2_buf.timestamp = meta->timestamp;
@@ -401,4 +420,3 @@ index 6bc27e7..870d760 100644
  module_param(debug, bool, 0644);
  
  #define dprintk(fmt, arg...)						\
-
