@@ -1,19 +1,33 @@
 diff --git a/drivers/dma/dw/core.c b/drivers/dma/dw/core.c
-index c2c0a61..8112bce 100644
+index c2c0a61..ebfea42 100644
 --- a/drivers/dma/dw/core.c
 +++ b/drivers/dma/dw/core.c
-@@ -52,8 +52,8 @@
+@@ -49,11 +49,12 @@
+ 			_dwc->dws.p_master : _dwc->dws.m_master;	\
+ 		u8 _sms = (_dwc->direction == DMA_DEV_TO_MEM) ?		\
+ 			_dwc->dws.p_master : _dwc->dws.m_master;	\
++		u32 _llp = _dwc->nollp ?				\
++			0 : (DWC_CTLL_LLP_D_EN | DWC_CTLL_LLP_S_EN);	\
  								\
  		(DWC_CTLL_DST_MSIZE(_dmsize)			\
  		 | DWC_CTLL_SRC_MSIZE(_smsize)			\
 -		 | DWC_CTLL_LLP_D_EN				\
 -		 | DWC_CTLL_LLP_S_EN				\
-+		 | /* DWC_CTLL_LLP_D_EN */ 0			\
-+		 | /* DWC_CTLL_LLP_S_EN	*/ 0			\
++		 | _llp						\
  		 | DWC_CTLL_DMS(_dms)				\
  		 | DWC_CTLL_SMS(_sms));				\
  	})
-@@ -1138,6 +1138,11 @@ static int dwc_alloc_chan_resources(struct dma_chan *chan)
+@@ -757,6 +758,9 @@ static irqreturn_t dw_dma_interrupt(int irq, void *dev_id)
+ 	if (unlikely(!is_slave_direction(direction) || !sg_len))
+ 		return NULL;
+ 
++	if (dwc->nollp && (sg_len > 1))
++		return NULL;
++
+ 	dwc->direction = direction;
+ 
+ 	prev = first = NULL;
+@@ -1138,6 +1142,11 @@ static int dwc_alloc_chan_resources(struct dma_chan *chan)
  		return -EINVAL;
  	}
  
@@ -25,7 +39,7 @@ index c2c0a61..8112bce 100644
  	/* Enable controller here if needed */
  	if (!dw->in_use)
  		dw_dma_on(dw);
-@@ -1451,6 +1456,7 @@ int dw_dma_probe(struct dw_dma_chip *chip)
+@@ -1451,6 +1460,7 @@ int dw_dma_probe(struct dw_dma_chip *chip)
  
  	dw->regs = chip->regs;
  	chip->dw = dw;
@@ -33,12 +47,18 @@ index c2c0a61..8112bce 100644
  
  	pm_runtime_get_sync(chip->dev);
  
-@@ -1571,6 +1577,8 @@ int dw_dma_probe(struct dw_dma_chip *chip)
+@@ -1566,11 +1576,13 @@ int dw_dma_probe(struct dw_dma_chip *chip)
+ 			dwc->block_size =
+ 				(4 << ((pdata->block_size >> 4 * i) & 0xf)) - 1;
+ 			dwc->nollp =
+-				(dwc_params >> DWC_PARAMS_MBLK_EN & 0x1) == 0;
++				(dwc_params >> DWC_PARAMS_HC_LLP & 0x1) == 1;
+ 		} else {
  			dwc->block_size = pdata->block_size;
  			dwc->nollp = pdata->is_nollp;
  		}
 +
-+		dwc->nollp = 1; /* There is no LLP in Eragon */
++		printk("nollp: %d\n", dwc->nollp);
  	}
  
  	/* Clear all interrupts on all channels. */
@@ -69,10 +89,18 @@ index 5bda0eb..0307325 100644
  	chip->clk = devm_clk_get(chip->dev, "hclk");
  	if (IS_ERR(chip->clk))
 diff --git a/drivers/dma/dw/regs.h b/drivers/dma/dw/regs.h
-index f65dd10..f34ea3f 100644
+index f65dd10..dab2e0f 100644
 --- a/drivers/dma/dw/regs.h
 +++ b/drivers/dma/dw/regs.h
-@@ -280,6 +280,7 @@ struct dw_dma {
+@@ -126,6 +126,7 @@ struct dw_dma_regs {
+ 
+ /* Bitfields in DWC_PARAMS */
+ #define DWC_PARAMS_MBLK_EN	11		/* multi block transfer */
++#define DWC_PARAMS_HC_LLP	13		/* hardcode LLP register to 0 */
+ 
+ /* bursts size */
+ enum dw_dma_msize {
+@@ -280,6 +281,7 @@ struct dw_dma {
  
  	/* platform data */
  	struct dw_dma_platform_data	*pdata;

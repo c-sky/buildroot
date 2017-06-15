@@ -60,7 +60,7 @@
 			#interrupt-cells = <1>;
 		};
 
-		dmac0: dmac0@1fb19000 {
+		dmac_hsp: dmac0@1fb19000 {
 			compatible = "snps,dma-spear1340";
 			reg = <0x1fb19000 0x1000>;
 			interrupt-parent = <&intc>;
@@ -71,7 +71,7 @@
 			master-id = <0>;
 		};
 
-		dmac1: dmac1@1fb94000 {
+		dmac_audio: dmac1@1fb94000 {
 			compatible = "snps,dma-spear1340";
 			reg = <0x1fb94000 0x1000>;
 			interrupt-parent = <&intc>;
@@ -148,6 +148,13 @@
 
 			pcfg_pull_none: pcfg_pull_none {
 				bias-disable;
+			};
+
+			uart0 {
+				uart0_x: uart0_x {
+					csky,pins = <CSKY_GPIO2 0 1 &pcfg_pull_none>,
+						    <CSKY_GPIO2 1 1 &pcfg_pull_none>;
+				};
 			};
 
 			uart2 {
@@ -234,6 +241,10 @@
 			clock-names = "baudclk";
 			reg-shift = <2>;
 			reg-io-width = <1>;
+			pinctrl-names = "default";
+			pinctrl-0 = <&uart0_x>;
+			dmas = <&dmac_hsp 0 0 0>, <&dmac_hsp 1 0 0>;
+			dma-names = "rx", "tx";
 		};
 
 		uart1: serial@1FB15000 {
@@ -245,6 +256,8 @@
 			clock-names = "baudclk";
 			reg-shift = <2>;
 			reg-io-width = <1>;
+			dmas = <&dmac_hsp 2 0 0>, <&dmac_hsp 3 0 0>;
+			dma-names = "rx", "tx";
 		};
 
 		uart2: serial@1FBA4000 {
