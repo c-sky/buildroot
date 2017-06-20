@@ -40,6 +40,7 @@ before_script:
             - output/build/packages-file-list.txt
 
 csky_gx6605s_defconfig: *defconfig
+csky_gx6605s_fbcon_defconfig: *defconfig
 csky_sc8925_defconfig: *defconfig
 csky_sc6138a_defconfig: *defconfig
 csky_trilobite_defconfig: *defconfig
