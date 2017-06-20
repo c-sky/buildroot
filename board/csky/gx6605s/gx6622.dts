@@ -17,14 +17,8 @@
 		cpu {
 			compatible = "csky,ck610";
 			device_type = "cpu";
-			ccr_ie   = <1>;
-			ccr_de   = <1>;
-			ccr_wb   = <1>;
-			ccr_rs   = <1>;
-			ccr_z    = <1>;
-			hint_pld = <1>;
-			hint_mb  = <1>;
-			hint_lru = <1>;
+			ccr	= <0x7d>;
+			hint	= <0x1c>;
 		};
 	};
 

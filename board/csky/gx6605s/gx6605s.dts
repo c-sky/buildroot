@@ -20,14 +20,8 @@
 		cpu {
 			compatible = "csky,ck610";
 			device_type = "cpu";
-			ccr_ie   = <1>;
-			ccr_de   = <1>;
-			ccr_wb   = <1>;
-			ccr_rs   = <1>;
-			ccr_z    = <1>;
-			hint_pld = <1>;
-			hint_mb  = <1>;
-			hint_lru = <1>;
+			ccr	= <0x7d>;
+			hint	= <0x1c>;
 		};
 	};
 
@@ -101,31 +95,31 @@
 			autorepeat;
 
 			button0 {
-				label = "left";
+				label = "button8";
 				linux,code = <KEY_LEFT>;
 				gpios = <&gpio0 8 GPIO_ACTIVE_LOW>;
 			};
 
 			button1 {
-				label = "right";
+				label = "button6";
 				linux,code = <KEY_RIGHT>;
 				gpios = <&gpio0 6 GPIO_ACTIVE_LOW>;
 			};
 
 			button2 {
-				label = "up";
+				label = "button5";
 				linux,code = <KEY_UP>;
 				gpios = <&gpio0 5 GPIO_ACTIVE_LOW>;
 			};
 
 			button3 {
-				label = "down";
+				label = "button9";
 				linux,code = <KEY_DOWN>;
 				gpios = <&gpio0 9 GPIO_ACTIVE_LOW>;
 			};
 
 			button4 {
-				label = "enter";
+				label = "button7";
 				linux,code = <KEY_ENTER>;
 				gpios = <&gpio0 7 GPIO_ACTIVE_LOW>;
 			};
