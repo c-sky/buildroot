@@ -11,7 +11,8 @@ define CSKY_ARCH_PREPARE_KERNEL
 	if [ !$(BR2_LINUX_KERNEL_EXT_CSKY_ADDONS) ]; then \
 		mkdir $(LINUX_DIR)/addons; \
 		touch $(LINUX_DIR)/addons/Kconfig; \
-		touch $(LINUX_DIR)/addons/Makefile; \
+		touch $(LINUX_DIR)/addons/none.c; \
+		echo "obj-y += none.o" > $(LINUX_DIR)/addons/Makefile; \
 	fi
 endef
 
