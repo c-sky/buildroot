@@ -64,7 +64,7 @@
 			clocks = <&dummy_apb>;
 			clock-names = "hclk";
 			#dma-cells = <3>;
-			master-id = <0>;
+			master-id = <1>;
 		};
 
 		pinctrl: pinctrl@1fbac008 {
