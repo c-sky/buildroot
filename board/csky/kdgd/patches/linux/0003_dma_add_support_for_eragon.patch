@@ -1,5 +1,5 @@
 diff --git a/drivers/dma/dw/core.c b/drivers/dma/dw/core.c
-index c2c0a61..ebfea42 100644
+index c2c0a61..f09a7a0 100644
 --- a/drivers/dma/dw/core.c
 +++ b/drivers/dma/dw/core.c
 @@ -49,11 +49,12 @@
@@ -27,11 +27,13 @@ index c2c0a61..ebfea42 100644
  	dwc->direction = direction;
  
  	prev = first = NULL;
-@@ -1138,6 +1142,11 @@ static int dwc_alloc_chan_resources(struct dma_chan *chan)
+@@ -1138,6 +1142,13 @@ static int dwc_alloc_chan_resources(struct dma_chan *chan)
  		return -EINVAL;
  	}
  
-+	if (chan->private == NULL) {
++	if ((chan->private == NULL) &&
++	    (dwc->dws.m_master == 0) &&
++	    (dwc->dws.p_master == 0)) {
 +		printk("master id: %d\n", dw->default_master);
 +		dwc->dws.m_master = dwc->dws.p_master = dw->default_master;
 +	}
@@ -39,7 +41,7 @@ index c2c0a61..ebfea42 100644
  	/* Enable controller here if needed */
  	if (!dw->in_use)
  		dw_dma_on(dw);
-@@ -1451,6 +1460,7 @@ int dw_dma_probe(struct dw_dma_chip *chip)
+@@ -1451,6 +1462,7 @@ int dw_dma_probe(struct dw_dma_chip *chip)
  
  	dw->regs = chip->regs;
  	chip->dw = dw;
@@ -47,7 +49,7 @@ index c2c0a61..ebfea42 100644
  
  	pm_runtime_get_sync(chip->dev);
  
-@@ -1566,11 +1576,13 @@ int dw_dma_probe(struct dw_dma_chip *chip)
+@@ -1566,11 +1578,13 @@ int dw_dma_probe(struct dw_dma_chip *chip)
  			dwc->block_size =
  				(4 << ((pdata->block_size >> 4 * i) & 0xf)) - 1;
  			dwc->nollp =
