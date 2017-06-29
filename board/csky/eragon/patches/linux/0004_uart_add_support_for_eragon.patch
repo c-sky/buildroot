@@ -1,0 +1,90 @@
+diff --git a/drivers/tty/serial/8250/8250_core.c b/drivers/tty/serial/8250/8250_core.c
+index e8819aa..39a467c 100644
+--- a/drivers/tty/serial/8250/8250_core.c
++++ b/drivers/tty/serial/8250/8250_core.c
+@@ -997,6 +997,7 @@ int serial8250_register_8250_port(struct uart_8250_port *up)
+ 		uart->port.rs485_config	= up->port.rs485_config;
+ 		uart->port.rs485	= up->port.rs485;
+ 		uart->dma		= up->dma;
++		uart->fcr		= up->fcr;
+ 
+ 		/* Take tx_loadsz from fifosize if it wasn't set separately */
+ 		if (uart->port.fifosize && !uart->tx_loadsz)
+diff --git a/drivers/tty/serial/8250/8250_dw.c b/drivers/tty/serial/8250/8250_dw.c
+index 459d726..416496f 100644
+--- a/drivers/tty/serial/8250/8250_dw.c
++++ b/drivers/tty/serial/8250/8250_dw.c
+@@ -369,6 +369,9 @@ static int dw8250_probe(struct platform_device *pdev)
+ 	struct dw8250_data *data;
+ 	int err;
+ 	u32 val;
++	unsigned int rx_trigger_level = -1;
++	unsigned int rxtrig_bytes;
++	unsigned int dma_enabled = 0;
+ 
+ 	if (!regs) {
+ 		dev_err(dev, "no registers defined\n");
+@@ -497,11 +500,46 @@ static int dw8250_probe(struct platform_device *pdev)
+ 	if (!data->skip_autocfg)
+ 		dw8250_setup_port(p);
+ 
++	/*
++	 * If the fifosize is not configured by hardware,
++	 * try getting its value from device tree.
++	 */
++	if (p->fifosize == 0)
++		device_property_read_u32(dev, "fifo-size", &p->fifosize);
++
+ 	/* If we have a valid fifosize, try hooking up DMA */
+ 	if (p->fifosize) {
+-		data->dma.rxconf.src_maxburst = p->fifosize / 4;
+-		data->dma.txconf.dst_maxburst = p->fifosize / 4;
+-		uart.dma = &data->dma;
++		device_property_read_u32(dev, "dma-enable", &dma_enabled);
++		device_property_read_u32(dev, "rx-trigger-level",
++					 &rx_trigger_level);
++
++		if (rx_trigger_level >= UART_FCR_R_TRIG_MAX_STATE)
++			rx_trigger_level = UART_FCR_R_TRIG_10;
++		else
++			rx_trigger_level <<= UART_FCR_R_TRIG_SHIFT;
++
++		/* convert trigger level to bytes */
++		if (rx_trigger_level == UART_FCR_R_TRIG_00)
++			rxtrig_bytes = 1;
++		else if (rx_trigger_level == UART_FCR_R_TRIG_01)
++			rxtrig_bytes = p->fifosize / 4;
++		else if (rx_trigger_level == UART_FCR_R_TRIG_10)
++			rxtrig_bytes = p->fifosize / 2;
++		else
++			rxtrig_bytes = p->fifosize - 2;
++
++		p->type = PORT_16550A;
++		p->flags |= UPF_FIXED_TYPE;
++		uart.capabilities = UART_CAP_FIFO;
++		uart.fcr = UART_FCR_ENABLE_FIFO | rx_trigger_level |
++			   UART_FCR_CLEAR_RCVR | UART_FCR_CLEAR_XMIT;
++
++		if (dma_enabled) {
++			data->dma.rxconf.src_maxburst = rxtrig_bytes;
++			data->dma.txconf.dst_maxburst = rxtrig_bytes;
++			data->dma.rx_size = data->dma.rxconf.src_maxburst;
++			uart.dma = &data->dma;
++		}
+ 	}
+ 
+ 	data->line = serial8250_register_8250_port(&uart);
+diff --git a/drivers/tty/serial/8250/8250_port.c b/drivers/tty/serial/8250/8250_port.c
+index 080d5a5..c15a797 100644
+--- a/drivers/tty/serial/8250/8250_port.c
++++ b/drivers/tty/serial/8250/8250_port.c
+@@ -3007,7 +3007,8 @@ static void serial8250_config_port(struct uart_port *port, int flags)
+ 		port->handle_irq = exar_handle_irq;
+ 
+ 	register_dev_spec_attr_grp(up);
+-	up->fcr = uart_config[up->port.type].fcr;
++	if (up->fcr == 0)
++		up->fcr = uart_config[up->port.type].fcr;
+ }
+ 
+ static int

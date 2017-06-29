@@ -243,7 +243,17 @@
 			reg-io-width = <1>;
 			pinctrl-names = "default";
 			pinctrl-0 = <&uart0_x>;
-			dmas = <&dmac_hsp 0 0 0>, <&dmac_hsp 1 0 0>;
+			fifo-size = <16>;
+			/*
+			 * rx-trigger-level:
+			 *     0 - 1 character
+			 *     1 - 1/4 full
+			 *     2 - 1/2 full
+			 *     3 - (fifo size - 2)
+			 */
+			rx-trigger-level = <2>;
+			dma-enable = <1>;
+			dmas = <&dmac_hsp 0 0 1>, <&dmac_hsp 1 0 1>;
 			dma-names = "rx", "tx";
 		};
 
@@ -256,7 +266,17 @@
 			clock-names = "baudclk";
 			reg-shift = <2>;
 			reg-io-width = <1>;
-			dmas = <&dmac_hsp 2 0 0>, <&dmac_hsp 3 0 0>;
+			fifo-size = <16>;
+			/*
+			 * rx-trigger-level:
+			 *     0 - 1 character
+			 *     1 - 1/4 full
+			 *     2 - 1/2 full
+			 *     3 - (fifo size - 2)
+			 */
+			rx-trigger-level = <2>;
+			dma-enable = <1>;
+			dmas = <&dmac_hsp 2 0 1>, <&dmac_hsp 3 0 1>;
 			dma-names = "rx", "tx";
 		};
 
