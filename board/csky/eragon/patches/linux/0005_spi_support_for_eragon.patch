@@ -1,0 +1,33 @@
+diff --git a/drivers/mtd/spi-nor/spi-nor.c b/drivers/mtd/spi-nor/spi-nor.c
+index d0fc165..0030167 100644
+--- a/drivers/mtd/spi-nor/spi-nor.c
++++ b/drivers/mtd/spi-nor/spi-nor.c
+@@ -916,7 +916,10 @@ static const struct flash_info spi_nor_ids[] = {
+ 	{ "s25fl004k",  INFO(0xef4013,      0,  64 * 1024,   8, SECT_4K | SPI_NOR_DUAL_READ | SPI_NOR_QUAD_READ) },
+ 	{ "s25fl008k",  INFO(0xef4014,      0,  64 * 1024,  16, SECT_4K | SPI_NOR_DUAL_READ | SPI_NOR_QUAD_READ) },
+ 	{ "s25fl016k",  INFO(0xef4015,      0,  64 * 1024,  32, SECT_4K | SPI_NOR_DUAL_READ | SPI_NOR_QUAD_READ) },
+-	{ "s25fl064k",  INFO(0xef4017,      0,  64 * 1024, 128, SECT_4K) },
++	/*
++	   JEDEC ID same with Winbond spi flash: w25q64 (on C-SKY's Eragon EVB)
++	   { "s25fl064k",  INFO(0xef4017,      0,  64 * 1024, 128, SECT_4K) },
++	*/
+ 	{ "s25fl116k",  INFO(0x014015,      0,  64 * 1024,  32, SECT_4K | SPI_NOR_DUAL_READ | SPI_NOR_QUAD_READ) },
+ 	{ "s25fl132k",  INFO(0x014016,      0,  64 * 1024,  64, SECT_4K) },
+ 	{ "s25fl164k",  INFO(0x014017,      0,  64 * 1024, 128, SECT_4K) },
+diff --git a/drivers/spi/spi.c b/drivers/spi/spi.c
+index 838783c..d9d27d7 100644
+--- a/drivers/spi/spi.c
++++ b/drivers/spi/spi.c
+@@ -697,8 +697,11 @@ static void spi_set_cs(struct spi_device *spi, bool enable)
+ 	if (spi->mode & SPI_CS_HIGH)
+ 		enable = !enable;
+ 
+-	if (gpio_is_valid(spi->cs_gpio))
++	if (gpio_is_valid(spi->cs_gpio)) {
+ 		gpio_set_value(spi->cs_gpio, !enable);
++		/* Even gpio control the cs pin, SER shold be set for dw-spi */
++		spi->master->set_cs(spi, !enable);
++	}
+ 	else if (spi->master->set_cs)
+ 		spi->master->set_cs(spi, !enable);
+ }

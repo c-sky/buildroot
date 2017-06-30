@@ -25,5 +25,6 @@ printf "Starting network: "
 #
 # To mount NFS
 #
+# sleep 2
 # mkdir -p /mnt/nfs
 # mount -t nfs 172.16.28.159:/home/ztw/work/nfs_share  /mnt/nfs  -o nolock,tcp,sync
