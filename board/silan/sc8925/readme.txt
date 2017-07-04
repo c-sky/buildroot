@@ -32,7 +32,7 @@ Prepare NFS rootfs
 
    Then extract output/images/rootfs.tar to your nfs root.
 
-2. Modified the "bootargs=" in board/csky/sc8925/sc8925.dts'. You must
+2. Modified the "bootargs=" in board/silan/sc8925/sc8925.dts'. You must
    specify the correct nfsroot= and ip= by your own PC enviornment.
 
    '$ make linux-rebuild' again to update the sc8925.dtb in output/images
@@ -50,6 +50,6 @@ How to run it with jtag
 2. Check the gdbinit, the IP and Port must be the same as above.
 
   $ cd output/images
-  $ ../host/usr/bin/csky-abiv2-linux-gdb -x ../../board/csky/sc8925/gdbinit vmlinux
+  $ ../host/usr/bin/csky-abiv2-linux-gdb -x ../../board/silan/sc8925/gdbinit vmlinux
 
 

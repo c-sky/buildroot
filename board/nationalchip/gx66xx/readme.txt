@@ -6,9 +6,9 @@ Intro
 C-SKY is a CPU Architecture from www.c-sky.com and has it own instruction set.
 Just like arm and mips in linux/arch, it named as 'csky'.
 
-gx6605s develop board is made by Hangzhou Nationalchip and C-SKY.
+gx66xx develop board is made by Hangzhou Nationalchip and C-SKY.
 
-Hardware Spec:
+gx6605s Hardware Spec:
   * CPU: ck610 up to 594Mhz
   * Integrate with 64MB ddr2 in SOC.
   * Integrate with hardware Jtag.
@@ -71,5 +71,5 @@ How to run it with jtag
 2. Check the gdbinit, the IP and Port must be the same as above.
 
   $ cd output/images
-  $ ../host/usr/bin/csky-linux-gdb -x ../../board/csky/gx6605s/gdbinit ../build/<linux-kernel-dir>/vmlinux
+  $ ../host/usr/bin/csky-linux-gdb -x ../../board/nationalchip/gx66xx/gdbinit ../build/<linux-kernel-dir>/vmlinux
 
