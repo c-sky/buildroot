@@ -4,6 +4,7 @@
 echo "Starting mdev..."
 echo /sbin/mdev > /proc/sys/kernel/hotplug
 mdev -s
+mount -t debugfs none /sys/kernel/debug
 
 # To start network
 printf "Starting network: "
