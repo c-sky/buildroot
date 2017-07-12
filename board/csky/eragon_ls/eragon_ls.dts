@@ -3,6 +3,7 @@
 #include <dt-bindings/gpio/gpio.h>
 #include <dt-bindings/input/input.h>
 #include "../../../../addons/drivers/pinctrl/pinctrl-csky.h"
+#include "../../../../addons/drivers/mailbox/mailbox-csky.h"
 
 / {
 	model = "csky eragon";
@@ -543,6 +544,38 @@
 			num-cs = <4>;
 			clocks = <&dummy_apb>;
 			status = "disabled";
+		};
+
+		mailbox_eg: mailbox0 {
+			compatible = "csky,mailbox-1.0";
+			reg = <0x1fbd4000 0xb0>;
+			interrupt-parent = <&intc>;
+			interrupts = <47>;
+			dev-id = <0>;
+			#mbox-cells = <1>;
+		};
+
+		mailbox_ls: mailbox1 {
+			compatible = "csky,mailbox-1.0";
+			reg = <0x1fbd4000 0xb0>;
+			interrupt-parent = <&intc>;
+			interrupts = <48>;
+			dev-id = <1>;
+			#mbox-cells = <1>;
+		};
+
+		mailbox_client_eg {
+			compatible	= "csky,mailbox-client";
+			reg		= <0x1fbd4030 0x40>, <0x1fbd4070 0x40>;
+			mbox-names	= "channel";
+			mboxes		= <&mailbox_eg CSKY_MBOX_CHAN_0>;
+		};
+
+		mailbox_client_ls {
+			compatible	= "csky,mailbox-client";
+			reg		= <0x1fbd4070 0x40>, <0x1fbd4030 0x40>;
+			mbox-names	= "channel";
+			mboxes		= <&mailbox_ls CSKY_MBOX_CHAN_0>;
 		};
 
 	};
