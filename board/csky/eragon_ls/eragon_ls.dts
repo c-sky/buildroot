@@ -53,6 +53,24 @@
 			#clock-cells = <0>;
 		};
 
+		swrc0: swrc0@1fbd0038 {
+			compatible = "csky,eragon-reset";
+			reg = <0x1fbd0038 4>;
+			#reset-cells = <1>;
+		};
+
+		swrc1: swrc1@1fbd003c {
+			compatible = "csky,eragon-reset";
+			reg = <0x1fbd003c 4>;
+			#reset-cells = <1>;
+		};
+
+		swrc2: swrc2@1fbd0040 {
+			compatible = "csky,eragon-reset";
+			reg = <0x1fbd0040 4>;
+			#reset-cells = <1>;
+		};
+
 		intc: interrupt-controller {
 			compatible = "csky,intc-v1";
 			reg = <0x1FBA3000 0x1000>;
@@ -479,12 +497,12 @@
 
 		lcdc: lcdc@1fa00000 {
 			compatible = "csky,eragon-lcdc";
-			reg = <0x1fa00000 0x10000>,
-			      <0x1fbd0000 0x800>; /* chip_ctrl */
+			reg = <0x1fa00000 0x10000>;
 			interrupt-parent = <&intc>;
 			interrupts = <40>;
 			clocks = <&dummy_apb>;
 			clock-names = "lcdc";
+			resets = <&swrc1 14>; /* SWRC1[14]: SW_IP_LCDC_RST */
 			bits-per-pixel = <32>;
 			pixel-clock-source = <0>; /* 0=HCLK, 1=external clock */
 			pcd = <1>; /* pixel clock divider. f=HCLK/2(pcd+1) */
