@@ -14,7 +14,7 @@ Hardware Spec:
 How to build it, eg: 810
 ========================
 
-  $ make qemu_ck810_defconfig
+  $ make qemu_csky_ck810_defconfig
   $ make
 
 Result of the build
