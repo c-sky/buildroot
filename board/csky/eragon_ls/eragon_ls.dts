@@ -582,15 +582,16 @@
 			#mbox-cells = <1>;
 		};
 
-		mailbox_client_eg {
-			compatible	= "csky,mailbox-client";
+
+		ttym_eg {
+			compatible	= "csky,tty_mailbox";
 			reg		= <0x1fbd4030 0x40>, <0x1fbd4070 0x40>;
 			mbox-names	= "channel";
 			mboxes		= <&mailbox_eg CSKY_MBOX_CHAN_0>;
 		};
 
-		mailbox_client_ls {
-			compatible	= "csky,mailbox-client";
+		tty_mailbox_client_ls {
+			compatible	= "csky,tty-mailbox-client";
 			reg		= <0x1fbd4070 0x40>, <0x1fbd4030 0x40>;
 			mbox-names	= "channel";
 			mboxes		= <&mailbox_ls CSKY_MBOX_CHAN_0>;
