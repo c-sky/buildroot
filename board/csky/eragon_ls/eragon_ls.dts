@@ -188,6 +188,15 @@
 						    <CSKY_GPIO1 5 1 &pcfg_pull_none>;
 				};
 			};
+
+			i2s1 {
+				i2s1_x: i2s1_x {
+					csky,pins = <CSKY_GPIO2 4 1 &pcfg_pull_none>,
+						    <CSKY_GPIO2 5 1 &pcfg_pull_none>,
+						    <CSKY_GPIO2 6 1 &pcfg_pull_none>,
+						    <CSKY_GPIO2 7 1 &pcfg_pull_none>;
+				};
+			};
 		};
 
 		gpio-leds {
@@ -597,7 +606,48 @@
 			mboxes		= <&mailbox_ls CSKY_MBOX_CHAN_0>;
 		};
 
+		i2s0: i2s0@1FB90000 {
+			compatible = "csky,eragon-i2s";
+			reg = <0x1FB90000 0x1000>;
+			interrupt-parent = <&intc>;
+			interrupts = <36>;
+			dmas = <&dmac_audio 0 1 0>, <&dmac_audio 1 1 0>;
+			dma-names = "rx", "tx";
+			#sound-dai-cells = <0>;
+		};
+
+		i2s1: i2s1@1FB91000 {
+			compatible = "csky,eragon-i2s";
+			reg = <0x1FB91000 0x1000>;
+			interrupt-parent = <&intc>;
+			interrupts = <37>;
+			dmas = <&dmac_audio 2 1 0>, <&dmac_audio 3 1 0>;
+			dma-names = "rx", "tx";
+			#sound-dai-cells = <0>;
+			pinctrl-names = "default";
+			pinctrl-0 = <&i2s1_x>;
+		};
+
+		dummy_codec: dummy_codec {
+			compatible = "csky,i2s-dummy-codec";
+			#sound-dai-cells = <0>;
+		};
+
+		dummy_card {
+			compatible = "simple-audio-card";
+			simple-audio-card,name = "dummy-card";
+			simple-audio-card,format = "i2s";
+
+			simple-audio-card,cpu {
+				sound-dai = <&i2s1>;
+			};
+
+			simple-audio-card,codec {
+				sound-dai = <&dummy_codec>;
+			};
+		};
 	};
+
 	chosen {
 		// bootargs = "console=ttyS2,115200 init=/sbin/init root=/dev/nfs rw nfsroot=172.16.28.184:/home/rtos_nfs/br/rootfs,v3,tcp,nolock ip=172.16.150.100::172.16.150.254:255.255.255.0";
 		bootargs = "console=ttyS2,115200 rdinit=/sbin/init root=/dev/ram0";
