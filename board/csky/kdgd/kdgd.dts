@@ -157,13 +157,12 @@
 
 		gpio-leds {
 			compatible = "gpio-leds";
-
+			/* used for SPIFLASH CS0
 			green0 {
 				label = "green0";
 				gpios = <&gpio0 0 GPIO_ACTIVE_LOW>;
 				default-state = "on";
-			};
-
+			};*/
 			green1 {
 				label = "green1";
 				gpios = <&gpio0 1 GPIO_ACTIVE_LOW>;
@@ -210,7 +209,6 @@
 				linux,code = <KEY_F4>;
 				label = "key_3";
 			};
-
 		};
 
 		/* clockevent */
@@ -414,31 +412,6 @@
 			dr_mode = "host";
 		};
 
-		spi0: spi@1fb18000 {
-			compatible = "snps,dw-apb-ssi";
-			#address-cells = <1>;
-			#size-cells = <0>;
-			reg = <0x1fb18000 0x1000>;
-			interrupt-parent = <&intc>;
-			interrupts = <14>;
-			num-cs = <4>;
-
-			cs-gpios = <&gpio3 1 GPIO_ACTIVE_HIGH>,
-				   <&gpio3 2 GPIO_ACTIVE_HIGH>,
-				   <&gpio3 3 GPIO_ACTIVE_HIGH>,
-				   <&gpio3 4 GPIO_ACTIVE_HIGH>;
-
-			clocks = <&dummy_apb>;
-
-			flash: w25q64fv@0 {
-				#address-cells = <1>;
-				#size-cells = <1>;
-				compatible = "winbond,w25q64", "jedec,spi-nor";
-				reg = <0>;
-				spi-max-frequency = <8000000>;
-				w25q,fast-read;
-			};
-		};
 
 		spi1: spi@1fbab000 {
 			compatible = "snps,dw-apb-ssi";
@@ -447,9 +420,17 @@
 			reg = <0x1fbab000 0x1000>;
 			interrupt-parent = <&intc>;
 			interrupts = <15>;
-			num-cs = <4>;
+			num-cs = <1>;
+			cs-gpios = <&gpio0 0 GPIO_ACTIVE_HIGH>;
 			clocks = <&dummy_apb>;
-			status = "disabled";
+			spiflash1: w25q64fv@0 {
+				#address-cells = <1>;
+				#size-cells = <1>;
+				compatible = "winbond,w25q64", "jedec,spi-nor";
+				reg = <0>;
+				spi-max-frequency = <8000000>;
+				w25q,fast-read;
+			};
 		};
 
 	};
