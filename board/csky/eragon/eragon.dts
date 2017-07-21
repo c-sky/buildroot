@@ -209,18 +209,18 @@
 
 			green1 {
 				label = "green1";
-				gpios = <&gpio0 2 GPIO_ACTIVE_LOW>;
+				gpios = <&gpio0 1 GPIO_ACTIVE_LOW>;
 				default-state = "off";
 			};
 
-			red0 {
-				label = "red0";
-				gpios = <&gpio0 1 GPIO_ACTIVE_LOW>;
+			green2 {
+				label = "green2";
+				gpios = <&gpio0 2 GPIO_ACTIVE_LOW>;
 				default-state = "on";
 			};
 
-			red1 {
-				label = "red1";
+			green3 {
+				label = "green3";
 				gpios = <&gpio0 3 GPIO_ACTIVE_LOW>;
 				default-state = "off";
 			};
@@ -236,6 +236,23 @@
 				label = "key_0";
 			};
 
+			key_1 {
+				gpios = <&gpio0 5 GPIO_ACTIVE_LOW>;
+				linux,code = <KEY_F2>;
+				label = "key_1";
+			};
+
+			key_2 {
+				gpios = <&gpio0 6 GPIO_ACTIVE_LOW>;
+				linux,code = <KEY_F3>;
+				label = "key_2";
+			};
+
+			key_3 {
+				gpios = <&gpio0 7 GPIO_ACTIVE_LOW>;
+				linux,code = <KEY_F4>;
+				label = "key_3";
+			};
 		};
 
 		/* clockevent */
