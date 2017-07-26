@@ -8,7 +8,7 @@
 
 	memory {
 		device_type = "memory";
-		reg = <0x08000000 0x08000000>;
+		reg = <0x0 0x1f400000>;
 	};
 
 	cpus {
@@ -42,7 +42,7 @@
 
 		intc: interrupt-controller {
 			compatible = "csky,intc-v1";
-			reg = <0x10010000 0x1000>;
+			reg = <0x1ffff000 0x1000>;
 			interrupt-controller;
 			#interrupt-cells = <1>;
 		};
@@ -50,28 +50,28 @@
 		/* clockevent */
 		timer0 {
 			compatible = "snps,dw-apb-timer";
-			reg = <0x10011000 0x1000>;
+			reg = <0x1fffd000 0x1000>;
 			clocks = <&dummy_apb>;
 			clock-names = "timer";
-			interrupts = <12>;
+			interrupts = <1>;
 			interrupt-parent = <&intc>;
 		};
 
 		/* clocksource */
 		timer1 {
 			compatible = "snps,dw-apb-timer";
-			reg = <0x10011014 0x800>;
+			reg = <0x1fffd014 0x800>;
 			clocks = <&dummy_apb>;
 			clock-names = "timer";
-			interrupts = <13>;
+			interrupts = <2>;
 			interrupt-parent = <&intc>;
 		};
 
 		uart0: serial@10015000 {
 			compatible = "ns16550a";
-			reg = <0x10015000 0x1000>;
+			reg = <0x1fffe000 0x1000>;
 			interrupt-parent = <&intc>;
-			interrupts = <16>;
+			interrupts = <3>;
 			clocks = <&dummy_apb>;
 			baud = <115200>;
 			reg-shift = <2>;
