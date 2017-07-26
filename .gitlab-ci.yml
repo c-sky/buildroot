@@ -45,7 +45,5 @@ csky_sc8925_defconfig: *defconfig
 csky_sc6138a_defconfig: *defconfig
 csky_trilobite_defconfig: *defconfig
 csky_kdgd_defconfig: *defconfig
-qemu_csky_ck610_defconfig: *defconfig
-qemu_csky_ck610_uclibc_defconfig: *defconfig
 qemu_csky_ck810_defconfig: *defconfig
 qemu_csky_ck810_uclibc_defconfig: *defconfig
