@@ -1,5 +1,5 @@
 diff --git a/drivers/dma/dw/core.c b/drivers/dma/dw/core.c
-index c2c0a61..f09a7a0 100644
+index c2c0a61..4481e0c 100644
 --- a/drivers/dma/dw/core.c
 +++ b/drivers/dma/dw/core.c
 @@ -49,11 +49,12 @@
@@ -17,7 +17,32 @@ index c2c0a61..f09a7a0 100644
  		 | DWC_CTLL_DMS(_dms)				\
  		 | DWC_CTLL_SMS(_sms));				\
  	})
-@@ -757,6 +758,9 @@ static irqreturn_t dw_dma_interrupt(int irq, void *dev_id)
+@@ -536,6 +537,24 @@ static void dwc_handle_cyclic(struct dw_dma *dw, struct dw_dma_chan *dwc,
+ 
+ 		if (callback)
+ 			callback(callback_param);
++
++		if (dwc->nollp) {
++			dwc->cdesc->period_index++;
++			if (dwc->cdesc->period_index >= dwc->cdesc->periods)
++				dwc->cdesc->period_index = 0;
++
++			/* clear interrupt status */
++			dma_writel(dw, CLEAR.BLOCK, dwc->mask);
++			dma_writel(dw, CLEAR.ERROR, dwc->mask);
++			dma_writel(dw, CLEAR.XFER, dwc->mask);
++
++			/* enable interrupt */
++			channel_set_bit(dw, MASK.BLOCK, dwc->mask);
++
++			dwc_do_single_block(dwc,
++				*(dwc->cdesc->desc + dwc->cdesc->period_index));
++			return;
++		}
+ 	}
+ 
+ 	/*
+@@ -757,6 +776,9 @@ static irqreturn_t dw_dma_interrupt(int irq, void *dev_id)
  	if (unlikely(!is_slave_direction(direction) || !sg_len))
  		return NULL;
  
@@ -27,7 +52,7 @@ index c2c0a61..f09a7a0 100644
  	dwc->direction = direction;
  
  	prev = first = NULL;
-@@ -1138,6 +1142,13 @@ static int dwc_alloc_chan_resources(struct dma_chan *chan)
+@@ -1138,6 +1160,13 @@ static int dwc_alloc_chan_resources(struct dma_chan *chan)
  		return -EINVAL;
  	}
  
@@ -41,7 +66,40 @@ index c2c0a61..f09a7a0 100644
  	/* Enable controller here if needed */
  	if (!dw->in_use)
  		dw_dma_on(dw);
-@@ -1451,6 +1462,7 @@ int dw_dma_probe(struct dw_dma_chip *chip)
+@@ -1265,12 +1294,14 @@ struct dw_cyclic_desc *dw_dma_cyclic_prep(struct dma_chan *chan,
+ 	unsigned long			flags;
+ 
+ 	spin_lock_irqsave(&dwc->lock, flags);
++	/*
+ 	if (dwc->nollp) {
+ 		spin_unlock_irqrestore(&dwc->lock, flags);
+ 		dev_dbg(chan2dev(&dwc->chan),
+ 				"channel doesn't support LLP transfers\n");
+ 		return ERR_PTR(-EINVAL);
+ 	}
++	*/
+ 
+ 	if (!list_empty(&dwc->queue) || !list_empty(&dwc->active_list)) {
+ 		spin_unlock_irqrestore(&dwc->lock, flags);
+@@ -1377,6 +1408,8 @@ struct dw_cyclic_desc *dw_dma_cyclic_prep(struct dma_chan *chan,
+ 
+ 	cdesc->periods = periods;
+ 	dwc->cdesc = cdesc;
++	if (dwc->nollp)
++		cdesc->period_index = 0;
+ 
+ 	return cdesc;
+ 
+@@ -1427,6 +1460,8 @@ void dw_dma_cyclic_free(struct dma_chan *chan)
+ 	dwc->cdesc = NULL;
+ 
+ 	clear_bit(DW_DMA_IS_CYCLIC, &dwc->flags);
++	if (dwc->nollp)
++		clear_bit(DW_DMA_IS_SOFT_LLP, &dwc->flags);
+ }
+ EXPORT_SYMBOL(dw_dma_cyclic_free);
+ 
+@@ -1451,6 +1486,7 @@ int dw_dma_probe(struct dw_dma_chip *chip)
  
  	dw->regs = chip->regs;
  	chip->dw = dw;
@@ -49,7 +107,7 @@ index c2c0a61..f09a7a0 100644
  
  	pm_runtime_get_sync(chip->dev);
  
-@@ -1566,11 +1578,13 @@ int dw_dma_probe(struct dw_dma_chip *chip)
+@@ -1566,11 +1602,13 @@ int dw_dma_probe(struct dw_dma_chip *chip)
  			dwc->block_size =
  				(4 << ((pdata->block_size >> 4 * i) & 0xf)) - 1;
  			dwc->nollp =
@@ -111,7 +169,7 @@ index f65dd10..dab2e0f 100644
  
  static inline struct dw_dma_regs __iomem *__dw_regs(struct dw_dma *dw)
 diff --git a/include/linux/dma/dw.h b/include/linux/dma/dw.h
-index ccfd0c3..99ba4ad 100644
+index ccfd0c3..a586c2f 100644
 --- a/include/linux/dma/dw.h
 +++ b/include/linux/dma/dw.h
 @@ -37,6 +37,7 @@ struct dw_dma_chip {
@@ -122,3 +180,12 @@ index ccfd0c3..99ba4ad 100644
  };
  
  /* Export to the platform drivers */
+@@ -56,6 +57,8 @@ struct dw_cyclic_desc {
+ 	unsigned long	periods;
+ 	void		(*period_callback)(void *param);
+ 	void		*period_callback_param;
++	/* Indicate the current period to transfer. Only used in nollp case */
++	unsigned long	period_index;
+ };
+ 
+ struct dw_cyclic_desc *dw_dma_cyclic_prep(struct dma_chan *chan,
