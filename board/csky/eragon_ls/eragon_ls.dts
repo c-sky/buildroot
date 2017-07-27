@@ -189,6 +189,20 @@
 				};
 			};
 
+			i2c2 {
+				i2c2_x: i2c2_x {
+					csky,pins = <CSKY_GPIO1 2 1 &pcfg_pull_none>,
+						    <CSKY_GPIO1 3 1 &pcfg_pull_none>;
+				};
+			};
+
+			i2c3 {
+				i2c3_x: i2c3_x {
+					csky,pins = <CSKY_GPIO1 6 1 &pcfg_pull_none>,
+						    <CSKY_GPIO1 7 1 &pcfg_pull_none>;
+				};
+			};
+
 			i2s1 {
 				i2s1_x: i2s1_x {
 					csky,pins = <CSKY_GPIO2 4 1 &pcfg_pull_none>,
@@ -456,6 +470,8 @@
 			interrupt-parent = <&intc>;
 			interrupts = <18>;
 			clock-frequency = <100000>;
+			pinctrl-names = "default";
+			pinctrl-0 = <&i2c2_x>;
 
 			pcf8563_2: pcf8563_2@51 {
 				compatible = "nxp,pcf8563";
@@ -472,6 +488,8 @@
 			interrupt-parent = <&intc>;
 			interrupts = <19>;
 			clock-frequency = <100000>;
+			pinctrl-names = "default";
+			pinctrl-0 = <&i2c3_x>;
 
 			pcf8563_3: pcf8563_3@51 {
 				compatible = "nxp,pcf8563";
