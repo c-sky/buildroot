@@ -9,7 +9,7 @@
  * When TEST_PINMUX is not defined, these 2 pins work as UART3.
  * When TEST_PINMUX is defined, these 2 pins work as GPIO act as LEDs.
  */
-#define TEST_PINMUX
+//#define TEST_PINMUX
 
 / {
 	model = "csky kdgd";
