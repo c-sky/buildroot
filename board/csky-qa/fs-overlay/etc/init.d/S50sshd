@@ -1,6 +1,5 @@
 #!/bin/sh
 echo "start sshd ......"
-chmod 777 /dev/null
 chown root:root -R /var/empty/
 chown root:root -R /root/
 chmod 755 -R /root
