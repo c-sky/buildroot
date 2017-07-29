@@ -1,0 +1,19 @@
+#!/bin/sh
+echo "start sshd ......"
+chown root:root -R /var/empty/
+chown root:root -R /root/
+chmod 755 -R /root
+chown root:root /root/.ssh/authorized_keys
+chmod 600 /root/.ssh/authorized_keys
+chmod 755 /var/empty/
+
+addgroup -g 2100 cskyadmin
+id $user > /dev/null
+[ $? != 0 ] && adduser -u 1062 -G cskyadmin toolsbuild
+#addgroup toolsbuild cskyadmin
+chown toolsbuild:cskyadmin -R /home/toolsbuild/
+#chown toolsbuild:toolsbuild /home/toolsbuild/.ssh/authorized_keys
+chmod 600 /home/toolsbuild/.ssh/authorized_keys
+echo "sshd:x:74:74:Privilege-separated SSH:/var/empty/sshd:/sbin/nologin" >>/etc/passwd
+/usr/local/bin/sshd || exit 1
+echo "Finishd sshd !"

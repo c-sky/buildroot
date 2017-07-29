@@ -1,0 +1,15 @@
+#!/bin/sh
+#
+# start ipconfig ,mount nfs
+#
+echo "***** start init for csky test ****"
+mount -a
+#mkdir /dev/pts
+mount -t tmpfs tmpfs /tmp
+mount -t devpts devpts /dev/pts
+echo /sbin/mdev > /proc/sys/kernel/hotplug
+mdev -s
+ifconfig lo 127.0.0.1
+#ifconfig eth0 192.168.0.105 netmask 255.255.255.0
+[ ! -d /home/rtos_nfs ] && mkdir -p /home/rtos_nfs
+mount -t nfs 192.168.0.41:/newdata/home/rtos_nfs /home/rtos_nfs -o nolock,tcp
