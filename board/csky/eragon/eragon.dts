@@ -647,6 +647,27 @@
 				sound-dai = <&dummy_codec>;
 			};
 		};
+
+		rsa: rsa@1fb81000 {
+			compatible = "csky,csky-rsa";
+			reg = <0x1fb81000 0x1000>;
+		};
+
+		aes: aes@1fb82000 {
+			compatible = "csky,csky-aes";
+			reg = <0x1fb82000 0x1000>;
+		};
+
+		tdes: tdes@1fb83000 {
+			compatible = "csky,csky-tdes";
+			reg = <0x1fb83000 0x1000>;
+		};
+
+		crc: crc@1fb84000 {
+			compatible = "csky,csky-crc";
+			reg = <0x1fb84000 0x1000>;
+		};
+
 	};
 
 	chosen {
