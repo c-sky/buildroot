@@ -1,0 +1,343 @@
+diff --git a/crypto/algboss.c b/crypto/algboss.c
+index 6e39d9c..125b319 100644
+--- a/crypto/algboss.c
++++ b/crypto/algboss.c
+@@ -214,7 +214,7 @@ static int cryptomgr_test(void *data)
+ 	u32 type = param->type;
+ 	int err = 0;
+ 
+-#ifdef CONFIG_CRYPTO_MANAGER_DISABLE_TESTS
++#ifdef CONFIG_CRYPTO_TEST_MODULE
+ 	goto skiptest;
+ #endif
+ 
+diff --git a/crypto/tcrypt.c b/crypto/tcrypt.c
+index ae22f05..1e6d28c 100644
+--- a/crypto/tcrypt.c
++++ b/crypto/tcrypt.c
+@@ -2035,6 +2035,31 @@ static int do_test(const char *alg, u32 type, u32 mask, int m)
+ 				   speed_template_8_32);
+ 		break;
+ 
++	case 600:
++		ret += tcrypt_test("crc8_maxim");
++		ret += tcrypt_test("crc8_rohc");
++		ret += tcrypt_test("crc16_ibm");
++		ret += tcrypt_test("crc16_maxim");
++		ret += tcrypt_test("crc16_modbus");
++		ret += tcrypt_test("crc16_usb");
++		ret += tcrypt_test("crc16_ccitt");
++		ret += tcrypt_test("crc16_x25");
++		break;
++
++	case 601:
++		ret += tcrypt_test("ecb(aes)");
++		ret += tcrypt_test("cbc(aes)");
++		break;
++
++	case 602:
++		ret += tcrypt_test("ecb(des3_ede)");
++		ret += tcrypt_test("cbc(des3_ede)");
++		break;
++
++	case 603:
++		ret += tcrypt_test("rsa-c");
++		break;
++
+ 	case 1000:
+ 		test_available();
+ 		break;
+diff --git a/crypto/testmgr.c b/crypto/testmgr.c
+index 62dffa0..b4586bf 100644
+--- a/crypto/testmgr.c
++++ b/crypto/testmgr.c
+@@ -2630,6 +2630,66 @@ static const struct alg_test_desc alg_test_descs[] = {
+ 		.alg = "compress_null",
+ 		.test = alg_test_null,
+ 	}, {
++		.alg = "crc16_ccitt",
++		.test = alg_test_hash,
++		.fips_allowed = 1,
++		.suite = {
++			.hash = {
++				.vecs = crc16ccitt_tv_template,
++				.count = CRC16CCITT_TEST_VECTORS
++			}
++		}
++	}, {
++		.alg = "crc16_ibm",
++		.test = alg_test_hash,
++		.fips_allowed = 1,
++		.suite = {
++			.hash = {
++				.vecs = crc16ibm_tv_template,
++				.count = CRC16IBM_TEST_VECTORS
++			}
++		}
++	}, {
++		.alg = "crc16_maxim",
++		.test = alg_test_hash,
++		.fips_allowed = 1,
++		.suite = {
++			.hash = {
++				.vecs = crc16maxim_tv_template,
++				.count = CRC16MAXIM_TEST_VECTORS
++			}
++		}
++	}, {
++		.alg = "crc16_modbus",
++		.test = alg_test_hash,
++		.fips_allowed = 1,
++		.suite = {
++			.hash = {
++				.vecs = crc16modbus_tv_template,
++				.count = CRC16MODBUS_TEST_VECTORS
++			}
++		}
++	}, {
++		.alg = "crc16_usb",
++		.test = alg_test_hash,
++		.fips_allowed = 1,
++		.suite = {
++			.hash = {
++				.vecs = crc16usb_tv_template,
++				.count = CRC16USB_TEST_VECTORS
++			}
++		}
++	}, {
++		.alg = "crc16_x25",
++		.test = alg_test_hash,
++		.fips_allowed = 1,
++		.suite = {
++			.hash = {
++				.vecs = crc16x25_tv_template,
++				.count = CRC16X25_TEST_VECTORS
++			}
++		}
++	}, {
+ 		.alg = "crc32",
+ 		.test = alg_test_hash,
+ 		.suite = {
+@@ -2649,6 +2709,26 @@ static const struct alg_test_desc alg_test_descs[] = {
+ 			}
+ 		}
+ 	}, {
++		.alg = "crc8_maxim",
++		.test = alg_test_hash,
++		.fips_allowed = 1,
++		.suite = {
++			.hash = {
++				.vecs = crc8maxim_tv_template,
++				.count = CRC8MAXIM_TEST_VECTORS
++			}
++		}
++	}, {
++		.alg = "crc8_rohc",
++		.test = alg_test_hash,
++		.fips_allowed = 1,
++		.suite = {
++			.hash = {
++				.vecs = crc8rohc_tv_template,
++				.count = CRC8ROHC_TEST_VECTORS
++			}
++		}
++	}, {
+ 		.alg = "crct10dif",
+ 		.test = alg_test_hash,
+ 		.fips_allowed = 1,
+@@ -3824,6 +3904,16 @@ static const struct alg_test_desc alg_test_descs[] = {
+ 			}
+ 		}
+ 	}, {
++		.alg = "rsa-c",
++		.test = alg_test_akcipher,
++		.fips_allowed = 1,
++		.suite = {
++			.akcipher = {
++				.vecs = rsa_c_tv_template,
++				.count = RSA_C_TEST_VECTORS
++			}
++		}
++	}, {
+ 		.alg = "salsa20",
+ 		.test = alg_test_skcipher,
+ 		.suite = {
+@@ -4184,6 +4274,9 @@ int alg_test(const char *driver, const char *alg, u32 type, u32 mask)
+ 	if (fips_enabled && !rc)
+ 		pr_info("alg: self-tests for %s (%s) passed\n", driver, alg);
+ 
++	if (!rc)
++		printk("alg %s (%s) passed\n", driver, alg);
++
+ 	return rc;
+ 
+ notest:
+diff --git a/crypto/testmgr.h b/crypto/testmgr.h
+index 9033088..7acecdd 100644
+--- a/crypto/testmgr.h
++++ b/crypto/testmgr.h
+@@ -148,6 +148,53 @@ struct kpp_testvec {
+ 
+ static char zeroed_string[48];
+ 
++#define RSA_C_TEST_VECTORS	1
++static struct akcipher_testvec rsa_c_tv_template[] = {
++	{
++	.key =
++	"\x30\x82\x01\x1D"	/* sequence of 285 bytes */
++	"\x02\x01\x01"		/* version - integer of 1 byte */
++	"\x02\x81\x80"		/* modulus - integer of 128 bytes */
++	"\xdf\x83\xe4\x76\x2d\x00\x61\xf6\xd0\x8d\x4a\x04\x66\xb1\xd5\x55"
++	"\xef\x71\xb5\xa5\x4e\x69\x44\xd3\x4f\xb8\x3d\xec\xb1\x1d\x5f\x82"
++	"\x6a\x48\x21\x00\x7f\xd7\xd5\xf6\x82\x35\xc2\xa6\x67\xa3\x53\x2d"
++	"\x3a\x83\x9a\xba\x60\xc2\x11\x22\xc2\x35\x83\xe9\x10\xa1\xb4\xa6"
++	"\x74\x57\x99\xd3\xa8\x6a\x21\x83\x76\xc1\x67\xde\xd8\xec\xdf\xf7"
++	"\xc0\x1b\xf6\xfa\x14\xa4\x0a\xec\xd1\xee\xc0\x76\x4c\xcd\x4a\x0a"
++	"\x5c\x96\xf2\xc9\xa4\x67\x03\x97\x2e\x17\xcd\xa9\x27\x9d\xa6\x35"
++	"\x5f\x7d\xb1\x6b\x68\x0e\x99\xc7\xdd\x5d\x6f\x15\xce\x8e\x85\x33"
++	"\x02\x03\x01\x00\x01"	/* public key - integer of 3 bytes */
++	"\x02\x81\x80"		/* private key - integer of 128 bytes */
++	"\xc6\x15\x3d\x02\xfe\x1e\xb8\xb2\xe3\x60\x53\x98\x52\xea\x87\x06"
++	"\x01\x8d\xe4\x4c\xfb\x90\x8f\x4e\x35\xf8\x31\xe8\xf1\x8d\xf6\x76"
++	"\xbd\x79\xee\xc5\x62\x87\x05\x37\xd1\x6d\x93\x73\xa5\xa5\x38\xb1"
++	"\x7c\x89\xe5\x36\x07\x49\xf5\xa5\xb8\x37\x75\x0f\xb7\x8d\x97\x69"
++	"\xc4\xd4\x8a\xb7\xfe\x74\x48\x45\x58\x47\x29\xa3\x0b\xa7\xdc\x55"
++	"\x98\x18\x8c\xd4\x52\xf5\xc9\xe8\x40\xce\x97\x46\x14\x1f\x62\x94"
++	"\xc3\x21\x1e\x5d\x49\x59\x31\xeb\xc4\x95\xf9\x33\x70\xa7\x90\xc3"
++	"\x9e\x98\x58\xa4\x00\xa4\x0f\xf3\x51\x80\xc6\x14\xfb\xd5\x5b\x01"
++	"\x02\x01\x00"		/* prime1 - integer of 1 byte */
++	"\x02\x01\x00"		/* prime2 - integer of 1 byte */
++	"\x02\x01\x00"		/* exponent1 - integer of 1 byte */
++	"\x02\x01\x00"		/* exponent2 - integer of 1 byte */
++	"\x02\x01\x00",		/* coefficient - integer of 1 byte */
++	.key_len = 289,
++	.m =
++	"\xe4\x2c\x9f\x12\xf7\xd2\x67\x3a\x23\xea\x85\x61\xeb\xb2\xc2\x19"
++	"\xdc\xd9\xf1\xaa",
++	.c =
++	"\x79\x91\x2f\x5d\x2c\x58\xed\xbf\xf8\x35\x75\x9b\x06\xf5\x08\x66"
++	"\xdd\xa4\xa8\x8d\x39\xdb\xb0\x20\xdb\xae\xfc\x17\x16\xc2\x07\x77"
++	"\x01\x45\xa7\xc3\xfe\xea\x98\x62\x50\x18\xb3\x1f\x6d\xf6\x39\xfa"
++	"\x1f\x2f\xb4\xbd\x72\x1d\x09\x51\x3d\xa0\x2b\xec\x89\xd9\x78\xbd"
++	"\xe4\x8a\x3d\x48\x36\xd2\x25\xf2\x24\xc2\x60\xc6\x88\x50\x47\xb8"
++	"\xd4\x3e\x82\x8c\x94\x4b\x53\x4b\x7c\xe9\x52\x3d\x96\xef\x08\x3e"
++	"\xca\xa7\x4a\xd8\x18\xfb\x97\xce\x5f\x9a\x75\x79\x22\x62\x47\x79"
++	"\xfa\x8d\xd5\x42\x61\xb4\xff\x5d\xf4\x89\x0c\x69\x3d\x3a\x3a\x2d",
++	.m_size = 20,
++	.c_size = 128,
++	},
++};
+ /*
+  * RSA test vectors. Borrowed from openSSL.
+  */
+@@ -33952,6 +33999,110 @@ static struct hash_testvec crc32_tv_template[] = {
+ };
+ 
+ /*
++ * CRC8_MAXIM
++ */
++#define CRC8MAXIM_TEST_VECTORS  1
++
++static struct hash_testvec crc8maxim_tv_template[] = {
++	{
++		.plaintext = "1234567890abcdef",
++		.psize = 16,
++		.digest = "\x9",
++	}
++};
++
++/*
++ * CRC8_ROHC
++ */
++#define CRC8ROHC_TEST_VECTORS  1
++
++static struct hash_testvec crc8rohc_tv_template[] = {
++	{
++		.plaintext = "1234567890abcdef",
++		.psize = 16,
++		.digest = "\x9c",
++	}
++};
++
++/*
++ * CRC16_IBM
++ */
++#define CRC16IBM_TEST_VECTORS  1
++
++static struct hash_testvec crc16ibm_tv_template[] = {
++	{
++		.plaintext = "1234567890abcdef",
++		.psize = 16,
++		.digest = "\xc2\xd3",
++	}
++};
++
++/*
++ * CRC16_MAXIM
++ */
++#define CRC16MAXIM_TEST_VECTORS  1
++
++static struct hash_testvec crc16maxim_tv_template[] = {
++	{
++		.plaintext = "1234567890abcdef",
++		.psize = 16,
++		.digest = "\x3d\x2c",
++	}
++};
++
++/*
++ * CRC16_USB
++ */
++#define CRC16USB_TEST_VECTORS  1
++
++static struct hash_testvec crc16usb_tv_template[] = {
++	{
++		.plaintext = "1234567890abcdef",
++		.psize = 16,
++		.digest = "\x83\xdc",
++	}
++};
++
++/*
++ * CRC16_MODBUS
++ */
++#define CRC16MODBUS_TEST_VECTORS  1
++
++static struct hash_testvec crc16modbus_tv_template[] = {
++	{
++		.plaintext = "1234567890abcdef",
++		.psize = 16,
++		.digest = "\x7c\x23",
++	}
++};
++
++/*
++ * CRC16_CCITT
++ */
++#define CRC16CCITT_TEST_VECTORS  1
++
++static struct hash_testvec crc16ccitt_tv_template[] = {
++	{
++		.plaintext = "1234567890abcdef",
++		.psize = 16,
++		.digest = "\x5c\x63",
++	}
++};
++
++/*
++ * CRC16_X25
++ */
++#define CRC16X25_TEST_VECTORS  1
++
++static struct hash_testvec crc16x25_tv_template[] = {
++	{
++		.plaintext = "1234567890abcdef",
++		.psize = 16,
++		.digest = "\xf5\xcc",
++	}
++};
++
++/*
+  * CRC32C test vectors
+  */
+ #define CRC32C_TEST_VECTORS 15
