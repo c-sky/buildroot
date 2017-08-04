@@ -6,14 +6,14 @@
 #include "../../../../addons/drivers/mailbox/mailbox-csky.h"
 
 / {
-	model = "csky eragon";
-	compatible = "csky,eragon";
+	model = "csky eragon_ls";
+	compatible = "csky,eragon_ls";
 	#address-cells = <1>;
 	#size-cells = <1>;
 
 	memory {
 		device_type = "memory";
-		reg = <0x00200000 0x17a00000>;	// Reserve first 2MB for VPU work buf, last 2MB for iram
+		reg = <0x00200000 0x17800000>;	// Reserve for loongson uboot
 	};
 
 	aliases {
@@ -521,22 +521,6 @@
 			clocks = <&dummy_apb>;
 			clock-names = "otg";
 			dr_mode = "host";
-		};
-
-		vpu_iram: sram@17c00000 {
-			compatible = "mmio-sram";
-			reg = <0x17c00000 0x200000>;
-			clocks = <&dummy_apb>;
-		};
-
-		vpu: vpu@1fa10000 {
-			compatible = "csky,eragon-vpu", "cnm,coda7541";
-			reg = <0x1fa10000 0x10000>;
-			interrupt-parent = <&intc>;
-			interrupts = <41>;
-			clocks = <&dummy_apb>, <&dummy_apb>;
-			clock-names = "ahb", "per";
-			iram = <&vpu_iram>;
 		};
 
 		lcdc: lcdc@1fa00000 {
