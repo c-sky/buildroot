@@ -600,7 +600,7 @@
 			dev-id = <0>;
 			#mbox-cells = <1>;
 		};
-
+		/*
 		mailbox_ls: mailbox1 {
 			compatible = "csky,mailbox-1.0";
 			reg = <0x1fbd4000 0xb0>;
@@ -609,22 +609,38 @@
 			dev-id = <1>;
 			#mbox-cells = <1>;
 		};
-
-
+		*/
+#if 0
+		mailbox_client_eg {
+			compatible	= "csky,mailbox-client";
+			reg		= <0x1fbd4030 0x40>, <0x1fbd4070 0x40>;
+			mbox-names	= "channel";
+			mboxes		= <&mailbox_eg CSKY_MBOX_CHAN_0>;
+		};
+		/*
+		mailbox_client_ls {
+			compatible	= "csky,mailbox-client";
+			reg		= <0x1fbd4070 0x40>, <0x1fbd4030 0x40>;
+			mbox-names	= "channel";
+			mboxes		= <&mailbox_ls CSKY_MBOX_CHAN_0>;
+		};
+		*/
+#else
 		ttym_eg {
 			compatible	= "csky,tty_mailbox";
 			reg		= <0x1fbd4030 0x40>, <0x1fbd4070 0x40>;
 			mbox-names	= "channel";
 			mboxes		= <&mailbox_eg CSKY_MBOX_CHAN_0>;
 		};
-
+		/*
 		tty_mailbox_client_ls {
 			compatible	= "csky,tty-mailbox-client";
 			reg		= <0x1fbd4070 0x40>, <0x1fbd4030 0x40>;
 			mbox-names	= "channel";
 			mboxes		= <&mailbox_ls CSKY_MBOX_CHAN_0>;
 		};
-
+		*/
+#endif
 		i2s0: i2s0@1FB90000 {
 			compatible = "csky,eragon-i2s";
 			reg = <0x1FB90000 0x1000>;
