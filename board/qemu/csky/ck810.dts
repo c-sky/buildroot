@@ -23,10 +23,6 @@
 		};
 	};
 
-	aliases {
-		serial0 = &uart0;
-	};
-
 	soc {
 		#address-cells = <1>;
 		#size-cells = <1>;
@@ -67,7 +63,7 @@
 			interrupt-parent = <&intc>;
 		};
 
-		uart0: serial@10015000 {
+		serial0 {
 			compatible = "ns16550a";
 			reg = <0x1fffe000 0x1000>;
 			interrupt-parent = <&intc>;
@@ -78,10 +74,13 @@
 			reg-io-width = <1>;
 		};
 
+		qemu-exit {
+			compatible = "csky,qemu-exit";
+			reg = <0x1fffc000 0x1000>;
+		};
 	};
 
 	chosen {
 		bootargs = "console=ttyS0,115200 rdinit=/sbin/init root=/dev/ram0";
-		//bootargs = "console=ttyS0,115200 init=/sbin/init root=/dev/nfs rw nfsroot=172.16.28.35:/home/chenlf/sourcecode/buildroot2/output/target,v3,tcp,nolock ip=172.16.28.36";
 	};
 };
