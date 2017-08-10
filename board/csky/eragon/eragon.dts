@@ -629,6 +629,14 @@
 			pinctrl-0 = <&i2s1_x>;
 		};
 
+		watchdog0: watchdog@1FBA0000 {
+			compatible = "csky,eragon-wdt";
+			reg = <0x1FBA0000 0x1000>;
+			interrupt-parent = <&intc>;
+			interrupts = <7>;
+			clocks = <&dummy_apb>;
+		};
+
 		dummy_codec: dummy_codec {
 			compatible = "csky,i2s-dummy-codec";
 			#sound-dai-cells = <0>;
