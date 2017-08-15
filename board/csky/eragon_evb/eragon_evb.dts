@@ -996,8 +996,15 @@
 			reg = <0x1FB90000 0x1000>;
 			interrupt-parent = <&intc>;
 			interrupts = <36>;
+			/*
+			 * 'clock-frequency' is prior to 'clocks'.
+			 * When the 'clock-frequency' is set, the 'clocks' is omitted.
+			 */
+			/* clock-frequency = <147456000>; */
 			clocks = <&clk_gate2 20>, <&audio_pll>;
 			clock-names = "gate", "audio";
+			clk-for-fs-44k = <&clkout_audio_135M>;
+			clk-for-fs-48k = <&clkout_audio_147M>;
 			dmas = <&dmac_audio 0 1 0>, <&dmac_audio 1 1 0>;
 			dma-names = "rx", "tx";
 			#sound-dai-cells = <0>;
@@ -1008,8 +1015,15 @@
 			reg = <0x1FB91000 0x1000>;
 			interrupt-parent = <&intc>;
 			interrupts = <37>;
+			/*
+			 * 'clock-frequency' is prior to 'clocks'.
+			 * When the 'clock-frequency' is set, the 'clocks' is omitted.
+			 */
+			/* clock-frequency = <147456000>; */
 			clocks = <&clk_gate2 21>, <&audio_pll>;
 			clock-names = "gate", "audio";
+			clk-for-fs-44k = <&clkout_audio_135M>;
+			clk-for-fs-48k = <&clkout_audio_147M>;
 			dmas = <&dmac_audio 2 1 0>, <&dmac_audio 3 1 0>;
 			dma-names = "rx", "tx";
 			#sound-dai-cells = <0>;
