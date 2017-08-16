@@ -57,18 +57,44 @@
 
 		/* ---------- PLLs ---------- */
 
+		/* cpu_pll */
+		cpu_pll_800M: cpu_pll_800M {
+			#clock-cells = <0>;
+			compatible = "fixed-clock";
+			clock-frequency = <800000000>;
+			clock-output-names = "cpu_pll_800M";
+		};
+		cpu_pll_600M: cpu_pll_600M {
+			#clock-cells = <0>;
+			compatible = "fixed-clock";
+			clock-frequency = <600000000>;
+			clock-output-names = "cpu_pll_600M";
+		};
+		cpu_pll_400M: cpu_pll_400M {
+			#clock-cells = <0>;
+			compatible = "fixed-clock";
+			clock-frequency = <400000000>;
+			clock-output-names = "cpu_pll_400M";
+		};
+		cpu_pll_300M: cpu_pll_300M {
+			#clock-cells = <0>;
+			compatible = "fixed-clock";
+			clock-frequency = <300000000>;
+			clock-output-names = "cpu_pll_300M";
+		};
+
 		/* audio_pll */
-		clkout_audio_147M: clkout_audio_147M {
+		audio_pll_147M: audio_pll_147M {
 			#clock-cells = <0>;
 			compatible = "fixed-clock";
 			clock-frequency = <147456000>;
-			clock-output-names = "clkout_audio_147M";
+			clock-output-names = "audio_pll_147M";
 		};
-		clkout_audio_135M: clkout_audio_135M {
+		audio_pll_135M: audio_pll_135M {
 			#clock-cells = <0>;
 			compatible = "fixed-clock";
 			clock-frequency = <135475200>;
-			clock-output-names = "clkout_audio_135M";
+			clock-output-names = "audio_pll_135M";
 		};
 
 		/* video_pll */
@@ -80,6 +106,31 @@
 		};
 
 		/* ---------- dividers ---------- */
+
+		clkout_cpu_div2: clkout_cpu_div2 {
+			compatible = "fixed-factor-clock";
+			#clock-cells = <0>;
+			clocks = <&clkout_cpu>;
+			clock-mult = <1>;
+			clock-div = <2>;
+			clock-output-names = "clkout_cpu_div2";
+		};
+		clkout_cpu_div4: clkout_cpu_div4 {
+			compatible = "fixed-factor-clock";
+			#clock-cells = <0>;
+			clocks = <&clkout_cpu>;
+			clock-mult = <1>;
+			clock-div = <4>;
+			clock-output-names = "clkout_cpu_div4";
+		};
+		cpuaclk: cpuaclk {
+			compatible = "fixed-factor-clock";
+			#clock-cells = <0>;
+			clocks = <&cpucclk>;
+			clock-mult = <1>;
+			clock-div = <2>;
+			clock-output-names = "cpuaclk";
+		};
 
 		/*
 		 * video_pll
@@ -271,7 +322,7 @@
 				 <&xiclk>;
 			clock-output-names = "cfgclk";
 		};
-		xiclk: xiclk {
+		xiclk: xiclk { /* pmuclk */
 			compatible = "csky,clk-mux";
 			#clock-cells = <0>;
 			reg = <0x1FBD0000 4>;
@@ -349,14 +400,46 @@
 		/*
 		 * Audio PLL Control Register High
 		 */
-		audio_pll: audio_pll {
+		clkout_audio: clkout_audio {
 			compatible = "csky,clk-mux";
 			#clock-cells = <0>;
 			reg = <0x1FBD005C 4>;
 			bit-shift = <28>;
 			bit-width = <3>;
-			clocks = <&clkout_audio_147M>, <&clkout_audio_135M>;
-			clock-output-names = "audio_pll";
+			clocks = <&audio_pll_147M>, <&audio_pll_135M>;
+			clock-output-names = "clkout_audio";
+		};
+
+		/* cpu clock mux */
+
+		clkout_cpu: clkout_cpu {
+			compatible = "csky,clk-mux";
+			#clock-cells = <0>;
+			reg = <0x1FBD0808 4>; /* PMU Register: PLL_CFG_H */
+			bit-shift = <28>;
+			bit-width = <3>;
+			clocks = <&cpu_pll_800M>, <&cpu_pll_600M>,
+				 <&cpu_pll_400M>, <&cpu_pll_300M>;
+			clock-output-names = "clkout_cpu";
+		};
+
+		/*
+		 * clkout_cpu
+		 *     |--------|
+		 *     |--div2--|
+		 *     |--div4--|
+		 *              |--cpucclk--div2--cpuaclk
+		 * xi(pmuclk)---|
+		 */
+		cpucclk: cpucclk {
+			compatible = "csky,clk-mux";
+			#clock-cells = <0>;
+			reg = <0x1FBD0800 4>; /* PMU Register: PMU_CFG */
+			bit-shift = <8>;
+			bit-width = <4>;
+			clocks = <&clkout_cpu>, <&clkout_cpu_div2>,
+				 <&clkout_cpu_div4>, <&xiclk>;
+			clock-output-names = "cpucclk";
 		};
 
 		/* ---------- gates ---------- */
@@ -1001,10 +1084,10 @@
 			 * When the 'clock-frequency' is set, the 'clocks' is omitted.
 			 */
 			/* clock-frequency = <147456000>; */
-			clocks = <&clk_gate2 20>, <&audio_pll>;
+			clocks = <&clk_gate2 20>, <&clkout_audio>;
 			clock-names = "gate", "audio";
-			clk-for-fs-44k = <&clkout_audio_135M>;
-			clk-for-fs-48k = <&clkout_audio_147M>;
+			clk-for-fs-44k = <&audio_pll_135M>;
+			clk-for-fs-48k = <&audio_pll_147M>;
 			dmas = <&dmac_audio 0 1 0>, <&dmac_audio 1 1 0>;
 			dma-names = "rx", "tx";
 			#sound-dai-cells = <0>;
@@ -1020,10 +1103,10 @@
 			 * When the 'clock-frequency' is set, the 'clocks' is omitted.
 			 */
 			/* clock-frequency = <147456000>; */
-			clocks = <&clk_gate2 21>, <&audio_pll>;
+			clocks = <&clk_gate2 21>, <&clkout_audio>;
 			clock-names = "gate", "audio";
-			clk-for-fs-44k = <&clkout_audio_135M>;
-			clk-for-fs-48k = <&clkout_audio_147M>;
+			clk-for-fs-44k = <&audio_pll_135M>;
+			clk-for-fs-48k = <&audio_pll_147M>;
 			dmas = <&dmac_audio 2 1 0>, <&dmac_audio 3 1 0>;
 			dma-names = "rx", "tx";
 			#sound-dai-cells = <0>;
