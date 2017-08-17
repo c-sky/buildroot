@@ -311,28 +311,7 @@
 			snps,pbl = <32>;
 			snps,fixed-burst;
 		};
-/*
-		sdhc0: sdhc0@1FB12000 {
-			#address-cells = <1>;
-			#size-cells = <0>;
-			compatible = "snps,dw-mshc";
-			reg = <0x1FB12000 0x1000>;
-			interrupt-parent = <&intc>;
-			interrupts = <32>;
-			clocks = <&dummy_apb>, <&dummy_apb>;
-			clock-names = "ciu", "biu";
-			num-slots = <0x1>;
-			card-detect-delay = <200>;
-			cap-mmc-highspeed;
-			bus-width = <4>;
 
-			mmccard: mmccard@0 {
-				reg = <0>;
-				compatible = "mmc-card";
-				broken-hpi;
-			};
-		};
-*/
 		sdhc1: sdhc1@1FB13000 {
 			#address-cells = <1>;
 			#size-cells = <0>;
@@ -343,18 +322,10 @@
 			clocks = <&dummy_apb>, <&dummy_apb>;
 			clock-names = "ciu", "biu";
 			num-slots = <0x1>;
-			// fifo-depth = <32>;
 			card-detect-delay = <200>;
 			cap-mmc-highspeed;
 			non-removable;
 			bus-width = <0x8>;
-			/*
-			emmc: emmc@0 {
-				reg = <0>;
-				compatible = "mmc-card";
-				broken-hpi;
-			};
-			*/
 		};
 
 		rtc: rtc@1FBA1000 {
