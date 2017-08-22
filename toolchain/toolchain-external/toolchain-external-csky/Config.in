@@ -4,7 +4,11 @@ config BR2_TOOLCHAIN_EXTERNAL_CSKY
 	depends on BR2_HOSTARCH = "x86_64"
 	select BR2_INSTALL_LIBSTDCPP
 	select BR2_TOOLCHAIN_HEADERS_AT_LEAST_4_9
-	select BR2_TOOLCHAIN_GCC_AT_LEAST_6
+	select BR2_TOOLCHAIN_HAS_SSP
+	select BR2_TOOLCHAIN_HAS_THREADS
+	select BR2_TOOLCHAIN_HAS_THREADS_NPTL
+	select BR2_USE_WCHAR
+	select BR2_ENABLE_LOCALE
 	help
 	  Toolchain for the C-SKY cores, from
 	  https://c-sky.github.io
