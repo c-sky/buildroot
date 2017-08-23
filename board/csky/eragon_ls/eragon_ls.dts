@@ -111,7 +111,6 @@
 			gpio0: gpio0@1fbac000 {
 				compatible = "csky,eragon-gpio-bank";
 				reg = <0x1fbac000 0x1000>;
-				/*clocks = <&cru PCLK_GPIO0>;*/
 
 				gpio-controller;
 				#gpio-cells = <2>;
@@ -123,7 +122,6 @@
 			gpio1: gpio1@1fbad000 {
 				compatible = "csky,eragon-gpio-bank";
 				reg = <0x1fbad000 0x1000>;
-				/*clocks = <&cru PCLK_GPIO1>;*/
 
 				gpio-controller;
 				#gpio-cells = <2>;
@@ -135,7 +133,6 @@
 			gpio2: gpio2@1fbae000 {
 				compatible = "csky,eragon-gpio-bank";
 				reg = <0x1fbae000 0x1000>;
-				/*clocks = <&cru PCLK_GPIO2>;*/
 
 				gpio-controller;
 				#gpio-cells = <2>;
@@ -147,7 +144,6 @@
 			gpio3: gpio3@1fbaf000 {
 				compatible = "csky,eragon-gpio-bank";
 				reg = <0x1fbaf000 0x1000>;
-				/*clocks = <&cru PCLK_GPIO3>;*/
 
 				gpio-controller;
 				#gpio-cells = <2>;
