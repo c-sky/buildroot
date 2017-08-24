@@ -10,7 +10,7 @@ ifeq ($(BR2_TOOLCHAIN_EXTERNAL_CSKY_GLIBC),y)
 ifeq ($(BR2_ck610),y)
 TOOLCHAIN_EXTERNAL_CSKY_SOURCE = csky-linux-tools-x86_64-glibc-linux-4.9.25-20170522.tar.gz
 else
-TOOLCHAIN_EXTERNAL_CSKY_SOURCE = csky-abiv2-linux-tools-x86_64-glibc-linux-4.9.25-20170823.tar.gz
+TOOLCHAIN_EXTERNAL_CSKY_SOURCE = csky-abiv2-linux-tools-x86_64-glibc-linux-4.9.25-20170824.tar.gz
 endif
 else # BR2_TOOLCHAIN_EXTERNAL_CSKY_GLIBC
 ifeq ($(BR2_ck610),y)
