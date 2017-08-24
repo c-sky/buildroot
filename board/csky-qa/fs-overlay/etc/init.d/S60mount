@@ -11,6 +11,9 @@ echo /sbin/mdev > /proc/sys/kernel/hotplug
 mdev -s
 ifconfig lo 127.0.0.1
 #ifconfig eth0 192.168.0.105 netmask 255.255.255.0
+#ifconfig eth0 172.16.160.133 netmask 255.255.255.0
+#route add default gw 172.16.160.254
+#sleep 10
 [ ! -d /home/rtos_nfs ] && mkdir -p /home/rtos_nfs
 mount -t nfs 192.168.0.41:/newdata/home/rtos_nfs /home/rtos_nfs -o nolock,tcp
 chmod 777 /dev/null
