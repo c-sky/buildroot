@@ -18,3 +18,4 @@ ifconfig lo 127.0.0.1
 mount -t nfs 192.168.0.41:/newdata/home/rtos_nfs /home/rtos_nfs -o nolock,tcp
 mount -o remount,rw /home/rtos_nfs
 chmod 777 /dev/null
+chmod 755 /dev/urandom
