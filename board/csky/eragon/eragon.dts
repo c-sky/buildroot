@@ -670,6 +670,20 @@
 			reg = <0x1fb84000 0x1000>;
 		};
 
+		pwm: pwm@1fbaa000 {
+			compatible = "csky,eragon-pwm";
+			reg = <0x1fbaa000 0x1000>;
+			#pwm-cells = <2>;
+			clocks = <&dummy_rtc_clock>;
+		};
+
+		backlight {
+			compatible = "pwm-backlight";
+			pwms = <&pwm 0 4000000>;
+
+			brightness-levels = <0 128 190 225 241 247 253 255>;
+			default-brightness-level = <0>;
+		};
 	};
 
 	chosen {
