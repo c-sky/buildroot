@@ -23,7 +23,7 @@
 		i2c2 = &i2c2;
 		i2c3 = &i2c3;
 		i2c4 = &i2c4;
-		rtc0 = &rtc;
+//		rtc0 = &rtc;
 		rtc2 = &pcf8563_2;
 		rtc3 = &pcf8563_3;
 		rtc4 = &pcf8563_4;
@@ -414,7 +414,7 @@
 			non-removable;
 			bus-width = <0x8>;
 		};
-
+/*
 		rtc: rtc@1FBA1000 {
 			compatible = "apm,xgene-rtc";
 			reg = <0x1FBA1000 0x1000>;
@@ -422,7 +422,7 @@
 			interrupts = <8>;
 			clocks = <&rtcclk>;
 		};
-
+*/
 		i2c0: i2c@1FB16000 {
 			#address-cells = <1>;
 			#size-cells = <0>;
@@ -681,7 +681,7 @@
 
 	chosen {
 		// bootargs = "console=ttyS2,115200 init=/sbin/init root=/dev/nfs rw nfsroot=172.16.28.184:/home/rtos_nfs/br/rootfs,v3,tcp,nolock ip=172.16.150.100::172.16.150.254:255.255.255.0";
-		bootargs = "console=ttyS2,115200 rdinit=/sbin/init root=/dev/ram0";
+		bootargs = "console=ttyS2,115200 rdinit=/sbin/init root=/dev/ram0 clk_ignore_unused";
 	};
 };
 
