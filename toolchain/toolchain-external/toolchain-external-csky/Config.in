@@ -8,7 +8,6 @@ config BR2_TOOLCHAIN_EXTERNAL_CSKY
 	select BR2_TOOLCHAIN_HAS_THREADS
 	select BR2_TOOLCHAIN_HAS_THREADS_NPTL
 	select BR2_USE_WCHAR
-	select BR2_ENABLE_LOCALE
 	help
 	  Toolchain for the C-SKY cores, from
 	  https://c-sky.github.io
