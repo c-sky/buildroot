@@ -1,3 +1,24 @@
+2017.08, Released September 1st, 2017
+
+	Minor fixes.
+
+	Toolchain: Don't allow internal toolchain builds for MIPS
+	M6201/P6600, as support for these are not yet in mainline GCC.
+
+	Updated/fixed packages: bcusdk, connman, dialog, dnsmasq,
+	gnupg, grub2, iostat, iucode-tool, libgcrypt, libkcapi,
+	libphidget, libv4l, linux-tools, mediastreamer, minidlna,
+	nss-pam-ldapd, nvidia-driver, qt-webkit-kiosk, rpcbind, squid,
+	transmission, vde2, vim
+
+	Updated/fixed defconfigs:
+
+	Removed packages: simicfs.
+
+	Issues resolved (http://bugs.buildroot.org):
+
+	#10261: Grub2 fails to build for x86_64
+
 2017.08-rc3, Released August 23rd, 2017
 
 	Fixes all over the tree.
@@ -40,12 +61,12 @@
 
 	Issues resolved (http://bugs.buildroot.org):
 
-	#9926:  systemd-resolved.service: Failed at step  NAMESPACE (systemd 233)
+	#9926:  systemd-resolved.service: Failed at step NAMESPACE (systemd 233)
 	#10021: libqeglfs-viv-integration.so file is missing for qt5 on armv7
 	#10026: lua-5.3.4: fix lua linker error in swupdate
 	#10146: package/skeleton-common fix recursive variable
-	#10156: glibc compilation fails for X86 32bits  (i386)
-	#10201: toolchain-wrapper.c:192: (error) Memory  leak:
+	#10156: glibc compilation fails for X86 32bits (i386)
+	#10201: toolchain-wrapper.c:192: (error) Memory leak:
 	#10221: Buildroot Support
 
 2017.08-rc1, Released August 2nd, 2017
@@ -85,7 +106,7 @@
 	- The host directory no longer has a usr/ component. This
 	  makes it much more natural to use that directory as an
 	  externally used toolchain. For compatibility with existing
-	  scripts, a link usr -> . is still added.
+	  scripts, a usr -> . link is still added.
 
 	- Hashes are now checked on tarballs by Buildroot when a
 	  package is sourced from a Git repository.
