@@ -64,7 +64,7 @@
 	};
 
 	chosen {
-		bootargs = "console=ttyAMA0,115200 init=/sbin/init root=/dev/nfs rw nfsroot=192.168.101.230:/opt/nfs/test_abiv2_new/,v3,tcp,nolock ip=192.168.101.23";
-//		bootargs = "console=ttyAMA0,115200 rdinit=/sbin/init root=/dev/ram0";
+//		bootargs = "console=ttyAMA0,115200 init=/sbin/init root=/dev/nfs rw nfsroot=192.168.101.230:/opt/nfs/test_abiv2_new/,v3,tcp,nolock ip=192.168.101.23";
+		bootargs = "console=ttyAMA0,115200 rdinit=/sbin/init root=/dev/ram0";
 	};
 };

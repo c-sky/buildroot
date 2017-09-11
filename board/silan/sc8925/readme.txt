@@ -3,9 +3,6 @@ C-SKY Development Kit
 Intro
 =====
 
-C-SKY is a CPU Architecture from www.c-sky.com and has it own instruction set.
-Just like arm and mips in linux/arch, it named as 'csky'.
-
 sc8925 SOC is from http://www.silan.com.cn
 
 How to build it
@@ -22,23 +19,11 @@ After building, you should obtain this tree:
     output/images/
     ├── vmlinux
     ├── rootfs.tar
+    ├── rootfs.cpio
     └── sc8925.dtb
 
-Prepare NFS rootfs
+Run with initramfs
 ==================
-
-1. Prepare the nfs-server on your linux PC. You can get the step in google, we
-   don't mention it here.
-
-   Then extract output/images/rootfs.tar to your nfs root.
-
-2. Modified the "bootargs=" in board/silan/sc8925/sc8925.dts'. You must
-   specify the correct nfsroot= and ip= by your own PC enviornment.
-
-   '$ make linux-rebuild' again to update the sc8925.dtb in output/images
-
-How to run it with jtag
-=======================
 
 1. Run DebugServer
 
@@ -51,5 +36,23 @@ How to run it with jtag
 
   $ cd output/images
   $ ../host/usr/bin/csky-abiv2-linux-gdb -x ../../board/silan/sc8925/gdbinit vmlinux
+
+
+Run with NFS rootfs
+===================
+
+1. Prepare the nfs-server on your linux PC. You can get the step in google, we
+   don't mention it here.
+
+   Then extract output/images/rootfs.tar to your nfs root.
+
+2. Modified the "bootargs=" in board/silan/sc8925/sc8925.dts'. You must
+   specify the correct nfsroot= and ip= by your own PC enviornment.
+
+3. Make menuconfig deselect buildroot "filesystem->initramfs"
+
+4. Make linux-menuconfig deselect "General Setup->initramfs"
+ 
+  '$ make linux-rebuild' again to update the output/images
 
 
