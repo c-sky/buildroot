@@ -531,7 +531,7 @@
 			resets = <&swrc1 14>; /* SWRC1[14]: SW_IP_LCDC_RST */
 			bits-per-pixel = <32>;
 			pixel-clock-source = <0>; /* 0=HCLK, 1=external clock */
-			pcd = <1>; /* pixel clock divider. f=HCLK/2(pcd+1) */
+			pcd = <2>; /* pixel clock divider. f=HCLK/2(pcd+1) */
 			hsync-pulse-pol = <1>; /* HSYNC pulse polarity. 1=active low */
 			vsync-pulse-pol = <1>; /* VSYNC pulse polarity. 1=active low */
 			pixel-clock-pol = <0>; /* 0=data is driven on the rising edge */
