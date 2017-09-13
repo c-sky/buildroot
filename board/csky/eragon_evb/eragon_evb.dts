@@ -680,11 +680,6 @@
 			clocks = <&dummy_apb>;
 		};
 
-		sha: sha@1fb80000 {
-			compatible = "csky,csky-sha";
-			reg = <0x1fb80000 0x1000>;
-		};
-
 		rsa: rsa@1fb81000 {
 			compatible = "csky,csky-rsa";
 			reg = <0x1fb81000 0x1000>;

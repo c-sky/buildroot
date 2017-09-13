@@ -12,10 +12,10 @@ index 6e39d9c..125b319 100644
  #endif
  
 diff --git a/crypto/tcrypt.c b/crypto/tcrypt.c
-index ae22f05..1e6d28c 100644
+index ae22f05..d1d8a5c 100644
 --- a/crypto/tcrypt.c
 +++ b/crypto/tcrypt.c
-@@ -2035,6 +2035,31 @@ static int do_test(const char *alg, u32 type, u32 mask, int m)
+@@ -2035,6 +2035,39 @@ static int do_test(const char *alg, u32 type, u32 mask, int m)
  				   speed_template_8_32);
  		break;
  
@@ -42,6 +42,14 @@ index ae22f05..1e6d28c 100644
 +
 +	case 603:
 +		ret += tcrypt_test("rsa-c");
++		break;
++
++	case 604:
++		ret += tcrypt_test("sha1");
++		ret += tcrypt_test("sha224");
++		ret += tcrypt_test("sha256");
++		ret += tcrypt_test("sha384");
++		ret += tcrypt_test("sha512");
 +		break;
 +
  	case 1000:
@@ -173,7 +181,7 @@ index 62dffa0..b4586bf 100644
  
  notest:
 diff --git a/crypto/testmgr.h b/crypto/testmgr.h
-index 9033088..7acecdd 100644
+index 9033088..090641f 100644
 --- a/crypto/testmgr.h
 +++ b/crypto/testmgr.h
 @@ -148,6 +148,53 @@ struct kpp_testvec {
@@ -230,6 +238,15 @@ index 9033088..7acecdd 100644
  /*
   * RSA test vectors. Borrowed from openSSL.
   */
+@@ -22813,7 +22860,7 @@ static struct aead_testvec aes_ccm_enc_tv_template[] = {
+ 			  "\x09\x75\x9a\x9b\x3c\x9b\x27\x39",
+ 		.klen	= 32,
+ 		.iv	= "\x03\xf9\xd9\x4e\x63\xb5\x3d\x9d"
+-			  "\x43\xf6\x1e\x50\0\0\0\0",
++			  "\x43\xf6\x1e\x50\x00\x00\x00\x00",
+ 		.assoc	= "\x57\xf5\x6b\x8b\x57\x5c\x3d\x3b"
+ 			  "\x13\x02\x01\x0c\x83\x4c\x96\x35"
+ 			  "\x8e\xd6\x39\xcf\x7d\x14\x9b\x94"
 @@ -33952,6 +33999,110 @@ static struct hash_testvec crc32_tv_template[] = {
  };
  
