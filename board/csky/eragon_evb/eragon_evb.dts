@@ -519,7 +519,7 @@
 		};
 
 		usb@1fb00000 {
-			compatible = "csky,eragon-usb", "snps,dwc2";
+			compatible = "csky,eragon-usb-nodma", "snps,dwc2";
 			reg = <0x1fb00000 0x10000>;
 			interrupt-parent = <&intc>;
 			interrupts = <35>;
