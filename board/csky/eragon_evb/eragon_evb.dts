@@ -680,6 +680,11 @@
 			clocks = <&dummy_apb>;
 		};
 
+		sha: sha@1fb80000 {
+			compatible = "csky,csky-sha";
+			reg = <0x1fb80000 0x1000>;
+		};
+
 		rsa: rsa@1fb81000 {
 			compatible = "csky,csky-rsa";
 			reg = <0x1fb81000 0x1000>;
@@ -700,6 +705,20 @@
 			reg = <0x1fb84000 0x1000>;
 		};
 
+		pwm: pwm@1fbaa000 {
+			compatible = "csky,eragon-pwm";
+			reg = <0x1fbaa000 0x1000>;
+			#pwm-cells = <2>;
+			clocks = <&lspcclk>;
+		};
+
+		backlight {
+			compatible = "pwm-backlight";
+			pwms = <&pwm 0 625000>;/* 1.6K Hz */
+
+			brightness-levels = <255 253 247 241 225 190 128 1>;
+			default-brightness-level = <7>;
+		};
 	};
 
 	chosen {
