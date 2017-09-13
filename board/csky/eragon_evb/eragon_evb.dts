@@ -24,6 +24,8 @@
 		i2c3 = &i2c3;
 		i2c4 = &i2c4;
 //		rtc0 = &rtc;
+		rtc5 = &pcf8563_5;
+		rtc1 = &pcf8563_1;
 		rtc2 = &pcf8563_2;
 		rtc3 = &pcf8563_3;
 		rtc4 = &pcf8563_4;
@@ -182,6 +184,13 @@
 				uart3_x: uart3_x {
 					csky,pins = <CSKY_GPIO1 4 1 &pcfg_pull_none>,
 						    <CSKY_GPIO1 5 1 &pcfg_pull_none>;
+				};
+			};
+
+			i2c0 {
+				i2c0_x: i2c0_x {
+					csky,pins = <CSKY_GPIO2 2 1 &pcfg_pull_none>,
+						    <CSKY_GPIO2 3 1 &pcfg_pull_none>;
 				};
 			};
 
@@ -431,6 +440,14 @@
 			clocks = <&pxclk>;
 			interrupt-parent = <&intc>;
 			interrupts = <16>;
+			pinctrl-names = "default";
+			pinctrl-0 = <&i2c0_x>;
+			clock-frequency = <100000>;
+
+			pcf8563_5: pcf8563_5@51 {
+				compatible = "nxp,pcf8563";
+				reg = <0x51>;
+			};
 		};
 
 		i2c1: i2c@1FB17000 {
@@ -441,6 +458,12 @@
 			clocks = <&pxclk>;
 			interrupt-parent = <&intc>;
 			interrupts = <17>;
+			clock-frequency = <100000>;
+
+			pcf8563_1: pcf8563_1@51 {
+				compatible = "nxp,pcf8563";
+				reg = <0x51>;
+			};
 		};
 
 		i2c2: i2c@1FBA7000 {
@@ -531,7 +554,7 @@
 			resets = <&swrc1 14>; /* SWRC1[14]: SW_IP_LCDC_RST */
 			bits-per-pixel = <32>;
 			pixel-clock-source = <0>; /* 0=HCLK, 1=external clock */
-			pcd = <1>; /* pixel clock divider. f=HCLK/2(pcd+1) */
+			pcd = <2>; /* pixel clock divider. f=HCLK/2(pcd+1) */
 			hsync-pulse-pol = <1>; /* HSYNC pulse polarity. 1=active low */
 			vsync-pulse-pol = <1>; /* VSYNC pulse polarity. 1=active low */
 			pixel-clock-pol = <0>; /* 0=data is driven on the rising edge */
@@ -641,7 +664,7 @@
 			simple-audio-card,format = "i2s";
 
 			simple-audio-card,cpu {
-				sound-dai = <&i2s1>;
+				sound-dai = <&i2s0>;
 			};
 
 			simple-audio-card,codec {
