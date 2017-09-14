@@ -33,5 +33,8 @@ csky_gx6605s_fbcon_defconfig: *defconfig
 csky_sc8925_defconfig: *defconfig
 csky_sc6138a_defconfig: *defconfig
 csky_kdgd_defconfig: *defconfig
+csky_eragon_defconfig: *defconfig
+csky_eragon_ls_defconfig: *defconfig
 qemu_csky_ck810_uclibc_defconfig: *defconfig
 qemu_csky_ck610_uclibc_defconfig: *defconfig
+
