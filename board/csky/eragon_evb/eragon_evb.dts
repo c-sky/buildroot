@@ -677,7 +677,7 @@
 			reg = <0x1FBA0000 0x1000>;
 			interrupt-parent = <&intc>;
 			interrupts = <7>;
-			clocks = <&dummy_apb>;
+			clocks = <&lspcclk>;
 		};
 
 		rsa: rsa@1fb81000 {
