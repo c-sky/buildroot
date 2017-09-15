@@ -720,8 +720,8 @@
 			compatible = "pwm-backlight";
 			pwms = <&pwm 0 4000000>;
 
-			brightness-levels = <0 128 190 225 241 247 253 255>;
-			default-brightness-level = <0>;
+			brightness-levels = <255 253 247 241 225 190 128 1>;
+			default-brightness-level = <7>;
 		};
 	};
 
