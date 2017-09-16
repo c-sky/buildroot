@@ -1,7 +1,7 @@
 /dts-v1/;
 
 / {
-	model = "csky";
+	model = "qemu.csky.ck810";
 	compatible = "csky";
 	#address-cells = <1>;
 	#size-cells = <1>;
