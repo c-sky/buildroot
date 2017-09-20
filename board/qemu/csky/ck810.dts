@@ -29,13 +29,6 @@
 		compatible = "simple-bus";
 		ranges;
 
-		dummy_apb: apb-clock {
-			compatible = "fixed-clock";
-			clock-frequency = <40000000>;
-			clock-output-names = "dummy_apb";
-			#clock-cells = <0>;
-		};
-
 		intc: interrupt-controller {
 			compatible = "csky,intc-v1";
 			reg = <0x1ffff000 0x1000>;
@@ -72,6 +65,26 @@
 			baud = <115200>;
 			reg-shift = <2>;
 			reg-io-width = <1>;
+		};
+
+		dummy_apb: apb-clock {
+			compatible = "fixed-clock";
+			clock-frequency = <40000000>;
+			clock-output-names = "dummy_apb";
+			#clock-cells = <0>;
+		};
+
+		gmac: ethernet {
+			compatible = "snps,dwmac";
+			reg = <0x1fffa000 0x2000>;
+			interrupt-parent = <&intc>;
+			interrupts = <4>;
+			interrupt-names = "macirq";
+			clocks = <&dummy_apb>;
+			clock-names = "stmmaceth";
+			phy-mode = "mii";
+			snps,pbl = <32>;
+			snps,fixed-burst;
 		};
 
 		qemu-exit {
