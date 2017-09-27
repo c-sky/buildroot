@@ -11,18 +11,8 @@ index 5ff803e..6f2e4b5 100644
  	depends on HAS_DMA
  	select SRAM
  	select VIDEOBUF2_DMA_CONTIG
-diff --git a/drivers/media/platform/coda/Makefile b/drivers/media/platform/coda/Makefile
-index 9342ac5..5c11969 100644
---- a/drivers/media/platform/coda/Makefile
-+++ b/drivers/media/platform/coda/Makefile
-@@ -1,4 +1,5 @@
- ccflags-y += -I$(src)
-+ccflags-y += -O0
- 
- coda-objs := coda-common.o coda-bit.o coda-gdi.o coda-h264.o coda-jpeg.o
- 
 diff --git a/drivers/media/platform/coda/coda-bit.c b/drivers/media/platform/coda/coda-bit.c
-index b662504..f8dc0a0 100644
+index b662504..15d4e1c 100644
 --- a/drivers/media/platform/coda/coda-bit.c
 +++ b/drivers/media/platform/coda/coda-bit.c
 @@ -68,7 +68,8 @@ static void coda_command_async(struct coda_ctx *ctx, int cmd)
@@ -137,7 +127,16 @@ index b662504..f8dc0a0 100644
  			coda_write(dev, ctx->psbuf.paddr,
  					CODA_CMD_DEC_SEQ_PS_BB_START);
  			coda_write(dev, (CODA7_PS_BUF_SIZE / 1024),
-@@ -1680,7 +1696,8 @@ static int __coda_start_decoding(struct coda_ctx *ctx)
+@@ -1613,6 +1629,8 @@ static int __coda_start_decoding(struct coda_ctx *ctx)
+ 
+ 	width = round_up(width, 16);
+ 	height = round_up(height, 16);
++	ctx->pic_width = width;
++	ctx->pic_height = height;
+ 
+ 	v4l2_dbg(1, coda_debug, &dev->v4l2_dev, "%s instance %d now: %dx%d\n",
+ 		 __func__, ctx->idx, width, height);
+@@ -1680,7 +1698,8 @@ static int __coda_start_decoding(struct coda_ctx *ctx)
  				CODA_CMD_SET_FRAME_SLICE_BB_SIZE);
  	}
  
@@ -147,7 +146,7 @@ index b662504..f8dc0a0 100644
  		int max_mb_x = 1920 / 16;
  		int max_mb_y = 1088 / 16;
  		int max_mb_num = max_mb_x * max_mb_y;
-@@ -1776,7 +1793,15 @@ static int coda_prepare_decode(struct coda_ctx *ctx)
+@@ -1776,7 +1795,14 @@ static int coda_prepare_decode(struct coda_ctx *ctx)
  		reg_stride = CODA_CMD_DEC_PIC_ROT_STRIDE;
  	}
  	coda_write_base(ctx, q_data_dst, dst_buf, reg_addr);
@@ -157,14 +156,13 @@ index b662504..f8dc0a0 100644
 +		coda_write(dev, q_data_dst->bytesperline, reg_stride);
 +	}
 +	else {
-+		/* Eragon only support 800x480 display on LCD (2017-06-12) */
-+		coda_write(dev, 800, reg_stride);
-+		coda_write(dev, 800, CODA_CMD_DEC_PIC_CHUNK_SIZE);
++		coda_write(dev, ctx->pic_width, reg_stride);
++		coda_write(dev, ctx->pic_width, CODA_CMD_DEC_PIC_CHUNK_SIZE);
 +	}
  
  	coda_write(dev, CODA_ROT_MIR_ENABLE | ctx->params.rot_mode,
  			CODA_CMD_DEC_PIC_ROT_MODE);
-@@ -1785,6 +1810,7 @@ static int coda_prepare_decode(struct coda_ctx *ctx)
+@@ -1785,6 +1811,7 @@ static int coda_prepare_decode(struct coda_ctx *ctx)
  	case CODA_DX6:
  		/* TBD */
  	case CODA_7541:
@@ -172,7 +170,7 @@ index b662504..f8dc0a0 100644
  		coda_write(dev, CODA_PRE_SCAN_EN, CODA_CMD_DEC_PIC_OPTION);
  		break;
  	case CODA_960:
-@@ -1888,9 +1914,17 @@ static void coda_finish_decode(struct coda_ctx *ctx)
+@@ -1888,9 +1915,17 @@ static void coda_finish_decode(struct coda_ctx *ctx)
  				 ctx->slicebuf.size);
  	}
  
@@ -182,8 +180,8 @@ index b662504..f8dc0a0 100644
 +	/* CODA_7541_ERAGON can't read it, width and height always be 0 */
 +	if (dev->devtype->product == CODA_7541_ERAGON) {
 +		/* Eragon only support 800x480 display on LCD (2017-05-27) */
-+		width = success ? 800 : 0;
-+		height = success ? 480 : 0;
++		width = success ? ctx->pic_width : 0;
++		height = success ? ctx->pic_height : 0;
 +	}
 +	else {
 +		val = coda_read(dev, CODA_RET_DEC_PIC_SIZE);
@@ -193,7 +191,7 @@ index b662504..f8dc0a0 100644
  
  	q_data_dst = get_q_data(ctx, V4L2_BUF_TYPE_VIDEO_CAPTURE);
  
-@@ -1923,7 +1957,8 @@ static void coda_finish_decode(struct coda_ctx *ctx)
+@@ -1923,7 +1958,8 @@ static void coda_finish_decode(struct coda_ctx *ctx)
  		v4l2_err(&dev->v4l2_dev,
  			 "errors in %d macroblocks\n", err_mb);
  
@@ -203,7 +201,7 @@ index b662504..f8dc0a0 100644
  		val = coda_read(dev, CODA_RET_DEC_PIC_OPTION);
  		if (val == 0) {
  			/* not enough bitstream data */
-@@ -1984,11 +2019,16 @@ static void coda_finish_decode(struct coda_ctx *ctx)
+@@ -1984,11 +2020,16 @@ static void coda_finish_decode(struct coda_ctx *ctx)
  			 * should be enough to detect most errors and saves us
  			 * from doing different things based on the format.
  			 */
@@ -225,7 +223,7 @@ index b662504..f8dc0a0 100644
  			}
  			ctx->frame_metas[decoded_idx] = *meta;
  			kfree(meta);
-@@ -2040,6 +2080,15 @@ static void coda_finish_decode(struct coda_ctx *ctx)
+@@ -2040,6 +2081,15 @@ static void coda_finish_decode(struct coda_ctx *ctx)
  		dst_buf->flags |= ctx->frame_types[ctx->display_idx];
  		meta = &ctx->frame_metas[ctx->display_idx];
  		dst_buf->timecode = meta->timecode;
@@ -242,18 +240,9 @@ index b662504..f8dc0a0 100644
  
  		trace_coda_dec_rot_done(ctx, dst_buf, meta);
 diff --git a/drivers/media/platform/coda/coda-common.c b/drivers/media/platform/coda/coda-common.c
-index c39718a..f0998d8 100644
+index c39718a..b3a5948 100644
 --- a/drivers/media/platform/coda/coda-common.c
 +++ b/drivers/media/platform/coda/coda-common.c
-@@ -58,7 +58,7 @@
- 
- #define fh_to_ctx(__fh)	container_of(__fh, struct coda_ctx, fh)
- 
--int coda_debug;
-+int coda_debug = 2;
- module_param(coda_debug, int, 0644);
- MODULE_PARM_DESC(coda_debug, "Debug level (0-2)");
- 
 @@ -68,18 +68,30 @@ MODULE_PARM_DESC(disable_tiling, "Disable tiled frame buffers");
  
  void coda_write(struct coda_dev *dev, u32 data, u32 reg)
@@ -383,7 +372,7 @@ index c39718a..f0998d8 100644
  	/* IRQ */
  	irq = platform_get_irq_byname(pdev, "bit");
 diff --git a/drivers/media/platform/coda/coda.h b/drivers/media/platform/coda/coda.h
-index 53f9666..c0ceeb5 100644
+index 53f9666..342fc33 100644
 --- a/drivers/media/platform/coda/coda.h
 +++ b/drivers/media/platform/coda/coda.h
 @@ -44,6 +44,7 @@ enum coda_inst_type {
@@ -394,19 +383,20 @@ index 53f9666..c0ceeb5 100644
  	CODA_960 = 0xf020,
  };
  
-diff --git a/drivers/media/v4l2-core/Makefile b/drivers/media/v4l2-core/Makefile
-index 795a535..63bf9fb 100644
---- a/drivers/media/v4l2-core/Makefile
-+++ b/drivers/media/v4l2-core/Makefile
-@@ -1,7 +1,7 @@
- #
- # Makefile for the V4L2 core
- #
--
-+ccflags-y += -O0
- tuner-objs	:=	tuner-core.o
+@@ -236,6 +237,13 @@ struct coda_ctx {
+ 	int				display_idx;
+ 	struct dentry			*debugfs_entry;
+ 	bool				use_bit;
++
++	/* CODA_7541_ERAGON can't read CODA_RET_DEC_PIC_SIZE, width and height
++	 * always be 0, so store the picture width and height in
++	 * coda_prepare_decode() and use it when needed
++	 */
++	u32				pic_width;
++	u32				pic_height;
+ };
  
- videodev-objs	:=	v4l2-dev.o v4l2-ioctl.o v4l2-device.o v4l2-fh.o \
+ extern int coda_debug;
 diff --git a/drivers/media/v4l2-core/v4l2-mem2mem.c b/drivers/media/v4l2-core/v4l2-mem2mem.c
 index 6bc27e7..870d760 100644
 --- a/drivers/media/v4l2-core/v4l2-mem2mem.c

@@ -618,17 +618,10 @@
 			reg = <0x1FB90000 0x1000>;
 			interrupt-parent = <&intc>;
 			interrupts = <36>;
-			/*
-			 * 'clock-frequency' is prior to 'clocks'.
-			 * When the 'clock-frequency' is set, the 'clocks' is omitted.
-			 */
-			/* clock-frequency = <147456000>; */
 			clocks = <&clk_gate2 20>, <&clkout_audio>,
 				 <&audio_pll_135M>, <&audio_pll_147M>;
 			clock-names = "gate", "audio",
 				      "clk-for-fs-44k", "clk-for-fs-48k";
-			dmas = <&dmac_audio 0 1 0>, <&dmac_audio 1 1 0>;
-			dma-names = "rx", "tx";
 			#sound-dai-cells = <0>;
 		};
 
@@ -637,23 +630,21 @@
 			reg = <0x1FB91000 0x1000>;
 			interrupt-parent = <&intc>;
 			interrupts = <37>;
-			/*
-			 * 'clock-frequency' is prior to 'clocks'.
-			 * When the 'clock-frequency' is set, the 'clocks' is omitted.
-			 */
-			/* clock-frequency = <147456000>; */
 			clocks = <&clk_gate2 21>, <&clkout_audio>,
 				 <&audio_pll_135M>, <&audio_pll_147M>;
 			clock-names = "gate", "audio",
 				      "clk-for-fs-44k", "clk-for-fs-48k";
-			dmas = <&dmac_audio 2 1 0>, <&dmac_audio 3 1 0>;
-			dma-names = "rx", "tx";
 			#sound-dai-cells = <0>;
 			pinctrl-names = "default";
 			pinctrl-0 = <&i2s1_x>;
 		};
 
 		dummy_codec: dummy_codec {
+			compatible = "csky,i2s-dummy-codec";
+			#sound-dai-cells = <0>;
+		};
+
+		dummy_codec_hdmi: dummy_codec_hdmi {
 			compatible = "csky,i2s-dummy-codec";
 			#sound-dai-cells = <0>;
 		};
@@ -669,6 +660,20 @@
 
 			simple-audio-card,codec {
 				sound-dai = <&dummy_codec>;
+			};
+		};
+
+		dummy_card_hdmi {
+			compatible = "simple-audio-card";
+			simple-audio-card,name = "dummy-card-hdmi";
+			simple-audio-card,format = "i2s";
+
+			simple-audio-card,cpu {
+				sound-dai = <&i2s1>;
+			};
+
+			simple-audio-card,codec {
+				sound-dai = <&dummy_codec_hdmi>;
 			};
 		};
 
