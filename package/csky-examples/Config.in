@@ -1,0 +1,5 @@
+config BR2_PACKAGE_CSKY_EXAMPLES
+	bool "csky examples"
+	depends on BR2_LINUX_KERNEL
+	help
+	  csky linux examples
