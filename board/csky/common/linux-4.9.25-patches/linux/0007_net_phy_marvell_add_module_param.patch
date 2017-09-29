@@ -1,0 +1,86 @@
+diff --git a/drivers/net/phy/marvell.c b/drivers/net/phy/marvell.c
+index c2dcf02..c36e606 100644
+--- a/drivers/net/phy/marvell.c
++++ b/drivers/net/phy/marvell.c
+@@ -153,6 +153,73 @@
+ #define REGISTER_LINK_STATUS	0x400
+ #define NB_FIBER_STATS	1
+ 
++struct phy_device *s_phydev;
++
++static unsigned int phy_page;
++module_param(phy_page, uint, S_IRUGO | S_IWUSR);
++MODULE_PARM_DESC(phy_page, "register page");
++
++static unsigned int phy_reg;
++module_param(phy_reg, uint, S_IRUGO | S_IWUSR);
++MODULE_PARM_DESC(phy_reg, "register index");
++
++static unsigned int phy_reg_value;
++
++static int phy_reg_value_set(const char *val, const struct kernel_param *kp);
++static int phy_reg_value_get(char *val, const struct kernel_param *kp);
++
++static const struct kernel_param_ops phy_reg_value_ops = {
++	.set = phy_reg_value_set,
++	.get = phy_reg_value_get,
++};
++module_param_cb(phy_reg_value, &phy_reg_value_ops,
++		&phy_reg_value, S_IRUGO | S_IWUSR);
++MODULE_PARM_DESC(phy_reg_value, "register value");
++
++static int phy_reg_value_set(const char *val, const struct kernel_param *kp)
++{
++	int oldpage;
++	struct phy_device *phydev = s_phydev;
++
++	if (IS_ERR_OR_NULL(phydev)) {
++		pr_err("error! invalid pointer\n");
++		return -EINVAL;
++	}
++
++	param_set_uint(val, kp);
++
++	oldpage = phy_read(phydev, MII_MARVELL_PHY_PAGE);
++
++	phy_write(phydev, MII_MARVELL_PHY_PAGE, phy_page);
++	phy_write(phydev, phy_reg, phy_reg_value);
++	pr_info("page:%d, reg:%d, val:0x%X\n",
++		phy_page, phy_reg, phy_reg_value);
++
++	phy_write(phydev, MII_MARVELL_PHY_PAGE, oldpage);
++	return 0;
++}
++
++static int phy_reg_value_get(char *val, const struct kernel_param *kp)
++{
++	int oldpage;
++	int temp;
++	struct phy_device *phydev = s_phydev;
++
++	if (IS_ERR_OR_NULL(phydev)) {
++		pr_err("error! invalid pointer\n");
++		return -EINVAL;
++	}
++
++	oldpage = phy_read(phydev, MII_MARVELL_PHY_PAGE);
++
++	phy_write(phydev, MII_MARVELL_PHY_PAGE, phy_page);
++	temp = phy_read(phydev, phy_reg);
++	pr_info("page:%d, reg:%d, val:0x%X\n", phy_page, phy_reg, temp);
++
++	phy_write(phydev, MII_MARVELL_PHY_PAGE, oldpage);
++	return 0;
++}
++
+ MODULE_DESCRIPTION("Marvell PHY driver");
+ MODULE_AUTHOR("Andy Fleming");
+ MODULE_LICENSE("GPL");
+@@ -1479,6 +1546,7 @@ static int marvell_probe(struct phy_device *phydev)
+ 
+ 	phydev->priv = priv;
+ 
++	s_phydev = phydev;
+ 	return 0;
+ }
+ 
