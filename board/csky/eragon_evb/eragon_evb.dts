@@ -544,6 +544,38 @@
 			iram = <&vpu_iram>;
 		};
 
+		screen_timings: screen_timings {
+			#screen-timings-cells = <2>;
+			display-timings {
+				native-mode = <&hdmi_timing_720p60>;
+				/* append new timing config to the end */
+				lcd_timing: 800x480 {
+					clock-frequency = <24750000>;
+					hactive = <800>;
+					vactive = <480>;
+					hfront-porch = <82>;
+					hback-porch = <43>;
+					hsync-len = <3>;
+					vback-porch = <20>;
+					vfront-porch = <22>;
+					vsync-len = <3>;
+				};
+				/* vid code = 4 according to CEA-861-D */
+				hdmi_timing_720p60: 1280x720 {
+					clock-frequency = <74250000>;
+					hactive = <1280>;
+					vactive = <720>;
+					hfront-porch = <110>;
+					hback-porch = <220>;
+					hsync-len = <40>;
+					vback-porch = <20>;
+					vfront-porch = <5>;
+					vsync-len = <5>;
+					flags = <0x00a>;
+				};
+			};
+		};
+
 		lcdc: lcdc@1fa00000 {
 			compatible = "csky,eragon-lcdc";
 			reg = <0x1fa00000 0x10000>;
@@ -554,25 +586,19 @@
 			resets = <&swrc1 14>; /* SWRC1[14]: SW_IP_LCDC_RST */
 			bits-per-pixel = <32>;
 			pixel-clock-source = <0>; /* 0=HCLK, 1=external clock */
-			pcd = <2>; /* pixel clock divider. f=HCLK/2(pcd+1) */
 			hsync-pulse-pol = <1>; /* HSYNC pulse polarity. 1=active low */
 			vsync-pulse-pol = <1>; /* VSYNC pulse polarity. 1=active low */
 			pixel-clock-pol = <0>; /* 0=data is driven on the rising edge */
+			screen-timings = <&screen_timings>;
+		};
 
-			display-timings {
-				native-mode = <&lcd_timing>;
-				lcd_timing: 800x480 {
-					clock-frequency = <7500000>;
-					hactive = <800>;
-					vactive = <480>;
-					hfront-porch = <82>;
-					hback-porch = <43>;
-					hsync-len = <3>;
-					vback-porch = <20>;
-					vfront-porch = <22>;
-					vsync-len = <3>;
-				};
-			};
+		hdmi: hdmi@1fa20000 {
+			compatible = "csky,eragon-hdmi";
+			reg = <0x1fa20000 0x10000>;
+			interrupt-parent = <&intc>;
+			interrupts = <43>;
+			/* screen_timings, timing index, vid code */
+			screen-timings = <&screen_timings 1 4>;
 		};
 
 		spi0: spi@1fb18000 {
