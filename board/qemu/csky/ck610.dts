@@ -74,6 +74,19 @@
 			reg-io-width = <1>;
 		};
 
+		gmac: ethernet {
+			compatible = "snps,dwmac";
+			reg = <0x1fffa000 0x2000>;
+			interrupt-parent = <&intc>;
+			interrupts = <4>;
+			interrupt-names = "macirq";
+			clocks = <&dummy_apb>;
+			clock-names = "stmmaceth";
+			phy-mode = "mii";
+			snps,pbl = <32>;
+			snps,fixed-burst;
+		};
+
 		qemu-exit {
 			compatible = "csky,qemu-exit";
 			reg = <0x1fffc000 0x1000>;
