@@ -4,7 +4,7 @@
 #
 ################################################################################
 
-CSKY_QEMU_VERSION = 20170511
+CSKY_QEMU_VERSION = 20171010
 CSKY_QEMU_SOURCE = csky-qemu-x86_64-$(CSKY_QEMU_VERSION).tar.gz
 CSKY_QEMU_SITE = https://github.com/c-sky/tools/raw/master
 
