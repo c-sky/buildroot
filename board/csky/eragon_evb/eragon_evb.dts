@@ -665,19 +665,19 @@
 			pinctrl-0 = <&i2s1_x>;
 		};
 
-		dummy_codec: dummy_codec {
+		audio_codec0: audio_codec0 {
 			compatible = "csky,i2s-dummy-codec";
 			#sound-dai-cells = <0>;
 		};
 
-		dummy_codec_hdmi: dummy_codec_hdmi {
+		audio_codec1: audio_codec1 {
 			compatible = "csky,i2s-dummy-codec";
 			#sound-dai-cells = <0>;
 		};
 
-		dummy_card {
+		sound0 {
 			compatible = "simple-audio-card";
-			simple-audio-card,name = "dummy-card";
+			simple-audio-card,name = "audio-card0";
 			simple-audio-card,format = "i2s";
 
 			simple-audio-card,cpu {
@@ -685,13 +685,13 @@
 			};
 
 			simple-audio-card,codec {
-				sound-dai = <&dummy_codec>;
+				sound-dai = <&audio_codec0>;
 			};
 		};
 
-		dummy_card_hdmi {
+		sound1 {
 			compatible = "simple-audio-card";
-			simple-audio-card,name = "dummy-card-hdmi";
+			simple-audio-card,name = "audio-card1";
 			simple-audio-card,format = "i2s";
 
 			simple-audio-card,cpu {
@@ -699,7 +699,7 @@
 			};
 
 			simple-audio-card,codec {
-				sound-dai = <&dummy_codec_hdmi>;
+				sound-dai = <&audio_codec1>;
 			};
 		};
 
