@@ -400,12 +400,12 @@
 			reg = <0x1FB12000 0x1000>;
 			interrupt-parent = <&intc>;
 			interrupts = <32>;
-			clocks = <&dummy_apb>, <&dummy_apb>;
+			clocks = <&emmcclk>, <&emmcclk>;
 			clock-names = "ciu", "biu";
 			num-slots = <0x1>;
 			card-detect-delay = <200>;
 			cap-sd-highspeed;
-			bus-width = <4>;
+			bus-width = <1>;
 		};
 
 		sdhc1: sdhc1@1FB13000 {
@@ -415,7 +415,7 @@
 			reg = <0x1FB13000 0x1000>;
 			interrupt-parent = <&intc>;
 			interrupts = <33>;
-			clocks = <&dummy_apb>, <&dummy_apb>;
+			clocks = <&emmcclk>, <&emmcclk>;
 			clock-names = "ciu", "biu";
 			num-slots = <0x1>;
 			card-detect-delay = <200>;
