@@ -1,7 +1,6 @@
 BR2_csky=y
 BR2_OPTIMIZE_2=y
 BR2_GLOBAL_PATCH_DIR="board/nationalchip/gx66xx/patches"
-BR2_TOOLCHAIN_EXTERNAL_GDB_SERVER_COPY=y
 BR2_TARGET_GENERIC_GETTY_PORT="tty0"
 BR2_ROOTFS_OVERLAY="board/nationalchip/gx66xx/fs-overlay/"
 BR2_ROOTFS_POST_IMAGE_SCRIPT="board/nationalchip/gx66xx/post-image.sh"
