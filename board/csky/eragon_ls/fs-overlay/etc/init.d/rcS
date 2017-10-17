@@ -17,6 +17,11 @@ printf "Starting network: "
 /usr/sbin/telnetd
 
 #
+# To start sshd
+#
+#/etc/init.d/S50sshd start
+
+#
 # To config network
 #
 # ifconfig eth0 up

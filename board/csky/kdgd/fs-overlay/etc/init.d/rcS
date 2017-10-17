@@ -12,6 +12,11 @@ printf "Starting network: "
 [ $? = 0 ] && echo "OK" || echo "FAIL"
 
 #
+# To start sshd
+#
+#/etc/init.d/S50sshd start
+
+#
 # To config network
 #
 # ifconfig eth0 up
