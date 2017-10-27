@@ -6,8 +6,8 @@
 #include "eragon_evb_clocks.dtsi"
 
 / {
-	model = "csky eragon";
-	compatible = "csky,eragon";
+	model = "csky eragon evb";
+	compatible = "csky,eragon evb";
 	#address-cells = <1>;
 	#size-cells = <1>;
 
@@ -56,19 +56,19 @@
 		};
 
 		swrc0: swrc0@1fbd0038 {
-			compatible = "csky,eragon-reset";
+			compatible = "csky,reset-v1";
 			reg = <0x1fbd0038 4>;
 			#reset-cells = <1>;
 		};
 
 		swrc1: swrc1@1fbd003c {
-			compatible = "csky,eragon-reset";
+			compatible = "csky,reset-v1";
 			reg = <0x1fbd003c 4>;
 			#reset-cells = <1>;
 		};
 
 		swrc2: swrc2@1fbd0040 {
-			compatible = "csky,eragon-reset";
+			compatible = "csky,reset-v1";
 			reg = <0x1fbd0040 4>;
 			#reset-cells = <1>;
 		};
@@ -103,7 +103,7 @@
 		};
 
 		pinctrl: pinctrl@1fbac008 {
-			compatible = "csky,eragon-pinctrl";
+			compatible = "csky,pinctrl-v1";
 			reg = <0x1fbac008 0x4>;
 
 			#address-cells = <1>;
@@ -111,7 +111,7 @@
 			ranges;
 
 			gpio0: gpio0@1fbac000 {
-				compatible = "csky,eragon-gpio-bank";
+				compatible = "csky,gpio-bank-v1";
 				reg = <0x1fbac000 0x1000>;
 
 				gpio-controller;
@@ -122,7 +122,7 @@
 			};
 
 			gpio1: gpio1@1fbad000 {
-				compatible = "csky,eragon-gpio-bank";
+				compatible = "csky,gpio-bank-v1";
 				reg = <0x1fbad000 0x1000>;
 
 				gpio-controller;
@@ -133,7 +133,7 @@
 			};
 
 			gpio2: gpio2@1fbae000 {
-				compatible = "csky,eragon-gpio-bank";
+				compatible = "csky,gpio-bank-v1";
 				reg = <0x1fbae000 0x1000>;
 
 				gpio-controller;
@@ -144,7 +144,7 @@
 			};
 
 			gpio3: gpio3@1fbaf000 {
-				compatible = "csky,eragon-gpio-bank";
+				compatible = "csky,gpio-bank-v1";
 				reg = <0x1fbaf000 0x1000>;
 
 				gpio-controller;
@@ -524,7 +524,7 @@
 		};
 
 		usb@1fb00000 {
-			compatible = "csky,eragon-usb-nodma", "snps,dwc2";
+			compatible = "csky,usb-v1-nodma", "snps,dwc2";
 			reg = <0x1fb00000 0x10000>;
 			interrupt-parent = <&intc>;
 			interrupts = <35>;
@@ -540,7 +540,7 @@
 		};
 
 		vpu: vpu@1fa10000 {
-			compatible = "csky,eragon-vpu", "cnm,coda7541";
+			compatible = "csky,vpu-v1", "cnm,coda7541";
 			reg = <0x1fa10000 0x10000>;
 			interrupt-parent = <&intc>;
 			interrupts = <41>;
@@ -582,7 +582,7 @@
 		};
 
 		lcdc: lcdc@1fa00000 {
-			compatible = "csky,eragon-lcdc";
+			compatible = "csky,lcdc-v1";
 			reg = <0x1fa00000 0x10000>;
 			interrupt-parent = <&intc>;
 			interrupts = <40>;
@@ -598,7 +598,7 @@
 		};
 
 		hdmi: hdmi@1fa20000 {
-			compatible = "csky,eragon-hdmi";
+			compatible = "csky,hdmi-v1";
 			reg = <0x1fa20000 0x10000>;
 			interrupt-parent = <&intc>;
 			interrupts = <43>;
@@ -645,7 +645,7 @@
 		};
 
 		i2s0: i2s0@1FB90000 {
-			compatible = "csky,eragon-i2s";
+			compatible = "csky,i2s-v1";
 			reg = <0x1FB90000 0x1000>;
 			interrupt-parent = <&intc>;
 			interrupts = <36>;
@@ -657,7 +657,7 @@
 		};
 
 		i2s1: i2s1@1FB91000 {
-			compatible = "csky,eragon-i2s";
+			compatible = "csky,i2s-v1";
 			reg = <0x1FB91000 0x1000>;
 			interrupt-parent = <&intc>;
 			interrupts = <37>;
@@ -709,7 +709,7 @@
 		};
 
 		watchdog0: watchdog@1FBA0000 {
-			compatible = "csky,eragon-wdt";
+			compatible = "csky,wdt-v1";
 			reg = <0x1FBA0000 0x1000>;
 			interrupt-parent = <&intc>;
 			interrupts = <7>;
@@ -717,27 +717,27 @@
 		};
 
 		rsa: rsa@1fb81000 {
-			compatible = "csky,csky-rsa";
+			compatible = "csky,rsa-v1";
 			reg = <0x1fb81000 0x1000>;
 		};
 
 		aes: aes@1fb82000 {
-			compatible = "csky,csky-aes";
+			compatible = "csky,aes-v1";
 			reg = <0x1fb82000 0x1000>;
 		};
 
 		tdes: tdes@1fb83000 {
-			compatible = "csky,csky-tdes";
+			compatible = "csky,tdes-v1";
 			reg = <0x1fb83000 0x1000>;
 		};
 
 		crc: crc@1fb84000 {
-			compatible = "csky,csky-crc";
+			compatible = "csky,crc-v1";
 			reg = <0x1fb84000 0x1000>;
 		};
 
 		pwm: pwm@1fbaa000 {
-			compatible = "csky,eragon-pwm";
+			compatible = "csky,pwm-v1";
 			reg = <0x1fbaa000 0x1000>;
 			#pwm-cells = <2>;
 			clocks = <&lspcclk>;
@@ -755,12 +755,6 @@
 	chosen {
 		// bootargs = "console=ttyS2,115200 init=/sbin/init root=/dev/nfs rw nfsroot=172.16.28.184:/home/rtos_nfs/br/rootfs,v3,tcp,nolock ip=172.16.150.100::172.16.150.254:255.255.255.0";
 		bootargs = "console=ttyS2,115200 rdinit=/sbin/init root=/dev/ram0 clk_ignore_unused";
-	};
-};
-
-&pinctrl {
-	pcfg_output_low: pcfg-output-low {
-		output-low;
 	};
 };
 

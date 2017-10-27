@@ -359,7 +359,7 @@ index c39718a..b3a5948 100644
  	{ .compatible = "fsl,imx53-vpu", .data = &coda_devdata[CODA_IMX53] },
  	{ .compatible = "fsl,imx6q-vpu", .data = &coda_devdata[CODA_IMX6Q] },
  	{ .compatible = "fsl,imx6dl-vpu", .data = &coda_devdata[CODA_IMX6DL] },
-+	{ .compatible = "csky,eragon-vpu", .data = &coda_devdata[CODA_ERAGON] },
++	{ .compatible = "csky,vpu-v1", .data = &coda_devdata[CODA_ERAGON] },
  	{ /* sentinel */ }
  };
  MODULE_DEVICE_TABLE(of, coda_dt_ids);

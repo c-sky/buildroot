@@ -84,7 +84,7 @@
 		};
 
 		pinctrl: pinctrl@1fbac008 {
-			compatible = "csky,eragon-pinctrl";
+			compatible = "csky,pinctrl-v1";
 			reg = <0x1fbac008 0x4>;
 
 			#address-cells = <1>;
@@ -92,7 +92,7 @@
 			ranges;
 
 			gpio0: gpio0@1fbac000 {
-				compatible = "csky,eragon-gpio-bank";
+				compatible = "csky,gpio-bank-v1";
 				reg = <0x1fbac000 0x1000>;
 				interrupts = <0>;
 
@@ -104,7 +104,7 @@
 			};
 
 			gpio1: gpio1@1fbad000 {
-				compatible = "csky,eragon-gpio-bank";
+				compatible = "csky,gpio-bank-v1";
 				reg = <0x1fbad000 0x1000>;
 				interrupts = <1>;
 
@@ -116,7 +116,7 @@
 			};
 
 			gpio2: gpio2@1fbae000 {
-				compatible = "csky,eragon-gpio-bank";
+				compatible = "csky,gpio-bank-v1";
 				reg = <0x1fbae000 0x1000>;
 				interrupts = <2>;
 
@@ -128,7 +128,7 @@
 			};
 
 			gpio3: gpio3@1fbaf000 {
-				compatible = "csky,eragon-gpio-bank";
+				compatible = "csky,gpio-bank-v1";
 				reg = <0x1fbaf000 0x1000>;
 				interrupts = <3>;
 
@@ -429,7 +429,7 @@
 		};
 
 		usb@1fb00000 {
-			compatible = "csky,eragon-usb", "snps,dwc2";
+			compatible = "csky,usb-v1", "snps,dwc2";
 			reg = <0x1fb00000 0x10000>;
 			interrupt-parent = <&intc>;
 			interrupts = <35>;
@@ -463,12 +463,6 @@
 	chosen {
 		// bootargs = "console=ttyS2,115200 init=/sbin/init root=/dev/nfs rw nfsroot=172.16.28.184:/home/rtos_nfs/br/rootfs,v3,tcp,nolock ip=172.16.150.100::172.16.150.254:255.255.255.0";
 		bootargs = "console=ttyS2,115200 rdinit=/sbin/init root=/dev/ram0";
-	};
-};
-
-&pinctrl {
-	pcfg_output_low: pcfg-output-low {
-		output-low;
 	};
 };
 

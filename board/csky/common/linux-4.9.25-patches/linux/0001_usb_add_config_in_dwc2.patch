@@ -22,7 +22,7 @@ index 8e1728b..f872b84 100644
  	.hibernation			= -1,
  };
  
-+static const struct dwc2_core_params params_eragon = {
++static const struct dwc2_core_params params_csky_usb_v1 = {
 +	.otg_cap			= DWC2_CAP_PARAM_NO_HNP_SRP_CAPABLE,
 +	.otg_ver			= -1,
 +	.dma_enable			= 1,
@@ -54,7 +54,7 @@ index 8e1728b..f872b84 100644
 +	.hibernation			= -1,
 +};
 +
-+static const struct dwc2_core_params params_eragon_nodma = {
++static const struct dwc2_core_params params_csky_usb_v1_nodma = {
 +	.otg_cap			= DWC2_CAP_PARAM_NO_HNP_SRP_CAPABLE,
 +	.otg_ver			= -1,
 +	.dma_enable			= 0,
@@ -93,8 +93,8 @@ index 8e1728b..f872b84 100644
  	{ .compatible = "samsung,s3c6400-hsotg", .data = NULL},
  	{ .compatible = "amlogic,meson8b-usb", .data = &params_amlogic },
  	{ .compatible = "amlogic,meson-gxbb-usb", .data = &params_amlogic },
-+	{ .compatible = "csky,eragon-usb", .data = &params_eragon},
-+	{ .compatible = "csky,eragon-usb-nodma", .data = &params_eragon_nodma},
++	{ .compatible = "csky,usb-v1", .data = &params_csky_usb_v1},
++	{ .compatible = "csky,usb-v1-nodma", .data = &params_csky_usb_v1_nodma},
  	{},
  };
  MODULE_DEVICE_TABLE(of, dwc2_of_match_table);
