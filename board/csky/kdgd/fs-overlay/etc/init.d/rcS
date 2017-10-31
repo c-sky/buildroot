@@ -12,6 +12,11 @@ printf "Starting network: "
 [ $? = 0 ] && echo "OK" || echo "FAIL"
 
 #
+# To enable telnetd
+#
+/usr/sbin/telnetd
+
+#
 # To start sshd
 #
 #/etc/init.d/S50sshd start
