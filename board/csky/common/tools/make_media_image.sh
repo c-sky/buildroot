@@ -1,6 +1,9 @@
 #!/bin/sh
-media_files_path="./output/build/csky-examples-*/media/"
-media_img_name="./output/images/media-partition.ext2"
+
+BINARIES_DIR=$1
+
+media_files_path="${BINARIES_DIR}/../build/csky-examples-*/media/"
+media_img_name="${BINARIES_DIR}/media-partition.ext2"
 
 if [ -x $media_files_path ]; then
 	rm -f $media_img_name
