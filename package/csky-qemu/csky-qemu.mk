@@ -7,7 +7,8 @@
 CSKY_QEMU_VERSION = ce825f67bca4bbda1cd091e1bf6511fddaddb1a3
 CSKY_QEMU_SITE = $(call github,c-sky,qemu,$(CSKY_QEMU_VERSION))
 
-HOST_CSKY_QEMU_DEPENDENCIES = host-pkgconf host-python host-zlib host-libglib2 host-pixman
+HOST_CSKY_QEMU_DEPENDENCIES = host-pkgconf host-python host-zlib \
+			      host-libglib2 host-pixman host-dtc
 
 HOST_CSKY_QEMU_OPTS += --enable-system --enable-fdt
 
