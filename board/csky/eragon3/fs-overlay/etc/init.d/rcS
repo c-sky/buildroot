@@ -14,7 +14,7 @@ printf "Starting network: "
 #
 # To enable telnetd
 #
-/usr/sbin/telnetd
+/etc/init.d/S50telnet start
 
 #
 # To start sshd

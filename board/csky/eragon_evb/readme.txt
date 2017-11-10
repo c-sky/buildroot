@@ -24,8 +24,7 @@ After building, you should obtain this tree:
     ├── spl_uboot.bin
     ├── u-boot.bin
     ├── u-boot-spl.bin
-    ├── uImage
-    └── vmlinux
+    └── uImage
     
 
 Run with initramfs
@@ -34,5 +33,5 @@ Run with initramfs
 Check the gdbinit, the IP and Port must be the same as DebugServer.
 
   $ cd output/images
-  $ ../host/usr/bin/csky-abiv2-linux-gdb -x ../../board/csky/eragon_evb/gdbinit vmlinux
+  $ ../host/usr/bin/csky-abiv2-linux-gdb -x ../../board/csky/eragon_evb/gdbinit ../build/<linux-kernel-dir>/vmlinux
 
