@@ -552,7 +552,7 @@
 		screen_timings: screen_timings {
 			#screen-timings-cells = <2>;
 			display-timings {
-				native-mode = <&hdmi_timing_720p60>;
+				native-mode = <&lcd_timing>;
 				/* append new timing config to the end */
 				lcd_timing: 800x480 {
 					clock-frequency = <24750000>;
@@ -654,6 +654,9 @@
 			clock-names = "gate", "audio",
 				      "clk-for-fs-44k", "clk-for-fs-48k";
 			#sound-dai-cells = <0>;
+			/* sclk=64fs for hdmi audio */
+			sclk-ws-divider = <64>;
+			config-hdmi;
 		};
 
 		i2s1: i2s1@1FB91000 {
