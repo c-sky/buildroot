@@ -605,6 +605,48 @@
 			/* screen_timings, timing index, vid code */
 			screen-timings = <&screen_timings 1 4>;
 		};
+#if 0
+		lcdc: lcdc@1fa00000 {
+			compatible = "csky,lcdc-v1";
+			reg = <0x1fa00000 0x10000>;
+			interrupt-parent = <&intc>;
+			interrupts = <40>;
+			clocks = <&lcdcclk>;
+			clock-names = "lcdc";
+			resets = <&swrc1 14>; /* SWRC1[14]: SW_IP_LCDC_RST */
+			pixel-clock-source = <0>; /* 0=HCLK, 1=external clock */
+			lcd-pixel-clock = <24750000>;
+			hdmi-pixel-clock = <74250000>;
+			lcdc_port: port {
+				#address-cells = <1>;
+				#size-cells = <0>;
+				vopb_out_edp: endpoint@0 {
+					reg = <0>;
+					remote-endpoint=<&hdmi_in_lcdc>;
+				};
+			};
+		};
+
+		hdmi: hdmi@1fa20000 {
+			compatible = "csky,hdmi-v1";
+			reg = <0x1fa20000 0x10000>;
+			interrupt-parent = <&intc>;
+			interrupts = <43>;
+			hdmi_port: port {
+				#address-cells = <1>;
+				#size-cells = <0>;
+				hdmi_in_lcdc: endpoint@0 {
+					reg = <0>;
+					remote-endpoint = <&vopb_out_edp>;
+				};
+			};
+		};
+
+		display-subsystem {
+			compatible = "csky,display-subsystem";
+			ports = <&lcdc_port>, <&hdmi_port>;
+		};
+#endif
 
 		spi0: spi@1fb18000 {
 			compatible = "snps,dw-apb-ssi";
