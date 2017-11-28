@@ -28,7 +28,7 @@ Run with initramfs
 1. Run DebugServer
 
   $ cd output/host/csky-debug
-  $ ./DebugServerConsole.elf -ddc -rstwait 1000 -prereset -port 1025
+  $ ./DebugServerConsole.elf -ddc -port 1025
 
   (console will show a gdbint example, like this: target jtag jtag://127.0.0.1:1025)
 
