@@ -81,11 +81,12 @@
 			compatible = "snps,dma-spear1340";
 			reg = <0x1fb19000 0x1000>;
 			interrupt-parent = <&intc>;
-			interrupts = <25>;
+			interrupts = <60 61 62 63 30 31 38 39>;
 			clocks = <&dummy_apb>;
 			clock-names = "hclk";
 			#dma-cells = <3>;
 			master-id = <0>;
+			tee-channel-mask = <0>;
 		};
 
 		pinctrl: pinctrl@1fbab008 {
