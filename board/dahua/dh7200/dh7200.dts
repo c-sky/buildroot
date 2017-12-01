@@ -1,0 +1,81 @@
+/dts-v1/;
+
+/ {
+	model = "dahua dh7200";
+	compatible = "csky,dahua-dh7200";
+	#address-cells = <1>;
+	#size-cells = <1>;
+
+	memory {
+		device_type = "memory";
+		reg = <0xc0000000 0x20000000>;
+	};
+
+	cpus {
+		#address-cells = <0>;
+		#size-cells = <0>;
+
+		cpu {
+			compatible	= "csky,ck810";
+			device_type	= "cpu";
+			ccr		= <0x417d>;
+			hint		= <0xe>;
+		};
+	};
+
+	soc {
+		#address-cells = <1>;
+		#siz-cells = <1>;
+		compatible = "simple-bus";
+		ranges;
+
+		dummy_apb: apb-clock {
+			compatible = "fixed-clock";
+			clock-frequency = <62500000>;
+			clock-output-names = "dummy_apb";
+			#clock-cells = <0>;
+		};
+
+		intc: interrupt-controller {
+			compatible = "dahua,intc-v1";
+			reg = <0x17000000 0x10000>;
+			interrupt-controller;
+			#interrupt-cells = <1>;
+		};
+
+		/* clockevent */
+		timer0 {
+			compatible = "snps,dw-apb-timer";
+			reg = <0x14000000 0x1000>;
+			clocks = <&dummy_apb>;
+			clock-names = "timer";
+			interrupts = <1>;
+			interrupt-parent = <&intc>;
+		};
+
+		/* clocksource */
+		timer1 {
+			compatible = "snps,dw-apb-timer";
+			reg = <0x14000014 0x1000>;
+			clocks = <&dummy_apb>;
+			clock-names = "timer";
+			interrupts = <2>;
+			interrupt-parent = <&intc>;
+		};
+
+		uart0: serial@1FBA4000 {
+			compatible = "snps,dw-apb-uart";
+			reg = <0x14200000 0x1000>;
+			interrupt-parent = <&intc>;
+			interrupts = <12>;
+			clocks = <&dummy_apb>;
+			clock-names = "baudclk";
+			reg-shift = <2>;
+			reg-io-width = <1>;
+		};
+	};
+
+	chosen {
+		bootargs = "console=ttyS0,115200 rdinit=/sbin/init root=/dev/ram0";
+	};
+};
