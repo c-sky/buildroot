@@ -1,5 +1,8 @@
 # Set the JTAG address according to C-SKY debugserver settings
-tar jtag jtag://192.168.0.88:1025
+tar jtag jtag://172.16.150.27:1025
+
+# CPU MMU MSA0 setup
+set $mcr30 = 0x8000000e
 
 # CPU cache settings
 set $cr18=0x7d
@@ -11,10 +14,10 @@ set $cr31 = (1 << 8) | (1 << 2)
 set $r0 = 0x20150401
 
 # Pass the devicetree blob(dtb) store address to Linux kernel
-set $r1 = 0x8F000000
+set $r1 = 0x9F000000
 
 # Store the devicetree blob(dtb) file to the store address above
-restore ytlf.dtb binary 0x8F000000
+restore ytlf.dtb binary 0x9F000000
 
 # flush cache
 set $cr17 = 0x33

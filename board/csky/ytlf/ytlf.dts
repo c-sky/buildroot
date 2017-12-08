@@ -25,7 +25,7 @@
 
 	memory {
 		device_type = "memory";
-		reg = <0x00000000 0x18000000>;
+		reg = <0x98000000 0x28000000>;
 	};
 
 	cpus {
@@ -33,7 +33,6 @@
 		#size-cells = <0>;
 
 		cpu{
-			compatible	= "csky,ck810";
 			device_type	= "cpu";
 			ccr		= <0x417d>;
 			ccr2		= <0x1018>;
