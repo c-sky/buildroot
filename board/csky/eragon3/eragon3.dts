@@ -5,6 +5,12 @@
 #include "../../../../addons/drivers/pinctrl/pinctrl-csky.h"
 #include "../../../../addons/drivers/mailbox/mailbox-csky.h"
 
+/*
+ * If GMAC_100M_ONLY is defined, GMAC supports only 100Mbps.
+ * If not defined, GMAC can support up to 1000Mbps.
+ */
+#define GMAC_100M_ONLY
+
 / {
 	model = "csky eragon3";
 	compatible = "csky,eragon3";
@@ -13,7 +19,11 @@
 
 	memory {
 		device_type = "memory";
-		reg = <0x00200000 0x17a00000>;	// Reserve first 2MB for VPU work buf, last 2MB for iram
+		/*
+		 * 0x00000000 - 0x00200000: Reserved for VPU work buf
+		 * 0x17c00000 - 0x18000000: Reserved for VPU iram
+		 */
+		reg = <0x00200000 0x17a00000 0x98000000 0x28000000>;
 	};
 
 	aliases {
@@ -155,29 +165,15 @@
 
 			uart0 {
 				uart0_x: uart0_x {
-					csky,pins = <CSKY_GPIO1 0 1 &pcfg_pull_none>,
-						    <CSKY_GPIO1 1 1 &pcfg_pull_none>;
-				};
-			};
-
-			uart1 {
-				uart1_x: uart1_x {
-					csky,pins = <CSKY_GPIO1 4 1 &pcfg_pull_none>,
-						    <CSKY_GPIO1 5 1 &pcfg_pull_none>;
+					csky,pins = <CSKY_GPIO2 0 1 &pcfg_pull_none>,
+						    <CSKY_GPIO2 1 1 &pcfg_pull_none>;
 				};
 			};
 
 			i2c0 {
 				i2c0_x: i2c0_x {
-					csky,pins = <CSKY_GPIO1 2 1 &pcfg_pull_none>,
-						    <CSKY_GPIO1 3 1 &pcfg_pull_none>;
-				};
-			};
-
-			i2c1 {
-				i2c1_x: i2c1_x {
-					csky,pins = <CSKY_GPIO1 6 1 &pcfg_pull_none>,
-						    <CSKY_GPIO1 7 1 &pcfg_pull_none>;
+					csky,pins = <CSKY_GPIO2 2 1 &pcfg_pull_none>,
+						    <CSKY_GPIO2 3 1 &pcfg_pull_none>;
 				};
 			};
 
@@ -290,8 +286,6 @@
 			clock-names = "baudclk";
 			reg-shift = <2>;
 			reg-io-width = <1>;
-			pinctrl-names = "default";
-			pinctrl-0 = <&uart1_x>;
 		};
 
 		gmac: ethernet@1FB10000 {
@@ -304,6 +298,9 @@
 			clock-names = "stmmaceth";
 			snps,pbl = <32>;
 			snps,fixed-burst;
+#ifdef GMAC_100M_ONLY
+			phy-mode = "mii";
+#else
 			phy-mode = "rgmii";
 			phy-handle = <&phy_88E1512>;
 
@@ -319,6 +316,7 @@
 						<3 17 0xFF00 0x15>; /* LED Polarity: On-High, Off-Low */
 				};
 			};
+#endif
 		};
 
 		sdhc0: sdhc0@1FB12000 {
@@ -375,7 +373,7 @@
 			pcf8563_1: pcf8563_1@51 {
 				compatible = "nxp,pcf8563";
 				reg = <0x51>;
-				status = "disabled";
+				//status = "disabled";
 			};
 		};
 
@@ -388,13 +386,11 @@
 			interrupt-parent = <&intc>;
 			interrupts = <19>;
 			clock-frequency = <100000>;
-			pinctrl-names = "default";
-			pinctrl-0 = <&i2c1_x>;
 
 			pcf8563_2: pcf8563_2@51 {
 				compatible = "nxp,pcf8563";
 				reg = <0x51>;
-				status = "disabled";
+				//status = "disabled";
 			};
 		};
 
@@ -624,7 +620,7 @@
 
 	chosen {
 		// bootargs = "console=ttyS0,115200 init=/sbin/init root=/dev/nfs rw nfsroot=172.16.28.184:/home/rtos_nfs/br/rootfs,v3,tcp,nolock ip=172.16.150.100::172.16.150.254:255.255.255.0";
-		bootargs = "console=ttyS0,115200 rdinit=/sbin/init root=/dev/ram0 clk_ignore_unused";
+		bootargs = "console=ttyS0,115200 rdinit=/sbin/init root=/dev/ram0 clk_ignore_unused loglevel=7";
 	};
 };
 
