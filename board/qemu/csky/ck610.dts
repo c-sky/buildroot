@@ -16,7 +16,6 @@
 		#size-cells = <0>;
 
 		cpu {
-			compatible = "csky,ck610";
 			device_type = "cpu";
 			ccr	= <0x7d>;
 			hint	= <0x1c>;
