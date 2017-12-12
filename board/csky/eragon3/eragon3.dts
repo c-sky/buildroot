@@ -82,14 +82,14 @@
 
 		intc: interrupt-controller {
 			compatible = "csky,intc-v1";
-			reg = <0x1FB1A000 0x1000>;
+			reg = <0x1FB15000 0x1000>;
 			interrupt-controller;
 			#interrupt-cells = <1>;
 		};
 
 		dmac: dmac0@1fb19000 {
 			compatible = "snps,dma-spear1340";
-			reg = <0x1fb19000 0x1000>;
+			reg = <0x1fb14000 0x1000>;
 			interrupt-parent = <&intc>;
 			interrupts = <60 61 62 63 30 31 38 39>;
 			clocks = <&dummy_apb>;
