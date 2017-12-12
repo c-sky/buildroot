@@ -1,17 +1,21 @@
 # Set the JTAG address according to C-SKY debugserver settings
 tar jtag jtag://172.16.150.27:1025
 
-# CPU MMU MSA0 setup
+# Setup MMU MSA0 reg
 set $mcr30 = 0x8000000e
 
-# CPU cache settings
-set $cr18=0x7d
+# Setup hint reg
+set $cr31 = 0x17e
 
-# enable prefetch (bit 8) and preload (bit 2)
-set $cr31 = (1 << 8) | (1 << 2)
+# Invalid L1-cache include I/Dcache
+set $cr17 = (1<<4) | 0x3
+# Enable L1 cache
+set $cr18 = 0x417d
 
-# Pass a magic number to Linux kernel for validation.
-set $r0 = 0x20150401
+# Invalid L2 cache
+set $cr24 = (1<<4)
+# Enable L2 cache
+set $cr23 = 0x1018
 
 # Pass the devicetree blob(dtb) store address to Linux kernel
 set $r1 = 0x9F000000
@@ -19,7 +23,7 @@ set $r1 = 0x9F000000
 # Store the devicetree blob(dtb) file to the store address above
 restore ytlf.dtb binary 0x9F000000
 
-# flush cache
+# Sync I/Dcache before run kernel
 set $cr17 = 0x33
 
 # Load the debugging elf file

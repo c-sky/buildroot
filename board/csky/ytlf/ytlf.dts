@@ -28,18 +28,6 @@
 		reg = <0x98000000 0x28000000>;
 	};
 
-	cpus {
-		#address-cells = <0>;
-		#size-cells = <0>;
-
-		cpu{
-			device_type	= "cpu";
-			ccr		= <0x417d>;
-			ccr2		= <0x1018>;
-			hint		= <0xe>;
-		};
-	};
-
 	aliases {
 		ethernet0 = &gmac;
 		i2c0 = &i2c0;
