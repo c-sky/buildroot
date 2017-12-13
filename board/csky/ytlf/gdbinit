@@ -9,7 +9,7 @@ set $cr31 = 0x17e
 
 # Invalid L1-cache include I/Dcache
 set $cr17 = (1<<4) | 0x3
-# Enable L1 cache
+# Enable L1 cache and MMU and other CPU features
 set $cr18 = 0x417d
 
 # Invalid L2 cache
@@ -23,9 +23,9 @@ set $r1 = 0x9F000000
 # Store the devicetree blob(dtb) file to the store address above
 restore ytlf.dtb binary 0x9F000000
 
-# Sync I/Dcache before run kernel
-set $cr17 = 0x33
-
 # Load the debugging elf file
 load
+
+# Sync I/Dcache before run kernel
+set $cr17 = 0x33
 
