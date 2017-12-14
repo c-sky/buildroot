@@ -498,7 +498,7 @@
 		};
 
 		i2s0: i2s0@1FB90000 {
-			compatible = "csky,i2s-v1";
+			compatible = "csky,i2s-v1.1";
 			reg = <0x1FB90000 0x1000>;
 			interrupt-parent = <&intc>;
 			interrupts = <36>;
@@ -514,7 +514,7 @@
 		};
 
 		i2s1: i2s1@1FB91000 {
-			compatible = "csky,i2s-v1";
+			compatible = "csky,i2s-v1.1";
 			reg = <0x1FB91000 0x1000>;
 			interrupt-parent = <&intc>;
 			interrupts = <37>;

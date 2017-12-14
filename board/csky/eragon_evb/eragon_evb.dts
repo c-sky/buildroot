@@ -708,7 +708,7 @@
 				      "clk-for-fs-44k", "clk-for-fs-48k";
 			#sound-dai-cells = <0>;
 			/* sclk=64fs for hdmi audio */
-			sclk-ws-divider = <64>;
+			sclk-fs-divider = <64>;
 			config-hdmi;
 		};
 
