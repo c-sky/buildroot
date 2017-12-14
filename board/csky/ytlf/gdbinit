@@ -4,13 +4,13 @@ tar jtag jtag://172.16.150.27:1025
 # Setup MMU MSA0 reg
 set $mcr30 = 0x8000000e
 
-# Setup hint reg
-set $cr31 = 0x17e
+# Setup hint reg, all enable
+set $cr31 = 0xffffffff
 
 # Invalid L1-cache include I/Dcache
 set $cr17 = (1<<4) | 0x3
 # Enable L1 cache and MMU and other CPU features
-set $cr18 = 0x417d
+set $cr18 = 0xd87d
 
 # Invalid L2 cache
 set $cr24 = (1<<4)

@@ -1,16 +1,32 @@
-tar jtag jtag://127.0.0.1:1026
+# Set the JTAG address according to C-SKY debugserver settings
+tar jtag jtag://127.0.0.1:1025
 set endian little
 
-# pass devicetree blob
-# r2 is magic
-# r3 is address
-set $r0 = 0x20150401
+# Setup MMU MSA0 reg
+set $mcr30 = 0xc000000e
+
+# Setup hint reg, all enable
+set $cr31 = 0xffffffff
+
+# Invalid L1-cache include I/Dcache
+set $cr17 = (1<<4) | 0x3
+# Enable L1 cache and MMU and other CPU features
+set $cr18 = 0xd87d
+
+# Invalid L2 cache
+# set $cr24 = (1<<4)
+# Enable L2 cache
+# set $cr23 = 0x1018
+
+# Pass the devicetree blob(dtb) store address to Linux kernel
 set $r1 = 0x82000000
+
+# Store the devicetree blob(dtb) file to the store address above
 restore dh7200.dtb binary 0x82000000
 
-# flush cache
-set $cr17 = 0x33
-
-set $mcr31 = 0xc0000006
+# Load the debugging elf file
 load
+
+# Sync I/Dcache before run kernel
+set $cr17 = 0x33
 

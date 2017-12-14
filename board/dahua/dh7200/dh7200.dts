@@ -11,18 +11,6 @@
 		reg = <0xc0000000 0x20000000>;
 	};
 
-	cpus {
-		#address-cells = <0>;
-		#size-cells = <0>;
-
-		cpu {
-			compatible	= "csky,ck810";
-			device_type	= "cpu";
-			ccr		= <0x417d>;
-			hint		= <0xe>;
-		};
-	};
-
 	soc {
 		#address-cells = <1>;
 		#siz-cells = <1>;
