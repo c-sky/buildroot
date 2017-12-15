@@ -6,7 +6,6 @@ BR2_PACKAGE_OVERRIDE_FILE="board/csky/eragon_evb/local.mk"
 BR2_GLOBAL_PATCH_DIR="board/csky/common/linux-$(BR2_LINUX_KERNEL_CUSTOM_VERSION_VALUE)-patches"
 BR2_TOOLCHAIN_EXTERNAL_PREINSTALLED=y
 BR2_TOOLCHAIN_EXTERNAL_PATH="$(TOPDIR)/../../install"
-BR2_TARGET_OPTIMIZATION="-mhard-float"
 BR2_ROOTFS_DEVICE_CREATION_DYNAMIC_MDEV=y
 BR2_ROOTFS_OVERLAY="board/csky-qa/fs-overlay/"
 BR2_ROOTFS_POST_IMAGE_SCRIPT="board/csky/eragon_evb/post-image.sh"
