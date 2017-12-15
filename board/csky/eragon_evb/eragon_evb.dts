@@ -13,7 +13,11 @@
 
 	memory {
 		device_type = "memory";
-		reg = <0x00200000 0x17a00000>;	// Reserve first 2MB for VPU work buf, last 2MB for iram
+		/*
+		 * 0x00000000 - 0x00200000: Reserved for VPU work buf
+		 * 0x17c00000 - 0x18000000: Reserved for VPU iram
+		 */
+		reg = <0x00200000 0x17a00000 0x98000000 0x28000000>;
 	};
 
 	cpus {
