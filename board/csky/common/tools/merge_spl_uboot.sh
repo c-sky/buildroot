@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 BINARIES_DIR=$1
 
