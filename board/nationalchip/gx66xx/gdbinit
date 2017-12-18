@@ -8,7 +8,7 @@ set *(unsigned int *) 0xa030a14c |= (1 << 22) | (1 << 23)
 set $mcr30 = 0x0000000e
 
 # Setup hint reg
-set $cr30 = 0x1c
+set $cr30 = 0x1f
 
 # Invalid L1-cache include I/Dcache
 set $cr17 = (1<<4) | 0x3
