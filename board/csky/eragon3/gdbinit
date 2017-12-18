@@ -4,8 +4,8 @@ tar jtag jtag://192.168.0.88:1025
 # Setup MMU MSA0 reg
 set $mcr30 = 0xe
 
-# Setup hint reg, all enable
-set $cr31 = 0xffffffff
+# Setup hint reg
+set $cr31 = 0x1ff
 
 # Invalid L1-cache include I/Dcache
 set $cr17 = (1<<4) | 0x3
