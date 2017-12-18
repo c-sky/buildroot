@@ -6,7 +6,7 @@ set endian little
 set $mcr30 = 0xc000000e
 
 # Setup hint reg
-set $cr31 = 0x1f
+set $cr31 = 0x1ff
 
 # Invalid L1-cache include I/Dcache
 set $cr17 = (1<<4) | 0x3
