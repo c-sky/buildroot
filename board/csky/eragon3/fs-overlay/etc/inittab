@@ -25,7 +25,7 @@
 
 # Put a getty on the serial port
 console::respawn:/sbin/getty -L  console 0 vt100  # GENERIC_SERIAL
-ttym0::respawn:/sbin/getty -L ttym0 115200 vt100  # TTY based on mailbox
+ttym0::sysinit:/sbin/getty -L ttym0 115200 vt100  # TTY based on mailbox
 
 # Stuff to do for the 3-finger salute
 #::ctrlaltdel:/sbin/reboot

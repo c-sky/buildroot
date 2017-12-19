@@ -11,6 +11,9 @@
  */
 #define GMAC_100M_ONLY
 
+/* To test mailbox without other cpu cores */
+#define MAILBOX_TEST
+
 / {
 	model = "csky eragon3";
 	compatible = "csky,eragon3";
@@ -183,6 +186,18 @@
 						    <CSKY_GPIO2 5 1 &pcfg_pull_none>,
 						    <CSKY_GPIO2 6 1 &pcfg_pull_none>,
 						    <CSKY_GPIO2 7 1 &pcfg_pull_none>;
+				};
+			};
+
+			spi0 {
+				spi0_x: spi0_x {
+					csky,pins = <CSKY_GPIO3 0 1 &pcfg_pull_none>,
+						    <CSKY_GPIO3 1 1 &pcfg_pull_none>,
+						    <CSKY_GPIO3 2 1 &pcfg_pull_none>,
+						    <CSKY_GPIO3 3 1 &pcfg_pull_none>,
+						    <CSKY_GPIO3 4 1 &pcfg_pull_none>,
+						    <CSKY_GPIO3 5 1 &pcfg_pull_none>,
+						    <CSKY_GPIO3 6 1 &pcfg_pull_none>;
 				};
 			};
 		};
@@ -462,8 +477,9 @@
 			reg = <0x1fba8000 0x1000>;
 			interrupt-parent = <&intc>;
 			interrupts = <14>;
+			pinctrl-names = "default";
+			pinctrl-0 = <&spi0_x>;
 			num-cs = <4>;
-
 			cs-gpios = <&gpio3 1 GPIO_ACTIVE_HIGH>,
 				   <&gpio3 2 GPIO_ACTIVE_HIGH>,
 				   <&gpio3 3 GPIO_ACTIVE_HIGH>,
@@ -489,13 +505,35 @@
 			dev-id = <0>;
 			#mbox-cells = <1>;
 		};
-
+#ifdef MAILBOX_TEST
+		mailbox_ls: mailbox1 {
+			compatible = "csky,mailbox-1.0";
+			reg = <0x1fbb2000 0xb0>;
+			interrupt-parent = <&intc>;
+			interrupts = <48>;
+			dev-id = <1>;
+			#mbox-cells = <1>;
+		};
+		mailbox_client_eg {
+			compatible	= "csky,mailbox-client";
+			reg		= <0x1fbb2030 0x40>, <0x1fbb2070 0x40>;
+			mbox-names	= "channel";
+			mboxes		= <&mailbox_eg CSKY_MBOX_CHAN_0>;
+		};
+		mailbox_client_ls {
+			compatible	= "csky,mailbox-client";
+			reg		= <0x1fbb2070 0x40>, <0x1fbb2030 0x40>;
+			mbox-names	= "channel";
+			mboxes		= <&mailbox_ls CSKY_MBOX_CHAN_0>;
+		};
+#else
 		ttym_eg {
 			compatible	= "csky,tty_mailbox";
 			reg		= <0x1fbb2030 0x40>, <0x1fbb2070 0x40>;
 			mbox-names	= "channel";
 			mboxes		= <&mailbox_eg CSKY_MBOX_CHAN_0>;
 		};
+#endif
 
 		i2s0: i2s0@1FB90000 {
 			compatible = "csky,i2s-v1.1";
