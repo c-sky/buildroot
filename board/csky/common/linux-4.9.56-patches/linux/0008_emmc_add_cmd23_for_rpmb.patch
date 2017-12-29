@@ -1,0 +1,13 @@
+diff --git a/drivers/mmc/core/host.c b/drivers/mmc/core/host.c
+index 848b3453..92694c05 100644
+--- a/drivers/mmc/core/host.c
++++ b/drivers/mmc/core/host.c
+@@ -292,6 +292,8 @@ int mmc_of_parse(struct mmc_host *host)
+ 		host->caps |= MMC_CAP_HW_RESET;
+ 	if (device_property_read_bool(dev, "cap-sdio-irq"))
+ 		host->caps |= MMC_CAP_SDIO_IRQ;
++	if (device_property_read_bool(dev, "cap-cmd23"))
++		host->caps |= MMC_CAP_CMD23;
+ 	if (device_property_read_bool(dev, "full-pwr-cycle"))
+ 		host->caps2 |= MMC_CAP2_FULL_PWR_CYCLE;
+ 	if (device_property_read_bool(dev, "keep-power-in-suspend"))

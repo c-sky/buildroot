@@ -361,6 +361,7 @@
 			num-slots = <0x1>;
 			card-detect-delay = <200>;
 			cap-mmc-highspeed;
+			cap-cmd23;
 			non-removable;
 			bus-width = <0x8>;
 		};
