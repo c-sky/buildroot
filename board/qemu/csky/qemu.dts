@@ -1,25 +1,14 @@
 /dts-v1/;
 
 / {
-	model = "qemu.csky.ck610";
+	model = "qemu.csky";
 	compatible = "csky";
 	#address-cells = <1>;
 	#size-cells = <1>;
 
 	memory {
 		device_type = "memory";
-		reg = <0x0 0x1f400000>;
-	};
-
-	cpus {
-		#address-cells = <0>;
-		#size-cells = <0>;
-
-		cpu {
-			device_type = "cpu";
-			ccr	= <0x7d>;
-			hint	= <0x1c>;
-		};
+		reg = <0x0 0x40000000>;
 	};
 
 	soc {
@@ -28,16 +17,9 @@
 		compatible = "simple-bus";
 		ranges;
 
-		dummy_apb: apb-clock {
-			compatible = "fixed-clock";
-			clock-frequency = <40000000>;
-			clock-output-names = "dummy_apb";
-			#clock-cells = <0>;
-		};
-
 		intc: interrupt-controller {
 			compatible = "csky,intc-v1";
-			reg = <0x1ffff000 0x1000>;
+			reg = <0xfffff000 0x1000>;
 			interrupt-controller;
 			#interrupt-cells = <1>;
 		};
@@ -45,7 +27,7 @@
 		/* clockevent */
 		timer0 {
 			compatible = "snps,dw-apb-timer";
-			reg = <0x1fffd000 0x1000>;
+			reg = <0xffffd000 0x1000>;
 			clocks = <&dummy_apb>;
 			clock-names = "timer";
 			interrupts = <1>;
@@ -55,7 +37,7 @@
 		/* clocksource */
 		timer1 {
 			compatible = "snps,dw-apb-timer";
-			reg = <0x1fffd014 0x800>;
+			reg = <0xffffd014 0x800>;
 			clocks = <&dummy_apb>;
 			clock-names = "timer";
 			interrupts = <2>;
@@ -64,7 +46,7 @@
 
 		serial0 {
 			compatible = "ns16550a";
-			reg = <0x1fffe000 0x1000>;
+			reg = <0xffffe000 0x1000>;
 			interrupt-parent = <&intc>;
 			interrupts = <3>;
 			clocks = <&dummy_apb>;
@@ -73,9 +55,16 @@
 			reg-io-width = <1>;
 		};
 
+		dummy_apb: apb-clock {
+			compatible = "fixed-clock";
+			clock-frequency = <40000000>;
+			clock-output-names = "dummy_apb";
+			#clock-cells = <0>;
+		};
+
 		gmac: ethernet {
 			compatible = "snps,dwmac";
-			reg = <0x1fffa000 0x2000>;
+			reg = <0xffffa000 0x2000>;
 			interrupt-parent = <&intc>;
 			interrupts = <4>;
 			interrupt-names = "macirq";
@@ -88,7 +77,7 @@
 
 		qemu-exit {
 			compatible = "csky,qemu-exit";
-			reg = <0x1fffc000 0x1000>;
+			reg = <0xffffc000 0x1000>;
 		};
 	};
 

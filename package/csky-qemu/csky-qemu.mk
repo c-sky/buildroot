@@ -4,7 +4,7 @@
 #
 ################################################################################
 
-CSKY_QEMU_VERSION = ce825f67bca4bbda1cd091e1bf6511fddaddb1a3
+CSKY_QEMU_VERSION = 4e092e3a362b1b85b02584a4f5a613e8e75eb926
 CSKY_QEMU_SITE = $(call github,c-sky,qemu,$(CSKY_QEMU_VERSION))
 
 HOST_CSKY_QEMU_DEPENDENCIES = host-pkgconf host-python host-zlib \

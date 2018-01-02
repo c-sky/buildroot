@@ -12,7 +12,7 @@ For ck810
   $ make
 
   $ cd output/images
-  $ ../host/csky-qemu/bin/qemu-system-cskyv2 -machine virt -kernel vmlinux -dtb ck810.dtb -nographic
+  $ ../host/csky-qemu/bin/qemu-system-cskyv2 -machine virt -kernel vmlinux -dtb qemu.dtb -nographic
 
 For ck610
 =========
@@ -21,6 +21,5 @@ For ck610
   $ make
 
   $ cd output/images
-  $ ../host/csky-qemu/bin/qemu-system-cskyv1 -machine virt -kernel vmlinux -dtb ck610.dtb -nographic
-
+  $ ../host/csky-qemu/bin/qemu-system-cskyv1 -machine virt -kernel vmlinux -dtb qemu.dtb -nographic
 
