@@ -1,1 +1,274 @@
-board/csky/common/linux-4.9.25-patches/linux/0003_dma_add_support.patch
+diff --git a/drivers/dma/dw/core.c b/drivers/dma/dw/core.c
+index c2c0a61..b1c0c21 100644
+--- a/drivers/dma/dw/core.c
++++ b/drivers/dma/dw/core.c
+@@ -49,11 +49,12 @@
+ 			_dwc->dws.p_master : _dwc->dws.m_master;	\
+ 		u8 _sms = (_dwc->direction == DMA_DEV_TO_MEM) ?		\
+ 			_dwc->dws.p_master : _dwc->dws.m_master;	\
++		u32 _llp = _dwc->nollp ?				\
++			0 : (DWC_CTLL_LLP_D_EN | DWC_CTLL_LLP_S_EN);	\
+ 								\
+ 		(DWC_CTLL_DST_MSIZE(_dmsize)			\
+ 		 | DWC_CTLL_SRC_MSIZE(_smsize)			\
+-		 | DWC_CTLL_LLP_D_EN				\
+-		 | DWC_CTLL_LLP_S_EN				\
++		 | _llp						\
+ 		 | DWC_CTLL_DMS(_dms)				\
+ 		 | DWC_CTLL_SMS(_sms));				\
+ 	})
+@@ -536,6 +537,24 @@ static void dwc_handle_cyclic(struct dw_dma *dw, struct dw_dma_chan *dwc,
+ 
+ 		if (callback)
+ 			callback(callback_param);
++
++		if (dwc->nollp) {
++			dwc->cdesc->period_index++;
++			if (dwc->cdesc->period_index >= dwc->cdesc->periods)
++				dwc->cdesc->period_index = 0;
++
++			/* clear interrupt status */
++			dma_writel(dw, CLEAR.BLOCK, dwc->mask);
++			dma_writel(dw, CLEAR.ERROR, dwc->mask);
++			dma_writel(dw, CLEAR.XFER, dwc->mask);
++
++			/* enable interrupt */
++			channel_set_bit(dw, MASK.BLOCK, dwc->mask);
++
++			dwc_do_single_block(dwc,
++				*(dwc->cdesc->desc + dwc->cdesc->period_index));
++			return;
++		}
+ 	}
+ 
+ 	/*
+@@ -757,6 +776,9 @@ static irqreturn_t dw_dma_interrupt(int irq, void *dev_id)
+ 	if (unlikely(!is_slave_direction(direction) || !sg_len))
+ 		return NULL;
+ 
++	if (dwc->nollp && (sg_len > 1))
++		return NULL;
++
+ 	dwc->direction = direction;
+ 
+ 	prev = first = NULL;
+@@ -893,6 +915,9 @@ bool dw_dma_filter(struct dma_chan *chan, void *param)
+ 	struct dw_dma_chan *dwc = to_dw_dma_chan(chan);
+ 	struct dw_dma_slave *dws = param;
+ 
++	if (dwc->tee_only)
++		return false;
++
+ 	if (dws->dma_dev != chan->device->dev)
+ 		return false;
+ 
+@@ -1138,6 +1163,13 @@ static int dwc_alloc_chan_resources(struct dma_chan *chan)
+ 		return -EINVAL;
+ 	}
+ 
++	if ((chan->private == NULL) &&
++	    (dwc->dws.m_master == 0) &&
++	    (dwc->dws.p_master == 0)) {
++		printk("master id: %d\n", dw->default_master);
++		dwc->dws.m_master = dwc->dws.p_master = dw->default_master;
++	}
++
+ 	/* Enable controller here if needed */
+ 	if (!dw->in_use)
+ 		dw_dma_on(dw);
+@@ -1265,12 +1297,14 @@ struct dw_cyclic_desc *dw_dma_cyclic_prep(struct dma_chan *chan,
+ 	unsigned long			flags;
+ 
+ 	spin_lock_irqsave(&dwc->lock, flags);
++	/*
+ 	if (dwc->nollp) {
+ 		spin_unlock_irqrestore(&dwc->lock, flags);
+ 		dev_dbg(chan2dev(&dwc->chan),
+ 				"channel doesn't support LLP transfers\n");
+ 		return ERR_PTR(-EINVAL);
+ 	}
++	*/
+ 
+ 	if (!list_empty(&dwc->queue) || !list_empty(&dwc->active_list)) {
+ 		spin_unlock_irqrestore(&dwc->lock, flags);
+@@ -1377,6 +1411,8 @@ struct dw_cyclic_desc *dw_dma_cyclic_prep(struct dma_chan *chan,
+ 
+ 	cdesc->periods = periods;
+ 	dwc->cdesc = cdesc;
++	if (dwc->nollp)
++		cdesc->period_index = 0;
+ 
+ 	return cdesc;
+ 
+@@ -1427,6 +1463,8 @@ void dw_dma_cyclic_free(struct dma_chan *chan)
+ 	dwc->cdesc = NULL;
+ 
+ 	clear_bit(DW_DMA_IS_CYCLIC, &dwc->flags);
++	if (dwc->nollp)
++		clear_bit(DW_DMA_IS_SOFT_LLP, &dwc->flags);
+ }
+ EXPORT_SYMBOL(dw_dma_cyclic_free);
+ 
+@@ -1451,6 +1489,7 @@ int dw_dma_probe(struct dw_dma_chip *chip)
+ 
+ 	dw->regs = chip->regs;
+ 	chip->dw = dw;
++	dw->default_master = chip->default_master;
+ 
+ 	pm_runtime_get_sync(chip->dev);
+ 
+@@ -1515,10 +1554,12 @@ int dw_dma_probe(struct dw_dma_chip *chip)
+ 
+ 	tasklet_init(&dw->tasklet, dw_dma_tasklet, (unsigned long)dw);
+ 
+-	err = request_irq(chip->irq, dw_dma_interrupt, IRQF_SHARED,
+-			  "dw_dmac", dw);
+-	if (err)
+-		goto err_pdata;
++	if (chip->irq_count == 1) {
++		err = request_irq(chip->irq, dw_dma_interrupt, IRQF_SHARED,
++				  "dw_dmac", dw);
++		if (err)
++			goto err_pdata;
++	}
+ 
+ 	INIT_LIST_HEAD(&dw->dma.channels);
+ 	for (i = 0; i < pdata->nr_channels; i++) {
+@@ -1541,6 +1582,16 @@ int dw_dma_probe(struct dw_dma_chip *chip)
+ 		dwc->ch_regs = &__dw_regs(dw)->CHAN[i];
+ 		spin_lock_init(&dwc->lock);
+ 		dwc->mask = 1 << i;
++		dwc->tee_only =
++			(dwc->mask & chip->tee_chan_mask) ? true : false;
++
++		if ((chip->irq_count > 1) && (!dwc->tee_only)) {
++			err = devm_request_irq(chip->dev, chip->chan_irqs[i],
++					       dw_dma_interrupt, IRQF_SHARED,
++					       "dw_dmac", dw);
++			if (err)
++				goto err_pdata;
++		}
+ 
+ 		INIT_LIST_HEAD(&dwc->active_list);
+ 		INIT_LIST_HEAD(&dwc->queue);
+@@ -1566,11 +1617,13 @@ int dw_dma_probe(struct dw_dma_chip *chip)
+ 			dwc->block_size =
+ 				(4 << ((pdata->block_size >> 4 * i) & 0xf)) - 1;
+ 			dwc->nollp =
+-				(dwc_params >> DWC_PARAMS_MBLK_EN & 0x1) == 0;
++				(dwc_params >> DWC_PARAMS_HC_LLP & 0x1) == 1;
+ 		} else {
+ 			dwc->block_size = pdata->block_size;
+ 			dwc->nollp = pdata->is_nollp;
+ 		}
++
++		printk("nollp: %d\n", dwc->nollp);
+ 	}
+ 
+ 	/* Clear all interrupts on all channels. */
+diff --git a/drivers/dma/dw/platform.c b/drivers/dma/dw/platform.c
+index 5bda0eb..19cb9d2 100644
+--- a/drivers/dma/dw/platform.c
++++ b/drivers/dma/dw/platform.c
+@@ -163,14 +163,33 @@ static int dw_probe(struct platform_device *pdev)
+ 	struct resource *mem;
+ 	const struct dw_dma_platform_data *pdata;
+ 	int err;
++	unsigned int default_master;
++	int i;
++
++	if (of_property_read_u32(pdev->dev.of_node,
++				 "master-id", &default_master)) {
++		printk("error: master id not defined in dts\n");
++		return -EINVAL;
++	}
+ 
+ 	chip = devm_kzalloc(dev, sizeof(*chip), GFP_KERNEL);
+ 	if (!chip)
+ 		return -ENOMEM;
+ 
+-	chip->irq = platform_get_irq(pdev, 0);
+-	if (chip->irq < 0)
+-		return chip->irq;
++	chip->irq_count = platform_irq_count(pdev);
++	if (chip->irq_count <= 0)
++		return -EINVAL;
++	if (chip->irq_count == 1) {
++		chip->irq = platform_get_irq(pdev, 0);
++		if (chip->irq < 0)
++			return chip->irq;
++	} else {
++		for (i = 0; i < chip->irq_count; i++) {
++			chip->chan_irqs[i] = platform_get_irq(pdev, i);
++			if (chip->chan_irqs[i] < 0)
++				return chip->chan_irqs[i];
++		}
++	}
+ 
+ 	mem = platform_get_resource(pdev, IORESOURCE_MEM, 0);
+ 	chip->regs = devm_ioremap_resource(dev, mem);
+@@ -187,6 +206,9 @@ static int dw_probe(struct platform_device *pdev)
+ 
+ 	chip->dev = dev;
+ 	chip->pdata = pdata;
++	chip->default_master = default_master;
++	of_property_read_u32(pdev->dev.of_node,
++			     "tee-channel-mask", &chip->tee_chan_mask);
+ 
+ 	chip->clk = devm_clk_get(chip->dev, "hclk");
+ 	if (IS_ERR(chip->clk))
+diff --git a/drivers/dma/dw/regs.h b/drivers/dma/dw/regs.h
+index f65dd10..841d3c9 100644
+--- a/drivers/dma/dw/regs.h
++++ b/drivers/dma/dw/regs.h
+@@ -126,6 +126,7 @@ struct dw_dma_regs {
+ 
+ /* Bitfields in DWC_PARAMS */
+ #define DWC_PARAMS_MBLK_EN	11		/* multi block transfer */
++#define DWC_PARAMS_HC_LLP	13		/* hardcode LLP register to 0 */
+ 
+ /* bursts size */
+ enum dw_dma_msize {
+@@ -249,6 +250,9 @@ struct dw_dma_chan {
+ 
+ 	/* configuration passed via .device_config */
+ 	struct dma_slave_config dma_sconfig;
++
++	/* indicate that whether the channel can only be used in TEE */
++	bool			tee_only;
+ };
+ 
+ static inline struct dw_dma_chan_regs __iomem *
+@@ -280,6 +284,7 @@ struct dw_dma {
+ 
+ 	/* platform data */
+ 	struct dw_dma_platform_data	*pdata;
++	unsigned int		default_master;
+ };
+ 
+ static inline struct dw_dma_regs __iomem *__dw_regs(struct dw_dma *dw)
+diff --git a/include/linux/dma/dw.h b/include/linux/dma/dw.h
+index ccfd0c3..7077d84 100644
+--- a/include/linux/dma/dw.h
++++ b/include/linux/dma/dw.h
+@@ -37,6 +37,11 @@ struct dw_dma_chip {
+ 	struct dw_dma	*dw;
+ 
+ 	const struct dw_dma_platform_data	*pdata;
++	unsigned int	default_master;
++	/* indicate that which channel can only be used in TEE */
++	unsigned int	tee_chan_mask;
++	int		chan_irqs[16];
++	int		irq_count;
+ };
+ 
+ /* Export to the platform drivers */
+@@ -56,6 +61,8 @@ struct dw_cyclic_desc {
+ 	unsigned long	periods;
+ 	void		(*period_callback)(void *param);
+ 	void		*period_callback_param;
++	/* Indicate the current period to transfer. Only used in nollp case */
++	unsigned long	period_index;
+ };
+ 
+ struct dw_cyclic_desc *dw_dma_cyclic_prep(struct dma_chan *chan,
