@@ -38,6 +38,8 @@
 		rtc2 = &pcf8563_2;
 		serial0 = &uart0;
 		serial1 = &uart1;
+		spi0 = &spi0;
+		spi1 = &spi1;
 	};
 
 	soc {
@@ -496,6 +498,18 @@
 				spi-max-frequency = <8000000>;
 				w25q,fast-read;
 			};
+		};
+
+		spi1: spi@1fba9000 {
+			compatible = "snps,dw-apb-ssi";
+			#address-cells = <1>;
+			#size-cells = <0>;
+			reg = <0x1fba9000 0x1000>;
+			interrupt-parent = <&intc>;
+			interrupts = <15>;
+			num-cs = <4>;
+			clocks = <&dummy_apb>;
+			status = "disabled";
 		};
 
 		mailbox_eg: mailbox0 {
