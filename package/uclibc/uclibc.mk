@@ -4,12 +4,21 @@
 #
 ################################################################################
 
+ifeq ($(BR2_csky),y)
+UCLIBC_VERSION = 5d8b97260c2d1cb0d4b7f8decf3f4517051105f3
+UCLIBC_SOURCE = uClibc-ng-$(UCLIBC_VERSION).tar.xz
+UCLIBC_SITE = $(call github,c-sky,glibc,$(UCLIBC_VERSION))
+UCLIBC_LICENSE = LGPL-2.1+
+UCLIBC_LICENSE_FILES = COPYING.LIB
+UCLIBC_INSTALL_STAGING = YES
+else
 UCLIBC_VERSION = 1.0.26
 UCLIBC_SOURCE = uClibc-ng-$(UCLIBC_VERSION).tar.xz
 UCLIBC_SITE = http://downloads.uclibc-ng.org/releases/$(UCLIBC_VERSION)
 UCLIBC_LICENSE = LGPL-2.1+
 UCLIBC_LICENSE_FILES = COPYING.LIB
 UCLIBC_INSTALL_STAGING = YES
+endif
 
 define UCLIBC_HELP_CMDS
 	@echo '  uclibc-menuconfig      - Run uClibc menuconfig'
