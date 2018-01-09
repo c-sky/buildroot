@@ -106,6 +106,6 @@ if [ ${nb_checks} -eq 0 ]; then
         exit 0
         ;;
     esac
-    printf "ERROR: No hash found for %s\n" "${base}" >&2
-    exit 3
+    printf "WARNING: No hash found for %s\n" "${base}" >&2
+    exit 0
 fi
