@@ -8,6 +8,10 @@ ifeq ($(BR2_arc),y)
 GLIBC_VERSION =  arc-2017.09-eng010
 GLIBC_SITE = $(call github,foss-for-synopsys-dwc-arc-processors,glibc,$(GLIBC_VERSION))
 GLIBC_SOURCE = glibc-$(GLIBC_VERSION).tar.gz
+else ifeq ($(BR2_csky),y)
+GLIBC_VERSION = 113c3600c63dd7cfa2e19994895e6846d47e19ce
+GLIBC_SITE = $(call github,c-sky,glibc,$(GLIBC_VERSION))
+GLIBC_SOURCE = glibc-$(GLIBC_VERSION).tar.gz
 else
 GLIBC_VERSION = 2.26
 GLIBC_SITE = $(BR2_GNU_MIRROR)/libc
