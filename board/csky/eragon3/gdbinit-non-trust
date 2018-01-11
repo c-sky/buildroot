@@ -5,8 +5,7 @@ tar jtag jtag://192.168.0.88:1025
 set $mcr30 = 0xe
 
 # Setup hint reg
-# set $cr31 = 0x1ff
-# set $cr31 = (1 << 2)
+set $cr31 = 0x1ff
 
 # Invalid L1-cache include I/Dcache
 set $cr17 = (1<<4) | 0x3
@@ -18,24 +17,15 @@ set $cr24 = (1<<4)
 # Enable L2 cache
 set $cr23 = 0x1018
 
-# Pass the vmlinux entry address to tee_sim.elf
-set $r0 = 0x80200000
-
 # Pass the devicetree blob(dtb) store address to Linux kernel
 set $r1 = 0x8F000000
 
 # Store the devicetree blob(dtb) file to the store address above
 restore output/images/eragon3.dtb binary 0x8F000000
 
-file board/csky/eragon3/tee_sim.elf
-load
-
 # Load the vmlinux
-file output/build/linux-4.9.56/vmlinux
 load
 
 # Sync I/Dcache before run kernel
 set $cr17 = 0x33
-
-set $pc = 0x80100000
 
