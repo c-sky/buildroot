@@ -4,8 +4,14 @@
 #
 ################################################################################
 
-CSKY_QEMU_VERSION = 4e092e3a362b1b85b02584a4f5a613e8e75eb926
-CSKY_QEMU_SITE = $(call github,c-sky,qemu,$(CSKY_QEMU_VERSION))
+ifeq ($(BR2_CSKY_QEMU_GERRIT), y)
+CSKY_QEMU_VERSION = decea4cef1fbff2f0b5c263dc2ca7c114e38d68f
+CSKY_QEMU_SITE = "ssh://${GITUSER}@192.168.0.78:29418/tools/qemu"
+CSKY_QEMU_SITE_METHOD = git
+else
+CSKY_QEMU_VERSION = 3e5ef27ab022d63a563989479455132a1be6daba
+CSKY_QEMU_SITE = $(call github,guoren83,qemu,$(CSKY_QEMU_VERSION))
+endif
 
 HOST_CSKY_QEMU_DEPENDENCIES = host-pkgconf host-python host-zlib \
 			      host-libglib2 host-pixman host-dtc

@@ -5,3 +5,16 @@ config BR2_PACKAGE_HOST_CSKY_QEMU
 	help
 	  C-SKY qemu
 
+choice
+	bool "Repo Source"
+	depends on BR2_PACKAGE_HOST_CSKY_QEMU
+	default BR2_CSKY_QEMU_GITHUB
+
+config BR2_CSKY_QEMU_GITHUB
+	bool "Github"
+
+config BR2_CSKY_QEMU_GERRIT
+	bool "Gerrit"
+
+endchoice
+
