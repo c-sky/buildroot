@@ -41,6 +41,10 @@ ifeq ($(BR2_ARM_INSTRUCTIONS_THUMB),y)
 GLIBC_EXTRA_CFLAGS += -marm
 endif
 
+ifeq ($(BR2_csky),y)
+GLIBC_DONT_APPLY_PATCH=y
+endif
+
 # MIPS64 defaults to n32 so pass the correct -mabi if
 # we are using a different ABI. OABI32 is also used
 # in MIPS so we pass -mabi=32 in this case as well
