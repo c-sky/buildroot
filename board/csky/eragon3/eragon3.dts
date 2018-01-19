@@ -327,9 +327,11 @@
 			clock-names = "stmmaceth";
 			snps,pbl = <32>;
 			snps,fixed-burst;
-#ifdef GMAC_100M_ONLY
+#ifdef GMAC_100M_ONLY /* MII */
 			phy-mode = "mii";
 #else
+
+#if 0 /* RGMII */
 			phy-mode = "rgmii";
 			phy-handle = <&phy_88E1512>;
 
@@ -345,6 +347,21 @@
 						<3 17 0xFF00 0x15>; /* LED Polarity: On-High, Off-Low */
 				};
 			};
+#else /* GMII */
+			phy-mode = "gmii";
+			phy-handle = <&phy_88E1111>;
+
+			mdio0 {
+				#address-cells = <1>;
+				#size-cells = <0>;
+				compatible = "snps,dwmac-mdio";
+
+				phy_88E1111: ethernet-phy@0 {
+					reg = <0>;
+				};
+			};
+#endif
+
 #endif
 		};
 

@@ -5,8 +5,7 @@ tar jtag jtag://192.168.0.88:1025
 set $mcr30 = 0xe
 
 # Setup hint reg
-# set $cr31 = 0x1ff
-# set $cr31 = (1 << 2)
+set $cr31 = 0x1ff
 
 # Invalid L1-cache include I/Dcache
 set $cr17 = (1<<4) | 0x3
