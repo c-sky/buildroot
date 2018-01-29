@@ -23,7 +23,7 @@ endchoice
 config BR2_BINUTILS_VERSION
 	string
 	default "arc-2017.09-rc1"	if BR2_arc
-	default "ca4bb439dc85ca0a697128d5459e5d17c67f4e2d" if BR2_csky
+	default "5c3430246c33825d5266b1f159e8562b81c096dd" if BR2_csky
 	default "2.27"		if BR2_BINUTILS_VERSION_2_27_X
 	default "2.28.1"	if BR2_BINUTILS_VERSION_2_28_X
 	default "2.29.1"	if BR2_BINUTILS_VERSION_2_29_X
