@@ -366,6 +366,7 @@
 			reg = <0x1FBD0004 4>;
 			bit-shift = <0>;
 			bit-width = <4>;
+			read-only;
 			clocks = <&videoclk_div10>, <&videoclk_div12>,
 				 <&videoclk_div16>, <&xiclk>;
 			clock-output-names = "lspcclk";
