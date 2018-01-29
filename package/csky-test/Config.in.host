@@ -2,7 +2,6 @@ config BR2_PACKAGE_CSKY_TEST
         bool "csky-ci-test"
 	depends on BR2_LINUX_KERNEL
 	depends on BR2_csky
-        select BR2_PACKAGE_LTP_TESTSUITE
 	help
           C-Sky ci test script
 
