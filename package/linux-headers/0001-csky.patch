@@ -1,14 +1,14 @@
-commit c88f07058cf36c40040a08885ef0499427af1d02
+commit c5349af4a11cba82ea6a4df6f64f1bf2b1bd7a84
 Author: Guo Ren <ren_guo@c-sky.com>
-Date:   Mon Jan 29 15:59:41 2018 +0800
+Date:   Mon Jan 29 17:21:30 2018 +0800
 
-    commit b5526becdb76c1e5a446171232878cace40ade7b
+    commit 3f704f26414ec0914ad99e4f6a653162e96f3b6a
     Author: Guo Ren <ren_guo@c-sky.com>
-    Date:   Mon Jan 29 15:57:23 2018 +0800
+    Date:   Mon Jan 29 16:43:19 2018 +0800
     
-        csky: compile for 4.15 heards_install
+        csky: move byteorder.h and sigcontext.h to uapi.
     
-        Change-Id: Ib76f9e21059a68ea13fde38cf6b722879b1e123c
+        Change-Id: I064954d2dcca67499258235309524d21b80f084e
         Signed-off-by: Guo Ren <ren_guo@c-sky.com>
     
     Signed-off-by: Guo Ren <ren_guo@c-sky.com>
@@ -3872,24 +3872,6 @@ index 0000000..3e4c7c5
 +#include <asm-generic/bitops/ext2-atomic.h>
 +#endif /* __ASM_CSKY_BITOPS_H */
 +
-diff --git a/arch/csky/include/asm/byteorder.h b/arch/csky/include/asm/byteorder.h
-new file mode 100644
-index 0000000..077fd0a
---- /dev/null
-+++ b/arch/csky/include/asm/byteorder.h
-@@ -0,0 +1,12 @@
-+#ifndef __ASM_CSKY_BYTEORDER_H
-+#define __ASM_CSKY_BYTEORDER_H
-+
-+#if defined(__cskyBE__)
-+#include <linux/byteorder/big_endian.h>
-+#elif defined(__cskyLE__)
-+#include <linux/byteorder/little_endian.h>
-+#else
-+# error "csky, but neither __cskyBE__, nor __cskyLE__???"
-+#endif
-+
-+#endif /* __ASM_CSKY_BYTEORDER_H */
 diff --git a/arch/csky/include/asm/cache.h b/arch/csky/include/asm/cache.h
 new file mode 100644
 index 0000000..c4ed5db
@@ -6049,43 +6031,6 @@ index 0000000..273f423
 +#define __ARCH_FORCE_SHMLBA
 +
 +#endif /* __ASM_CSKY_SHMPARAM_H */
-diff --git a/arch/csky/include/asm/sigcontext.h b/arch/csky/include/asm/sigcontext.h
-new file mode 100644
-index 0000000..6f6cf5f
---- /dev/null
-+++ b/arch/csky/include/asm/sigcontext.h
-@@ -0,0 +1,31 @@
-+#ifndef _ASM_CSKY_SIGCONTEXT_H
-+#define _ASM_CSKY_SIGCONTEXT_H
-+
-+struct sigcontext {
-+	unsigned long   sc_mask;     /* old sigmask */
-+        unsigned long   sc_usp;      /* old user stack pointer */
-+        unsigned long   sc_a0;
-+        unsigned long   sc_a1;
-+        unsigned long   sc_a2;
-+        unsigned long   sc_a3;
-+	// ABIV2: r4 ~ r13; ABIV1: r6 ~ r14, r1.
-+        unsigned long   sc_regs[10];
-+        unsigned long   sc_r15;
-+#if (__CSKY__ == 2)                     /* config CPU=cskyv2(ck800) */
-+	// r16 ~ r31;
-+        unsigned long   sc_exregs[16];
-+        unsigned long   sc_rhi;
-+        unsigned long   sc_rlo;
-+#endif
-+        unsigned long   sc_sr;
-+        unsigned long   sc_pc;
-+	/* fpu */
-+        unsigned long   sc_fcr;
-+        unsigned long   sc_fsr;		/* Nothing in CPU_CSKYV2 */
-+        unsigned long   sc_fesr;
-+        unsigned long   sc_feinst1;	/* Nothing in CPU_CSKYV2 */
-+        unsigned long   sc_feinst2;	/* Nothing in CPU_CSKYV2 */
-+        unsigned long   sc_fpregs[32];
-+};
-+
-+#endif /* _ASM_CSKY_SIGCONTEXT_H */
 diff --git a/arch/csky/include/asm/signal.h b/arch/csky/include/asm/signal.h
 new file mode 100644
 index 0000000..0a684aa
@@ -7205,722 +7150,20 @@ index 0000000..b6b2765
 +};
 +
 +#endif /* __ASM_CSKY_VDSO_H */
-diff --git a/arch/csky/include/generated/asm/asm-offsets.h b/arch/csky/include/generated/asm/asm-offsets.h
-new file mode 100644
-index 0000000..94eff4f
---- /dev/null
-+++ b/arch/csky/include/generated/asm/asm-offsets.h
-@@ -0,0 +1 @@
-+#include <asm-generic/asm-offsets.h>
-diff --git a/arch/csky/include/generated/asm/atomic.h b/arch/csky/include/generated/asm/atomic.h
-new file mode 100644
-index 0000000..f0cc1f8
---- /dev/null
-+++ b/arch/csky/include/generated/asm/atomic.h
-@@ -0,0 +1 @@
-+#include <asm-generic/atomic.h>
-diff --git a/arch/csky/include/generated/asm/auxvec.h b/arch/csky/include/generated/asm/auxvec.h
-new file mode 100644
-index 0000000..41fa68b
---- /dev/null
-+++ b/arch/csky/include/generated/asm/auxvec.h
-@@ -0,0 +1 @@
-+#include <asm-generic/auxvec.h>
-diff --git a/arch/csky/include/generated/asm/bitsperlong.h b/arch/csky/include/generated/asm/bitsperlong.h
-new file mode 100644
-index 0000000..6dc0bb0
---- /dev/null
-+++ b/arch/csky/include/generated/asm/bitsperlong.h
-@@ -0,0 +1 @@
-+#include <asm-generic/bitsperlong.h>
-diff --git a/arch/csky/include/generated/asm/bug.h b/arch/csky/include/generated/asm/bug.h
-new file mode 100644
-index 0000000..b12fd89
---- /dev/null
-+++ b/arch/csky/include/generated/asm/bug.h
-@@ -0,0 +1 @@
-+#include <asm-generic/bug.h>
-diff --git a/arch/csky/include/generated/asm/bugs.h b/arch/csky/include/generated/asm/bugs.h
-new file mode 100644
-index 0000000..61791e1
---- /dev/null
-+++ b/arch/csky/include/generated/asm/bugs.h
-@@ -0,0 +1 @@
-+#include <asm-generic/bugs.h>
-diff --git a/arch/csky/include/generated/asm/clkdev.h b/arch/csky/include/generated/asm/clkdev.h
-new file mode 100644
-index 0000000..1cf3cfa
---- /dev/null
-+++ b/arch/csky/include/generated/asm/clkdev.h
-@@ -0,0 +1 @@
-+#include <asm-generic/clkdev.h>
-diff --git a/arch/csky/include/generated/asm/cmpxchg.h b/arch/csky/include/generated/asm/cmpxchg.h
-new file mode 100644
-index 0000000..aa9d7ae
---- /dev/null
-+++ b/arch/csky/include/generated/asm/cmpxchg.h
-@@ -0,0 +1 @@
-+#include <asm-generic/cmpxchg.h>
-diff --git a/arch/csky/include/generated/asm/cputime.h b/arch/csky/include/generated/asm/cputime.h
-new file mode 100644
-index 0000000..6d68ad7
---- /dev/null
-+++ b/arch/csky/include/generated/asm/cputime.h
-@@ -0,0 +1 @@
-+#include <asm-generic/cputime.h>
-diff --git a/arch/csky/include/generated/asm/current.h b/arch/csky/include/generated/asm/current.h
-new file mode 100644
-index 0000000..4c51401
---- /dev/null
-+++ b/arch/csky/include/generated/asm/current.h
-@@ -0,0 +1 @@
-+#include <asm-generic/current.h>
-diff --git a/arch/csky/include/generated/asm/delay.h b/arch/csky/include/generated/asm/delay.h
-new file mode 100644
-index 0000000..9670e12
---- /dev/null
-+++ b/arch/csky/include/generated/asm/delay.h
-@@ -0,0 +1 @@
-+#include <asm-generic/delay.h>
-diff --git a/arch/csky/include/generated/asm/device.h b/arch/csky/include/generated/asm/device.h
-new file mode 100644
-index 0000000..f0a4c25
---- /dev/null
-+++ b/arch/csky/include/generated/asm/device.h
-@@ -0,0 +1 @@
-+#include <asm-generic/device.h>
-diff --git a/arch/csky/include/generated/asm/div64.h b/arch/csky/include/generated/asm/div64.h
-new file mode 100644
-index 0000000..6cd978c
---- /dev/null
-+++ b/arch/csky/include/generated/asm/div64.h
-@@ -0,0 +1 @@
-+#include <asm-generic/div64.h>
-diff --git a/arch/csky/include/generated/asm/dma.h b/arch/csky/include/generated/asm/dma.h
-new file mode 100644
-index 0000000..7ce20d9
---- /dev/null
-+++ b/arch/csky/include/generated/asm/dma.h
-@@ -0,0 +1 @@
-+#include <asm-generic/dma.h>
-diff --git a/arch/csky/include/generated/asm/emergency-restart.h b/arch/csky/include/generated/asm/emergency-restart.h
-new file mode 100644
-index 0000000..3711bd9
---- /dev/null
-+++ b/arch/csky/include/generated/asm/emergency-restart.h
-@@ -0,0 +1 @@
-+#include <asm-generic/emergency-restart.h>
-diff --git a/arch/csky/include/generated/asm/errno.h b/arch/csky/include/generated/asm/errno.h
-new file mode 100644
-index 0000000..4c82b50
---- /dev/null
-+++ b/arch/csky/include/generated/asm/errno.h
-@@ -0,0 +1 @@
-+#include <asm-generic/errno.h>
-diff --git a/arch/csky/include/generated/asm/exec.h b/arch/csky/include/generated/asm/exec.h
-new file mode 100644
-index 0000000..4807cf7
---- /dev/null
-+++ b/arch/csky/include/generated/asm/exec.h
-@@ -0,0 +1 @@
-+#include <asm-generic/exec.h>
-diff --git a/arch/csky/include/generated/asm/fb.h b/arch/csky/include/generated/asm/fb.h
-new file mode 100644
-index 0000000..3a4988e
---- /dev/null
-+++ b/arch/csky/include/generated/asm/fb.h
-@@ -0,0 +1 @@
-+#include <asm-generic/fb.h>
-diff --git a/arch/csky/include/generated/asm/ftrace.h b/arch/csky/include/generated/asm/ftrace.h
-new file mode 100644
-index 0000000..efc3320
---- /dev/null
-+++ b/arch/csky/include/generated/asm/ftrace.h
-@@ -0,0 +1 @@
-+#include <asm-generic/ftrace.h>
-diff --git a/arch/csky/include/generated/asm/futex.h b/arch/csky/include/generated/asm/futex.h
-new file mode 100644
-index 0000000..0b74582
---- /dev/null
-+++ b/arch/csky/include/generated/asm/futex.h
-@@ -0,0 +1 @@
-+#include <asm-generic/futex.h>
-diff --git a/arch/csky/include/generated/asm/gpio.h b/arch/csky/include/generated/asm/gpio.h
-new file mode 100644
-index 0000000..306ab4c
---- /dev/null
-+++ b/arch/csky/include/generated/asm/gpio.h
-@@ -0,0 +1 @@
-+#include <asm-generic/gpio.h>
-diff --git a/arch/csky/include/generated/asm/hardirq.h b/arch/csky/include/generated/asm/hardirq.h
-new file mode 100644
-index 0000000..fb3c05a
---- /dev/null
-+++ b/arch/csky/include/generated/asm/hardirq.h
-@@ -0,0 +1 @@
-+#include <asm-generic/hardirq.h>
-diff --git a/arch/csky/include/generated/asm/hw_irq.h b/arch/csky/include/generated/asm/hw_irq.h
-new file mode 100644
-index 0000000..1f5ef7d
---- /dev/null
-+++ b/arch/csky/include/generated/asm/hw_irq.h
-@@ -0,0 +1 @@
-+#include <asm-generic/hw_irq.h>
-diff --git a/arch/csky/include/generated/asm/ioctl.h b/arch/csky/include/generated/asm/ioctl.h
-new file mode 100644
-index 0000000..b279fe0
---- /dev/null
-+++ b/arch/csky/include/generated/asm/ioctl.h
-@@ -0,0 +1 @@
-+#include <asm-generic/ioctl.h>
-diff --git a/arch/csky/include/generated/asm/ioctls.h b/arch/csky/include/generated/asm/ioctls.h
-new file mode 100644
-index 0000000..ec34c76
---- /dev/null
-+++ b/arch/csky/include/generated/asm/ioctls.h
-@@ -0,0 +1 @@
-+#include <asm-generic/ioctls.h>
-diff --git a/arch/csky/include/generated/asm/ipcbuf.h b/arch/csky/include/generated/asm/ipcbuf.h
-new file mode 100644
-index 0000000..84c7e51
---- /dev/null
-+++ b/arch/csky/include/generated/asm/ipcbuf.h
-@@ -0,0 +1 @@
-+#include <asm-generic/ipcbuf.h>
-diff --git a/arch/csky/include/generated/asm/irq_regs.h b/arch/csky/include/generated/asm/irq_regs.h
-new file mode 100644
-index 0000000..3dd9c0b
---- /dev/null
-+++ b/arch/csky/include/generated/asm/irq_regs.h
-@@ -0,0 +1 @@
-+#include <asm-generic/irq_regs.h>
-diff --git a/arch/csky/include/generated/asm/irq_work.h b/arch/csky/include/generated/asm/irq_work.h
-new file mode 100644
-index 0000000..f1bffa2
---- /dev/null
-+++ b/arch/csky/include/generated/asm/irq_work.h
-@@ -0,0 +1 @@
-+#include <asm-generic/irq_work.h>
-diff --git a/arch/csky/include/generated/asm/kdebug.h b/arch/csky/include/generated/asm/kdebug.h
-new file mode 100644
-index 0000000..6ece1b0
---- /dev/null
-+++ b/arch/csky/include/generated/asm/kdebug.h
-@@ -0,0 +1 @@
-+#include <asm-generic/kdebug.h>
-diff --git a/arch/csky/include/generated/asm/kmap_types.h b/arch/csky/include/generated/asm/kmap_types.h
-new file mode 100644
-index 0000000..3575c64
---- /dev/null
-+++ b/arch/csky/include/generated/asm/kmap_types.h
-@@ -0,0 +1 @@
-+#include <asm-generic/kmap_types.h>
-diff --git a/arch/csky/include/generated/asm/kprobes.h b/arch/csky/include/generated/asm/kprobes.h
-new file mode 100644
-index 0000000..9334342
---- /dev/null
-+++ b/arch/csky/include/generated/asm/kprobes.h
-@@ -0,0 +1 @@
-+#include <asm-generic/kprobes.h>
-diff --git a/arch/csky/include/generated/asm/kvm_para.h b/arch/csky/include/generated/asm/kvm_para.h
-new file mode 100644
-index 0000000..14fab8f
---- /dev/null
-+++ b/arch/csky/include/generated/asm/kvm_para.h
-@@ -0,0 +1 @@
-+#include <asm-generic/kvm_para.h>
-diff --git a/arch/csky/include/generated/asm/linkage.h b/arch/csky/include/generated/asm/linkage.h
-new file mode 100644
-index 0000000..0540bba
---- /dev/null
-+++ b/arch/csky/include/generated/asm/linkage.h
-@@ -0,0 +1 @@
-+#include <asm-generic/linkage.h>
-diff --git a/arch/csky/include/generated/asm/local.h b/arch/csky/include/generated/asm/local.h
-new file mode 100644
-index 0000000..c11c530
---- /dev/null
-+++ b/arch/csky/include/generated/asm/local.h
-@@ -0,0 +1 @@
-+#include <asm-generic/local.h>
-diff --git a/arch/csky/include/generated/asm/local64.h b/arch/csky/include/generated/asm/local64.h
-new file mode 100644
-index 0000000..36c93b5
---- /dev/null
-+++ b/arch/csky/include/generated/asm/local64.h
-@@ -0,0 +1 @@
-+#include <asm-generic/local64.h>
-diff --git a/arch/csky/include/generated/asm/mm-arch-hooks.h b/arch/csky/include/generated/asm/mm-arch-hooks.h
-new file mode 100644
-index 0000000..37f12a2
---- /dev/null
-+++ b/arch/csky/include/generated/asm/mm-arch-hooks.h
-@@ -0,0 +1 @@
-+#include <asm-generic/mm-arch-hooks.h>
-diff --git a/arch/csky/include/generated/asm/mman.h b/arch/csky/include/generated/asm/mman.h
-new file mode 100644
-index 0000000..8eebf89
---- /dev/null
-+++ b/arch/csky/include/generated/asm/mman.h
-@@ -0,0 +1 @@
-+#include <asm-generic/mman.h>
-diff --git a/arch/csky/include/generated/asm/module.h b/arch/csky/include/generated/asm/module.h
-new file mode 100644
-index 0000000..1e4b79f
---- /dev/null
-+++ b/arch/csky/include/generated/asm/module.h
-@@ -0,0 +1 @@
-+#include <asm-generic/module.h>
-diff --git a/arch/csky/include/generated/asm/msgbuf.h b/arch/csky/include/generated/asm/msgbuf.h
-new file mode 100644
-index 0000000..809134c
---- /dev/null
-+++ b/arch/csky/include/generated/asm/msgbuf.h
-@@ -0,0 +1 @@
-+#include <asm-generic/msgbuf.h>
-diff --git a/arch/csky/include/generated/asm/mutex.h b/arch/csky/include/generated/asm/mutex.h
-new file mode 100644
-index 0000000..6c2390a
---- /dev/null
-+++ b/arch/csky/include/generated/asm/mutex.h
-@@ -0,0 +1 @@
-+#include <asm-generic/mutex.h>
-diff --git a/arch/csky/include/generated/asm/param.h b/arch/csky/include/generated/asm/param.h
-new file mode 100644
-index 0000000..965d454
---- /dev/null
-+++ b/arch/csky/include/generated/asm/param.h
-@@ -0,0 +1 @@
-+#include <asm-generic/param.h>
-diff --git a/arch/csky/include/generated/asm/pci.h b/arch/csky/include/generated/asm/pci.h
-new file mode 100644
-index 0000000..9f0df5f
---- /dev/null
-+++ b/arch/csky/include/generated/asm/pci.h
-@@ -0,0 +1 @@
-+#include <asm-generic/pci.h>
-diff --git a/arch/csky/include/generated/asm/percpu.h b/arch/csky/include/generated/asm/percpu.h
-new file mode 100644
-index 0000000..06a959d
---- /dev/null
-+++ b/arch/csky/include/generated/asm/percpu.h
-@@ -0,0 +1 @@
-+#include <asm-generic/percpu.h>
-diff --git a/arch/csky/include/generated/asm/poll.h b/arch/csky/include/generated/asm/poll.h
-new file mode 100644
-index 0000000..c98509d
---- /dev/null
-+++ b/arch/csky/include/generated/asm/poll.h
-@@ -0,0 +1 @@
-+#include <asm-generic/poll.h>
-diff --git a/arch/csky/include/generated/asm/posix_types.h b/arch/csky/include/generated/asm/posix_types.h
-new file mode 100644
-index 0000000..22cae62
---- /dev/null
-+++ b/arch/csky/include/generated/asm/posix_types.h
-@@ -0,0 +1 @@
-+#include <asm-generic/posix_types.h>
-diff --git a/arch/csky/include/generated/asm/preempt.h b/arch/csky/include/generated/asm/preempt.h
-new file mode 100644
-index 0000000..d0176fc
---- /dev/null
-+++ b/arch/csky/include/generated/asm/preempt.h
-@@ -0,0 +1 @@
-+#include <asm-generic/preempt.h>
-diff --git a/arch/csky/include/generated/asm/resource.h b/arch/csky/include/generated/asm/resource.h
-new file mode 100644
-index 0000000..04bc4db
---- /dev/null
-+++ b/arch/csky/include/generated/asm/resource.h
-@@ -0,0 +1 @@
-+#include <asm-generic/resource.h>
-diff --git a/arch/csky/include/generated/asm/scatterlist.h b/arch/csky/include/generated/asm/scatterlist.h
-new file mode 100644
-index 0000000..35d786f
---- /dev/null
-+++ b/arch/csky/include/generated/asm/scatterlist.h
-@@ -0,0 +1 @@
-+#include <asm-generic/scatterlist.h>
-diff --git a/arch/csky/include/generated/asm/sections.h b/arch/csky/include/generated/asm/sections.h
-new file mode 100644
-index 0000000..2b8c516
---- /dev/null
-+++ b/arch/csky/include/generated/asm/sections.h
-@@ -0,0 +1 @@
-+#include <asm-generic/sections.h>
-diff --git a/arch/csky/include/generated/asm/sembuf.h b/arch/csky/include/generated/asm/sembuf.h
-new file mode 100644
-index 0000000..7673b83
---- /dev/null
-+++ b/arch/csky/include/generated/asm/sembuf.h
-@@ -0,0 +1 @@
-+#include <asm-generic/sembuf.h>
-diff --git a/arch/csky/include/generated/asm/serial.h b/arch/csky/include/generated/asm/serial.h
-new file mode 100644
-index 0000000..a0cb0ca
---- /dev/null
-+++ b/arch/csky/include/generated/asm/serial.h
-@@ -0,0 +1 @@
-+#include <asm-generic/serial.h>
-diff --git a/arch/csky/include/generated/asm/shm.h b/arch/csky/include/generated/asm/shm.h
-new file mode 100644
-index 0000000..6aa75fb
---- /dev/null
-+++ b/arch/csky/include/generated/asm/shm.h
-@@ -0,0 +1 @@
-+#include <asm-generic/shm.h>
-diff --git a/arch/csky/include/generated/asm/shmbuf.h b/arch/csky/include/generated/asm/shmbuf.h
-new file mode 100644
-index 0000000..83c05fc
---- /dev/null
-+++ b/arch/csky/include/generated/asm/shmbuf.h
-@@ -0,0 +1 @@
-+#include <asm-generic/shmbuf.h>
-diff --git a/arch/csky/include/generated/asm/siginfo.h b/arch/csky/include/generated/asm/siginfo.h
-new file mode 100644
-index 0000000..0815d29
---- /dev/null
-+++ b/arch/csky/include/generated/asm/siginfo.h
-@@ -0,0 +1 @@
-+#include <asm-generic/siginfo.h>
-diff --git a/arch/csky/include/generated/asm/sizes.h b/arch/csky/include/generated/asm/sizes.h
-new file mode 100644
-index 0000000..dd248c2
---- /dev/null
-+++ b/arch/csky/include/generated/asm/sizes.h
-@@ -0,0 +1 @@
-+#include <asm-generic/sizes.h>
-diff --git a/arch/csky/include/generated/asm/socket.h b/arch/csky/include/generated/asm/socket.h
-new file mode 100644
-index 0000000..6b71384
---- /dev/null
-+++ b/arch/csky/include/generated/asm/socket.h
-@@ -0,0 +1 @@
-+#include <asm-generic/socket.h>
-diff --git a/arch/csky/include/generated/asm/sockios.h b/arch/csky/include/generated/asm/sockios.h
-new file mode 100644
-index 0000000..def6d47
---- /dev/null
-+++ b/arch/csky/include/generated/asm/sockios.h
-@@ -0,0 +1 @@
-+#include <asm-generic/sockios.h>
-diff --git a/arch/csky/include/generated/asm/statfs.h b/arch/csky/include/generated/asm/statfs.h
-new file mode 100644
-index 0000000..0b91fe1
---- /dev/null
-+++ b/arch/csky/include/generated/asm/statfs.h
-@@ -0,0 +1 @@
-+#include <asm-generic/statfs.h>
-diff --git a/arch/csky/include/generated/asm/termbits.h b/arch/csky/include/generated/asm/termbits.h
-new file mode 100644
-index 0000000..3935b10
---- /dev/null
-+++ b/arch/csky/include/generated/asm/termbits.h
-@@ -0,0 +1 @@
-+#include <asm-generic/termbits.h>
-diff --git a/arch/csky/include/generated/asm/termios.h b/arch/csky/include/generated/asm/termios.h
-new file mode 100644
-index 0000000..280d78a
---- /dev/null
-+++ b/arch/csky/include/generated/asm/termios.h
-@@ -0,0 +1 @@
-+#include <asm-generic/termios.h>
-diff --git a/arch/csky/include/generated/asm/timex.h b/arch/csky/include/generated/asm/timex.h
-new file mode 100644
-index 0000000..8cdefa7
---- /dev/null
-+++ b/arch/csky/include/generated/asm/timex.h
-@@ -0,0 +1 @@
-+#include <asm-generic/timex.h>
-diff --git a/arch/csky/include/generated/asm/topology.h b/arch/csky/include/generated/asm/topology.h
-new file mode 100644
-index 0000000..5428f33
---- /dev/null
-+++ b/arch/csky/include/generated/asm/topology.h
-@@ -0,0 +1 @@
-+#include <asm-generic/topology.h>
-diff --git a/arch/csky/include/generated/asm/trace_clock.h b/arch/csky/include/generated/asm/trace_clock.h
-new file mode 100644
-index 0000000..39a5bb0
---- /dev/null
-+++ b/arch/csky/include/generated/asm/trace_clock.h
-@@ -0,0 +1 @@
-+#include <asm-generic/trace_clock.h>
-diff --git a/arch/csky/include/generated/asm/types.h b/arch/csky/include/generated/asm/types.h
-new file mode 100644
-index 0000000..b9e79bc
---- /dev/null
-+++ b/arch/csky/include/generated/asm/types.h
-@@ -0,0 +1 @@
-+#include <asm-generic/types.h>
-diff --git a/arch/csky/include/generated/asm/ucontext.h b/arch/csky/include/generated/asm/ucontext.h
-new file mode 100644
-index 0000000..9bc07b9
---- /dev/null
-+++ b/arch/csky/include/generated/asm/ucontext.h
-@@ -0,0 +1 @@
-+#include <asm-generic/ucontext.h>
-diff --git a/arch/csky/include/generated/asm/unaligned.h b/arch/csky/include/generated/asm/unaligned.h
-new file mode 100644
-index 0000000..6cecbbb
---- /dev/null
-+++ b/arch/csky/include/generated/asm/unaligned.h
-@@ -0,0 +1 @@
-+#include <asm-generic/unaligned.h>
-diff --git a/arch/csky/include/generated/asm/vga.h b/arch/csky/include/generated/asm/vga.h
-new file mode 100644
-index 0000000..89d82fd
---- /dev/null
-+++ b/arch/csky/include/generated/asm/vga.h
-@@ -0,0 +1 @@
-+#include <asm-generic/vga.h>
-diff --git a/arch/csky/include/generated/asm/vmlinux.lds.h b/arch/csky/include/generated/asm/vmlinux.lds.h
-new file mode 100644
-index 0000000..1084c97
---- /dev/null
-+++ b/arch/csky/include/generated/asm/vmlinux.lds.h
-@@ -0,0 +1 @@
-+#include <asm-generic/vmlinux.lds.h>
-diff --git a/arch/csky/include/generated/asm/word-at-a-time.h b/arch/csky/include/generated/asm/word-at-a-time.h
-new file mode 100644
-index 0000000..b522cc3
---- /dev/null
-+++ b/arch/csky/include/generated/asm/word-at-a-time.h
-@@ -0,0 +1 @@
-+#include <asm-generic/word-at-a-time.h>
-diff --git a/arch/csky/include/generated/uapi/asm/auxvec.h b/arch/csky/include/generated/uapi/asm/auxvec.h
-new file mode 100644
-index 0000000..41fa68b
---- /dev/null
-+++ b/arch/csky/include/generated/uapi/asm/auxvec.h
-@@ -0,0 +1 @@
-+#include <asm-generic/auxvec.h>
-diff --git a/arch/csky/include/generated/uapi/asm/bitsperlong.h b/arch/csky/include/generated/uapi/asm/bitsperlong.h
-new file mode 100644
-index 0000000..6dc0bb0
---- /dev/null
-+++ b/arch/csky/include/generated/uapi/asm/bitsperlong.h
-@@ -0,0 +1 @@
-+#include <asm-generic/bitsperlong.h>
-diff --git a/arch/csky/include/generated/uapi/asm/bpf_perf_event.h b/arch/csky/include/generated/uapi/asm/bpf_perf_event.h
-new file mode 100644
-index 0000000..3097758
---- /dev/null
-+++ b/arch/csky/include/generated/uapi/asm/bpf_perf_event.h
-@@ -0,0 +1 @@
-+#include <asm-generic/bpf_perf_event.h>
-diff --git a/arch/csky/include/generated/uapi/asm/byteorder.h b/arch/csky/include/generated/uapi/asm/byteorder.h
-new file mode 100644
-index 0000000..789c30e
---- /dev/null
-+++ b/arch/csky/include/generated/uapi/asm/byteorder.h
-@@ -0,0 +1 @@
-+#include <asm-generic/byteorder.h>
-diff --git a/arch/csky/include/generated/uapi/asm/errno.h b/arch/csky/include/generated/uapi/asm/errno.h
-new file mode 100644
-index 0000000..4c82b50
---- /dev/null
-+++ b/arch/csky/include/generated/uapi/asm/errno.h
-@@ -0,0 +1 @@
-+#include <asm-generic/errno.h>
-diff --git a/arch/csky/include/generated/uapi/asm/fcntl.h b/arch/csky/include/generated/uapi/asm/fcntl.h
-new file mode 100644
-index 0000000..46ab12d
---- /dev/null
-+++ b/arch/csky/include/generated/uapi/asm/fcntl.h
-@@ -0,0 +1 @@
-+#include <asm-generic/fcntl.h>
-diff --git a/arch/csky/include/generated/uapi/asm/ioctl.h b/arch/csky/include/generated/uapi/asm/ioctl.h
-new file mode 100644
-index 0000000..b279fe0
---- /dev/null
-+++ b/arch/csky/include/generated/uapi/asm/ioctl.h
-@@ -0,0 +1 @@
-+#include <asm-generic/ioctl.h>
-diff --git a/arch/csky/include/generated/uapi/asm/ioctls.h b/arch/csky/include/generated/uapi/asm/ioctls.h
-new file mode 100644
-index 0000000..ec34c76
---- /dev/null
-+++ b/arch/csky/include/generated/uapi/asm/ioctls.h
-@@ -0,0 +1 @@
-+#include <asm-generic/ioctls.h>
-diff --git a/arch/csky/include/generated/uapi/asm/ipcbuf.h b/arch/csky/include/generated/uapi/asm/ipcbuf.h
-new file mode 100644
-index 0000000..84c7e51
---- /dev/null
-+++ b/arch/csky/include/generated/uapi/asm/ipcbuf.h
-@@ -0,0 +1 @@
-+#include <asm-generic/ipcbuf.h>
-diff --git a/arch/csky/include/generated/uapi/asm/mman.h b/arch/csky/include/generated/uapi/asm/mman.h
-new file mode 100644
-index 0000000..8eebf89
---- /dev/null
-+++ b/arch/csky/include/generated/uapi/asm/mman.h
-@@ -0,0 +1 @@
-+#include <asm-generic/mman.h>
-diff --git a/arch/csky/include/generated/uapi/asm/msgbuf.h b/arch/csky/include/generated/uapi/asm/msgbuf.h
-new file mode 100644
-index 0000000..809134c
---- /dev/null
-+++ b/arch/csky/include/generated/uapi/asm/msgbuf.h
-@@ -0,0 +1 @@
-+#include <asm-generic/msgbuf.h>
-diff --git a/arch/csky/include/generated/uapi/asm/param.h b/arch/csky/include/generated/uapi/asm/param.h
-new file mode 100644
-index 0000000..965d454
---- /dev/null
-+++ b/arch/csky/include/generated/uapi/asm/param.h
-@@ -0,0 +1 @@
-+#include <asm-generic/param.h>
-diff --git a/arch/csky/include/generated/uapi/asm/poll.h b/arch/csky/include/generated/uapi/asm/poll.h
-new file mode 100644
-index 0000000..c98509d
---- /dev/null
-+++ b/arch/csky/include/generated/uapi/asm/poll.h
-@@ -0,0 +1 @@
-+#include <asm-generic/poll.h>
-diff --git a/arch/csky/include/generated/uapi/asm/posix_types.h b/arch/csky/include/generated/uapi/asm/posix_types.h
-new file mode 100644
-index 0000000..22cae62
---- /dev/null
-+++ b/arch/csky/include/generated/uapi/asm/posix_types.h
-@@ -0,0 +1 @@
-+#include <asm-generic/posix_types.h>
-diff --git a/arch/csky/include/generated/uapi/asm/ptrace.h b/arch/csky/include/generated/uapi/asm/ptrace.h
-new file mode 100644
-index 0000000..1e877ec
---- /dev/null
-+++ b/arch/csky/include/generated/uapi/asm/ptrace.h
-@@ -0,0 +1 @@
-+#include <asm-generic/ptrace.h>
-diff --git a/arch/csky/include/generated/uapi/asm/resource.h b/arch/csky/include/generated/uapi/asm/resource.h
-new file mode 100644
-index 0000000..04bc4db
---- /dev/null
-+++ b/arch/csky/include/generated/uapi/asm/resource.h
-@@ -0,0 +1 @@
-+#include <asm-generic/resource.h>
-diff --git a/arch/csky/include/generated/uapi/asm/sembuf.h b/arch/csky/include/generated/uapi/asm/sembuf.h
-new file mode 100644
-index 0000000..7673b83
---- /dev/null
-+++ b/arch/csky/include/generated/uapi/asm/sembuf.h
-@@ -0,0 +1 @@
-+#include <asm-generic/sembuf.h>
-diff --git a/arch/csky/include/generated/uapi/asm/setup.h b/arch/csky/include/generated/uapi/asm/setup.h
-new file mode 100644
-index 0000000..552df83
---- /dev/null
-+++ b/arch/csky/include/generated/uapi/asm/setup.h
-@@ -0,0 +1 @@
-+#include <asm-generic/setup.h>
-diff --git a/arch/csky/include/generated/uapi/asm/shmbuf.h b/arch/csky/include/generated/uapi/asm/shmbuf.h
-new file mode 100644
-index 0000000..83c05fc
---- /dev/null
-+++ b/arch/csky/include/generated/uapi/asm/shmbuf.h
-@@ -0,0 +1 @@
-+#include <asm-generic/shmbuf.h>
-diff --git a/arch/csky/include/generated/uapi/asm/sigcontext.h b/arch/csky/include/generated/uapi/asm/sigcontext.h
-new file mode 100644
-index 0000000..aa37f43
---- /dev/null
-+++ b/arch/csky/include/generated/uapi/asm/sigcontext.h
-@@ -0,0 +1 @@
-+#include <asm-generic/sigcontext.h>
-diff --git a/arch/csky/include/generated/uapi/asm/siginfo.h b/arch/csky/include/generated/uapi/asm/siginfo.h
-new file mode 100644
-index 0000000..0815d29
---- /dev/null
-+++ b/arch/csky/include/generated/uapi/asm/siginfo.h
-@@ -0,0 +1 @@
-+#include <asm-generic/siginfo.h>
-diff --git a/arch/csky/include/generated/uapi/asm/signal.h b/arch/csky/include/generated/uapi/asm/signal.h
-new file mode 100644
-index 0000000..7b1573c
---- /dev/null
-+++ b/arch/csky/include/generated/uapi/asm/signal.h
-@@ -0,0 +1 @@
-+#include <asm-generic/signal.h>
-diff --git a/arch/csky/include/generated/uapi/asm/socket.h b/arch/csky/include/generated/uapi/asm/socket.h
-new file mode 100644
-index 0000000..6b71384
---- /dev/null
-+++ b/arch/csky/include/generated/uapi/asm/socket.h
-@@ -0,0 +1 @@
-+#include <asm-generic/socket.h>
-diff --git a/arch/csky/include/generated/uapi/asm/sockios.h b/arch/csky/include/generated/uapi/asm/sockios.h
-new file mode 100644
-index 0000000..def6d47
---- /dev/null
-+++ b/arch/csky/include/generated/uapi/asm/sockios.h
-@@ -0,0 +1 @@
-+#include <asm-generic/sockios.h>
-diff --git a/arch/csky/include/generated/uapi/asm/stat.h b/arch/csky/include/generated/uapi/asm/stat.h
-new file mode 100644
-index 0000000..3dc90fa
---- /dev/null
-+++ b/arch/csky/include/generated/uapi/asm/stat.h
-@@ -0,0 +1 @@
-+#include <asm-generic/stat.h>
-diff --git a/arch/csky/include/generated/uapi/asm/statfs.h b/arch/csky/include/generated/uapi/asm/statfs.h
-new file mode 100644
-index 0000000..0b91fe1
---- /dev/null
-+++ b/arch/csky/include/generated/uapi/asm/statfs.h
-@@ -0,0 +1 @@
-+#include <asm-generic/statfs.h>
-diff --git a/arch/csky/include/generated/uapi/asm/swab.h b/arch/csky/include/generated/uapi/asm/swab.h
-new file mode 100644
-index 0000000..7847e56
---- /dev/null
-+++ b/arch/csky/include/generated/uapi/asm/swab.h
-@@ -0,0 +1 @@
-+#include <asm-generic/swab.h>
-diff --git a/arch/csky/include/generated/uapi/asm/termbits.h b/arch/csky/include/generated/uapi/asm/termbits.h
-new file mode 100644
-index 0000000..3935b10
---- /dev/null
-+++ b/arch/csky/include/generated/uapi/asm/termbits.h
-@@ -0,0 +1 @@
-+#include <asm-generic/termbits.h>
-diff --git a/arch/csky/include/generated/uapi/asm/termios.h b/arch/csky/include/generated/uapi/asm/termios.h
-new file mode 100644
-index 0000000..280d78a
---- /dev/null
-+++ b/arch/csky/include/generated/uapi/asm/termios.h
-@@ -0,0 +1 @@
-+#include <asm-generic/termios.h>
-diff --git a/arch/csky/include/generated/uapi/asm/types.h b/arch/csky/include/generated/uapi/asm/types.h
-new file mode 100644
-index 0000000..b9e79bc
---- /dev/null
-+++ b/arch/csky/include/generated/uapi/asm/types.h
-@@ -0,0 +1 @@
-+#include <asm-generic/types.h>
-diff --git a/arch/csky/include/generated/uapi/asm/ucontext.h b/arch/csky/include/generated/uapi/asm/ucontext.h
-new file mode 100644
-index 0000000..9bc07b9
---- /dev/null
-+++ b/arch/csky/include/generated/uapi/asm/ucontext.h
-@@ -0,0 +1 @@
-+#include <asm-generic/ucontext.h>
 diff --git a/arch/csky/include/uapi/asm/Kbuild b/arch/csky/include/uapi/asm/Kbuild
 new file mode 100644
-index 0000000..a9522dd
+index 0000000..eebe85d
 --- /dev/null
 +++ b/arch/csky/include/uapi/asm/Kbuild
-@@ -0,0 +1,36 @@
+@@ -0,0 +1,34 @@
 +include include/uapi/asm-generic/Kbuild.asm
 +
 +header-y += cachectl.h
 +header-y += stat.h
 +
 +generic-y += auxvec.h
-+generic-y += byteorder.h
 +generic-y += param.h
 +generic-y += ptrace.h
-+generic-y += sigcontext.h
 +generic-y += bpf_perf_event.h
 +generic-y += errno.h
 +generic-y += ioctl.h
@@ -7947,6 +7190,24 @@ index 0000000..a9522dd
 +generic-y += termios.h
 +generic-y += types.h
 +generic-y += ucontext.h
+diff --git a/arch/csky/include/uapi/asm/byteorder.h b/arch/csky/include/uapi/asm/byteorder.h
+new file mode 100644
+index 0000000..077fd0a
+--- /dev/null
++++ b/arch/csky/include/uapi/asm/byteorder.h
+@@ -0,0 +1,12 @@
++#ifndef __ASM_CSKY_BYTEORDER_H
++#define __ASM_CSKY_BYTEORDER_H
++
++#if defined(__cskyBE__)
++#include <linux/byteorder/big_endian.h>
++#elif defined(__cskyLE__)
++#include <linux/byteorder/little_endian.h>
++#else
++# error "csky, but neither __cskyBE__, nor __cskyLE__???"
++#endif
++
++#endif /* __ASM_CSKY_BYTEORDER_H */
 diff --git a/arch/csky/include/uapi/asm/cachectl.h b/arch/csky/include/uapi/asm/cachectl.h
 new file mode 100644
 index 0000000..c63285c
@@ -7974,6 +7235,43 @@ index 0000000..c63285c
 +#define UNCACHEABLE 1   /* make pages uncacheable */
 +
 +#endif /* __ASM_CSKY_CACHECTL_H */
+diff --git a/arch/csky/include/uapi/asm/sigcontext.h b/arch/csky/include/uapi/asm/sigcontext.h
+new file mode 100644
+index 0000000..6f6cf5f
+--- /dev/null
++++ b/arch/csky/include/uapi/asm/sigcontext.h
+@@ -0,0 +1,31 @@
++#ifndef _ASM_CSKY_SIGCONTEXT_H
++#define _ASM_CSKY_SIGCONTEXT_H
++
++struct sigcontext {
++	unsigned long   sc_mask;     /* old sigmask */
++        unsigned long   sc_usp;      /* old user stack pointer */
++        unsigned long   sc_a0;
++        unsigned long   sc_a1;
++        unsigned long   sc_a2;
++        unsigned long   sc_a3;
++	// ABIV2: r4 ~ r13; ABIV1: r6 ~ r14, r1.
++        unsigned long   sc_regs[10];
++        unsigned long   sc_r15;
++#if (__CSKY__ == 2)                     /* config CPU=cskyv2(ck800) */
++	// r16 ~ r31;
++        unsigned long   sc_exregs[16];
++        unsigned long   sc_rhi;
++        unsigned long   sc_rlo;
++#endif
++        unsigned long   sc_sr;
++        unsigned long   sc_pc;
++	/* fpu */
++        unsigned long   sc_fcr;
++        unsigned long   sc_fsr;		/* Nothing in CPU_CSKYV2 */
++        unsigned long   sc_fesr;
++        unsigned long   sc_feinst1;	/* Nothing in CPU_CSKYV2 */
++        unsigned long   sc_feinst2;	/* Nothing in CPU_CSKYV2 */
++        unsigned long   sc_fpregs[32];
++};
++
++#endif /* _ASM_CSKY_SIGCONTEXT_H */
 diff --git a/arch/csky/include/uapi/asm/stat.h b/arch/csky/include/uapi/asm/stat.h
 new file mode 100644
 index 0000000..1f110ca
