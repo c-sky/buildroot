@@ -24,6 +24,10 @@ define UCLIBC_HELP_CMDS
 	@echo '  uclibc-menuconfig      - Run uClibc menuconfig'
 endef
 
+ifeq ($(BR2_csky),y)
+UCLIBC_DONT_APPLY_PATCH=y
+endif
+
 # uclibc is part of the toolchain so disable the toolchain dependency
 UCLIBC_ADD_TOOLCHAIN_DEPENDENCY = NO
 

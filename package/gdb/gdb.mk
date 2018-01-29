@@ -14,6 +14,12 @@ GDB_SOURCE = gdb-$(GDB_VERSION).tar.gz
 GDB_FROM_GIT = y
 endif
 
+ifeq ($(BR2_csky),y)
+GDB_SITE = $(call github,c-sky,binutils-gdb,$(GDB_VERSION))
+GDB_SOURCE = gdb-$(GDB_VERSION).tar.gz
+GDB_FROM_GIT = y
+endif
+
 GDB_LICENSE = GPL-2.0+, LGPL-2.0+, GPL-3.0+, LGPL-3.0+
 GDB_LICENSE_FILES = COPYING COPYING.LIB COPYING3 COPYING3.LIB
 
@@ -118,6 +124,10 @@ GDB_CONF_OPTS = \
 # be built as C++ app.
 ifeq ($(BR2_arc),y)
 GDB_CONF_OPTS += --disable-build-with-cxx
+endif
+
+ifeq ($(BR2_csky),y)
+GDB_CONF_OPTS += --without-auto-load-safe-path
 endif
 
 # gdb 7.12+ by default builds with a C++ compiler, which doesn't work
