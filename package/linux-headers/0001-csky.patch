@@ -1,2031 +1,23 @@
-diff --git a/README.md b/README.md
-new file mode 100644
-index 0000000..33ba312
---- /dev/null
-+++ b/README.md
-@@ -0,0 +1,58 @@
-+# Linux/arch/csky
-+
-+## Introduction
-+
-+C-SKY linux consisted of standard linux kernel source with arch/csky repo:
-+
-+https://github.com/c-sky/csky-linux.git
-+
-+## Setup linux kernel source with copy
-+
-+```sh
-+    # Download the kernel source
-+	$ wget https://cdn.kernel.org/pub/linux/kernel/v4.x/linux-4.9.22.tar.gz
-+	$ tar zxvf linux-4.9.22.tar.gz
-+
-+    # Get code from arch/csky repo, and copy if to kernel source
-+	$ git clone https://github.com/c-sky/csky-linux.git
-+	$ cp csky-linux/arch/csky linux-4.9.22/arch/ -raf
-+
-+    # Use an empty addons
-+	$ cd linux-4.9.22
-+	$ mkdir addons
-+	$ touch addons/Kconfig
-+	$ touch addons/Makefile
-+	$ touch addons/none.c
-+	$ echo "obj-y += none.o" > addons/Makefile
-+
-+```
-+Now linux-4.9.22 is finished with arch of C-SKY implement.
-+
-+## Setup linux kernel source with git merge
-+
-+```sh
-+    # Download kernel source, and setup init repo
-+	$ wget https://cdn.kernel.org/pub/linux/kernel/v4.x/linux-4.9.22.tar.gz
-+	$ tar zxvf linux-4.9.22.tar.gz
-+
-+    # Use an empty addons
-+	$ cd linux-4.9.22
-+	$ mkdir addons
-+	$ touch addons/Kconfig
-+	$ touch addons/Makefile
-+	$ touch addons/none.c
-+	$ echo "obj-y += none.o" > addons/Makefile
-+
-+    # Setup local .git
-+	$ git init .
-+	$ git add .
-+	$ git commit -m "init"
-+ 
-+    # Setup arch csky
-+	$ git remote add csky https://github.com/c-sky/csky-linux.git
-+	$ git pull csky master
-+
-+    # Push to your own repo
-+	$ git remote add my_repo git://myrepo.git
-+	$ git push my_repo master
-+```
-diff --git a/arch/csky/ChangeLog b/arch/csky/ChangeLog
-new file mode 100644
-index 0000000..1a72451
---- /dev/null
-+++ b/arch/csky/ChangeLog
-@@ -0,0 +1,1952 @@
-+2015-08-05 Chen linfei <linfei_chen@c-sky.com>
-+
-+	* arch/csky/kernel/entry.S:
-+		Fix bug: tlbinvalid or tlbmodified may occurred utlb,
-+			and the mapping isnot in jtlb.
-+
-+2015-06-30 Chen linfei <linfei_chen@c-sky.com>
-+
-+	* arch/csky/Kconfig:
-+	* arch/csky/ck6408evb/config.c:
-+	* arch/csky/ck6408evb/timer.c:
-+		Support CK6408evb hrtimer.
-+
-+2015-06-11 Han weidong <weidong_han@c-sky.com>
-+
-+	* arch/csky/ck6408evb/include/mach/cklcd.h:
-+	* arch/csky/ck6408evb/devices.c:
-+	* drivers/video/csky_fb.c:
-+		Fix: lcd driver.
-+
-+2015-06-19 Han weidong <weidong_han@c-sky.com>
-+
-+	* arch/csky/ck6408evb/include/mach/board.h:
-+	* arch/csky/ck6408evb/include/mach/cksdhc.h:
-+	* drivers/mmc/core/sd.c:
-+	* drivers/mmc/host/cskymci.c:
-+		Fix: sdhc driver.
-+
-+2015-06-11 Chen linfei <linfei_chen@c-sky.com>
-+
-+	* arch/csky/boot/compressed/head.S:
-+	* arch/csky/boot/compressed/misc.c:
-+	* arch/csky/boot/compressed/vmlinux.lds.in:
-+	* arch/csky/ck6408evb/Makefile.boot:
-+		Fix: If (S)DRAM base address is between 0x80000000 to 0xbfffffff,
-+		     we cannot use the tlb map in start code, just use mcr30 and mcr31...
-+
-+2015-04-29 Chen linfei <linfei_chen@c-sky.com>
-+
-+	* arch/csky/include/asm/io.h:
-+		Add ioread16 etc.
-+
-+2015-04-20 Chen linfei <linfei_chen@c-sky.com>
-+
-+	* arch/csky/mm/ioremap.c:
-+		Add ksyms: __ioremap_mode.
-+
-+2015-04-13 Chen linfei <linfei_chen@c-sky.com>
-+
-+	* arch/csky/kernel/csky_ksyms.c:
-+		Add ksyms: flush_dcache_page.
-+
-+2015-03-01 Chen linfei <linfei_chen@c-sky.com>
-+
-+	* arch/csky/configs/ck6408evb_ck610f_board_defconfig:
-+	* arch/csky/configs/ck6408evb_ck610f_qemu_defconfig:
-+	* arch/csky/configs/ck6408evb_ck810f_board_defconfig:
-+	* arch/csky/configs/ck6408evb_ck810f_qemu_defconfig:
-+		Add ck6408evb board and qemu defconfig.
-+
-+2015-01-21 Chen linfei <linfei_chen@c-sky.com>
-+
-+	* arch/csky/lib/memcpy_abiv1.S:
-+		Fix: address overlap condition.
-+
-+2015-01-20 Chen linfei <linfei_chen@c-sky.com>
-+
-+	* arch/csky/lib/Makefile:
-+	* arch/csky/lib/memcpy_abiv1.S:
-+		Optimize: abiv1 memcpy.
-+		If src or dest is misaligned, we piece together a word...
-+
-+2015-01-20 zhang wenmeng <wenmeng_zhang@c-sky.com>
-+
-+	* arch/csky/include/asm/delay.h:
-+		BogoMIPS: declt + bf should use 2 clcye.
-+
-+2015-01-08 Chen linfei <linfei_chen@c-sky.com>
-+
-+	* arch/csky/kernel/module.c:
-+		Relocate jsri, "jsri + nop" --> "lrw + jsr".
-+
-+2015-01-04 Chen linfei <linfei_chen@c-sky.com>
-+
-+	* arch/csky/include/asm/setup.h:
-+		Modify COMMAND_LINE_SIZE: 256 -> 1024.
-+
-+2015-01-04 Chen linfei <linfei_chen@c-sky.com>
-+
-+	* arch/csky/boot/compressed/head.S:
-+		Fix: jump from USEG to SSEG0 after enable mmu.
-+
-+2014-12-28 Chen linfei <linfei_chen@c-sky.com>
-+
-+	* arch/csky/include/asm/cacheflush.h:
-+		Fix: compile warning.
-+
-+2014-11-30 Chen linfei <linfei_chen@c-sky.com>
-+
-+	* arch/csky/boot/compressed/head.S:
-+		Fix: add alignment + stack.
-+
-+2014-11-28 Chen linfei <linfei_chen@c-sky.com>
-+
-+	* arch/csky/boot/compressed/Makefile:
-+	* arch/csky/boot/compressed/decompress.c:
-+	* arch/csky/boot/compressed/head.S:
-+	* arch/csky/boot/compressed/misc.c:
-+	* arch/csky/boot/compressed/vmlinux.lds.in:
-+		Support lzma decompression.
-+
-+2014-11-28 Chen linfei <linfei_chen@c-sky.com>
-+
-+	* arch/csky/Kconfig:
-+	* arch/csky/kernel/head.S:
-+		Add CK610 double data cache line config.
-+
-+2014-11-24 Chen linfei <linfei_chen@c-sky.com>
-+
-+	* arch/csky/mm/tlbv1.c:
-+		Old CK610M does not have tlb invalid index function.
-+		Changing ASID can flush utlb too.
-+
-+2014-11-12 Chen linfei <linfei_chen@c-sky.com>
-+
-+	* arch/csky/include/asm/ckmmuv1.h:
-+	* arch/csky/include/asm/ckmmuv2.h:
-+		dos2unix.
-+
-+2014-11-12 Chen linfei <linfei_chen@c-sky.com>
-+
-+	* arch/csky/include/asm/shmparam.h:
-+	* arch/csky/mm/mmap.c:
-+		Restore SHMLBA, for ltp case shmat01 crashed.
-+
-+2014-10-15 Chen linfei <linfei_chen@c-sky.com>
-+
-+	* arch/csky/include/asm/page.h:
-+		If cache alias, flush cache in copy_user_page.
-+
-+2014-10-10 Chen linfei <linfei_chen@c-sky.com>
-+
-+	* arch/csky/include/asm/io.h:
-+		optimize dma_cache_inv, dma_cache_wback, dma_cache_wback_inv.
-+
-+2014-10-10 Chen linfei <linfei_chen@c-sky.com>
-+
-+	* arch/csky/mm/fault.c:
-+		add '&', then '%0' and '%1' will use different registers.
-+
-+2014-10-09 Zhang wenmeng <linfei_chen@c-sky.com>
-+
-+	* arch/csky/mm/cachev1.c:
-+		CACHE: disable irq before flush cache which will prevent schedule.
-+
-+2014-10-08 Chen linfei <linfei_chen@c-sky.com>
-+
-+	* arch/csky/kernel/entry.S:
-+		for abiv2 compile.
-+
-+2014-10-08 Chen linfei <linfei_chen@c-sky.com>
-+
-+	* arch/csky/kernel/entry.S:
-+		Fix trap2 atomic operations.
-+		The "stw a1, (a2)" may produce tlbmodified exception, then may cause schedule.
-+
-+2014-09-23 Zhang wenmeng <wenmeng_zhang@c-sky.com>
-+
-+	* arch/csky/kernel/head.S
-+		MMU: bit 26 is invalid flush all.
-+
-+2014-09-22 Chen linfei <linfei_chen@c-sky.com>
-+
-+	* arch/csky/boot/compressed/head.S:
-+		if EntryLo's "C" bit is disabled, compression will be very slow.
-+
-+2014-09-22 Chen linfei <linfei_chen@c-sky.com>
-+
-+	* arch/csky/Kconfig:
-+	* arch/csky/boot/compressed/Makefile:
-+		add configuration of compression.
-+
-+2014-09-22 Chen linfei <linfei_chen@c-sky.com>
-+
-+	* arch/csky/include/asm/ckmmuv1.h:
-+	* arch/csky/include/asm/ckmmuv2.h:
-+	* arch/csky/mm/tlbv1.c:
-+	* arch/csky/mm/tlbv2.c:
-+		while tlb probe failed, the mappings maybe in utlb, we should invalid it.
-+
-+2014-09-14 Chen linfei <linfei_chen@c-sky.com>
-+
-+	* arch/csky/Kconfig:
-+	* arch/csky/include/asm/page.h:
-+	* arch/csky/include/asm/shmparam.h:
-+	* arch/csky/mm/cache.c:
-+		add config for cache size. cache alias if cache size >= 16KByte.
-+		if cache alias, flush cache in clear_user_page.
-+
-+2014-09-01 Zhang wenmeng <wenmeng_zhang@c-sky.com>
-+	* arch/csky/include/asm/pgtable.h
-+		CACHE: add cache flush to pte_clear, while using hardrefill.
-+
-+2014-08-13 Zhang wenmeng <wenmeng_zhang@c-sky.com>
-+	* arch/csky/kernel/head.S
-+	* arch/csky/kernel/process.c
-+	* arch/csky/kernel/head-nommu.S
-+	* arch/csky/kernel/entry.S
-+	* arch/csky/boot/compressed/head.S
-+		OPTIMIZE: change jsri to jbsr.
-+
-+2014-08-11 Zhang wenmeng <wenmeng_zhang@c-sky.com>
-+	* arch/csky/kernel/head.S
-+		OPTIMIZE: change jsri to jmpi.
-+
-+2014-08-07 Chen linfei <linfei_chen@c-sky.com>
-+
-+	* arch/csky/include/asm/mmu_context.h:
-+	* arch/csky/include/asm/page-nommu.h:
-+	* arch/csky/include/asm/page.h:
-+	* arch/csky/kernel/entry.S:
-+	* arch/csky/kernel/vmlinux.lds.S:
-+	* arch/csky/mm/fault.c:
-+		optimize function: CONFIG_PHYSICAL_BASE_CHANGE.
-+
-+2014-08-04 Chen linfei <linfei_chen@c-sky.com>
-+
-+	* arch/csky/ck6408evb/timer.c:
-+		fix gettimeofday. tcn * (1000000 / HZ) maybe overflow.
-+
-+2014-07-29 Chen linfei <linfei_chen@c-sky.com>
-+
-+	* arch/csky/kernel/head.S:
-+		select cp15 first.
-+
-+2014-07-02 Zhang wenmeng <wenmeng_zhang@c-sky.com>
-+	* arch/csky/include/asm/uaccess.h
-+		copy_to_user: bf --> br. a slip of the pen.
-+
-+2014-06-26 Chen linfei <linfei_chen@c-sky.com>
-+	* arch/csky/include/asm/elf.h:
-+	* arch/csky/kernel/module.c:
-+		add relocate R_CSKY_PCRELJSR_IMM26BY2.
-+
-+2014-06-26 Zhang wenmeng <wenmeng_zhang@c-sky.com>
-+	* arch/csky/kernel/setup.c
-+	* arch/csky/mm/cache.c
-+	* arch/csky/mm/highmem.c
-+	* arch/csky/mm/tlbv1.c
-+	* arch/csky/mm/tlbv2.c
-+		highmem: fix ck610 highmem support.
-+
-+2014-06-09 Zhang wenmeng <wenmeng_zhang@c-sky.com>
-+	* arch/csky/include/asm/processor.h
-+		NOMMU: delete HAVE_ARCH_PICK_MMAP_LAYOUT
-+
-+2014-06-04 Zhang wenmeng <wenmeng_zhang@c-sky.com>
-+
-+	* arch/csky/Kconfig
-+	* arch/csky/include/asm/entry.h
-+	* arch/csky/include/asm/io.h
-+	* arch/csky/include/asm/page.h
-+	* arch/csky/include/asm/virtconvert.h
-+	* arch/csky/kernel/head.S
-+	* arch/csky/kernel/vmlinux.lds.S
-+	* arch/csky/mm/dma-mapping.c
-+	* arch/csky/mm/ioremap.c
-+		MMU: support cp15_cr30 and cp15_cr31 setting.
-+
-+2014-05-30 Zhang wenmeng <wenmeng_zhang@c-sky.com>
-+	* arch/csky/boot/Makefile
-+	* arch/csky/boot/compressed/head.S
-+		boot: fix bootargs.
-+
-+2014-05-22 Zhang wenmeng <wenmeng_zhang@c-sky.com>
-+	* arch/csky/include/asm/cache.h
-+	* arch/csky/kernel/head.S
-+	* arch/csky/mm/cachev2.c
-+	* arch/csky/mm/l2cache.c
-+		cache: change register number for compatibility.
-+
-+2014-05-04 Chen linfei <linfei_chen@c-sky.com>
-+	* arch/csky/mm/tlbv1.c
-+	* arch/csky/mm/tlbv2.c
-+		highmem: tlb probe fix.
-+
-+2014-04-24 Zhang wenmeng <wenmeng_zhang@c-sky.com>
-+	* arch/csky/kernel/vmlinux.lds.S
-+		ld script: beginnig of using the vmlinux's LMA.
-+
-+2014-03-07 Zhang wenmeng <wenmeng_zhang@c-sky.com>
-+	* arch/csky/include/asm/uaccess.h
-+		optimal performance for copy_to_user/copy_from_user.
-+
-+2014-03-06 Zhang wenmeng <wenmeng_zhang@c-sky.com>
-+	* arch/csky/mm/cachev1.c
-+		cache: avoid 610 hardware bug.
-+
-+2013-06-14 Hu junshan <junshan_hu@c-sky.com>
-+
-+	* arch/csky/kernel/asm-offsets.c:
-+	* arch/csky/kernel/process.c:
-+	* arch/csky/kernel/ptrace.c:
-+	* arch/csky/kernel/signal.c:
-+	* include/asm-csky/fpu.h:
-+	* include/asm-csky/ptrace.h:
-+	* include/asm-csky/processor.h:
-+	* include/asm-csky/sigcontext.h:
-+	* include/asm-csky/user.h:
-+	    optimize fpu embedded assemble code and add fcr reg in fpu context
-+	     for glibc.
-+
-+2013-06-08 Hu junshan <junshan_hu@c-sky.com>
-+
-+	* arch/csky/kernel/traps.c:
-+		some reg fcr of ck610 only R/W in super mode, so fix it.
-+
-+2013-05-28 Hu junshan <junshan_hu@c-sky.com>
-+
-+	* arch/csky/Makefile:
-+		Need not define UTS_SYSNAME for uname error in LTP test,
-+		 by default UTS_SYSNAME="Linux".  
-+
-+2013-05-27 Hu junshan <junshan_hu@c-sky.com>
-+
-+	* arch/csky/kernel/process.c:
-+		optimize function kernel_thread by reference arm/mips.
-+
-+2013-05-27 Hu junshan <junshan_hu@c-sky.com>
-+
-+	* arch/csky/kernel/entry.S:
-+	* arch/csky/kernel/vdso.c:
-+		get_tls use trap 3 in ck610, because it's difficult to use vdso.
-+
-+2013-05-27 Hu junshan <junshan_hu@c-sky.com>
-+
-+	* arch/csky/include/asm/futex.h:
-+		update file futex.h to fixup some bugs in libc test.
-+
-+2013-05-27 Hu junshan <junshan_hu@c-sky.com>
-+
-+	* arch/csky/kernel/signal.c:
-+		sigstack may NULL when pass flag SA_ONSTACK, so ignore it.
-+
-+2013-05-27 Hu junshan <junshan_hu@c-sky.com>
-+
-+	* arch/csky/kernel/entry.S:
-+		add syscall pselect6 and ppoll support.
-+		optimize code for trap3 exception.
-+
-+2013-05-06 Hu junshan <junshan_hu@c-sky.com>
-+
-+	* arch/csky/kernel/setup.c:
-+		Optimize /proc/cpuinfo for match get_hardware in android init.
-+
-+2013-05-06 Hu junshan <junshan_hu@c-sky.com>
-+
-+	* arch/csky/kernel/entry.S:
-+	* arch/csky/kernel/process.c:
-+	* arch/csky/kernel/vdso.c:
-+		Optimize ck610 get tls by use VDSO.
-+
-+2013-04-15 Hu junshan <junshan_hu@c-sky.com>
-+
-+	* arch/csky/include/asm/elf.h:
-+	* arch/csky/kernel/process.c:
-+		fix bug when GDB use coredump function.
-+
-+2013-04-12 Hu junshan <junshan_hu@c-sky.com>
-+
-+	* arch/csky/boot/Makefile:
-+		Otimize boot/Makefile.
-+
-+2013-04-12 Hu junshan <junshan_hu@c-sky.com>
-+
-+	* arch/csky/mm/dma-mapping.c:
-+	* arch/csky/include/asm/dma-mapping.h:
-+	* arch/csky/include/asm/sizes.h:
-+		add file asm/sizes.h and optimize dma-mapping function.
-+
-+2013-04-11 Hu junshan <junshan_hu@c-sky.com>
-+
-+	* arch/csky/BOARD/config.c:
-+	* arch/csky/BOARD/devices.c:
-+	* arch/csky/kernel/setup.c:
-+	* arch/csky/kernel/time.c:
-+	* arch/csky/include/asm/machdep.h:
-+		optimize API mach_time_init.	
-+
-+2013-04-08 Hu junshan <junshan_hu@c-sky.com>
-+
-+	* arch/csky/ck6408evb/Kconfig:
-+	* arch/csky/ck6408evb/config.c:
-+	* arch/csky/ck6408evb/devices.c:
-+	* arch/csky/ck6408evb/devices.h:
-+	* arch/csky/ck6408evb/include/mach/ck_iomap.h:
-+	* arch/csky/ck6408evb/include/mach/irqs.h:
-+		add platform trilobite v9-1 in board ck6408evb.
-+
-+2013-03-22 Chen linfei <linfei_chen@c-sky.com>
-+
-+	* driver/i2c/busses/i2c-ck6408.c:
-+	* arch/csky/ck6408evb/devices.c:
-+		optimize i2c driver.
-+
-+2013-03-21 Hu junshan <junshan_hu@c-sky.com>
-+
-+	* arch/csky/ck6408evb/include/mach/ckspi.h:
-+	* arch/csky/ck6408evb/config.c:
-+	* arch/csky/ck6408evb/device.c:
-+	* drivers/spi/spi_ck6408.c:
-+	    add csky spi driver.
-+
-+2013-03-21 Hu junshan <junshan_hu@c-sky.com>
-+
-+	* arch/csky/include/asm/cache.h:
-+		We use MACRO ARCH_SLAB_MINALIGN to let the stack pointer align
-+		with 8 for NOMMU's CPU.
-+
-+2013-03-20 Zhang Wenmeng <wenmeng_zhang@c-sky.com>
-+
-+	* include/asm/entry.h:
-+	* include/asm/mmu_context.h:
-+	* kernel/entry.S:
-+	* mm/fault.c:
-+		add ck610 mmu hard refill function.
-+
-+2013-03-18 Hu Junshan <junshan_hu@c-sky.com>
-+
-+	* arch/csky/include/asm/cacheflush.h
-+	* arch/csky/include/asm/io.h:
-+	* arch/csky/mm/ioremap.c:
-+		fix compile error when config android pmem.
-+
-+2013-03-18 Hu Junshan <junshan_hu@c-sky.com>
-+
-+	* arch/csky/boot/compressed/head.S:
-+		add MGU spuuort.
-+
-+2013-03-18 Hu Junshan <junshan_hu@c-sky.com>
-+
-+	* arch/csky/include/asm/highmem.h:
-+	* arch/csky/mm/highmem.c:
-+		delete compile error for highmem.
-+
-+2013-03-12 Chen Linfei <linfei_chen@c-sky.com>
-+
-+	* driver/video/csky_fb.c:
-+		fix LCD driver bug, CSKY_LCD_SOURCE_SIZE register
-+		 only in DIOSCURI.
-+
-+2013-03-12 Chen Linfei <linfei_chen@c-sky.com>
-+
-+	* arch/csky/lib/checksum.c:
-+		fix bug of telnet(endian error).
-+
-+2013-03-12 Chen Linfei <linfei_chen@c-sky.com>
-+
-+	* arch/csky/include/asm/unistd.h:
-+	* arch/csky/kernel/entry.S:
-+		function sync_file_range use syscall sys_sync_file_rang2.
-+
-+2013-03-12 Chen Linfei <linfei_chen@c-sky.com>
-+
-+	* arch/csky/include/asm/uaccess.h:
-+		fix bug of function __puter_asm_64.
-+
-+2013-03-12 Chen Linfei <linfei_chen@c-sky.com>
-+
-+	* arch/csky/kernel/sys_csky.c:
-+	* arch/csky/kernel/entry.S:
-+		Since syscall sys_fadvise64_64 has loff_t stye params,
-+		 but loff_t is a 64 bit type we avoid a lot of ABI hassle
-+		 with a different argument ordering.
-+
-+2013-03-12 Chen Linfei <linfei_chen@c-sky.com>
-+
-+	* arch/csky/dioscuri/devices.c:
-+		fix new MAC driver bug.
-+
-+2013-02-01 Hu Junshan <junshan_hu@c-sky.com>
-+
-+	* arch/csky/kernel/entry.S:
-+	* arch/csky/kernel/signal.c:
-+	* arch/csky/include/asm/unistd.h:
-+		optimize syscall sigreturn and rt_sigreturn.
-+
-+2013-02-01 Hu Junshan <junshan_hu@c-sky.com>
-+
-+	* arch/csky/kernel/entry.S:
-+	* arch/csky/kernel/signal.c:
-+		Fix bug in LTP case(clone02), use r11 to judge restart syscall.
-+
-+2013-02-01 Hu Junshan <junshan_hu@c-sky.com>
-+
-+	* arch/csky/include/asm/elf.h:
-+	* arch/csky/include/asm/mmu.h:
-+	* arch/csky/include/asm/mmu_context.h:
-+	* arch/csky/include/asm/processor.h:
-+	* arch/csky/kernel/Makefile:
-+	* arch/csky/kernel/signal.c:
-+	* arch/csky/mm/mmap.c:
-+	* arch/csky/include/asm/vdso.h:
-+	* arch/csky/kernel/vdso.c:
-+		add vdso support, which let sigreturn code not flush cache.
-+	
-+2013-01-29 Hu Junshan <junshan_hu@c-sky.com>
-+
-+	* arch/csky/kernel/signal.c:
-+		sig_setframe write syscall sigreturn need flush dcache and icache.
-+	
-+2013-01-29 Hu Junshan <junshan_hu@c-sky.com>
-+
-+	* arch/csky/include/asm/fpu.h:
-+		fix bug when vfp init.	
-+
-+2013-01-25 Mao Han <han_mao@c-sky.com>
-+
-+	* arch/csky/boot/compressed/head.S:
-+	* arch/csky/boot/compressed/Makefile:
-+	* arch/csky/boot/compressed/misc.c:
-+	* arch/csky/boot/compressed/piggy.S:
-+	* arch/csky/boot/compressed/vmlinux.lds.in:
-+	* arch/csky/boot/compressed/Makefile.debug:
-+	* arch/csky/ck6408evb/Makefile.boot:
-+	* arch/csky/ck6408evb/include/mach/uncompress.h:
-+	* arch/csky/dioscuri/Makefile.boot:
-+	* arch/csky/dioscuri/include/mach/uncompress.h:
-+		optimize zimage by reference arm.
-+
-+2013-01-14 Zhang Wenmeng <wenmeng_zhang@c-sky.com>
-+
-+	* arch/csky/include/asm/outercache.h:
-+	* arch/csky/mm/cachev2.c:
-+	* arch/csky/mm/l2cache.c:
-+	* arch/csky/Kconfig:
-+	* arch/csky/include/asm/cache.h:
-+	* arch/csky/include/asm/cacheflush.h:
-+	* arch/csky/kernel/head.S:
-+	* arch/csky/mm/Makefile:
-+		add ck810 cache line flush function.
-+
-+2013-01-09 Chen Linfei <linfei_chen@c-sky.com>
-+
-+	* driver/net/Makefile:
-+	* driver/net/Kconfig:
-+	* driver/net/cskymac.h:
-+	* driver/net/cskymac.c:
-+		add ck6408evb mac driver.
-+
-+2013-01-09 Chen Linfei <linfei_chen@c-sky.com>
-+
-+	* arch/csky/include/asm/prfl.h:
-+	* arch/csky/kernel/entry.S:
-+		move hardware profile regs context switch as a macro.
-+
-+2013-01-09 Chen Linfei <linfei_chen@c-sky.com>
-+
-+	* arch/csky/Kconfig:
-+	* arch/csky/include/asm/entry.h:
-+	* arch/csky/include/asm/fpu.h:
-+	* arch/csky/include/asm/processor.h:
-+	* arch/csky/include/asm/ptrace.h:
-+	* arch/csky/include/asm/regdef.h:
-+	* arch/csky/include/asm/sigcontext.h:
-+	* arch/csky/include/asm/system.h:
-+	* arch/csky/include/asm/user.h:
-+	* arch/csky/kernel/alignment.c:
-+	* arch/csky/kernel/asm-offsets.c:
-+	* arch/csky/kernel/entry.S:
-+	* arch/csky/kernel/process.c:
-+	* arch/csky/kernel/ptrace.c:
-+	* arch/csky/kernel/signal.c:
-+	* arch/csky/kernel/sys_csky.c:
-+	* arch/csky/kernel/traps.c:
-+		kernel use compiler's ABI macro and support VFP(for ck800).
-+
-+2013-01-09 Chen Linfei <linfei_chen@c-sky.com>
-+
-+	* arch/csky/kernel/signal.c:
-+		optimize signal handle.
-+
-+2013-01-09 Chen Linfei <linfei_chen@c-sky.com>
-+
-+	* arch/csky/include/asm/thread_info.h:
-+	* arch/csky/kernel/entry.S:
-+		optimize sig and sched flags by reference ARM and MIPS.
-+
-+2013-01-03 Hu Junshan <junshan_hu@c-sky.com>
-+
-+	* arch/csky/ck6408evb/config.c:
-+	* arch/csky/dioscuri/config.c:
-+	* arch/csky/include/asm/cpu.h:
-+	* arch/csky/include/asm/machdep.h:
-+	* arch/csky/kernel/cpu-probe.c:
-+	* arch/csky/kernel/setup.c:
-+		optimize cpuinfo and cpu probe.
-+
-+2013-01-03 Hu Junshan <junshan_hu@c-sky.com>
-+
-+	* arch/csky/kernel/entry.S:
-+		fixup compile bug when use hardware refill tlbmiss exception in ck810.
-+
-+2012-12-28 Hu Junshan <junshan_hu@c-sky.com>
-+
-+	* arch/csky/include/asm/irqflags.h:
-+		add membarrier when lock irq operation, it may bring bug if not do.
-+
-+2012-12-27 Hu Junshan <junshan_hu@c-sky.com>
-+
-+	* arch/csky/kernel/module.c:
-+		kernel module handle relocat R_CSKY_PCRELJSR_IMM11BY2.
-+
-+2012-12-27 Hu Junshan <junshan_hu@c-sky.com>
-+
-+	* arch/csky/kernel/alignment.c:
-+		fixup alignment exception handle bug in ck610(because struct pt_regs 
-+		 changed). 
-+
-+2012-12-27 Hu Junshan <junshan_hu@c-sky.com>
-+
-+	* arch/csky/Kconfig:
-+		optimize nommu config. 
-+
-+2012-12-20 Hu Junshan <junshan_hu@c-sky.com>
-+
-+	* arch/csky/Kconfig:
-+	* arch/csky/include/asm/processor.h:
-+	* arch/csky/include/asm/traps.h:
-+	* arch/csky/include/asm/unistd.h:
-+	* arch/csky/include/asm/user.h:
-+	* arch/csky/kernel/asm-offsets.:
-+	* arch/csky/kernel/entry.S:
-+	* arch/csky/kernel/process.c:
-+	* arch/csky/kernel/sys_csky.c:
-+	* arch/csky/include/asm/prfl.h:
-+		add hardware profiling in some ck810.
-+
-+2012-12-12 Hu Junshan <junshan_hu@c-sky.com>
-+
-+	* arch/csky/Kconfig:
-+	* arch/csky/include/asm/cache.h:
-+	* arch/csky/include/asm/cacheflush.h:
-+	* arch/csky/mm/cachev1.c:
-+		add ck610 cache line flush.
-+
-+2012-12-12 Hu Junshan <junshan_hu@c-sky.com>
-+
-+	* arch/csky/kernel/entry.S:
-+	* arch/csky/kernel/traps.c:
-+		optimize tlbmiss exception handle.
-+
-+2012-12-12 Hu Junshan <junshan_hu@c-sky.com>
-+
-+	* arch/csky/include/asm/processor.h:
-+	* arch/csky/include/asm/ptrace.h:
-+	* arch/csky/include/asm/user.h:
-+	* arch/csky/kernel/entry.S:
-+	* arch/csky/kernel/ptrace.c:
-+		optimize for gdbserver and strace..
-+
-+2012-12-12 Hu Junshan <junshan_hu@c-sky.com>
-+
-+	* arch/csky/include/asm/pgtable.h:
-+		fix bug when page convert(page flags = IS_ZERO).
-+
-+2012-12-12 Hu Junshan <junshan_hu@c-sky.com>
-+
-+	* arch/csky/kernel/entry.S:
-+	* arch/csky/kernel/sys_csky.c:
-+		1. Delete csky_pread/csky_pwrite but use sys_pread64/sys_pwrite64, 
-+		 for long long type endian format.
-+		2. let exception trap 2 as function kernel_cmpxchg.
-+
-+2012-12-12 Hu Junshan <junshan_hu@c-sky.com>
-+
-+	* arch/csky/ck6408evb/devices.c:
-+	* arch/csky/dioscuri/devices.c:
-+		fb need init displays to fix bug: FBIOPUT_VSCREENINFO failed.
-+
-+2012-12-12 Hu Junshan <junshan_hu@c-sky.com>
-+
-+	* arch/csky/Kconfig:
-+		add power managerment config.
-+
-+2012-12-12 Hu Junshan <junshan_hu@c-sky.com>
-+
-+	* arch/csky/mm/tlbv1.c:
-+		fix bug in function local_flush_tlb_kernel_range, is bad use ASID and
-+		 bit G.
-+
-+2012-12-12 Hu Junshan <junshan_hu@c-sky.com>
-+
-+	* drivers/...:
-+		update csky's i2c, mmc, rtc, usb and lcd driver
-+
-+2012-10-29 Hu Junshan <junshan_hu@c-sky.com>
-+
-+	* arch/csky/kernel/entry.S:
-+	* arch/csky/kernel/process.c:
-+	* arch/csky/kernel/process.c:
-+	* arch/csky/kernel/sys_csky.c:
-+		support tls reg(r31) in ck810 and change syscall clone from
-+		 csky_clone(struct pt_regs *regs) to 
-+		 csky_clone(unsigned long clone_flags, unsigned long newsp,
-+		           int __user *parent_tidptr, int __user *child_tidptr,
-+		           int tls_val, struct pt_regs *regs)
-+
-+2012-10-26 Chen Linfei <linfei_chen@c-sky.com>
-+
-+	* arch/csky/ck6408evb/devices.c:
-+	* arch/csky/ck6408evb/config.c:
-+	* arch/csky/ck6408evb/devices.h:
-+		add board ck6408evb's rtc and i2c platform resource.
-+
-+2012-10-26 Chen Linfei <linfei_chen@c-sky.com>
-+
-+	* drivers/input/keyboard/Kconfig:
-+	* drivers/input/keyboard/Makefile:
-+	* drivers/input/keyboard/ck6408-keypad.c:
-+		add csky i2c keyboard driver.
-+
-+2012-10-26 Chen Linfei <linfei_chen@c-sky.com>
-+
-+	* drivers/i2c/busses/Kconfig:
-+	* drivers/i2c/busses/Makefile:
-+	* drivers/i2c/busses/i2c-ck6408.c:
-+		add csky i2c driver.
-+
-+2012-10-26 Chen Linfei <linfei_chen@c-sky.com>
-+
-+	* drivers/rtc/Kconfig:
-+	* drivers/rtc/Makefile:
-+	* drivers/rtc/rtc-ck6408.c:
-+		add csky rtc driver.
-+
-+2012-10-21 Hu Junshan <junshan_hu@c-sky.com>
-+
-+	* drivers/mtd/nand/Kconfig:
-+	* drivers/mtd/nand/Makefile:
-+	* drivers/mtd/nand/csky_nand.c:
-+		add nand flash driver for csky's test soc chips.
-+
-+2012-09-26 Hu Junshan <junshan_hu@c-sky.com>
-+
-+	* arch/csky/kernel/aligment.c:
-+		delete ck610 compile error.
-+
-+2012-09-14 Hu Junshan <junshan_hu@c-sky.com>
-+
-+	* arch/csky/configs/ck6408evb_abiv2_defconfig:
-+		add abiv2 defconfig
-+
-+2012-09-12 Hu Junshan <junshan_hu@c-sky.com>
-+
-+	* arch/csky/include/asm/elf.h:
-+	* arch/csky/kernel/module.c:
-+		module add new relocation handle.
-+
-+2012-09-12 Hu Junshan <junshan_hu@c-sky.com>
-+
-+	* drivers/usb/Kconfig:
-+	* drivers/usb/host/ohci-hcd.c:
-+	* drivers/usb/host/ohci-csky.c:
-+		add csky usb host driver.
-+
-+2012-09-12 Hu Junshan <junshan_hu@c-sky.com>
-+
-+	* arch/csky/include/asm/virtconvert.h:
-+		fix bug when DMA function call page_to_phys.
-+
-+2012-09-12 Hu Junshan <junshan_hu@c-sky.com>
-+
-+	* arch/csky/include/asm/system.h:
-+		delete bug but need optimize by reference arch ARM and MIPS.
-+
-+2012-09-12 Hu Junshan <junshan_hu@c-sky.com>
-+
-+	* arch/csky/Kconfig:
-+	* arch/csky/kernel/alignment.c:
-+		add kernel mode to handle missalign exception but now it's 
-+		not full and need to be optimized.
-+
-+2012-08-24 Chen Linfei <linfei_chen@c-sky.com>
-+
-+	* arch/csky/Kconfig:
-+	* arch/csky/ck6408evb/gpio.c:
-+	* arch/csky/ck6408evb/Makefile:
-+	* arch/csky/include/asm/gpio.h:
-+	* arch/csky/ck6408evb/config.c:
-+	* arch/csky/ck6408evb/devices.c:
-+	* arch/csky/ck6408evb/irq.c:
-+	* arch/csky/ck6408evb/include/mach/ckgpio.h:
-+		add gpio lib.
-+
-+2012-06-26 Zhou Feng <feng_zhou@c-sky.com>
-+
-+	* arch/csky/Kconfig:
-+		add abiv2 config and relate mmu with cpu.
-+
-+2012-06-26 Zhou Feng <feng_zhou@c-sky.com>
-+	
-+	* arch/csky/include/asm/regdef.h:
-+		add this file for register software rename to suport abiv2.
-+
-+2012-06-26 Zhou Feng <feng_zhou@c-sky.com>
-+
-+	* arch/csky/include/asm/ptrace.h:
-+	* arch/csky/include/asm/sigcontext.h:
-+	struct adjust: pt_regs, switch_stack, sigcontext;  
-+	regs = {pc,orig_a0,a0,a1,a2,a3,regs[10],r15,exregs[16],rhi,rlo;};                         abi v1:  r2,r3,r4,r5,r6.r7; sp = r0, syscallid = r1;
-+		  abi v2:  r0,r1,r2,r3;       sp = r14,syscallid = r7; 
-+
-+2012-06-26 Zhou Feng <feng_zhou@c-sky.com>
-+
-+	* arch/csky/include/asm/entry.h:
-+		1 add    Macro PT_REGS_ADJUST  rx.
-+		2 modify Macro SAVE_ALL, RESTORE_ALL.
-+		3 modify Macro SAVE_SWITCH_STACK, RESTORE_SWITCH_STACK.
-+
-+2012-06-26 Zhou Feng <feng_zhou@c-sky.com>
-+
-+	* arch/csky/include/asm/processor.h:
-+		modify function rdusp and wrusp.
-+
-+2012-06-26 Zhou Feng <feng_zhou@c-sky.com>
-+
-+	* arch/csky/include/asm/elf.h:
-+	* arch/csky/include/asm/system.h:
-+	* arch/csky/include/asm/thread_info.h:
-+		modify these because of register software rename 
-+			to support abiv2. 
-+
-+2012-06-26 Zhou Feng <feng_zhou@c-sky.com>
-+
-+	* arch/csky/kernel/entry.S:
-+	      1 modify these because of register software rename 
-+			to support abiv2.
-+	      2 move sys_execve from process.c to this file.
-+	      3 major changes to Entry(system_call) due to 
-+		parameter from (abiv1) 6 to (abiv2) 4.
-+	      4 use Macro PT_REGS_ADJUST  rx,such as sys_fork.
-+
-+2012-06-26 Zhou Feng <feng_zhou@c-sky.com>
-+
-+	* arch/csky/kernel/head.S:
-+	* arch/csky/kernel/head-nommu.S:
-+	* arch/csky/kernel/fiq.c:
-+	      1 modify these because of register software rename 
-+			to support abiv2.
-+	      2 instruction decne abiv2 have been removed, replace it.
-+
-+2012-06-26 Zhou Feng <feng_zhou@c-sky.com>
-+
-+	* arch/csky/kernel/signal.c:
-+	      1 modify these because of register software rename 
-+			to support abiv2.
-+	      2 fuction do_signal return value chang to regs->a0.
-+	      3 modify fuction setup_frame due to instrction movi have changed. 
-+
-+2012-06-26 Zhou Feng <feng_zhou@c-sky.com>
-+
-+	* arch/csky/kernel/ptrace.c:
-+	* arch/csky/kernel/process.c:
-+	* arch/csky/kernel/sys_csky.c:
-+	* arch/csky/kernel/traps.c:
-+	* arch/csky/kernel/asm-offsets.c:	
-+		modify these because of register software rename 
-+			to support abiv2.	
-+
-+********************************************
-+	
-+2012-04-06 Hu junshan <junshan_hu@c-sky.com>
-+	* all code:
-+		Porting the arch csky form linux2.6.32 to linux3.0.
-+		This is the first version of csky linux-3.0.
-+
-+********************************************
-+
-+2012-01-16 Hu junshan <junshan_hu@c-sky.com>
-+	* drivers/net/cskymac.c:
-+	* drivers/serial/csky_uart.c:
-+	* drivers/usb/host/ohci-csky.c:
-+	* drivers/video/csky_fb.c:
-+	* drivers/serial/Kconfig:
-+		chane ckcore to csky.
-+
-+2012-01-16 Hu junshan <junshan_hu@c-sky.com>
-+	* drivers/char/Kconfig:
-+	* drivers/char/Makefile:
-+	* drivers/char/csky_serial.c:
-+	* drivers/char/csky_serial.h:
-+		Delete csky_serial.c driver(base on linux2.4), and use driver 
-+		    csky_uart.c.
-+2012-01-16 Hu junshan <junshan_hu@c-sky.com>
-+	We change arch name frome ckcore to csky after this version.
-+
-+********************************************
-+
-+2012-01-15 Hu junshan <junshan_hu@c-sky.com>
-+	* arch/ckcore/kernel/signal.c:
-+	* arch/ckcore/include/asm/fpu.h:
-+		fix embedded asemble code bug.
-+
-+2011-12-14 Hu junshan <junshan_hu@c-sky.com>
-+	* drivers/video/csky_fb.c:
-+		Fix csky fb driver bug.
-+
-+2011-12-14 Hu junshan <junshan_hu@c-sky.com>
-+	* drivers/usb/host/ohci.h:
-+	* drivers/usb/host/ohci-csky.c:
-+	* drivers/usb/host/ohci-hcd.c:
-+	* drivers/usb/Kconfig:
-+		add csky usb host driver. 
-+
-+2011-12-14 Hu junshan <junshan_hu@c-sky.com>
-+	* arch/ckcore/include/asm/uaccess.h:
-+		Fix bug when call get_user like get_user(x, p++);  maybe add 2.
-+
-+2011-11-24 Hu junshan <junshan_hu@c-sky.com>
-+	* drivers/mtd/nand/Kconfig:
-+	* drivers/mtd/nand/Makefile:
-+	* drivers/mtd/nand/csky_nand.c:
-+		Add csky nand driver.
-+
-+2011-11-24 Hu junshan <junshan_hu@c-sky.com>	
-+	* drivers/mtd/chips/cfi_cmdset_0002.c:
-+	* drivers/mtd/chips/jedec_probe.c:
-+		Add norflash chip sst39vf6401b support.
-+		more info please reference:
-+		  http://blog.tianya.cn/blogger/post_show.asp?BlogID=803354&PostID=19231483
-+		  http://www.pubbs.net/200906/kernel/36263-add-support-for-the-sst-39vf3202-39vf6401b-and-39vf6402b-flash-chips.html
-+
-+2011-11-24 Hu junshan <junshan_hu@c-sky.com>
-+	* drivers/mtd/maps/Kconfig:
-+	* drivers/mtd/maps/Makefile:
-+	* drivers/mtd/maps/csky_norflash.c:
-+		Add csky norflash driver.
-+	
-+2011-11-24 Hu junshan <junshan_hu@c-sky.com>
-+	* arch/ckcore/kernel/Makefile:
-+	* arch/ckcore/kernel/traps.c:
-+	* arch/ckcore/kernel/alignment.c:
-+	* arch/ckcore/Kconfig:
-+		Add file alignment.c and move the aligment exception handler 
-+		from trap.c to it, it's control by macro 
-+		CONFIG_SOFT_HANDMISSALIGN.
-+
-+2011-11-10 Hu junshan <junshan_hu@c-sky.com>
-+	* drivers/serial/Kconfig:
-+	* drivers/serial/Makefile:
-+	* drivers/serial/csky_uart.c:
-+		add  csky uart driver.
-+
-+2011-11-10 Hu junshan <junshan_hu@c-sky.com>
-+	* drivers/video/csky_fb.h:
-+	* drivers/video/csky_fb.c:
-+	* drivers/video/Makefile:
-+	* drivers/video/Kconfig:
-+		add  csky fb driver.
-+
-+2011-11-10 Hu junshan <junshan_hu@c-sky.com>
-+	* ipc/shm.c:
-+		Change to support shm for nommu.
-+	
-+2011-11-10 Hu junshan <junshan_hu@c-sky.com>
-+	* arch/ckcore/kernel/setup.c:
-+		add framebuffer console support.
-+
-+2011-11-10 Hu junshan <junshan_hu@c-sky.com>
-+	* arch/ckcore/mm/mmap.c:
-+	* arch/ckcore/include/asm/pgtable-nommu.h:
-+		add function get_fb_unmaped_area for nommu CPU.
-+
-+2011-11-10 Hu junshan <junshan_hu@c-sky.com>
-+	* arch/ckcore/ckm5208/irq.c:
-+	* arch/ckcore/ck6408evb/irq.c:
-+		add init call set_irq_handler(i, handle_level_irq); for all irq
-+		 to support SHARED IRQ.
-+
-+2011-11-10 Hu junshan <junshan_hu@c-sky.com>
-+	* arch/ckcore/ck6408evb/devices.c:
-+	* arch/ckcore/ck6408evb/config.c:
-+		change to support uart and LCD drivers.
-+
-+2011-10-11 Hu junshan <junshan_hu@c-sky.com>
-+	* arch/ckcore/mm/nommu.c:
-+		the function setup_memory need setup memory region when bootload
-+		 or commandline not setup memory region.
-+
-+2011-10-11 Hu junshan <junshan_hu@c-sky.com>
-+	* arch/ckcore/ckm5208/: 
-+	* arch/ckcore/configs/ckm5208_defconfig:
-+	* arch/ckcore/Makefile:
-+	* arch/ckcore/Kconfig:
-+		add board ckm5208.
-+
-+2011-10-11 Hu junshan <junshan_hu@c-sky.com>
-+	* arch/ckcore/include/asm/bitops.h:
-+	* arch/ckcore/include/asm/atomic.h:
-+	* arch/ckcore/include/asm/system.h:
-+	* arch/ckcore/include/asm/irqflags.h:
-+		move the macros loca_irq_xxx in file asm/irqflags.h and delete 
-+		the macro sti, cli, save_flags ande soon on.
-+
-+2011-10-11 Hu junshan <junshan_hu@c-sky.com>
-+	* arch/ckcore/kernel/entry.S:
-+	* arch/ckcore/include/asm/sigcontext.h:
-+	* arch/ckcore/include/asm/ucontext.h:
-+	* arch/ckcore/kernel/signal.c:
-+		optimize the signal handle by reference arch arm and not use 
-+		struct switch_struct.
-+
-+2011-10-11 Hu junshan <junshan_hu@c-sky.com>
-+	* arch/ckcore/kernel/entry.S:
-+	* arch/ckcore/include/asm/entry.h:
-+	* arch/ckcore/include/asm/ptrace.h:
-+	* arch/ckcore/kernel/process.c:
-+		optimize the task context and redefine struct switch_struct 
-+		because the task switch need not save/restore destroyed register
-+		 like r2~r7.
-+
-+2011-10-11 Hu junshan <junshan_hu@c-sky.com>
-+	* arch/ckcore/include/asm/entry.h:
-+	* arch/ckcore/include/asm/ptrace.h:
-+	* arch/ckcore/kernel/traps.c:
-+	* arch/ckcore/kernel/ptrace.c:
-+	* arch/ckcore/kernel/asm-offsets.c:
-+		csky v2 need save/restore reg hi/lo when handle interrupt and
-+		 syscall, so change struct pt_regs.
-+
-+2011-10-11 Hu junshan <junshan_hu@c-sky.com>
-+	* arch/ckcore/kernel/entry.S:
-+	* arch/ckcore/include/asm/tlb.h:
-+	* arch/ckcore/include/asm/pgtable.h:
-+	* arch/ckcore/include/asm/pgalloc.h:
-+	* arch/ckcore/include/asm/mmu_context.h:
-+	* arch/ckcore/include/asm/cacheflush.h:
-+	* arch/ckcore/mm/cachev1.c:
-+	* arch/ckcore/mm/fault.c:
-+	* arch/ckcore/mm/mmu.c:
-+		ck810's tlbmiss hardrefill need fill phy address, and OS write 
-+		pgd/pte need clear cache.
-+
-+2011-09-23 Hu junshan <junshan_hu@c-sky.com>
-+	* drivers/net/cskymac.c:
-+		function xx_xmit need unlock before return.
-+
-+2011-09-23 Hu junshan <junshan_hu@c-sky.com>
-+	* arch/ckcore/Makefile:
-+		compile kernel code  need not produce DSP and float instruction.
-+
-+2011-09-23 Hu junshan <junshan_hu@c-sky.com>
-+	* arch/ckcore/include/asm/uaccess.h:
-+	* arch/ckcore/lib/usercopy.c:
-+		Driver compile with module may produce section __ex_table. 
-+		This section mast align by 4 byte, so add ".align   2".
-+
-+2011-09-01 Hu junshan <junshan_hu@c-sky.com>
-+	* arch/ckcore/include/asm/user.h:
-+		adjust the struct user, because uClibc need use it.
-+
-+2011-09-01 Hu junshan <junshan_hu@c-sky.com>
-+	* rch/ckcore/include/asm/pgtable.h:
-+	* arch/ckcore/include/asm/pgtable-nommu.h:
-+	* arch/ckcore/include/asm/pgtable-bits.h:
-+		MMUV2.0's tlb flags in PTE local at bit 0~6.
-+
-+2011-09-01 Hu junshan <junshan_hu@c-sky.com>
-+	* arch/ckcore/include/asm/entry.h:
-+		support CSKY MMU version 2 by macro CONFIG_CPU_MMU_V1/2.
-+
-+2011-09-01 Hu junshan <junshan_hu@c-sky.com>
-+	* arch/ckcore/include/asm/ckmmuv2.h:
-+	* arch/ckcore/include/asm/ckmmuv1.h:
-+	* arch/ckcore/include/asm/ck610mmu.h:
-+	* arch/ckcore/include/asm/ck510mmu.h:
-+		rm file file ck510mmu.h/ck610mmu.h and add file 
-+		 ckmmuv1.h/ckmmuv2.h to support all CSKY MMU version.		
-+
-+2011-09-01 Hu junshan <junshan_hu@c-sky.com>
-+	* arch/ckcore/kernel/head.S:
-+		ck810 has dsp BTB/BTH, so CPU init need invalid and open it.
-+		optimize mmu operation.
-+
-+2011-09-01 Hu junshan <junshan_hu@c-sky.com>
-+	* arch/ckcore/kernel/entry.S:
-+	* arch/ckcore/kernel/process.c:
-+		ck810 has dsp instruction, so need save/restore hi/lo register.
-+
-+2011-09-01 Hu junshan <junshan_hu@c-sky.com>
-+	 * arch/ckcore/kernel/signal.c:
-+		CSKY V2 need adjust epc by 4, because trap instruction is 32bit.
-+
-+2011-09-01 Hu junshan <junshan_hu@c-sky.com>
-+	* arch/ckcore/kernel/traps.c:
-+		delete function write_mmu_context, because not used.
-+
-+2011-09-01 Hu junshan <junshan_hu@c-sky.com>
-+	* arch/ckcore/mm/tlbv1.c:
-+	* arch/ckcore/mm/Attic/tlbv2.c:
-+	* arch/ckcore/mm/Makefile:
-+		add file tlbv2.c to support MMU V2.0.
-+
-+2011-09-01 Hu junshan <junshan_hu@c-sky.com>
-+	* arch/ckcore/ck6408evb/config.c:
-+	* arch/ckcore/ck6408evb/irq.c:
-+		Add function ckcore_get_auto_irqno to get irq number when use 
-+		auto interrupt.
-+
-+2011-09-01 Hu junshan <junshan_hu@c-sky.com>
-+	* arch/ckcore/include/asm/mmu_context.h:
-+	* arch/ckcore/mm/init.c:
-+	* arch/ckcore/mm/fault.c:
-+		when config CONFIG_MMU_HARD_REFILL, kernel not use valrable 
-+		pgd_current but register CP15_29.
-+	* arch/ckcore/Kconfig:
-+		Add hard refill tlb miss configuration.
-+
-+2011-07-19 Hu junshan <junshan_hu@c-sky.com>
-+	* arch/ckcore/include/asm/cpu.h:
-+	* arch/ckcore/Makefile:
-+	* arch/ckcore/Kconfig:
-+		rename CPU ck801 as ck803.
-+
-+2011-07-14 Hu junshan <junshan_hu@c-sky.com>
-+	* arch/ckcore/configs/ck6408evb_defconfig:
-+	* ckcore/configs/ck5a6-3c_defconfig:
-+	* arch/ckcore/configs/ckcore_defconfig:
-+		Rename ckcore_defconfig as ck6408evb_defconfig for MMU CPU demo
-+		 configuration and add ck5a6-3c_defconfig for NOMMU CPU demo
-+		 configuration.
-+
-+2011-07-14 Hu junshan <junshan_hu@c-sky.com>
-+	* arch/ckcore/include/asm/cacheflush.h:
-+		For nommu cpu, the function flush_icache_range need fluash all 
-+		 cache, because load flat file as data and will made some 
-+		 instruction in data cache.
-+
-+2011-07-11 Hu junshan <junshan_hu@c-sky.com>
-+	* arch/ckcore/kernel/setup.c:
-+		Handle  bootload passed  parms(struct tag).
-+		Delete bug(cat /proc/cpuinfo).
-+		Optimize function setup_arch.
-+
-+2011-07-11 Hu junshan <junshan_hu@c-sky.com>
-+	* arch/ckcore/mm/Attic/nommu.c:
-+	* arch/ckcore/mm/Attic/mmu.c:
-+	* arch/ckcore/mm/init.c:
-+		Partition some memory init operation such as paging_init from 
-+		init.c to mmu.c or nommu.c. 
-+
-+2011-07-11 Hu junshan <junshan_hu@c-sky.com>
-+	* arch/ckcore/kernel/vmlinux.lds.S:
-+	* arch/ckcore/kernel/head.S:
-+	* arch/ckcore/kernel/Attic/head-nommu.S:
-+		Change to support bootload pass parms.
-+
-+2011-07-11 Hu junshan <junshan_hu@c-sky.com>
-+	* arch/ckcore/kernel/Attic/cpu-probe.c:
-+	* arch/ckcore/include/asm/cpu.h:
-+		change according by C-SKY Product ID SPEC Rev3.3.
-+
-+2011-07-11 Hu junshan <junshan_hu@c-sky.com>
-+	* arch/ckcore/mm/Attic/tlbv1.c:
-+	* arch/ckcore/include/asm/setup.h:
-+	* arch/ckcore/include/asm/bootinfo.h:
-+		Move all definiation from file bootinfo.h to setup.h by 
-+		    according ARCH ARM.
-+
-+2011-07-11 Hu junshan <junshan_hu@c-sky.com>
-+	* arch/ckcore/mm/Attic/highmem.c:
-+	* arch/ckcore/include/asm/pgtable.h:
-+	* arch/ckcore/include/asm/kmap_types.h:
-+	* arch/ckcore/include/asm/Attic/fixmap.h:
-+	* arch/ckcore/include/asm/Attic/highmem.h:
-+		Add or change this file to support higmen.
-+
-+2011-07-11 Hu junshan <junshan_hu@c-sky.com>
-+	* arch/ckcore/include/asm/ckcore.h:
-+		Delete unused MACRO and add some nommu config MACRO. 
-+
-+2011-07-11 Hu junshan <junshan_hu@c-sky.com>
-+	* arch/ckcore/include/asm/machdep.h:
-+	* arch/ckcore/ck6408evb/config.c:
-+	* arch/ckcore/ck6408evb/Kconfig:
-+		Kernel command line pass by bootload or by config, so need not
-+		 do in board init. And the board API config_BSP not need  parms.
-+
-+2011-07-11 Hu junshan <junshan_hu@c-sky.com>
-+	* arch/ckcore/Kconfig:
-+		add macro CONFIG_CMDLINE for kernel commamd line and some nommu 
-+		configuration, such as consecutive memory region for malloc.
-+
-+2011-07-04 Dou shaobin <shaobin_dou@c-sky.com>
-+	Delete the Macros of PAGE_SIZE_16KB and PAGE_SIZEZ_64KB.	
-+	Rename file c-ck610.c to cachev1.c, and file tlb-ck610.c to tlbv1.c. 
-+	Added the files page-nommu.h and cpu-probe.c
-+	Added the function of probing CPU type automatically.
-+	Added support for the architecture of ck801.
-+	Added support for the architecture of nommu.
-+
-+2011-04-20 Hu junshan <junshan_hu@c-sky.com>
-+	* ckcore/kernel/vmlinux.lds.S:
-+		Let the linker file support between gcc3.2 and gcc4.5.
-+
-+2011-04-20 Hu junshan <junshan_hu@c-sky.com>
-+	* arch/ckcore/kernel/process.c:
-+	* arch/ckcore/lib/memcpy.c:
-+	* arch/ckcore/lib/memset.c:
-+	* arch/ckcore/include/asm/uaccess_mm.h:
-+		Delete compile error for csky-gcc4.5. Because the new compiler's
-+		 syntax is more strict.
-+
-+2010-12-17 Hu junshan <junshan_hu@c-sky.com>
-+	* arch/ckcore/include/asm/pgtable_mm.h:
-+		Add define pgprot_noncached to delete pretreatment error.
-+		Please see buzilla:BUG 286 for more info.
-+
-+2010-11-24 Hu junshan <junshan_hu@c-sky.com>
-+	* arch/ckcore/include/asm/bitops_mm.h:
-+		the assemble code of function set_bit as follow:
-+			ld  r6, (r14, 0)
-+			......
-+			mfcr    r7, psr
-+			psrclr  ie
-+			bseti   r6, 2
-+			st  r6, (r14, 0)
-+			mtcr    r7, psr
-+		obviously, the operation is not atomic. So we change it by add
-+		     key word volatile to let it atomic. We also change other
-+		     function which not atomic. After change the code is like
-+		     that:
-+		    static inline void set_bit(int nr, volatile void * addr)
-+		    {
-+		      volatile unsigned int *a = (volatile unsigned int *) addr;
-+		      ......
-+		      save_flags(flags); cli();
-+		      *a |= mask;
-+		      restore_flags(flags);
-+		    }
-+		
-+2010-11-10 Hu junshan <junshan_hu@c-sky.com>
-+	* arch/ckcore/Makefile:
-+		Add parameter BJCOPYFLAGS and GZFLAGS to make right image file.
-+
-+2010-11-04 Hu junshan <junshan_hu@c-sky.com>
-+	* arch/ckcore/ck6408evb/time.c:
-+	* arch/ckcore/ck6408evb/include/mach/ckuart.h:
-+	* arch/ckcore/ck6408evb/include/mach/cktimer.h:
-+	* arch/ckcore/ck6408evb/include/mach/ckpic.h:
-+		Let base address and irqnumber define from ck_iomap.h to irqs.h.
-+
-+2010-11-04 Hu junshan <junshan_hu@c-sky.com>
-+	* arch/ckcore/ck6408evb/include/mach/irqs.h:
-+	* arch/ckcore/ck6408evb/include/mach/ck_iomap.h:
-+		Add all base address and irq number of peripheral devices.
-+
-+2010-11-04 Hu junshan <junshan_hu@c-sky.com>
-+	* arch/ckcore/ck6408evb/include/mach/fb.h:
-+	* arch/ckcore/ck6408evb/include/mach/cklcd.h:
-+		Add head file for LCD driver.
-+
-+2010-11-04 Hu junshan <junshan_hu@c-sky.com>
-+	* arch/ckcore/ck6408evb/include/mach/cknand.h:
-+	* arch/ckcore/ck6408evb/include/mach/board.h:
-+		Add head file for Nand Flash driver.
-+
-+2010-11-04 Hu junshan <junshan_hu@c-sky.com>
-+	* arch/ckcore/ck6408evb/config.c:
-+	* arch/ckcore/ck6408evb/devices.h:
-+	* arch/ckcore/ck6408evb/devices.c:
-+		Add usb host and LCD driver.
-+
-+2010-11-04 Hu junshan <junshan_hu@c-sky.com>
-+	* arch/ckcore/include/asm/delay_mm.h: 
-+		The origined function of udelay is error.
-+
-+2010-11-04 Hu junshan <junshan_hu@c-sky.com>
-+	* arch/ckcore/include/asm/io_mm.h:
-+	* arch/ckcore/include/asm/dma-mapping.h:
-+	* arch/ckcore/mm/dma-mapping.c:
-+		Implement all dma interface by reference arch-MIPS.
-+
-+2010-10-22 Hu junshan <junshan_hu@c-sky.com>
-+	* arch/ckcore/include/asm/processor_mm.h:
-+		We will set ptregs->r7=0 in function start_thread, because
-+		     __uClibc_main need this reg to distinguish between the 
-+		    argument "rtdl" is passed form kernel or linker.
-+
-+2010-09-21 Hu junshan <junshan_hu@c-sky.com>
-+	* arch/ckcore/mm/dma-mapping.c:
-+		The implementation of the "dma_alloc_coherent()" function is 
-+		    buggy:  It never returns the correct uncached address. 
-+		    Because the type of variable ret is unsigned int *, it will
-+		    calculate addr addition by multiply 4 in UNCAC_ADDR(ret) and
-+		    get error result. The right change is define ret as type
-+		    void *.
-+
-+2010-09-03 Hu junshan <junshan_hu@c-sky.com>
-+	* arch/ckcore/include/asm/mmu_context.h:
-+		We need to flush all cache to avoid problem of 16k cache.
-+
-+2010-09-03 Hu junshan <junshan_hu@c-sky.com>
-+	* arch/ckcore/mm/cache.c:
-+	* arch/ckcore/include/asm/cacheflush_mm.h:
-+	* arch/ckcore/include/asm/pgtable_mm.h:
-+		Add __update_cache and flush all cache to avoid problem of 16k
-+		     cache alians.
-+
-+2010-09-03 Hu junshan <junshan_hu@c-sky.com>
-+	* arch/ckcore/include/asm/tlb.h:
-+		The function tlb_start_vma will be called when free 
-+		    phy-page(use syscall munmap), we need flush cache in this
-+		    file. If we don't flush cache, it will lead to cache 
-+		    unalians when cache >=16k.
-+
-+2010-08-05 Hu junshan <junshan_hu@c-sky.com>
-+	* arch/ckcore/kernel/sys_ckcore.c:
-+	* arch/ckcore/include/asm/shmparam.h:
-+		Map virtual address in thrread space need 16k aligan to avoid 
-+		    cache probem(if cache>16k, ...).
-+
-+2010-08-02 Hu junshan <junshan_hu@c-sky.com>
-+	* arch/ckcore/include/asm/checksum_mm.h: 
-+		Support little endian and use assemble code to optimize
-+		     performance.
-+	* arch/ckcore/lib/checksum.c:
-+		Support little endian.
-+
-+2010-08-02 Hu junshan <junshan_hu@c-sky.com>
-+	* arch/ckcore/mm/ioremap.c:
-+		The arg 1 of pfn_pte is pfn not phy-address.
-+
-+2010-08-02 Hu junshan <junshan_hu@c-sky.com> 
-+	* arch/ckcore/kernel/ints.c:
-+	* arch/ckcore/kernel/fiq.c:
-+	* arch/ckcore/kernel/entry.S:
-+		Support auto interrupt handle.
-+	* arch/ckcore/kernel/setup.c:
-+	* arch/ckcore/include/asm/machdep_mm.h:
-+		Add machine API mach_get_auto_fiqno and mach_get_auto_irqno to
-+		     get IRQ/FIQ number when use auto interrupt.	
-+
-+2010-08-02 Hu junshan <junshan_hu@c-sky.com>
-+	* arch/ckcore/kernel/fiq.c:
-+	* arch/ckcore/kernel/entry.S:
-+	* arch/ckcore/include/asm/irq_mm.h:
-+	* arch/ckcore/include/asm/fiq.h:
-+	* arch/ckcore/ck6408evb/include/mach/irqs.h:
-+	* arch/ckcore/ck6408evb/include/mach/ckuart.h:
-+	* arch/ckcore/ck6408evb/timer.c:
-+	* arch/ckcore/ck6408evb/irq.c:
-+		According to CPU, the IRQ number start from 32, but according to
-+		     SOC, the IRQ number start from 0. Because the
-+		     driver-developer need only to know SOC, we change some to
-+		     let the developer can understand the right IRQ number. So
-+		     the IRQ number need not to add offset 32.
-+
-+2010-08-02 Hu junshan <junshan_hu@c-sky.com>
-+	* arch/ckcore/boot/install.sh:
-+	* arch/ckcore/boot/Makefile:
-+	* arch/ckcore/Makefile:
-+		Use this strips to produce binary image file: Image/zImage/uImage.
-+
-+2010-07-28 Hu junshan <junshan_hu@c-sky.com>
-+	* arch/ckcore/include/asm/ck610mmu.h:
-+		The tlb entry numbers of CPU CK610 is 128. 
-+		
-+2010-07-28 Hu junshan <junshan_hu@c-sky.com>
-+	* drivers/net/cskymac.c:
-+	* drivers/char/csky_serial.c:
-+		Let the driver support little endian format.
-+	* drivers/char/ckuart.h:
-+		Move this file to arch/ckcore/ck6408evb/include/mach.
-+
-+2010-07-28 Hu junshan <junshan_hu@c-sky.com>
-+	* arch/ckcore/include/asm/unaligned.h:
-+	* arch/ckcore/include/asm/stat.h:
-+	* arch/ckcore/include/asm/elf.h:
-+	* arch/ckcore/include/asm/byteorder.h:
-+		Let the kernel support little endian format.
-+
-+2010-07-28 Hu junshan <junshan_hu@c-sky.com>
-+	* arch/ckcore/include/asm/unistd.h:
-+	* arch/ckcore/kernel/sys_ckcore.c:
-+	* arch/ckcore/kernel/entry.S:
-+		Use trap 3 to get TLS and add a syscall sys_set_thread_area to
-+		     set TLS.
-+
-+2010-07-28 Hu junshan <junshan_hu@c-sky.com>
-+	* arch/ckcore/include/asm/thread_info_mm.h:
-+	* arch/ckcore/kernel/process.c:
-+	* arch/ckcore/kernel/asm-offset.c:
-+		Add a member in sttuct thread_info to support TLS.
-+
-+2010-07-28 Hu junshan <junshan_hu@c-sky.com>
-+	* arch/ckcore/kernel/vmlinux.ls.S:
-+	* arch/ckcore/lib/math-64bits.h:
-+	* arch/ckcore/Makefile:
-+	* arch/ckcore/Kconfig:
-+		Add config option of CPU-endian select. 
-+
-+2010-04-21 Hu junshan <junshan_hu@c-sky.com>
-+	* drivers/mtd/maps/csky_norflash.c:
-+		Optimize the function init_csky_map add the originally code will
-+		    lead to kernel dump when probe flash fail.
-+
-+2010-04-21 Hu junshan <junshan_hu@c-sky.com>
-+	* arch/ckcore/ck6408evb/config.c: 
-+		Add macro #ifdef CONFIG_CPU_USE_FIQ to eliminate compile error,
-+		     if not config FIQ.    
-+	
-+2010-04-20 Hu junshan <junshan_hu@c-sky.com>
-+	* arch/ckcore/include/asm/fpu.h:
-+		will bring a error "Unexpected register 'r13' for 'cprcr/cpwcr'"
-+		    when  compile file arch/ckcore/kernel/setup.c. So we use 
-+		    "=b(r1)" for the embedded assemble code to eliminate this
-+		     error
-+
-+2010-03-08 Hu junshan <junshan_hu@c-sky.com>
-+	* arch/ckcore/ck6408evb/irq.c:
-+		Unique vector numbers for fast vectored interrupt requests and
-+		    fast vectored interrupts Number are 64-95.
-+
-+2010-03-08 Hu junshan <junshan_hu@c-sky.com>
-+	* arch/ckcore/ck6408evb/fiq.c:
-+		This file define some board cupport function for fiq handler.	
-+
-+2010-03-08 Hu junshan <junshan_hu@c-sky.com>
-+	* arch/ckcore/include/asm/traps_mm.h:
-+		Change define VEC_XXX to VEC_USER and it maybe used in fiq 
-+		    handler. 
-+
-+2010-03-08 Hu junshan <junshan_hu@c-sky.com>
-+	* arch/ckcore/include/asm/machdep_mm.h:
-+		Add a machine interface --mach_init_FIQ for fiq handler.
-+
-+2010-03-08 Hu junshan <junshan_hu@c-sky.com>
-+	* arch/ckcore/include/asm/fiq.h:
-+	* arch/ckcore/kernel/fiq.c:
-+		Add fiq handler for c-sky cpu.
-+
-+2010-03-08 Hu junshan <junshan_hu@c-sky.com>
-+	* arch/ckcore/kernel/setup.c:
-+	* arch/ckcore/include/asm/fpu.h:
-+		Add FPU init function.		
-+
-+2010-03-08 Hu junshan <junshan_hu@c-sky.com>
-+	* arch/ckcore/kernel/entry.S:
-+		Add FPU exception and fast interrupt handle. And also add FPU 
-+		and DSP register switch in function resume bcause thread switch
-+		 need save and restore these context.	
-+
-+2010-03-08 Hu junshan <junshan_hu@c-sky.com>
-+	* arch/ckcore/include/asm/system_mm.h:
-+		Before resume, we must be confirm the FPU isn't peoduce 
-+		    exception. So we add a function _is_fpu_busying and called
-+		    by function switch_to. 
-+
-+2010-03-08 Hu junshan <junshan_hu@c-sky.com>
-+	* arch/ckcore/include/asm/processor_mm.h:
-+		Define FPU context in thread_struct and let user thread select
-+		    FPU in function of start_thread when define 
-+		    CONFIG_CPU_HAS_FPU.
-+
-+2010-03-08 Hu junshan <junshan_hu@c-sky.com>
-+	* arch/ckcore/include/asm/ucontext.h:
-+	* arch/ckcore/include/asm/sigcontext.h:
-+	* arch/ckcore/kernel/signal.c:
-+		Add FPU context save and retore in signal handle. 
-+		Let third arg of user register signal-function pointer to 
-+		    ucontext and it origal point NULL.
-+
-+2010-03-08 Hu junshan <junshan_hu@c-sky.com>
-+	* arch/ckcore/include/asm/traps_mm.h:
-+	* arch/ckcore/kernel/traps.c:
-+		Add FPU exception handle.
-+
-+2010-03-08 Hu junshan <junshan_hu@c-sky.com> 
-+	* arch/ckcore/include/asm/ptrace.h:
-+	* arch/ckcore/kernel/ptrace.c:
-+		Add some interface and let gdbserver to look up FPU and DSP
-+		     regster. 
-+
-+2010-03-08 Hu junshan <junshan_hu@c-sky.com>
-+	* arch/ckcore/include/asm/user.h:
-+	* arch/ckcore/kernel/process.c:
-+		Add FPU and DSP context save in function copy_thread. And also
-+		 implement kernel interface of dump_fpu.
-+
-+2010-03-08 Hu junshan <junshan_hu@c-sky.com>
-+	* arch/ckcore/kernel/asm-offset.c:
-+		Add offsets of FPU and DSP context in the thread struct.
-+
-+2010-03-08 Hu junshan <junshan_hu@c-sky.com>
-+	* arch/ckcore/configs:
-+		Update it.
-+
-+2010-03-08 Hu junshan <junshan_hu@c-sky.com>
-+	* arch/ckcore/Kconfig:
-+		Add config option about FPU, DSP enhanced instruction and Fast 
-+		    interrupt support.	
-+	
-+2009-12-27 Hu junshan <junshan_hu@c-sky.com>
-+	* arch/ckcore/include/asm/uaccess_mm.h:
-+		Change the handle of function __put_user_asm_64 when date type 
-+		    is 64bits
-+
-+2009-12-10 Ye Yun <yun_ye@c-sky.com>
-+	* include/linux/dirent.h:
-+		 Add dirent&dirent64 to make this head file compatible 
-+			to APP for linux2.4
-+
-+2009-12-09 Hu junshan <junshan_hu@c-sky.com>
-+	* arch/ckcore/kernel/setup.c:
-+	* arch/ckcore/include/asm/machdep_mm.h:
-+		Modify some machine API and delete some of it.
-+
-+2009-12-07 Li Chunqiang <chunqiang_li@c-sky.com>
-+	* include/asm-generic/page.h:
-+		Fix the problem that __attribute_const__ is not defined, when 
-+		    building uClibc-0.9.30.
-+
-+2009-12-01 Hu junshan <junshan_hu@c-sky.com>
-+	* arch/ckcore/include/asm/machdep_mm.h:
-+		Change the function of get and set real time clock from 
-+		    arch_getod to  mach_hwclk.
-+	* arch/ckcore/ck6408evb/timer.c:
-+		Add an interface to get or set real time clock.
-+	* arch/ckcore/ck6408evb/config.c:
-+		Add an interface to get or set real time clock.
-+	* arch/ckcore/kernel/time.c:
-+		Add an interface to get real time clock.
-+	* arch/ckcore/kernel/setup.c:
-+		Change the function of get and set real time clock from 
-+		    arch_getod to mach_hwclk.
-+
-+2009-12-01 Hu junshan <junshan_hu@c-sky.com>
-+	* arch/ckcore/kernel/vmlinux.lds.S:
-+	* arch/ckcore/kernel/head.S:
-+		Change the start code form text section to __HEAD section and it
-+		     will delete compile warning.
-+	* arch/ckcore/include/asm/page_mm.h:
-+		Change PAGE_SIZE with the style of UL to delete compile warning.
-+	* kernel/time/ntp.c:
-+	* block/cfq-iosched.c:
-+	* fs/dcache.c:
-+		Add return value after call BUG() to delete compile warning. 
-+	* lib/vsprintf.c:
-+	* fs/proc/page.c:
-+	* fs/libfs.c:
-+	* net/sunrpc/svcauth_unix.c:
-+	* block/as-iosched.c:
-+		Add some variable initial to delete compile warning.
-+
-+2009-11-20 Hu junshan <junshan_hu@c-sky.com>
-+	* arch/ckcore/ck6408evb/Kconfig:
-+		Add a menu to config commamd "rdinit" to specify the init
-+		     programe in the fs.
-+	* arch/ckcore/ck6408evb/config.c:
-+		Add a commamd rdinit to specify the init programe in the fs.
-+
-+2009-11-18 Hu junshan <junshan_hu@c-sky.com>
-+	* arch/ckcore/kernel/head.S:
-+		If we  want to jump right from physical address to virtual 
-+		    address in start code, we need to fill up page table and map
-+		    physical address to the same virtual address before we
-+		    enable MMU. So change it to correspond with diferent RAM
-+		     base address.
-+
-+2009-11-18 Hu junshan <junshan_hu@c-sky.com>
-+	* arch/ckcore/kernel/setup.c:
-+		Don't evaluate valure to saved_command_line, because it's not
-+		    initialed and well bring in bug when use boodload to load 
-+		    kernel. The variable saved_command_line is alloced mem at
-+		    the function setup_command_line, so we need not evaluate
-+		    valure in function setup_arch.
-+
-+2009-11-15 Hu junshan <junshan_hu@c-sky.com>
-+	* arch/ckcore/kernel/time.c:
-+		Use new seqlock read_seqbegin and read_seqretry to replace 
-+		    read_seqbegin_irqsave and read_seqretry_irqsave. Because 
-+		    when call function of mach_gettimeoffset, system will bring
-+		     timer interrupt. 
-+		If we used old seqlock, ststem well not hander the interrupt to
-+		     update wall-time and result in obtain error time.
-+
-+2009-11-15 Hu junshan <junshan_hu@c-sky.com>
-+	* arch/ckcore/kernel/setup.c:
-+		Optimize the code style, change the MACRO CONFIG_CPU_CK640 to 
-+		     CONFIG_CKCORE_MMU and delete some unused function rely on
-+		     machine.
-+
-+2009-11-15 Hu junshan <junshan_hu@c-sky.com>
-+	* arch/ckcore/include/asm/pgtable-bits.h:
-+		Change the MACRO CONFIG_CPU_CK640 to CONFIG_CKCORE_MMU.
-+	* arch/ckcore/include/asm/mmu_context.h:
-+		Change the MACRO CONFIG_CPU_CK660 to CONFIG_CPU_MMU_CP. 
-+	* arch/ckcore/include/asm/entry.h:
-+		Optimize the code style and change the MACRO CONFIG_CPU_CK660 t 
-+		  CONFIG_CPU_MMU_CP.
-+	* arch/ckcore/include/asm/ckcore.h:
-+		Optimize the code style and change the MACRO CONFIG_CPU_CK640 t 
-+		  CONFIG_CKCORE_MMU.
-+
-+2009-11-15 Hu junshan <junshan_hu@c-sky.com>
-+	* arch/ckcore/mm/Makefile:
-+		Change the MACRO CONFIG_CPU_CK640 to CONFIG_CPU_MMU.
-+	* arch/ckcore/mm/tlb=ck610.c:
-+		Change the MACRO CONFIG_CPU_CK660 to CONFIG_CPU_MMU_CP.
-+
-+2009-11-15 Hu junshan <junshan_hu@c-sky.com>
-+	* arch/ckcore/Kconfig:
-+		Optmize the config menu for our processor.
-+
-+2009-11-15 Hu junshan <junshan_hu@c-sky.com>
-+	* arch/ckcore/Makefile:
-+		Optmize this file and delete unused codes.
-+
-+2009-11-13 Hu junshan <junshan_hu@c-sky.com>
-+	* drivers/char/csky_serial:
-+		Change file name from ck1000evb_serial.c to csky_serial.c and 
-+		  ck1000evb_serial.h to csky_serial.h. 
-+		Optmize the code style.
-+		Change macro ck1000evb-->csky, CK1000EVB-->CSKY.
-+	* drivers/char/ckuart.h:
-+		Optmize the code style.
-+	* drivers/char/Makefile:
-+		Change obj filename.
-+	* drivers/char/Kconfig:
-+		Change config menu.
-+
-+2009-11-13 Hu junshan <junshan_hu@c-sky.com>
-+	* drivers/mtd/maps/csky_norflsah.c:
-+		Change filename from ckcore_norflash.c to csky_norflash.c. Add 
-+		    norflash address, size and buswidth config entry.
-+	* drivers/mtd/maps/Kconfig:
-+		Change obj-filename from ckcore_norflash.o to csky_norflash.o.
-+	* drivers/mtd/maps/Kconfig:
-+		Add nor flash address and size config entry.
-+
-+2009-11-13 Ye Yun <yun_ye@c-sky.com>
-+	* arch/ckcore/kernel/traps.c:
-+		In trap_c and buserr_c, replace send_sig with force_sig.
-+		Improve functione show_registers.
-+
-+2009-11-13 Ye Yun <yun_ye@c-sky.com>
-+	* arch/ckcore/kernel/head.S:
-+	* arch/ckcore/kernel/entry.S:
-+		In entry.h, Add assemble macros, used to switch coprocessor 
-+		 to MMU, Read and Write MMU registers. So, here use them 
-+		 instead of two colections of codes for MMU coperation 
-+		 in many places.
-+	* arch/ckcore/include/entry_mm.h:
-+		Add assemble macros, used to switch coprocessor to MMU, 
-+			Read and Write MMU registers.
-+
-+2009-11-12 Ye Yun <yun_ye@c-sky.com>
-+	* drivers/net/Kconfig:
-+		Correct CSKYMAC depending, CKCORE --> CK6408EVB.
-+
-+2009-11-04 Ye Yun <yun_ye@c-sky.com>
-+	* arch/ckcore/mm/init.c:
-+		Correct variable totalram_pages from type static to extern, 
-+			that is because in mm/page_alloc.c has already defined: 
-+			EXPORT_SYMBOL(totalram_pages), which is just the one we 
-+			wished to use in this file.
-+
-+2009-11-03 jiang jianyong <jianyong_jiang@c-sky.com>
-+	* arch/ckcore/include/asm/ptrace.h:
-+		exchange the value of PT_SR and PT_PC
-+	* arch/ckcore/kernel/trap.c:
-+		modify the handle of single step and breakpoint in trap_c 
-+	* arch/ckcore/kernel/ptrace.c:
-+		implement ptrace under the struct of ckcore
-+	* arch/ckcore/kernel/entry.S:
-+		get rid of the handle of do_delay_trace
-+
-+
-+2009-11-03 Hu junshan <junshan_hu@c-sky.com>
-+	* arch/ckcore/kernel/setup.c:
-+		The arg[1] in function reserve_bootmem need a phyaddress, so we
-+		 change it to deal with kernel bug when config other RAM base 
-+		 address then 0x0.
-+
-+2009-11-02 Hu junshan <junshan_hu@c-sky.com>
-+	* arch/ckcore/Kconfig:
-+		Add rootfs autoconfig. Now, suport initrd, jffs2 and nfs, you 
-+		can choose one of them to be your rootfs.
-+		The config-menu	like :
-+			Platform dependent setup
-+				-->Root File System and Boot Paramete Seting
-+					-->initrd
-+					-->jffs2
-+					-->nfs
-+
-+2009-11-02 Hu junshan <junshan_hu@c-sky.com>
-+	* arch/ckcore/kernel/setup.c:
-+		Add initrd rootfs autoconfig, it depends on macro 
-+		CONFIG_INITRD_START_ADDR and CONFIG_INITRD_SIZE.	
-+
-+2009-11-02 Hu junshan <junshan_hu@c-sky.com>
-+	* arch/ckcore/ck6408evb/config.c:
-+		Move comdline-setup from setup.c to config.c.
-+
-+2009-11-02 Hu junshan <junshan_hu@c-sky.com>
-+	* arch/ckcorec/kernel/vmlinux.lds.S:
-+		Support config SDRAM base address. The base address rely on 
-+		 the macro of CONFIG_RAM_BASE:
-+			. = 0x80000000 + CONFIG_RAM_BASE;
-+
-+2009-11-02 Hu junshan <junshan_hu@c-sky.com>
-+	* fs/jffs2/erase.c :
-+		Deal ewith the message of"jffs2_scan_eraseblock(): Magic bitmask
-+		 0x1985 not found at 0xXXXXXXXX: 0x2003 instead" when use jffs2
-+		 file system. It is a bug of GCC and we do sample change.
-+
-+2009-11-02 Ye Yun <yun_ye@c-sky.com>
-+	* arch/ckcore/mm/dma-mapping.c:
-+		Realize routine dma_alloc_coherent and dma_free_coherent, 
-+			but they are not validated, they maybe validated by USB 
-+			driver in the future.
-+	* arch/ckcore/mm/tlb-ck610.c:
-+		1. Add func show_jtlb_table, it is used to print all the jtlbs;
-+		2. In func __update_tlb, delete line "write_mmu_entryhi(pid)" 
-+			in the end.
-+
-+2009-11-02 Ye Yun <yun_ye@c-sky.com>
-+	* drivers/net/cskymac.c:
-+		1. In interrupt routine, clear ERR bits after handle errors;
-+		2. Add statics when tx error hanpens.
-+
-+2009-10-29 Ye Yun <yun_ye@c-sky.com>
-+	* arch/ckcore/lib/checksum.c:
-+		The old checksum has bug, replace it , it works ,so do it.
-+
-+2009-10-27 Ye Yun <yun_ye@c-sky.com>
-+	* drivers/net/cskymac.c:
-+		In func ckymac_tx: move line "skb= dp->tx_skbs[elem];" beforer. 
-+		 Or, skb being used before evaluated. It is quite serious a BUG.
-+
-+2009-10-27 Ye Yun <yun_ye@c-sky.com>
-+	* arch/ckcore/kernel/signal.c:
-+		Complete func push_cache, which is called by 
-+		 setup_frame/setup_rt_frame after filling the sig frame in 
-+		 user stack with sys_sigreturn codes, to avoid codes only 
-+		 writed in dcache rather than memory, and CPU reads right 
-+		 instructions from the memory.
-+
-+2009-10-23 Ye Yun <yun_ye@c-sky.com>
-+	* driver/net/cskymac.c:
-+		1. Add netif_start_queue(dev) in func cskymac_open; 
-+			add netif_stop_queue(dev) in func cskymac_close.
-+		2. In cskymac_ops, add func cskymac_get_stats, remove 
-+			func cksymac_set_macaddr
-+		3. In cskymac_ether_init: Remove cskymac_stop() and 
-+			replace kfree(dev) with free_netdev(dev), the later 
-+			also done in cksymac_cleanup.
-+		4. Replace func parameter cskymac* with net_device* 
-+			in all funcs if could, expcept in cskymac_cleanup.
-+		5. Remove routines below: cskymac_phyr_read, cskymac_phyr_write,
-+			try_next_permutation, cskymac_timer.
-+		6. Correct parameter of request_irq & free_irq:dp --> dev.
-+			#define ARCH_PFN_OFFSET 	PFN_UP(PHY_OFFSET)
-+			#define PHY_OFFSET		CK_RAM_BASE
-+
-+2009-10-22 Hu junshan <junshan_hu@c-sky.com>
-+	* arch/ckcore/include/asm/page_mm.h :
-+		Add 2 macro to deal with kernel error when change RAM base 
-+		 phy-address.
-+
-+2009-10-22 Hu junshan <junshan_hu@c-sky.com>
-+	* drivers/mtd/maps/ckcore_norflash.c:
-+		Add the file to support ckcore norflash access. This file 
-+		 contain all need codes and you can change about hardware.
-+	* drivers/mtd/maps/Makefile:
-+		Add ckcore norflash access support:
-+			obj-$(CONFIG_MTD_CKCORE_NORFLASH)+= ckcore_norflash.o
-+	* drivers/mtd/maps/Kconfig:
-+		Add ckcore norflash access support:
-+			config MTD_CKCORE_NORFLASH
-+			tristate "Map driver for ckcore evb norflash"
-+			...
-+
-+2009-10-22 Ye Yun <yun_ye@c-sky.com>
-+	* arch/ckcore/include/asm/page_mm.h:
-+		Change macro name with part of UNCAC to UNCACHE.
-+
-+2009-10-22 Ye Yun <yun_ye@c-sky.com>
-+	* driver/net/cskymac.h:
-+		Add macro:
-+			TXBD_ERR_BITS   0x10f and
-+			RXBD_ERR_BITS   0xff
-+		for tx and rx BD error judge.
-+	* driver/net/cskymac.c:
-+		1. When init rings, map rx_skb->data to uncachable VM:
-+			L247:dp->rx_skbs[i]->data = UNCACHE_ADDR(skb->data);
-+		2. Remove func skymac_begin_auto_negotiation and 
-+			 cskymac_get_stats they are no use.
-+		3. Big change for mac interrupt routine, new way:
-+			Return type become irqreturn_t, del third parameter;
-+			Int tx and tx err merge to the same routine;  rx, rx err
-+			and busy merge to the same routine;
-+	 		So, cskymac_rx and cskymac_tx routine quite different.
-+		4. Routine cskymac_start_xmit add clear_dcache_all() to make 
-+			coherent between data cache and memory.
-+
-+2009-10-22 Ye Yun <yun_ye@c-sky.com>
-+	* arch/ckcore/include/asm/socket.h:
-+		1 Undefine macro ARCH_HAS_SOCKET_TYPES, so use the generic 
-+			sock_type.
-+		2 Correct most of the macro to linux2.4 form.
-+		3 Add macros:
-+			#define SO_LINGER	13
-+			/* To add :#define SO_REUSEPORT 15 */
-+			#define SO_PASSCRED	16
-+			#define SO_PEERCRED	17
-+		  Delete macros:
-+			#define SOCK_TYPE_MASK 0xf
-+			#define SOCK_CLOEXEC	O_CLOEXEC
-+			#define SOCK_NONBLOCK	O_NONBLOCK
-+	
-+2009-10-22 Ye Yun <yun_ye@c-sky.com>
-+	* driver/net/cskymac.c:
-+		1 Displace dev->priv with netdev_priv(dev).
-+		2 In func cksymac_rx, replace eth_copy_and_sum with 
-+			skb_copy_to_linear_data.
-+		3 In func cskymac_ether_init:
-+	    	    init_ethrdev --> alloc_etherdev;
-+		    del SET_MODULE_OWNER(dev);
-+		    replace netdev ops evaluating with struct dev->netdev_ops=
-+		  	&cskymac_ops, and cskymac_ops define&evaluate just
-+			before func cskymac_ether_init;
-+		    ether_setup(dev) --> register_netdev(dev);
-+		4 In func cskymac_open:
-+		    the third parameter of request_irq change to IRQF_DISABLED. 
-+
-+2009-10-22 Ye Yun <yun_ye@c-sky.com>
-+	* drivers/net/Kconfig:
-+		Add CSKYMAC config option under if NET_ETHERNET
-+	* drivers/net/Makefile:
-+		Add line: obj-$(CONFIG_CSKYMAC) += cskymac.oRXBD_ERR_BITS   0xff
-+
-+2009-10-20 Hu junshan <junshan_hu@c-sky.com>
-+	* arch/ckcore/include/asm/cacheflush_mm.h:
-+		Optimize the function about cache flush.
-+
-+2009-10-20 Hu junshan <junshan_hu@c-sky.com>
-+	* arch/ckcore/kernel/trap.c:
-+		Let align exception to send SIGBUS signal.	
-+
-+2009-10-20 Hu junshan <junshan_hu@c-sky.com>
-+	* arch/ckcore/include/asm/elf.h:
-+		Add ckcore relocation fiags such as 
-+			#define R_CKCORE_32                 1
-+			#define R_CKCORE_NONE               0
-+
-+2009-10-20 Hu junshan <junshan_hu@c-sky.com>
-+	* arch/ckcore/include/asm/module.h:
-+		Change it to sustain module load.
-+
-+2009-10-20 Hu junshan <junshan_hu@c-sky.com>
-+	* arch/ckcore/kernel/module.c:
-+		Deal witch module load of ckcore. We perfect the function of 
-+		apply_relocate, apply_relocate_add and soon on.
-+
-+2009-10-20 Hu junshan <junshan_hu@c-sky.com>
-+	* arch/ckcore/kernel/ckcore_ksyms.c:
-+		Add some export symbole for module load.
-+
-+2009-10-20 Hu junshan <junshan_hu@c-sky.com>
-+	* arch/ckcore/kernel/Makefile:
-+		Add a object to sustain module load.
-+
-+2009-10-20 Hu junshan <junshan_hu@c-sky.com>
-+	* arch/ckcore/lib/checksum.c:
-+		Add 3 export symbole.
-+
-+2009-10-20 Hu junshan <junshan_hu@c-sky.com>
-+	* arch/ckcore/mm/init.c:
-+		Add a export symbole.
-+	
-+2009-10-20 Hu junshan <junshan_hu@c-sky.com>
-+	* arch/ckcore/mm/dma-maping.c:
-+		Add return valure infunction dma_map_single, dma_map_page and 
-+		dma_mapping_error to delete compile warring.
-+
-+2009-9-23 Hu junshan <junshan_hu@c-sky.com>
-+	* arch/ckcore/kernel/entry.S:
-+		1 Rather than keep a global, we dedicate a register r0 to get
-+		     current. So delete the variable _current_task and need not 
-+		     keeping it.
-+		2 Also, optimize the method of getting current->thread_info,
-+		     like below:
-+			mov     r9, r0
-+			bmaski  r10, THREADSIZE_MASK_BIT
-+			andn    r9, r10
-+
-+2009-9-23 Hu junshan <junshan_hu@c-sky.com>
-+	* arch/ckcore/kernel/head.S:
-+	* arch/ckcore/kernel/setup.c:
-+		Rather than keep a global, we dedicate a register r0 to get 
-+		    current. So delete the variable _current_task and need not
-+		    keeping it.
-+
-+2009-9-23 Ye Yun <yun_ye@c-sky.com>
-+	* arch/ckcore/include/asm/pgtable_mm.h:
-+		Define Macro PMD_SHIFT 22 instead of (2*PAGE_SHIFT-PTE_T_LOG2).
-+	* arch/ckcore/include/asm/bitops_mm.h:
-+		Optimize function ffz, use ckcore instructions to implement it.
-+
-+2009-9-23 Ye Yun <yun_ye@c-sky.com>
-+	* arch/ckcore/include/asm/ck610mmu.h:
-+		correct each mmu control fuctions, use register "b" instead of
-+		     "r" in case of confilction with r5.
-+
-+2009-9-22 Hu junshan <junshan_hu@c-sky.com>
-+	* arch/ckcore/kernel/ (all source file):
-+		Optimize the codes style. 
-+
-+2009-9-22 Hu junshan <junshan_hu@c-sky.com>
-+	* arch/ckcore/kernel/ (asm-offset.c):
-+		Change the offset of thread_info in task_struct because the 
-+		    thread_struct has no filed info and task_struct.stack point
-+		     to the current struct thread_info.
-+
-+2009-9-22 Hu junshan <junshan_hu@c-sky.com>
-+	* arch/ckcore/include/asm/processor_mm.h (L102 -109):
-+		Delete unused filed-----"struct thread_info info" in struct of 
-+		thread_struct.
-+
-+2009-9-22 Hu junshan <junshan_hu@c-sky.com>
-+	* arch/ckcore/kernel/ints.c (init_IRQ):
-+		Add section attribute "__init" on this function.
-+	* arch/ckcore/ck6408evb/config.c (config_BSP):
-+		Add section attribute "__init" on this function.
-+
-+2009-9-18 Hu junshan <junshan_hu@c-sky.com>
-+	* arch/ckcore/kernel/process.c (default_idle): 
-+		Schedule has bug when config kernel preemption: the idle thread
-+		   will output bug information to terminal. So correct the 
-+		   function of default_idle and let CPU enter wait mode.
-+
-+2009-9-18 Hu junshan <junshan_hu@c-sky.com>
-+	* drivers/char/ck1000evb_serial.c (receive_chars): 
-+		Revise the function of receive_chars() when deal with the 
-+		    receive status is overrun.
-+
-+2009-9-17 Hu junshan <junshan_hu@c-sky.com>
-+	* drivers/char/Kconfig (L124 - 168): 
-+		Deal with warring when use command "make defconfig".
+commit 0285475e7118fdba426abd86ff814b5e13910738
+Author: Guo Ren <ren_guo@c-sky.com>
+Date:   Mon Jan 29 15:26:43 2018 +0800
+
+    commit 2ba21c7da3decefcaa4798775e1f9e6561c082eb
+    Author: Guo Ren <ren_guo@c-sky.com>
+    Date:   Sun Jan 28 16:17:16 2018 +0800
+    
+        csky: compiler for linux-4.15
+    
+        Signed-off-by: Guo Ren <ren_guo@c-sky.com>
+    
+    Signed-off-by: Guo Ren <ren_guo@c-sky.com>
+
 diff --git a/arch/csky/Kconfig b/arch/csky/Kconfig
 new file mode 100644
-index 0000000..99f35da
+index 0000000..4f9a894
 --- /dev/null
 +++ b/arch/csky/Kconfig
-@@ -0,0 +1,346 @@
+@@ -0,0 +1,335 @@
 +#
 +# For a description of the syntax of this configuration file,
 +# see Documentation/kbuild/kconfig-language.txt.
@@ -2185,23 +177,12 @@ index 0000000..99f35da
 +
 +config CPU_CK810
 +        bool "CSKY CPU ck810"
-+	select MMU_HARD_REFILL
 +	select HIGHMEM
 +
 +config CPU_CK807
 +        bool "CSKY CPU ck807"
-+	select MMU_HARD_REFILL
 +	select HIGHMEM
 +endchoice
-+
-+config MMU_HARD_REFILL
-+	bool "Hard refill TLB miss exception"
-+	depends on MMU
-+	default n if CPU_MMU_V1
-+	default y
-+	help
-+	   This control whether the hardware refill is enable or not when there
-+	     is TLB miss exception
 +
 +menuconfig CPU_HAS_FPU
 +	bool "CPU has FPU coprocessor"
@@ -2480,13 +461,12 @@ index 0000000..ef655ff
 +
 diff --git a/arch/csky/abiv1/Makefile b/arch/csky/abiv1/Makefile
 new file mode 100644
-index 0000000..3f8b88a
+index 0000000..6272125
 --- /dev/null
 +++ b/arch/csky/abiv1/Makefile
-@@ -0,0 +1,6 @@
+@@ -0,0 +1,5 @@
 +obj-y +=	src/misc.o
 +obj-y +=	src/memcpy.o
-+obj-y +=	src/tlb.o
 +obj-y +=	src/mmap.o
 +obj-y +=	src/cacheflush.o
 +
@@ -2536,10 +516,10 @@ index 0000000..4f673dc
 +
 diff --git a/arch/csky/abiv1/inc/abi/ckmmu.h b/arch/csky/abiv1/inc/abi/ckmmu.h
 new file mode 100644
-index 0000000..f7ede30
+index 0000000..31be83a
 --- /dev/null
 +++ b/arch/csky/abiv1/inc/abi/ckmmu.h
-@@ -0,0 +1,213 @@
+@@ -0,0 +1,141 @@
 +#ifndef __ASM_CSKY_CKMMUV1_H
 +#define __ASM_CSKY_CKMMUV1_H
 +
@@ -2575,16 +555,8 @@ index 0000000..f7ede30
 +			"cprcr %0, cpcr2\n\t"
 +			:"=b" (__res));
 +
-+	return __res;
++	return __res << 6;
 +}
-+
-+static inline void write_mmu_entrylo0(int value)
-+{
-+	__asm__ __volatile__(
-+			"cpwcr %0, cpcr2\n\t"
-+			::"b"(value));
-+}
-+
 +
 +static inline int read_mmu_entrylo1(void)
 +{
@@ -2593,68 +565,13 @@ index 0000000..f7ede30
 +			"cprcr %0, cpcr3\n\t"
 +			:"=b" (__res));
 +
-+	return __res;
-+}
-+
-+static inline void write_mmu_entrylo1(int value)
-+{
-+	__asm__ __volatile__(
-+			"cpwcr %0, cpcr3\n\t"
-+			::"b"(value));
-+}
-+
-+
-+static inline int read_mmu_context(void)
-+{
-+	int __res;
-+	__asm__ __volatile__(
-+			"cprcr %0, cpcr5\n\t"
-+			:"=b" (__res));
-+
-+	return __res;
-+}
-+
-+static inline void write_mmu_context(int value)
-+{
-+	__asm__ __volatile__(
-+			"cpwcr %0, cpcr5\n\t"
-+			::"b"(value));
-+}
-+
-+
-+static inline int read_mmu_pagemask(void)
-+{
-+	int __res;
-+
-+	__asm__ __volatile__(
-+			"cprcr %0, cpcr6\n\t"
-+			:"=b" (__res));
-+
-+	return __res;
++	return __res << 6;
 +}
 +
 +static inline void write_mmu_pagemask(int value)
 +{
 +	__asm__ __volatile__(
 +			"cpwcr %0, cpcr6\n\t"
-+			::"b"(value));
-+}
-+
-+static inline int read_mmu_wired(void)
-+{
-+	int __res;
-+
-+	__asm__ __volatile__(
-+			"cprcr %0, cpcr7\n\t"
-+			:"=b" (__res));
-+
-+	return __res;
-+}
-+
-+static inline void write_mmu_wired(int value)
-+{
-+	__asm__ __volatile__(
-+			"cpwcr %0, cpcr7\n\t"
 +			::"b"(value));
 +}
 +
@@ -2697,18 +614,9 @@ index 0000000..f7ede30
 +			::"b"(value));
 +}
 +
-+static inline void tlb_write_indexed(void)
++static inline void tlb_invalid_all(void)
 +{
-+	int value = 0x20000000;
-+
-+	__asm__ __volatile__(
-+			"cpwcr %0, cpcr8\n\t"
-+			::"b"(value));
-+}
-+
-+static inline void tlb_write_random(void)
-+{
-+	int value = 0x10000000;
++	int value = 0x04000000;
 +
 +	__asm__ __volatile__(
 +			"cpwcr %0, cpcr8\n\t"
@@ -2755,10 +663,10 @@ index 0000000..f7ede30
 +
 diff --git a/arch/csky/abiv1/inc/abi/entry.h b/arch/csky/abiv1/inc/abi/entry.h
 new file mode 100644
-index 0000000..f37a448
+index 0000000..8c6d369
 --- /dev/null
 +++ b/arch/csky/abiv1/inc/abi/entry.h
-@@ -0,0 +1,236 @@
+@@ -0,0 +1,155 @@
 +#ifndef __ASM_CSKY_ENTRY_H
 +#define __ASM_CSKY_ENTRY_H
 +
@@ -2874,7 +782,6 @@ index 0000000..f37a448
 +
 +#define SAVE_SWITCH_STACK save_switch_stack
 +#define RESTORE_SWITCH_STACK restore_switch_stack
-+#define GET_CURRENT(tmp)
 +
 +.macro	save_switch_stack
 +	subi    sp, 32
@@ -2889,56 +796,14 @@ index 0000000..f37a448
 +.macro  PT_REGS_ADJUST  rx   /* abiv2 when argc>5 need push r4 r5 in syscall */
 +        mov      \rx, sp
 +.endm
-+/*
-+ * Because kernel don't use FPU and only user program use FPU, we select
-+ * coprocessor 15(MMU) when in super-mode. So this macro is called when
-+ * CPU enter from user-mode to kernel super-mode except MMU exception.
-+ */
-+.macro SET_SMOD_MMU_CP15
-+	cpseti  cp15
-+.endm
 +
-+/*
-+ * Below, are macros for MMU operating, use them to switch cop, read or write
-+ * registers of MMU in assemble files. Macro __CSKYABIV1__ means MMU in
-+ * coprocessor.
-+ */
-+/* Coprocessor switch to MMU */
-+.macro SET_CP_MMU
-+	cpseti  cp15
-+.endm
-+
-+/* MMU registers read operators. */
++/* MMU registers operators. */
 +.macro RD_MIR	rx
 +	cprcr   \rx, cpcr0
 +.endm
 +
-+.macro RD_MRR	rx
-+	cprcr   \rx, cpcr1
-+.endm
-+
-+.macro RD_MEL0	rx
-+	cprcr   \rx, cpcr2
-+.endm
-+
-+.macro RD_MEL1	rx
-+	cprcr   \rx, cpcr3
-+.endm
-+
 +.macro RD_MEH	rx
 +	cprcr   \rx, cpcr4
-+.endm
-+
-+.macro RD_MCR	rx
-+	cprcr   \rx, cpcr5
-+.endm
-+
-+.macro RD_MPR	rx
-+	cprcr   \rx, cpcr6
-+.endm
-+
-+.macro RD_MWR	rx
-+	cprcr   \rx, cpcr7
 +.endm
 +
 +.macro RD_MCIR	rx
@@ -2949,51 +814,13 @@ index 0000000..f37a448
 +        cprcr   \rx, cpcr29
 +.endm
 +
-+/* MMU registers write operators. */
-+.macro WR_MIR	rx
-+	cpwcr   \rx, cpcr0
-+.endm
-+
-+.macro WR_MRR	rx
-+	cpwcr   \rx, cpcr1
-+.endm
-+
-+.macro WR_MEL0	rx
-+	cpwcr   \rx, cpcr2
-+.endm
-+
-+.macro WR_MEL1	rx
-+	cpwcr   \rx, cpcr3
-+.endm
-+
 +.macro WR_MEH	rx
 +	cpwcr   \rx, cpcr4
-+.endm
-+
-+.macro WR_MCR	rx
-+	cpwcr   \rx, cpcr5
-+.endm
-+
-+.macro WR_MPR	rx
-+	cpwcr   \rx, cpcr6
-+.endm
-+
-+.macro WR_MWR	rx
-+	cpwcr   \rx, cpcr7
 +.endm
 +
 +.macro WR_MCIR	rx
 +	cpwcr   \rx, cpcr8
 +.endm
-+
-+.macro WR_MSA0	rx
-+	cpwcr   \rx, cpcr30
-+.endm
-+
-+.macro WR_MSA1	rx
-+	cpwcr   \rx, cpcr31
-+.endm
-+
 +#endif /* __ASM_CSKY_ENTRY_H */
 diff --git a/arch/csky/abiv1/inc/abi/page.h b/arch/csky/abiv1/inc/abi/page.h
 new file mode 100644
@@ -3027,41 +854,39 @@ index 0000000..951dc79
 +}
 diff --git a/arch/csky/abiv1/inc/abi/pgtable-bits.h b/arch/csky/abiv1/inc/abi/pgtable-bits.h
 new file mode 100644
-index 0000000..28dc674
+index 0000000..b59d3a0
 --- /dev/null
 +++ b/arch/csky/abiv1/inc/abi/pgtable-bits.h
-@@ -0,0 +1,25 @@
+@@ -0,0 +1,23 @@
 +#ifndef __ASM_CSKY_PGTABLE_BITS_H
 +#define __ASM_CSKY_PGTABLE_BITS_H
 +
-+#define _PAGE_PRESENT               (1<<0)  /* implemented in software */
-+#define _PAGE_READ                  (1<<1)  /* implemented in software */
-+#define _PAGE_WRITE                 (1<<2)  /* implemented in software */
-+#define _PAGE_ACCESSED              (1<<3)  /* implemented in software */
-+#define _PAGE_MODIFIED              (1<<4)  /* implemented in software */
-+#define _PAGE_FILE                  (1<<4)  /* set:pagecache unset:swap */
-+#define _PAGE_GLOBAL                (1<<6)
-+#define _PAGE_VALID                 (1<<7)
-+#define _PAGE_SILENT_READ           (1<<7)  /* synonym                 */
-+#define _PAGE_DIRTY                 (1<<8)  /* The CSKY dirty bit      */
-+#define _PAGE_SILENT_WRITE          (1<<8)
-+#define _CACHE_MASK                 (7<<9)
++#define _PAGE_PRESENT		(1<<0) /* implemented in software */
++#define _PAGE_READ		(1<<1) /* implemented in software */
++#define _PAGE_WRITE		(1<<2) /* implemented in software */
++#define _PAGE_ACCESSED		(1<<3) /* implemented in software */
++#define _PAGE_MODIFIED		(1<<4) /* implemented in software */
 +
-+#define _CACHE_UNCACHED             (0x12<<6)
-+#define _CACHE_CACHED               (0x1a<<6)
++#define _PAGE_GLOBAL		(1<<6)
++#define _PAGE_VALID		(1<<7)
++#define _PAGE_DIRTY		(1<<8)
++#define _PAGE_CACHE		(3<<9)
++#define _PAGE_UNCACHE		(2<<9)
 +
-+#define pte_to_pgoff(_pte) (pte.pte_low >> 4)
-+#define pgoff_to_pte(off) ((pte_t)((off << 4) + _PAGE_FILE))
++#define _CACHE_MASK		(7<<9)
++
++#define _CACHE_CACHED		(_PAGE_VALID | _PAGE_CACHE)
++#define _CACHE_UNCACHED		(_PAGE_VALID | _PAGE_UNCACHE)
 +
 +#define HAVE_ARCH_UNMAPPED_AREA
 +
 +#endif /* __ASM_CSKY_PGTABLE_BITS_H */
 diff --git a/arch/csky/abiv1/inc/abi/reg_ops.h b/arch/csky/abiv1/inc/abi/reg_ops.h
 new file mode 100644
-index 0000000..6a3a3eb
+index 0000000..732d93e
 --- /dev/null
 +++ b/arch/csky/abiv1/inc/abi/reg_ops.h
-@@ -0,0 +1,70 @@
+@@ -0,0 +1,68 @@
 +#ifndef __ASM_REG_OPS_H
 +#define __ASM_REG_OPS_H
 +
@@ -3125,8 +950,6 @@ index 0000000..6a3a3eb
 +}
 +
 +static inline unsigned int mfcr_ccr2(void){return 0;}
-+
-+#define L1_SYNC do{__asm__ __volatile__("sync\t\n");}while(0)
 +
 +#define CSKYCPU_DEF_NAME "csky,ck610"
 +
@@ -3697,308 +1520,14 @@ index 0000000..c50733b
 +			addr = COLOUR_ALIGN(addr, pgoff);
 +	}
 +}
-diff --git a/arch/csky/abiv1/src/tlb.c b/arch/csky/abiv1/src/tlb.c
-new file mode 100644
-index 0000000..1d85d94
---- /dev/null
-+++ b/arch/csky/abiv1/src/tlb.c
-@@ -0,0 +1,287 @@
-+#include <linux/init.h>
-+#include <linux/sched.h>
-+#include <linux/mm.h>
-+
-+#include <asm/setup.h>
-+#include <asm/mmu_context.h>
-+#include <linux/module.h>
-+#include <asm/pgtable.h>
-+
-+#include <abi/ckmmu.h>
-+
-+#undef DEBUG_TLB
-+#undef DEBUG_TLBUPDATE
-+
-+#define ENTER_CRITICAL(flags) local_irq_save(flags)
-+#define EXIT_CRITICAL(flags) local_irq_restore(flags)
-+
-+void local_flush_tlb_all(void)
-+{
-+	unsigned long flags;
-+	unsigned long old_ctx;
-+	int entry;
-+
-+#ifdef DEBUG_TLB
-+	printk("[tlball]");
-+#endif
-+
-+	local_irq_save(flags);
-+	/* Save old context and create impossible VPN2 value */
-+	old_ctx = read_mmu_entryhi();
-+	write_mmu_entrylo0(0);
-+	write_mmu_entrylo1(0);
-+
-+	entry = read_mmu_wired();
-+
-+	/* Blast 'em all away. */
-+	while (entry < CSKY_TLB_SIZE) {
-+		/*
-+		 * Make sure all entries differ.  If they're not different
-+		 * CSKY will take revenge ...
-+		 */
-+		write_mmu_entryhi(KSEG0 + entry * 0x2000);
-+		write_mmu_index(entry);
-+		tlb_write_indexed();
-+		entry++;
-+	}
-+	write_mmu_entryhi(old_ctx);
-+	local_irq_restore(flags);
-+}
-+
-+void local_flush_tlb_mm(struct mm_struct *mm)
-+{
-+	int cpu = smp_processor_id();
-+
-+	if (cpu_context(cpu, mm) != 0) {
-+#ifdef DEBUG_TLB
-+		printk("[tlbmm<%d>]", cpu_context(cpu, mm));
-+#endif
-+		drop_mmu_context(mm,cpu);
-+	}
-+}
-+
-+void local_flush_tlb_range(struct vm_area_struct *vma, unsigned long start,
-+        unsigned long end)
-+{
-+	struct mm_struct *mm = vma->vm_mm;
-+	int cpu = smp_processor_id();
-+
-+	if (cpu_context(cpu, mm) != 0) {
-+		unsigned long size, flags;
-+
-+		local_irq_save(flags);
-+		size = (end - start + (PAGE_SIZE - 1)) >> PAGE_SHIFT;
-+		size = (size + 1) >> 1;
-+		if (size <= CSKY_TLB_SIZE/2) {
-+			int oldpid = read_mmu_entryhi();
-+			int newpid = cpu_asid(cpu, mm);
-+
-+			start &= (PAGE_MASK << 1);
-+			end += ((PAGE_SIZE << 1) - 1);
-+			end &= (PAGE_MASK << 1);
-+			while (start < end) {
-+				int idx;
-+
-+				write_mmu_entryhi(start | newpid);
-+				start += (PAGE_SIZE << 1);
-+				tlb_probe();
-+				idx = read_mmu_index();
-+				write_mmu_entrylo0(0);
-+				write_mmu_entrylo1(0);
-+				if (idx < 0)
-+				{
-+					write_mmu_entryhi((start | newpid) + 1);
-+					continue;
-+				}
-+				/* Make sure all entries differ. */
-+				write_mmu_entryhi(KSEG0 + idx*0x2000);
-+				tlb_write_indexed();
-+			}
-+			write_mmu_entryhi(oldpid);
-+		} else {
-+			drop_mmu_context(mm, cpu);
-+		}
-+		local_irq_restore(flags);
-+	}
-+}
-+
-+void local_flush_tlb_kernel_range(unsigned long start, unsigned long end)
-+{
-+	unsigned long size, flags;
-+
-+#ifdef DEBUG_TLB
-+	printk("[tlbrange<0x%08lx,0x%08lx>]\n", start, end);
-+#endif
-+	local_irq_save(flags);
-+	size = (end - start + (PAGE_SIZE - 1)) >> PAGE_SHIFT;
-+	size = (size + 1) >> 1;
-+	if (size <= CSKY_TLB_SIZE / 2) {
-+		int idx;
-+		unsigned int page;
-+		int pid = read_mmu_entryhi();
-+
-+		start &= (PAGE_MASK << 1);
-+		end += ((PAGE_SIZE << 1) - 1);
-+		end &= (PAGE_MASK << 1);
-+		for (idx = 0; idx < CSKY_TLB_SIZE; idx++) {
-+			write_mmu_index(idx);
-+			tlb_read();
-+			page = read_mmu_entryhi();
-+			page &=(PAGE_MASK << 1);
-+			if (page >= start && page < end) {
-+				write_mmu_entrylo0(0);
-+				write_mmu_entrylo1(0);
-+				write_mmu_entryhi(KSEG0 + idx * 0x2000);
-+				tlb_write_indexed();
-+			}
-+		}
-+		write_mmu_entryhi(pid);
-+	}
-+	else {
-+		local_flush_tlb_all();
-+	}
-+	local_irq_restore(flags);
-+}
-+
-+void local_flush_tlb_page(struct vm_area_struct *vma, unsigned long page)
-+{
-+	int cpu = smp_processor_id();
-+
-+	if (!vma || cpu_context(cpu, vma->vm_mm) != 0) {
-+		unsigned long flags;
-+		int oldpid, newpid, idx;
-+
-+#ifdef DEBUG_TLB
-+		printk("[tlbpage<%d,%08lx>]", cpu_context(cpu, vma->vm_mm),
-+		       page);
-+#endif
-+		newpid = cpu_asid(cpu, vma->vm_mm);
-+		page &= (PAGE_MASK << 1);
-+		local_irq_save(flags);
-+		oldpid = read_mmu_entryhi();
-+		write_mmu_entryhi(page | newpid);
-+		tlb_probe();
-+		idx = read_mmu_index();
-+		write_mmu_entrylo0(0);
-+		write_mmu_entrylo1(0);
-+		if(idx < 0)
-+		{
-+			write_mmu_entryhi((page | newpid) + 1);
-+			goto finish;
-+		}
-+		/* Make sure all entries differ. */
-+		write_mmu_entryhi(KSEG0+idx*0x2000);
-+		tlb_write_indexed();
-+
-+	finish:
-+		write_mmu_entryhi(oldpid);
-+		local_irq_restore(flags);
-+	}
-+}
-+
-+/*
-+ * Remove one kernel space TLB entry.  This entry is assumed to be marked
-+ * global so we don't do the ASID thing.
-+ */
-+void local_flush_tlb_one(unsigned long page)
-+{
-+	unsigned long flags;
-+	int oldpid, idx;
-+
-+	page &= (PAGE_MASK << 1);
-+	oldpid = read_mmu_entryhi();
-+	local_irq_save(flags);
-+	page = page | (oldpid & 0xff);
-+	write_mmu_entryhi(page);
-+	tlb_probe();
-+	idx = read_mmu_index();
-+	write_mmu_entrylo0(0);
-+	write_mmu_entrylo1(0);
-+	if (idx >= 0) {
-+		/* Make sure all entries differ. */
-+		write_mmu_entryhi(KSEG0+idx*0x2000);
-+		tlb_write_indexed();
-+	}
-+	else
-+		write_mmu_entryhi(page + 1);
-+	write_mmu_entryhi(oldpid);
-+	local_irq_restore(flags);
-+}
-+
-+EXPORT_SYMBOL(local_flush_tlb_one);
-+
-+void __update_tlb(struct vm_area_struct * vma, unsigned long address, pte_t pte)
-+{
-+	unsigned long flags;
-+	pgd_t *pgdp;
-+	pud_t *pudp;
-+	pmd_t *pmdp;
-+	pte_t *ptep;
-+	int idx, pid;
-+
-+	/*
-+	 * Handle debugger faulting in for debugee.
-+	 */
-+	if (current->active_mm != vma->vm_mm)
-+		return;
-+
-+	pid = read_mmu_entryhi() & ASID_MASK;
-+
-+	local_irq_save(flags);
-+	address &= (PAGE_MASK << 1);
-+	write_mmu_entryhi(address | pid);
-+	pgdp = pgd_offset(vma->vm_mm, address);
-+	tlb_probe();
-+	pudp = pud_offset(pgdp, address);
-+	pmdp = pmd_offset(pudp, address);
-+	idx = read_mmu_index();
-+	ptep = pte_offset(pmdp, address);
-+
-+	write_mmu_entrylo0(pte_val(*ptep++) >> 6);
-+	write_mmu_entrylo1(pte_val(*ptep) >> 6);
-+	write_mmu_entryhi(address | pid);
-+	if (idx < 0) {
-+		write_mmu_entryhi((address | pid) + 1);
-+		write_mmu_entryhi(address | pid);
-+		tlb_write_random();
-+	} else {
-+		tlb_write_indexed();
-+	}
-+	local_irq_restore(flags);
-+}
-+
-+/* show current 32 jtlbs */
-+void show_jtlb_table(void)
-+{
-+	unsigned long flags;
-+	int entryhi, entrylo0, entrylo1;
-+	int entry;
-+	int oldpid;
-+
-+	local_irq_save(flags);
-+	entry = 0;
-+	printk("\n\n\n");
-+
-+	oldpid = read_mmu_entryhi();
-+	while (entry < CSKY_TLB_SIZE)
-+	{
-+		write_mmu_index(entry);
-+		tlb_read();
-+		entryhi = read_mmu_entryhi();
-+		entrylo0 = read_mmu_entrylo0();
-+		entrylo0 = entrylo0 << 6;
-+		entrylo1 = read_mmu_entrylo1();
-+		entrylo1 = entrylo1 << 6;
-+		printk("jtlb[%d]:	entryhi - 0x%x;	entrylo0 - 0x%x;"
-+		       "	entrylo1 - 0x%x\n",
-+			 entry, entryhi, entrylo0, entrylo1);
-+		entry++;
-+	}
-+	write_mmu_entryhi(oldpid);
-+	local_irq_restore(flags);
-+}
-+
-+void __init csky_tlb_init(void)
-+{
-+	local_flush_tlb_all();
-+}
 diff --git a/arch/csky/abiv2/Makefile b/arch/csky/abiv2/Makefile
 new file mode 100644
-index 0000000..fc149d6
+index 0000000..c982657
 --- /dev/null
 +++ b/arch/csky/abiv2/Makefile
-@@ -0,0 +1,4 @@
+@@ -0,0 +1,3 @@
 +obj-y +=	src/misc.o
 +obj-y +=	src/memcpy.o
-+obj-y +=	src/tlb.o
 +
 diff --git a/arch/csky/abiv2/inc/abi/cacheflush.h b/arch/csky/abiv2/inc/abi/cacheflush.h
 new file mode 100644
@@ -4015,10 +1544,10 @@ index 0000000..76a0a00
 +
 diff --git a/arch/csky/abiv2/inc/abi/ckmmu.h b/arch/csky/abiv2/inc/abi/ckmmu.h
 new file mode 100644
-index 0000000..5f4fb73
+index 0000000..e0db82b
 --- /dev/null
 +++ b/arch/csky/abiv2/inc/abi/ckmmu.h
-@@ -0,0 +1,159 @@
+@@ -0,0 +1,122 @@
 +#ifndef __ASM_CSKY_CKMMUV2_H
 +#define __ASM_CSKY_CKMMUV2_H
 +
@@ -4049,32 +1578,11 @@ index 0000000..5f4fb73
 +	return   __res;
 +}
 +
-+static inline void  write_mmu_entrylo0(int value)
-+{
-+	__asm__ __volatile__("mtcr %0,cr<2, 15>\n\t"
-+					: :"r" (value));
-+}
-+
 +static inline int  read_mmu_entrylo1(void)
 +{
 +	int __res;
 +
 +	__asm__ __volatile__("mfcr %0,cr<3, 15>\n\t"
-+					:"=r" (__res));
-+	return   __res;
-+}
-+
-+static inline void  write_mmu_entrylo1(int value)
-+{
-+	__asm__ __volatile__("mtcr %0,cr<3, 15>\n\t"
-+					: :"r" (value));
-+}
-+
-+static inline int  read_mmu_pagemask(void)
-+{
-+	int __res;
-+
-+	__asm__ __volatile__("mfcr %0,cr<6, 15>\n\t"
 +					:"=r" (__res));
 +	return   __res;
 +}
@@ -4114,22 +1622,6 @@ index 0000000..5f4fb73
 +static inline void tlb_read(void)
 +{
 +	int value = 0x40000000;
-+
-+	__asm__ __volatile__("mtcr %0,cr<8, 15>\n\t"
-+					: :"r" (value));
-+}
-+
-+static inline void tlb_write_indexed(void)
-+{
-+	int value = 0x20000000;
-+
-+	__asm__ __volatile__("mtcr %0,cr<8,15>\n\t"
-+					: :"r" (value));
-+}
-+
-+static inline void tlb_write_random(void)
-+{
-+	int value = 0x10000000;
 +
 +	__asm__ __volatile__("mtcr %0,cr<8, 15>\n\t"
 +					: :"r" (value));
@@ -4180,10 +1672,10 @@ index 0000000..5f4fb73
 +
 diff --git a/arch/csky/abiv2/inc/abi/entry.h b/arch/csky/abiv2/inc/abi/entry.h
 new file mode 100644
-index 0000000..8dba5d8
+index 0000000..feef741
 --- /dev/null
 +++ b/arch/csky/abiv2/inc/abi/entry.h
-@@ -0,0 +1,247 @@
+@@ -0,0 +1,170 @@
 +#ifndef __ASM_CSKY_ENTRY_H
 +#define __ASM_CSKY_ENTRY_H
 +
@@ -4297,7 +1789,6 @@ index 0000000..8dba5d8
 +
 +#define SAVE_SWITCH_STACK save_switch_stack
 +#define RESTORE_SWITCH_STACK restore_switch_stack
-+#define GET_CURRENT(tmp)
 +
 +.macro	save_switch_stack
 +        subi    sp, 64
@@ -4328,54 +1819,14 @@ index 0000000..8dba5d8
 +.macro  PT_REGS_ADJUST  rx   /* abiv2 when argc>5 need push r4 r5 in syscall */
 +        addi     \rx, sp, 8
 +.endm
-+/*
-+ * Because kernel don't use FPU and only user program use FPU, we select
-+ * coprocessor 15(MMU) when in super-mode. So this macro is called when
-+ * CPU enter from user-mode to kernel super-mode except MMU exception.
-+ */
-+.macro SET_SMOD_MMU_CP15
-+.endm
 +
-+/*
-+ * Below, are macros for MMU operating, use them to switch cop, read or write
-+ * registers of MMU in assemble files. Macro __CSKYABIV1__ means MMU in
-+ * coprocessor.
-+ */
-+/* Coprocessor switch to MMU */
-+.macro SET_CP_MMU
-+.endm
-+
-+/* MMU registers read operators. */
++/* MMU registers operators. */
 +.macro RD_MIR	rx
 +	mfcr    \rx, cr<0, 15>
 +.endm
 +
-+.macro RD_MRR	rx
-+	mfcr    \rx, cr<1, 15>
-+.endm
-+
-+.macro RD_MEL0	rx
-+	mfcr    \rx, cr<2, 15>
-+.endm
-+
-+.macro RD_MEL1	rx
-+	mfcr    \rx, cr<3, 15>
-+.endm
-+
 +.macro RD_MEH	rx
 +	mfcr    \rx, cr<4, 15>
-+.endm
-+
-+.macro RD_MCR	rx
-+	mfcr    \rx, cr<5, 15>
-+.endm
-+
-+.macro RD_MPR	rx
-+	mfcr    \rx, cr<6, 15>
-+.endm
-+
-+.macro RD_MWR	rx
-+	mfcr    \rx, cr<7, 15>
 +.endm
 +
 +.macro RD_MCIR	rx
@@ -4386,48 +1837,12 @@ index 0000000..8dba5d8
 +        mfcr    \rx, cr<29, 15>
 +.endm
 +
-+/* MMU registers write operators. */
-+.macro WR_MIR	rx
-+	mtcr    \rx, cr<0, 15>
-+.endm
-+
-+.macro WR_MRR	rx
-+	mtcr    \rx, cr<1, 15>
-+.endm
-+
-+.macro WR_MEL0	rx
-+	mtcr    \rx, cr<2, 15>
-+.endm
-+.macro WR_MEL1	rx
-+	mtcr    \rx, cr<3, 15>
-+.endm
-+
 +.macro WR_MEH	rx
 +	mtcr    \rx, cr<4, 15>
 +.endm
 +
-+.macro WR_MCR	rx
-+	mtcr    \rx, cr<5, 15>
-+.endm
-+
-+.macro WR_MPR	rx
-+	mtcr    \rx, cr<6, 15>
-+.endm
-+
-+.macro WR_MWR	rx
-+	mtcr    \rx, cr<7, 15>
-+.endm
-+
 +.macro WR_MCIR	rx
 +	mtcr    \rx, cr<8, 15>
-+.endm
-+
-+.macro WR_MSA0	rx
-+	mtcr    \rx, cr<30, 15>
-+.endm
-+
-+.macro WR_MSA1	rx
-+	mtcr    \rx, cr<31, 15>
 +.endm
 +
 +#endif /* __ASM_CSKY_ENTRY_H */
@@ -4457,41 +1872,39 @@ index 0000000..db4fafa
 +
 diff --git a/arch/csky/abiv2/inc/abi/pgtable-bits.h b/arch/csky/abiv2/inc/abi/pgtable-bits.h
 new file mode 100644
-index 0000000..47db2f5
+index 0000000..041d816
 --- /dev/null
 +++ b/arch/csky/abiv2/inc/abi/pgtable-bits.h
-@@ -0,0 +1,25 @@
+@@ -0,0 +1,23 @@
 +#ifndef __ASM_CSKY_PGTABLE_BITS_H
 +#define __ASM_CSKY_PGTABLE_BITS_H
 +
-+#define _PAGE_ACCESSED              (1<<7)  /* implemented in software */
-+#define _PAGE_READ                  (1<<8)  /* implemented in software */
-+#define _PAGE_WRITE                 (1<<9)  /* implemented in software */
-+#define _PAGE_PRESENT               (1<<10)  /* implemented in software */
-+#define _PAGE_MODIFIED              (1<<11)  /* implemented in software */
-+#define _PAGE_FILE                  (1<<11)  /* set:pagecache unset:swap */
-+#define _PAGE_GLOBAL                (1<<0)
-+#define _PAGE_VALID                 (1<<1)
-+#define _PAGE_SILENT_READ           (1<<1)  /* synonym                 */
-+#define _PAGE_DIRTY                 (1<<2)  /* The CSKY dirty bit      */
-+#define _PAGE_SILENT_WRITE          (1<<2)
-+#define _CACHE_MASK                 (7<<3)
++#define _PAGE_ACCESSED		(1<<7)  /* implemented in software */
++#define _PAGE_READ		(1<<8)  /* implemented in software */
++#define _PAGE_WRITE		(1<<9)  /* implemented in software */
++#define _PAGE_PRESENT		(1<<10) /* implemented in software */
++#define _PAGE_MODIFIED		(1<<11) /* implemented in software */
 +
-+#define _CACHE_UNCACHED             (0x22)
-+#define _CACHE_CACHED               (0xa)
++#define _PAGE_GLOBAL		(1<<0)
++#define _PAGE_VALID		(1<<1)
++#define _PAGE_DIRTY		(1<<2)
++#define _PAGE_CACHE		(1<<3)
++#define _PAGE_SEC		(1<<4)
++#define _PAGE_SO		(1<<5)
++#define _PAGE_BUF		(1<<6)
 +
-+#define pte_to_pgoff(_pte) \
-+	(((_pte).pte_low & 0x3ff) | (((_pte).pte_low >> 12) << 10))
-+#define pgoff_to_pte(off) \
-+	((pte_t) {((off) & 0x3ff) | (((off) >> 10) << 12) | _PAGE_FILE})
++#define _CACHE_MASK		_PAGE_CACHE
++
++#define _CACHE_CACHED		(_PAGE_VALID | _PAGE_CACHE | _PAGE_BUF)
++#define _CACHE_UNCACHED		(_PAGE_VALID | _PAGE_SO)
 +
 +#endif /* __ASM_CSKY_PGTABLE_BITS_H */
 diff --git a/arch/csky/abiv2/inc/abi/reg_ops.h b/arch/csky/abiv2/inc/abi/reg_ops.h
 new file mode 100644
-index 0000000..443f19c
+index 0000000..b04150c
 --- /dev/null
 +++ b/arch/csky/abiv2/inc/abi/reg_ops.h
-@@ -0,0 +1,83 @@
+@@ -0,0 +1,81 @@
 +#ifndef __ASM_REG_OPS_H
 +#define __ASM_REG_OPS_H
 +
@@ -4562,8 +1975,6 @@ index 0000000..443f19c
 +		"mtcr %0, cr<31, 15>\t\n"
 +		::"r"(value));
 +}
-+
-+#define L1_SYNC do{__asm__ __volatile__("sync 1\t\n");}while(0)
 +
 +#ifdef CONFIG_CPU_CK807
 +#define CSKYCPU_DEF_NAME "csky,ck807"
@@ -4771,277 +2182,6 @@ index 0000000..d470409
 +}
 +
 +#endif /* CONFIG_CPU_HAS_FPU */
-diff --git a/arch/csky/abiv2/src/tlb.c b/arch/csky/abiv2/src/tlb.c
-new file mode 100644
-index 0000000..e84efb9
---- /dev/null
-+++ b/arch/csky/abiv2/src/tlb.c
-@@ -0,0 +1,265 @@
-+#include <linux/init.h>
-+#include <linux/sched.h>
-+#include <linux/mm.h>
-+
-+#include <asm/setup.h>
-+#include <asm/mmu_context.h>
-+#include <linux/module.h>
-+#include <asm/pgtable.h>
-+#include <abi/ckmmu.h>
-+
-+#undef DEBUG_TLB
-+#undef DEBUG_TLBUPDATE
-+
-+#define ENTER_CRITICAL(flags) local_irq_save(flags)
-+#define EXIT_CRITICAL(flags) local_irq_restore(flags)
-+
-+void local_flush_tlb_all(void)
-+{
-+	unsigned long flags;
-+
-+	local_irq_save(flags);
-+	tlb_invalid_all();
-+	local_irq_restore(flags);
-+}
-+
-+void local_flush_tlb_mm(struct mm_struct *mm)
-+{
-+	int cpu = smp_processor_id();
-+
-+	if (cpu_context(cpu, mm) != 0) {
-+#ifdef DEBUG_TLB
-+		printk("[tlbmm<%d>]", cpu_context(cpu, mm));
-+#endif
-+		drop_mmu_context(mm,cpu);
-+	}
-+}
-+
-+void local_flush_tlb_range(struct vm_area_struct *vma, unsigned long start,
-+        unsigned long end)
-+{
-+        struct mm_struct *mm = vma->vm_mm;
-+        int cpu = smp_processor_id();
-+
-+        if (cpu_context(cpu, mm) != 0) {
-+                unsigned long size, flags;
-+
-+                local_irq_save(flags);
-+                size = (end - start + (PAGE_SIZE - 1)) >> PAGE_SHIFT;
-+                size = (size + 1) >> 1;
-+                if (size <= CSKY_TLB_SIZE/2) {
-+                        int oldpid = read_mmu_entryhi();
-+                        int newpid = cpu_asid(cpu, mm);
-+
-+                        start &= (PAGE_MASK << 1);
-+                        end += ((PAGE_SIZE << 1) - 1);
-+                        end &= (PAGE_MASK << 1);
-+                        while (start < end) {
-+                                int idx;
-+
-+                                write_mmu_entryhi(start | newpid);
-+                                start += (PAGE_SIZE << 1);
-+                                tlb_probe();
-+                                idx = read_mmu_index();
-+                                write_mmu_entrylo0(0);
-+                                write_mmu_entrylo1(0);
-+                                if (idx < 0)
-+				{
-+					tlb_invalid_indexed();
-+                                        continue;
-+				}
-+                                /* Make sure all entries differ. */
-+                                write_mmu_entryhi(KSEG0 + idx*0x2000);
-+                                tlb_write_indexed();
-+                        }
-+                        write_mmu_entryhi(oldpid);
-+                } else {
-+                        drop_mmu_context(mm, cpu);
-+                }
-+                local_irq_restore(flags);
-+        }
-+}
-+
-+void local_flush_tlb_kernel_range(unsigned long start, unsigned long end)
-+{
-+        unsigned long size, flags;
-+
-+#ifdef DEBUG_TLB
-+        printk("[tlbrange<%lu,0x%08lx,0x%08lx>]", start, end);
-+#endif
-+        local_irq_save(flags);
-+        size = (end - start + (PAGE_SIZE - 1)) >> PAGE_SHIFT;
-+        if (size <= CSKY_TLB_SIZE) {
-+                int pid = read_mmu_entryhi();
-+
-+                start &= PAGE_MASK;
-+                end += PAGE_SIZE - 1;
-+                end &= PAGE_MASK;
-+
-+                while (start < end) {
-+                        int idx;
-+                        write_mmu_entryhi(start);
-+                        start += PAGE_SIZE;             /* BARRIER */
-+                        tlb_probe();
-+                        idx = read_mmu_index();
-+                        write_mmu_entrylo0(0);
-+                        write_mmu_entrylo1(0);
-+                        if (idx < 0)                    /* BARRIER */
-+                        {
-+                                tlb_invalid_indexed();
-+                                continue;
-+                        }
-+                        write_mmu_entryhi(KSEG0 + idx*0x2000);
-+                        tlb_write_indexed();
-+                }
-+                write_mmu_entryhi(pid);
-+        } else {
-+                local_flush_tlb_all();
-+        }
-+        local_irq_restore(flags);
-+}
-+
-+
-+void local_flush_tlb_page(struct vm_area_struct *vma, unsigned long page)
-+{
-+	int cpu = smp_processor_id();
-+
-+	if (!vma || cpu_context(cpu, vma->vm_mm) != 0) {
-+		unsigned long flags;
-+		int oldpid, newpid, idx;
-+
-+#ifdef DEBUG_TLB
-+		printk("[tlbpage<%d,%08lx>]", cpu_context(cpu, vma->vm_mm),
-+		       page);
-+#endif
-+		newpid = cpu_asid(cpu, vma->vm_mm);
-+		page &= (PAGE_MASK << 1);
-+		local_irq_save(flags);
-+		oldpid = read_mmu_entryhi();
-+		write_mmu_entryhi(page | newpid);
-+		tlb_probe();
-+		idx = read_mmu_index();
-+		write_mmu_entrylo0(0);
-+		write_mmu_entrylo1(0);
-+		if(idx < 0)
-+		{
-+			tlb_invalid_indexed();
-+			goto finish;
-+		}
-+		/* Make sure all entries differ. */
-+		write_mmu_entryhi(KSEG0+idx*0x2000);
-+		tlb_write_indexed();
-+
-+	finish:
-+		write_mmu_entryhi(oldpid);
-+		local_irq_restore(flags);
-+	}
-+}
-+
-+/*
-+ * Remove one kernel space TLB entry.  This entry is assumed to be marked
-+ * global so we don't do the ASID thing.
-+ */
-+void local_flush_tlb_one(unsigned long page)
-+{
-+	unsigned long flags;
-+	int oldpid, idx;
-+
-+	page &= (PAGE_MASK << 1);
-+	oldpid = read_mmu_entryhi();
-+
-+	local_irq_save(flags);
-+	page = page | (oldpid & 0xff);
-+	write_mmu_entryhi(page);
-+	tlb_probe();
-+	idx = read_mmu_index();
-+	write_mmu_entrylo0(0);
-+	write_mmu_entrylo1(0);
-+	if (idx >= 0) {
-+		/* Make sure all entries differ. */
-+		write_mmu_entryhi(KSEG0+idx*0x2000);
-+		tlb_write_indexed();
-+	}
-+	else
-+		tlb_invalid_indexed();
-+
-+	write_mmu_entryhi(oldpid);
-+	local_irq_restore(flags);
-+}
-+
-+EXPORT_SYMBOL(local_flush_tlb_one);
-+
-+void __update_tlb(struct vm_area_struct * vma, unsigned long address, pte_t pte)
-+{
-+	unsigned long flags;
-+	pgd_t *pgdp;
-+	pud_t *pudp;
-+	pmd_t *pmdp;
-+	pte_t *ptep;
-+	int idx, pid;
-+
-+	/*
-+	 * Handle debugger faulting in for debugee.
-+	 */
-+	if (current->active_mm != vma->vm_mm)
-+		return;
-+
-+	pid = read_mmu_entryhi() & ASID_MASK;
-+
-+	local_irq_save(flags);
-+	address &= (PAGE_MASK << 1);
-+	write_mmu_entryhi(address | pid);
-+	pgdp = pgd_offset(vma->vm_mm, address);
-+	tlb_probe();
-+	pudp = pud_offset(pgdp, address);
-+	pmdp = pmd_offset(pudp, address);
-+	idx = read_mmu_index();
-+	ptep = pte_offset(pmdp, address);
-+
-+	write_mmu_entrylo0(pte_val(*ptep++));
-+	write_mmu_entrylo1(pte_val(*ptep));
-+	write_mmu_entryhi(address | pid);
-+	if (idx < 0) {
-+		tlb_invalid_indexed();
-+		tlb_write_random();
-+	} else {
-+		tlb_write_indexed();
-+	}
-+	local_irq_restore(flags);
-+}
-+
-+/* show current 32 jtlbs */
-+void show_jtlb_table(void)
-+{
-+	unsigned long flags;
-+	int entryhi, entrylo0, entrylo1;
-+	int entry;
-+	 int oldpid;
-+
-+	local_irq_save(flags);
-+	entry = 0;
-+	printk("\n\n\n");
-+
-+	oldpid = read_mmu_entryhi();
-+	while (entry < CSKY_TLB_SIZE)
-+	{
-+		write_mmu_index(entry);
-+		tlb_read();
-+		entryhi = read_mmu_entryhi();
-+		entrylo0 = read_mmu_entrylo0();
-+		entrylo0 = entrylo0;
-+		entrylo1 = read_mmu_entrylo1();
-+		entrylo1 = entrylo1;
-+		printk("jtlb[%d]:	entryhi - 0x%x;	entrylo0 - 0x%x;"
-+		       "	entrylo1 - 0x%x\n",
-+			 entry, entryhi, entrylo0, entrylo1);
-+		entry++;
-+	}
-+	write_mmu_entryhi(oldpid);
-+	local_irq_restore(flags);
-+}
-+
-+void __init csky_tlb_init(void)
-+{
-+	local_flush_tlb_all();
-+}
 diff --git a/arch/csky/boot/Makefile b/arch/csky/boot/Makefile
 new file mode 100644
 index 0000000..c3301a8
@@ -5261,20 +2401,20 @@ index 0000000..ce56106
 +};
 diff --git a/arch/csky/boot/dts/gx6622.dts b/arch/csky/boot/dts/gx6622.dts
 new file mode 100644
-index 0000000..709f66e
+index 0000000..bf57558
 --- /dev/null
 +++ b/arch/csky/boot/dts/gx6622.dts
-@@ -0,0 +1,56 @@
+@@ -0,0 +1,98 @@
 +/dts-v1/;
 +/ {
-+	model = "Nationalchip csky gx6605s";
-+	compatible = "csky,nationalchip-gx6605s";
++	model = "Nationalchip csky gx6622";
++	compatible = "csky,nationalchip-gx6622";
 +	#address-cells = <1>;
 +	#size-cells = <1>;
 +
 +	memory {
 +		device_type = "memory";
-+		reg = <0x10000000 0x08000000>;
++		reg = <0x10000000 0x04400000>;
 +	};
 +
 +	soc {
@@ -5298,6 +2438,46 @@ index 0000000..709f66e
 +			interrupt-parent = <&intc>;
 +		};
 +
++		nceth0: nationalchip-eth {
++			compatible = "nationalchip-eth";
++			reg = <0x00700000 0x1fff>;
++			interrupts = <56>;
++			interrupt-parent = <&intc>;
++		};
++
++		m25p80: m25p80@0 {
++			compatible = "spansion,m25p80", "jedec,spi-nor";
++			reg = <0>;				/* CS0 */
++			#spi-max-frequency = <48000000>;
++		};
++
++		dw_spi_gx: nationalchip-dw-spi {
++			compatible = "nationalchip-dw-spi";
++			reg = <0x00303000 0x100>;
++			interrupts = <17>;
++			num-cs = <4>;
++			bus-num = <0>;
++			reg-io-width = <2>;
++			interrupt-parent = <&intc>;
++		};
++
++		dw_dmac: dw_dmac {
++			compatible = "snps,dma-spear1340";
++			reg = <0x800000 0x400>;
++			interrupts = <22 4>;
++			interrupt-parent = <&intc>;
++            
++			dma-channels = <8>;
++			#dma-cells = <3>;
++			dma-requests = <32>;
++			chan_allocation_order = <0>;
++			chan_priority = <1>;
++			block_size = <0x3ff>;
++			dma-masters = <2>;
++			data-width = <4 4>;
++			#data_width = <2>;
++		};
++
 +		ehci: ehci-hcd {
 +			compatible = "generic-ehci";
 +			reg = <0x00900000 0x400>;
@@ -5318,7 +2498,9 @@ index 0000000..709f66e
 +	};
 +
 +	chosen {
-+		bootargs = "console=ttyS0,115200 init=/init root=/dev/nfs rw nfsroot=192.168.101.230:/opt/nfs/test,v3,tcp,nolock ip=192.168.101.23";
++		bootargs = "mem=68M videomem=48M fbmem=12M console=ttyS0,115200 init=/init root=/dev/nfs rw nfsroot=192.168.110.19:/opt/nfs2 ip=192.168.110.20";
++##bootargs = "mem=68M videomem=48M fbmem=12M console=ttyS0,115200 init=/init root=/dev/nfs rw nfsroot=192.168.110.19:/opt/nfs2 ip=192.168.110.20";
++		#bootargs = "mem=68M videomem=48M fbmem=12M console=ttyS0,115200 init=/linuxrc root=/dev/mtdblock3 mtdparts=m25p80:64k@0m(BOOT),64k@64k(TABLE),1536k@128k(KERNEL),2304k@1664k(ROOTFS),2880k@3968k(USER),1344k@6848k(DATA)";
 +	};
 +};
 diff --git a/arch/csky/boot/dts/include/dt-bindings b/arch/csky/boot/dts/include/dt-bindings
@@ -5394,10 +2576,10 @@ index 0000000..928e9f3
 +};
 diff --git a/arch/csky/configs/gx66xx_defconfig b/arch/csky/configs/gx66xx_defconfig
 new file mode 100644
-index 0000000..7bd9e7f
+index 0000000..a698469
 --- /dev/null
 +++ b/arch/csky/configs/gx66xx_defconfig
-@@ -0,0 +1,551 @@
+@@ -0,0 +1,550 @@
 +CONFIG_CROSS_COMPILE="csky-linux-"
 +# CONFIG_LOCALVERSION_AUTO is not set
 +CONFIG_DEFAULT_HOSTNAME="github.com/c-sky"
@@ -5449,7 +2631,6 @@ index 0000000..7bd9e7f
 +CONFIG_CMDLINE_PARTITION=y
 +CONFIG_DEFAULT_DEADLINE=y
 +CONFIG_FB_NATIONALCHIP=y
-+# CONFIG_MMU_HARD_REFILL is not set
 +CONFIG_RAM_BASE=0x10000000
 +# CONFIG_SUSPEND is not set
 +# CONFIG_COMPACTION is not set
@@ -6498,10 +3679,10 @@ index 0000000..994e519
 +CONFIG_DDR=y
 diff --git a/arch/csky/include/asm/Kbuild b/arch/csky/include/asm/Kbuild
 new file mode 100644
-index 0000000..82e4621
+index 0000000..2bd5334
 --- /dev/null
 +++ b/arch/csky/include/asm/Kbuild
-@@ -0,0 +1,68 @@
+@@ -0,0 +1,69 @@
 +generic-y += asm-offsets.h
 +generic-y += atomic.h
 +generic-y += auxvec.h
@@ -6532,6 +3713,7 @@ index 0000000..82e4621
 +generic-y += irq_work.h
 +generic-y += kdebug.h
 +generic-y += kmap_types.h
++generic-y += kprobes.h
 +generic-y += kvm_para.h
 +generic-y += linkage.h
 +generic-y += local.h
@@ -6920,16 +4102,20 @@ index 0000000..2d06a24
 +
 diff --git a/arch/csky/include/asm/dma-mapping.h b/arch/csky/include/asm/dma-mapping.h
 new file mode 100644
-index 0000000..3831516
+index 0000000..020fa73
 --- /dev/null
 +++ b/arch/csky/include/asm/dma-mapping.h
-@@ -0,0 +1,11 @@
+@@ -0,0 +1,15 @@
 +#ifndef __ASM_DMA_MAPPING_H
 +#define __ASM_DMA_MAPPING_H
 +
 +extern struct dma_map_ops csky_dma_map_ops;
 +
++#if (LINUX_VERSION_CODE < KERNEL_VERSION(4, 14, 0))
 +static inline struct dma_map_ops *get_dma_ops(struct device *dev)
++#else
++static inline struct dma_map_ops *get_arch_dma_ops(struct bus_type *bus)
++#endif
 +{
 +	return &csky_dma_map_ops;
 +}
@@ -7109,7 +4295,7 @@ index 0000000..5e52b66
 +#endif /* __ASM_CSKY_FCNTL_H */
 diff --git a/arch/csky/include/asm/fixmap.h b/arch/csky/include/asm/fixmap.h
 new file mode 100644
-index 0000000..7649a73
+index 0000000..d7ab79c
 --- /dev/null
 +++ b/arch/csky/include/asm/fixmap.h
 @@ -0,0 +1,63 @@
@@ -7173,7 +4359,7 @@ index 0000000..7649a73
 +#include <asm-generic/fixmap.h>
 +
 +#define kmap_get_fixmap_pte(vaddr) \
-+	pte_offset_kernel(pmd_offset(pud_offset(pgd_offset_k(vaddr), (vaddr)), (vaddr)), (vaddr))
++	pte_offset_kernel(pmd_offset((pud_t *)pgd_offset_k(vaddr), vaddr), (vaddr))
 +
 +#endif /* __ASM_CSKY_FIXMAP_H */
 diff --git a/arch/csky/include/asm/flat.h b/arch/csky/include/asm/flat.h
@@ -7544,28 +4730,25 @@ index 0000000..9b459f6
 +#endif /* __ASM_CSKY_HIGHMEM_H */
 diff --git a/arch/csky/include/asm/io.h b/arch/csky/include/asm/io.h
 new file mode 100644
-index 0000000..3a35b8c
+index 0000000..4cde4c2
 --- /dev/null
 +++ b/arch/csky/include/asm/io.h
-@@ -0,0 +1,24 @@
+@@ -0,0 +1,21 @@
 +#ifndef __ASM_CSKY_IO_H
 +#define __ASM_CSKY_IO_H
 +
 +#include <abi/pgtable-bits.h>
 +#include <linux/types.h>
++#include <linux/version.h>
 +
 +extern void __iomem *ioremap(phys_addr_t offset, size_t size);
-+
-+extern inline void *ioremap_nocache(phys_addr_t physaddr, unsigned long size)
-+{
-+	return ioremap(physaddr, size);
-+}
 +
 +extern void iounmap(void *addr);
 +
 +extern int remap_area_pages(unsigned long address, phys_addr_t phys_addr,
 +		size_t size, unsigned long flags);
 +
++#define ioremap_nocache(phy, sz)	ioremap(phy, sz)
 +#define ioremap_wc ioremap_nocache
 +#define ioremap_wt ioremap_nocache
 +
@@ -7703,10 +4886,10 @@ index 0000000..a01c8bf
 +#endif /* __ASM_CSKY_MMU_H */
 diff --git a/arch/csky/include/asm/mmu_context.h b/arch/csky/include/asm/mmu_context.h
 new file mode 100644
-index 0000000..43223bb
+index 0000000..7409695
 --- /dev/null
 +++ b/arch/csky/include/asm/mmu_context.h
-@@ -0,0 +1,154 @@
+@@ -0,0 +1,148 @@
 +#ifndef __ASM_CSKY_MMU_CONTEXT_H
 +#define __ASM_CSKY_MMU_CONTEXT_H
 +
@@ -7728,13 +4911,7 @@ index 0000000..43223bb
 + * in watch hi/lo. The context register should be used to contiguously
 + * map the page tables.
 + */
-+#ifdef CONFIG_MMU_HARD_REFILL
 +#define TLBMISS_HANDLER_SETUP_PGD(pgd) tlbmiss_handler_setup_pgd((unsigned long)pgd)
-+#else
-+#define TLBMISS_HANDLER_SETUP_PGD(pgd) \
-+	pgd_current[smp_processor_id()] = (unsigned long)(pgd)
-+extern unsigned long pgd_current[];
-+#endif /* CONFIG_MMU_HARD_REFILL */
 +
 +#define cpu_context(cpu, mm)	((mm)->context.asid[cpu])
 +#define cpu_asid(cpu, mm)	(cpu_context((cpu), (mm)) & ASID_MASK)
@@ -7979,10 +5156,10 @@ index 0000000..0814127
 +#endif /* __ASM_CSKY_PAGE_H */
 diff --git a/arch/csky/include/asm/pgalloc.h b/arch/csky/include/asm/pgalloc.h
 new file mode 100644
-index 0000000..dc0d6a5
+index 0000000..eddc315
 --- /dev/null
 +++ b/arch/csky/include/asm/pgalloc.h
-@@ -0,0 +1,124 @@
+@@ -0,0 +1,113 @@
 +#ifndef __ASM_CSKY_PGALLOC_H
 +#define __ASM_CSKY_PGALLOC_H
 +
@@ -7990,8 +5167,6 @@ index 0000000..dc0d6a5
 +#include <linux/mm.h>
 +#include <linux/sched.h>
 +
-+#ifdef CONFIG_MMU_HARD_REFILL
-+/* hard refill need fill PA. */
 +static inline void pmd_populate_kernel(struct mm_struct *mm, pmd_t *pmd,
 +        pte_t *pte)
 +{
@@ -8003,23 +5178,14 @@ index 0000000..dc0d6a5
 +{
 +        set_pmd(pmd, __pmd(__pa(page_address(pte))));
 +}
-+#else
-+static inline void pmd_populate_kernel(struct mm_struct *mm, pmd_t *pmd,
-+        pte_t *pte)
-+{
-+        set_pmd(pmd, __pmd((unsigned long)pte));
-+}
-+
-+static inline void pmd_populate(struct mm_struct *mm, pmd_t *pmd,
-+        pgtable_t pte)
-+{
-+        set_pmd(pmd, __pmd((unsigned long)page_address(pte)));
-+}
-+#endif
 +
 +#define pmd_pgtable(pmd) pmd_page(pmd)
 +
 +extern void pgd_init(unsigned long *p);
++
++#if (LINUX_VERSION_CODE < KERNEL_VERSION(4, 14, 0))
++#define __GFP_RETRY_MAYFAIL __GFP_REPEAT
++#endif
 +
 +static inline pte_t *pte_alloc_one_kernel(struct mm_struct *mm,
 +        unsigned long address)
@@ -8027,7 +5193,7 @@ index 0000000..dc0d6a5
 +        pte_t *pte;
 +	unsigned long *kaddr, i;
 +
-+	pte = (pte_t *) __get_free_pages(GFP_KERNEL | __GFP_REPEAT, PTE_ORDER);
++	pte = (pte_t *) __get_free_pages(GFP_KERNEL | __GFP_RETRY_MAYFAIL, PTE_ORDER);
 +	kaddr = (unsigned long *)pte;
 +	if (address & 0x80000000)
 +		for(i=0; i<(PAGE_SIZE/4); i++)
@@ -8044,7 +5210,7 @@ index 0000000..dc0d6a5
 +	struct page *pte;
 +	unsigned long *kaddr, i;
 +
-+        pte = alloc_pages(GFP_KERNEL | __GFP_REPEAT, PTE_ORDER);
++        pte = alloc_pages(GFP_KERNEL | __GFP_RETRY_MAYFAIL, PTE_ORDER);
 +        if (pte) {
 +		kaddr = kmap_atomic(pte);
 +		if (address & 0x80000000) {
@@ -8086,7 +5252,7 @@ index 0000000..dc0d6a5
 +                pgd_init((unsigned long *)ret);
 +                memcpy(ret + USER_PTRS_PER_PGD, init + USER_PTRS_PER_PGD,
 +                       (PTRS_PER_PGD - USER_PTRS_PER_PGD) * sizeof(pgd_t));
-+#if defined(CONFIG_MMU_HARD_REFILL) && !defined(__ck807__)
++#if !defined(__ck807__)
 +		cache_op_range((unsigned int)ret, (unsigned int)(ret + PTRS_PER_PGD)
 +			,DATA_CACHE|CACHE_CLR, 0);
 +#endif
@@ -8109,10 +5275,10 @@ index 0000000..dc0d6a5
 +
 diff --git a/arch/csky/include/asm/pgtable.h b/arch/csky/include/asm/pgtable.h
 new file mode 100644
-index 0000000..57aaab3
+index 0000000..03d0f9f
 --- /dev/null
 +++ b/arch/csky/include/asm/pgtable.h
-@@ -0,0 +1,378 @@
+@@ -0,0 +1,322 @@
 +#ifndef __ASM_CSKY_PGTABLE_H
 +#define __ASM_CSKY_PGTABLE_H
 +
@@ -8168,12 +5334,10 @@ index 0000000..57aaab3
 +#define pfn_pte(pfn, prot)		__pte(((unsigned long long)(pfn) << PAGE_SHIFT) \
 +						| pgprot_val(prot))
 +
-+#define __READABLE	(_PAGE_READ | _PAGE_SILENT_READ | _PAGE_ACCESSED)
-+#define __WRITEABLE	(_PAGE_WRITE | _PAGE_SILENT_WRITE | _PAGE_MODIFIED)
++#define __READABLE	(_PAGE_READ | _PAGE_VALID | _PAGE_ACCESSED)
++#define __WRITEABLE	(_PAGE_WRITE | _PAGE_DIRTY | _PAGE_MODIFIED)
 +
 +#define _PAGE_CHG_MASK  (PAGE_MASK | _PAGE_ACCESSED | _PAGE_MODIFIED | _CACHE_MASK)
-+
-+#define PTE_FILE_MAX_BITS 28
 +
 +#define pte_unmap(pte) ((void)(pte))
 +
@@ -8228,11 +5392,6 @@ index 0000000..57aaab3
 +static inline int pte_special(pte_t pte) { return 0; }
 +static inline pte_t pte_mkspecial(pte_t pte) { return pte; }
 +
-+/*
-+ * Empty pgd/pmd entries point to the invalid_pte_table.
-+ */
-+#ifdef CONFIG_MMU_HARD_REFILL
-+
 +#define __dcache_flush_line(x) \
 +	cache_op_line((u32)x, DATA_CACHE|CACHE_CLR);
 +
@@ -8262,11 +5421,11 @@ index 0000000..57aaab3
 +
 +#define pmd_phys(pmd) pmd_val(pmd)
 +
-+static inline void set_pmd(pmd_t *pmdptr, pmd_t pmdval)
++static inline void set_pmd(pmd_t *pmdp, pmd_t pmd)
 +{
-+	pmdptr->pud.pgd.pgd = pmdval.pud.pgd.pgd;
++	*pmdp = pmd;
 +#if !defined(__ck807__)
-+	__dcache_flush_line(&pmdptr->pud.pgd.pgd);
++	__dcache_flush_line(pmdp);
 +#endif
 +}
 +
@@ -8276,7 +5435,7 @@ index 0000000..57aaab3
 +	return pmd_val(pmd) == __pa(invalid_pte_table);
 +}
 +
-+#define pmd_bad(pmd)        (pmd_val(pmd) & ~PAGE_MASK)
++#define pmd_bad(pmd)	(pmd_val(pmd) & ~PAGE_MASK)
 +
 +static inline int pmd_present(pmd_t pmd)
 +{
@@ -8290,48 +5449,6 @@ index 0000000..57aaab3
 +	__dcache_flush_line(pmdp);
 +#endif
 +}
-+#else /* CONFIG_MMU_HARD_REFILL */
-+
-+#define set_pte(pteptr, pteval)                                 \
-+        do{                                                     \
-+                *(pteptr) = (pteval);                           \
-+        } while(0)
-+#define set_pte_at(mm,addr,ptep,pteval) set_pte(ptep,pteval)
-+
-+static inline pte_t *pmd_page_vaddr(pmd_t pmd)
-+{
-+	unsigned long ptr;
-+
-+	ptr = pmd_val(pmd);
-+
-+	return (pte_t *)ptr;
-+}
-+
-+#define pmd_phys(pmd)	virt_to_phys((void *)pmd_val(pmd))
-+
-+/*
-+ * (pmds are folded into pgds so this doesn't get actually called,
-+ * but the define is needed for a generic inline function.)
-+ */
-+#define set_pmd(pmdptr, pmdval)	(*(pmdptr) = pmdval)
-+
-+static inline int pmd_none(pmd_t pmd)
-+{
-+	return pmd_val(pmd) == (unsigned long) invalid_pte_table;
-+}
-+
-+#define pmd_bad(pmd)	(pmd_val(pmd) & ~PAGE_MASK)
-+
-+static inline int pmd_present(pmd_t pmd)
-+{
-+	return (pmd_val(pmd) != (unsigned long) invalid_pte_table);
-+}
-+
-+static inline void pmd_clear(pmd_t *pmdp)
-+{
-+	pmd_val(*pmdp) = ((unsigned long) invalid_pte_table);
-+}
-+#endif
 +
 +/*
 + * The following only work if pte_present() is true.
@@ -8339,7 +5456,7 @@ index 0000000..57aaab3
 + */
 +static inline int pte_read(pte_t pte)
 +{
-+	return (pte).pte_low & _PAGE_READ;
++	return pte.pte_low & _PAGE_READ;
 +}
 +
 +static inline int pte_write(pte_t pte)
@@ -8357,26 +5474,21 @@ index 0000000..57aaab3
 +	return (pte).pte_low & _PAGE_ACCESSED;
 +}
 +
-+static inline int pte_file(pte_t pte)
-+{
-+	return pte_val(pte) & _PAGE_FILE;
-+}
-+
 +static inline pte_t pte_wrprotect(pte_t pte)
 +{
-+	pte_val(pte) &= ~(_PAGE_WRITE | _PAGE_SILENT_WRITE);
++	pte_val(pte) &= ~(_PAGE_WRITE | _PAGE_DIRTY);
 +	return pte;
 +}
 +
 +static inline pte_t pte_mkclean(pte_t pte)
 +{
-+	pte_val(pte) &= ~(_PAGE_MODIFIED|_PAGE_SILENT_WRITE);
++	pte_val(pte) &= ~(_PAGE_MODIFIED|_PAGE_DIRTY);
 +	return pte;
 +}
 +
 +static inline pte_t pte_mkold(pte_t pte)
 +{
-+	pte_val(pte) &= ~(_PAGE_ACCESSED|_PAGE_SILENT_READ);
++	pte_val(pte) &= ~(_PAGE_ACCESSED|_PAGE_VALID);
 +	return pte;
 +}
 +
@@ -8384,7 +5496,7 @@ index 0000000..57aaab3
 +{
 +	pte_val(pte) |= _PAGE_WRITE;
 +	if (pte_val(pte) & _PAGE_MODIFIED)
-+		pte_val(pte) |= _PAGE_SILENT_WRITE;
++		pte_val(pte) |= _PAGE_DIRTY;
 +	return pte;
 +}
 +
@@ -8392,7 +5504,7 @@ index 0000000..57aaab3
 +{
 +	pte_val(pte) |= _PAGE_MODIFIED;
 +	if (pte_val(pte) & _PAGE_WRITE)
-+		pte_val(pte) |= _PAGE_SILENT_WRITE;
++		pte_val(pte) |= _PAGE_DIRTY;
 +	return pte;
 +}
 +
@@ -8400,7 +5512,7 @@ index 0000000..57aaab3
 +{
 +	pte_val(pte) |= _PAGE_ACCESSED;
 +	if (pte_val(pte) & _PAGE_READ)
-+		pte_val(pte) |= _PAGE_SILENT_READ;
++		pte_val(pte) |= _PAGE_VALID;
 +	return pte;
 +}
 +
@@ -8443,7 +5555,8 @@ index 0000000..57aaab3
 +#define mk_pte(page, pgprot)    pfn_pte(page_to_pfn(page), (pgprot))
 +static inline pte_t pte_modify(pte_t pte, pgprot_t newprot)
 +{
-+	return __pte((pte_val(pte) & _PAGE_CHG_MASK) | pgprot_val(newprot));
++	return __pte((pte_val(pte) & _PAGE_CHG_MASK) |
++		     (pgprot_val(newprot)));
 +}
 +
 +/* to find an entry in a page-table-directory */
@@ -8462,8 +5575,6 @@ index 0000000..57aaab3
 +extern pgd_t swapper_pg_dir[PTRS_PER_PGD];
 +extern void paging_init(void);
 +
-+extern void __update_tlb(struct vm_area_struct *vma, unsigned long address,
-+		pte_t pte);
 +extern void __update_cache(struct vm_area_struct *vma, unsigned long address,
 +		pte_t pte);
 +extern void show_jtlb_table(void);
@@ -8472,7 +5583,6 @@ index 0000000..57aaab3
 +		unsigned long address, pte_t *ptep)
 +{
 +	pte_t pte = *ptep;
-+	__update_tlb(vma, address, pte);
 +	__update_cache(vma, address, pte);
 +}
 +
@@ -9325,7 +6435,7 @@ index 0000000..236ff0d
 +#endif	/* _ASM_CSKY_THREAD_INFO_H */
 diff --git a/arch/csky/include/asm/tlb.h b/arch/csky/include/asm/tlb.h
 new file mode 100644
-index 0000000..8768c93
+index 0000000..31bb221
 --- /dev/null
 +++ b/arch/csky/include/asm/tlb.h
 @@ -0,0 +1,31 @@
@@ -9341,7 +6451,7 @@ index 0000000..8768c93
 +			INS_CACHE|DATA_CACHE|CACHE_CLR|CACHE_INV, 0); \
 +	}  while (0)
 +
-+#if defined(CONFIG_MMU_HARD_REFILL) && !defined(__ck807__)
++#if !defined(__ck807__)
 +/*
 + * FIXME: may be use function flush_tlb_range like other arch.
 + */
@@ -9544,10 +6654,10 @@ index 0000000..b43c3b4
 +#endif /* __ASM_CSKY_TRAPS_H */
 diff --git a/arch/csky/include/asm/uaccess.h b/arch/csky/include/asm/uaccess.h
 new file mode 100644
-index 0000000..0ca4e6b
+index 0000000..d45aa4b
 --- /dev/null
 +++ b/arch/csky/include/asm/uaccess.h
-@@ -0,0 +1,412 @@
+@@ -0,0 +1,419 @@
 +#ifndef __ASM_CSKY_UACCESS_H
 +#define __ASM_CSKY_UACCESS_H
 +
@@ -9560,6 +6670,7 @@ index 0000000..0ca4e6b
 +#include <linux/sched.h>
 +#include <linux/mm.h>
 +#include <linux/string.h>
++#include <linux/version.h>
 +#include <asm/segment.h>
 +
 +#define VERIFY_READ	0
@@ -9925,16 +7036,22 @@ index 0000000..0ca4e6b
 +unsigned long __generic_copy_from_user(void *to, const void *from, unsigned long n);
 +unsigned long __generic_copy_to_user(void *to, const void *from, unsigned long n);
 +
-+#define copy_from_user(to, from, n) __generic_copy_from_user(to, from, n)
-+#define copy_to_user(to, from, n) __generic_copy_to_user(to, from, n)
++#define raw_copy_from_user(to, from, n) __generic_copy_from_user(to, from, n)
++#define raw_copy_to_user(to, from, n) __generic_copy_to_user(to, from, n)
 +
-+#define __copy_from_user(to, from, n) copy_from_user(to, from, n)
-+#define __copy_to_user(to, from, n) copy_to_user(to, from, n)
++#if (LINUX_VERSION_CODE < KERNEL_VERSION(4, 14, 0))
++#define __copy_from_user(to, from, n) raw_copy_from_user(to, from, n)
++#define __copy_to_user(to, from, n) raw_copy_to_user(to, from, n)
++
++#define __copy_from_user_inatomic	__copy_from_user
++#define __copy_to_user_inatomic		__copy_to_user
++
++#define copy_from_user			__copy_from_user
++#define copy_to_user			__copy_to_user
++#endif
++
 +unsigned long clear_user(void *to, unsigned long n);
 +unsigned long __clear_user(void __user *to, unsigned long n);
-+
-+#define __copy_to_user_inatomic         __copy_to_user
-+#define __copy_from_user_inatomic       __copy_from_user
 +
 +long strncpy_from_user(char *dst, const char *src, long count);
 +long __strncpy_from_user(char *dst, const char *src, long count);
@@ -10090,15 +7207,16 @@ index 0000000..b6b2765
 +#endif /* __ASM_CSKY_VDSO_H */
 diff --git a/arch/csky/include/uapi/asm/Kbuild b/arch/csky/include/uapi/asm/Kbuild
 new file mode 100644
-index 0000000..0b86648
+index 0000000..18a1b1b
 --- /dev/null
 +++ b/arch/csky/include/uapi/asm/Kbuild
-@@ -0,0 +1,5 @@
+@@ -0,0 +1,6 @@
 +include include/uapi/asm-generic/Kbuild.asm
 +
 +header-y	+= cachectl.h
 +header-y	+= stat.h
 +
++generic-y	+= bpf_perf_event.h
 diff --git a/arch/csky/include/uapi/asm/cachectl.h b/arch/csky/include/uapi/asm/cachectl.h
 new file mode 100644
 index 0000000..c63285c
@@ -10353,12 +7471,15 @@ index 0000000..7081cb7
 +
 diff --git a/arch/csky/kernel/alignment.c b/arch/csky/kernel/alignment.c
 new file mode 100644
-index 0000000..870fa81
+index 0000000..a112edc
 --- /dev/null
 +++ b/arch/csky/kernel/alignment.c
-@@ -0,0 +1,532 @@
-+#include <linux/compiler.h>
+@@ -0,0 +1,543 @@
++#include <linux/sched.h>
++#include <linux/signal.h>
++#include <linux/ptrace.h>
 +#include <linux/kernel.h>
++#include <linux/mm.h>
 +#include <linux/errno.h>
 +#include <linux/string.h>
 +#include <linux/proc_fs.h>
@@ -10367,6 +7488,7 @@ index 0000000..870fa81
 +#include <linux/sched.h>
 +#include <linux/uaccess.h>
 +
++#include <asm/siginfo.h>
 +#include <asm/unaligned.h>
 +
 +extern void die_if_kernel(char *, struct pt_regs *, long);
@@ -10764,6 +7886,9 @@ index 0000000..870fa81
 +	u16 tinstr = 0;
 +	int (*handler)(unsigned long inst, struct pt_regs *regs) = NULL;
 +	int isize = 2;
++	siginfo_t info;
++
++
 +	mm_segment_t fs;
 +
 +	instrptr = instruction_pointer(regs);
@@ -10834,8 +7959,12 @@ index 0000000..870fa81
 +	if (ai_usermode & UM_FIXUP)
 +		goto fixup;
 +
-+	if (ai_usermode & UM_SIGNAL)
-+		force_sig(SIGBUS, current);
++	if (ai_usermode & UM_SIGNAL) {
++		info.si_code = NSIGBUS;
++		info.si_signo = SIGBUS;
++		info.si_errno = 0;
++		force_sig_info(SIGBUS, &info, current);
++	}
 +
 +	return;
 +}
@@ -11111,10 +8240,10 @@ index 0000000..998f8ae
 +
 diff --git a/arch/csky/kernel/entry.S b/arch/csky/kernel/entry.S
 new file mode 100644
-index 0000000..82a4707
+index 0000000..746811d
 --- /dev/null
 +++ b/arch/csky/kernel/entry.S
-@@ -0,0 +1,1047 @@
+@@ -0,0 +1,913 @@
 +#include <linux/linkage.h>
 +#include <abi/entry.h>
 +#include <abi/pgtable-bits.h>
@@ -11169,21 +8298,14 @@ index 0000000..82a4707
 +
 +.export handle_tlbinvalidl
 +.export handle_tlbmodified
-+.export handle_tlbmissinst
-+.export handle_tlbmissdata
 +.export tlbinvalidl
 +.export tlbinvalids
-+.export tlbmiss
 +.export readtlbinvalid
 +.export writetlbinvalid
 +.export handle_fpe
 +.export handle_illegal
 +
 +.import irq_stat
-+
-+#ifndef CONFIG_MMU_HARD_REFILL
-+.import pgd_current
-+#endif
 +
 +.data
 +sw_ksp:
@@ -11202,36 +8324,37 @@ index 0000000..82a4707
 +	mtcr    r6, ss3
 +	mtcr    a2, ss4
 +
-+	SET_CP_MMU
-+#ifdef CONFIG_MMU_HARD_REFILL
++	bgeni	a2, 31
++	WR_MCIR	a2
++	RD_MIR  a3
++	btsti   a3, 31     /* Is probe success ? */
++	bt      1f
++	bgeni	a2, 25
++	WR_MCIR	a2
++1:
 +	RD_PGDR	r6
 +	bclri   r6, 0
 +	lrw	a3, PHYS_OFFSET
 +	subu	r6, a3
 +	bseti	r6, 31
-+#else
-+	lrw     r6, (pgd_current)
-+	ldw     r6, (r6)
-+#endif
-+	RD_MEH	    a3
++
++	RD_MEH	a3
 +	mov     a2, a3
 +   	lsri    a2, _PGDIR_SHIFT
 +	lsli    a2, 2
 +	addu    r6, a2
 +	ldw     r6, (r6)
-+#ifdef CONFIG_MMU_HARD_REFILL
++
 +	lrw	a2, PHYS_OFFSET
 +	subu	r6, a2
 +	bseti	r6, 31
-+#endif
 +
 +	lsri    a3, PTE_INDX_SHIFT
 +	lrw     a2, PTE_INDX_MSK
 +	and     a3, a2
 +	addu    r6, a3
 +	ldw     a3, (r6)
-+	bgeni   a2, 31            /* move 0x80000000 to a2 */
-+	WR_MCIR	a2
++
 +	movi    a2, (_PAGE_PRESENT | _PAGE_READ)
 +	and     a3, a2
 +	cmpne   a3, a2
@@ -11248,36 +8371,12 @@ index 0000000..82a4707
 +	or      a3, a2
 +	stw     a3, (r6)
 +
-+	/*
-+	 * Below, fill a jTLB with two PTEs of which we have set one above.
-+	 * When do this, we make sure set Entrylo0 with the low PTE in Page
-+	 * Table, and Entrylo1 with the high one.
-+	 */
-+	bclri   r6, PTE_BIT
-+#ifdef __CSKYABIV1__
-+	ldw     a2, (r6, 4)
-+	lsri    a2, 6
-+	WR_MEL1 a2
-+	ldw     a2, (r6)
-+	lsri    a2, 6
-+	WR_MEL0 a2
-+#else
-+	ldw     a2, (r6, 4)
-+	WR_MEL1 a2
-+	ldw     a2, (r6)
-+	WR_MEL0    a2
-+#endif
++	movi	a2, 0x32
++	bseti	a2, 6
++	mtcr	r6, cr22
++	mtcr	a2, cr17
++	sync
 +
-+	RD_MIR  a3         /* Read MIR */
-+	bgeni   a2, 29     /* Use write index by default */
-+	btsti   a3, 31     /* Is probe success ? */
-+	bf      1f
-+	bgeni   a2, 25
-+	WR_MCIR a2
-+	bgeni   a2, 28     /* If probe failed, invalid index and write random */
-+
-+1:
-+	WR_MCIR a2
 +	mfcr    a3, ss2
 +	mfcr    r6, ss3
 +	mfcr    a2, ss4
@@ -11289,7 +8388,6 @@ index 0000000..82a4707
 +	mfcr    a2, ss4
 +	SAVE_ALL
 +
-+	SET_CP_MMU
 +	RD_MEH	a3
 +	bmaski  r8, 12
 +	andn    a3, r8             /* r8 = !(0xfffff000) */
@@ -11310,17 +8408,19 @@ index 0000000..82a4707
 +	mtcr    r6, ss3
 +	mtcr    a2, ss4
 +
-+	SET_CP_MMU
-+#ifdef CONFIG_MMU_HARD_REFILL
++	bgeni	a2, 31
++	WR_MCIR	a2
++	RD_MIR  a3
++	btsti   a3, 31     /* Is probe success ? */
++	bt      1f
++	bgeni	a2, 25
++	WR_MCIR	a2
++1:
 +	RD_PGDR	r6
 +	bclri   r6, 0
 +	lrw	a3, PHYS_OFFSET
 +	subu	r6, a3
 +	bseti	r6, 31
-+#else
-+ 	lrw 	r6, pgd_current
-+	ldw     r6, (r6)
-+#endif
 +
 +	RD_MEH	a3
 +	mov     a2, a3
@@ -11328,19 +8428,16 @@ index 0000000..82a4707
 +	lsli    a2, 2
 +	addu    r6, a2
 +	ldw     r6, (r6)
-+#ifdef CONFIG_MMU_HARD_REFILL
++
 +	lrw	a2, PHYS_OFFSET
 +	subu	r6, a2
 +	bseti   r6, 31
-+#endif
 +
 +	lsri    a3, PTE_INDX_SHIFT
 +	lrw     a2, PTE_INDX_MSK
 +	and     a3, a2
 +	addu    r6, a3
 +	ldw     a3, (r6)
-+	bgeni   a2, 31           /* TLB probe command, a2 = 0x80000000 */
-+	WR_MCIR	a2
 +	movi    a2, (_PAGE_PRESENT | _PAGE_WRITE)
 +	and     a3, a2
 +	xor     a3, a2
@@ -11361,36 +8458,12 @@ index 0000000..82a4707
 +
 +	or      a3, a2
 +	stw     a3, (r6)
-+	/*
-+	 * Below, fill a jTLB with two PTEs of which we have set one above.
-+	 * When do this, we make sure set Entrylo0 with the low PTE in Page
-+	 * Table, and Entrylo1 with the high one.
-+	 */
-+	bclri   r6, PTE_BIT
-+#ifdef __CSKYABIV1__
-+	ldw     a2, (r6,4)
-+	lsri    a2, 6
-+	WR_MEL1	a2
-+	ldw 	a2, (r6)
-+	lsri	a2, 6
-+	WR_MEL0	a2
-+#else
-+	ldw     a2, (r6,4)
-+	WR_MEL1 a2
-+	ldw     a2, (r6)
-+	WR_MEL0 a2
-+#endif
-+
-+	RD_MIR  a3         /* Read MIR */
-+	bgeni   a2, 29     /* Use write index by default */
-+	btsti   a3, 31     /* Is probe success ? */
-+	bf      1f
-+	bgeni   a2, 25
-+	WR_MCIR a2
-+	bgeni   a2, 28     /* If probe failed, invalid index and write random */
-+
-+1:
-+	WR_MCIR	a2
++	
++	movi	a2, 0x32
++	bseti 	a2, 6
++	mtcr    r6, cr22
++	mtcr	a2, cr17
++	sync
 +
 +	mfcr    a3, ss2
 +	mfcr    r6, ss3
@@ -11403,7 +8476,6 @@ index 0000000..82a4707
 +	mfcr    a2, ss4
 +	SAVE_ALL
 +
-+	SET_CP_MMU
 +	RD_MEH	    a3
 +	bmaski  r8, 12
 +	andn    a3, r8          /* r8 = !(0xfffff000) */
@@ -11414,49 +8486,6 @@ index 0000000..82a4707
 +	jbsr    (do_page_fault)
 +	movi    r11_sig, 0             /* r11 = 0, Not a syscall. */
 +	jmpi    (ret_from_exception)
-+
-+/*
-+ * Tlbmiss exception handle routine.
-+ */
-+ENTRY(handle_tlbmiss)
-+tlbmiss:
-+#ifndef CONFIG_MMU_HARD_REFILL
-+	lrw     a0, (pgd_current)
-+	ldw     a0, (a0)
-+
-+	SET_CP_MMU
-+	RD_MEH  a1
-+#ifdef __CSKYABIV1__
-+	mov     a2, a1
-+	lsri    a2, _PGDIR_SHIFT
-+	ixw     a0, a2
-+	ldw     a0, (a0)
-+
-+	lsri    a1, PTE_INDX_SHIFT
-+	lrw     a2, PTE_INDX_MSK
-+	and     a1, a2
-+	addu    a0, a1
-+	bclri   a0, PTE_BIT
-+	ldw     a1, (a0)
-+	lsri    a1, 6
-+	WR_MEL0 a1
-+	ldw     a1, (a0, 4)
-+	lsri    a1, 6
-+	WR_MEL1 a1
-+#else
-+#error ck8xx only hardrefill for tlbmiss, because some no shadow regs
-+#endif
-+
-+	bgeni   a1, 28           /* TLB write random command, r5 = 0x10000000 */
-+	WR_MCIR a1
-+#endif
-+	/*
-+	 * clear TP in psr[13]
-+	 */
-+	mfcr    a1, epsr
-+	bclri   a1, 13
-+	mtcr    a1, epsr
-+	rte
 +
 +/*
 + * Tlbmodified exception handle routine.
@@ -11473,42 +8502,36 @@ index 0000000..82a4707
 +	bclri   a3, 13
 +	mtcr    a3, epsr
 +
-+	SET_CP_MMU
-+#ifdef CONFIG_MMU_HARD_REFILL
++	bgeni	a2, 31
++	WR_MCIR	a2
++	RD_MIR  a3
++	btsti   a3, 31
++	bt      1f
++	bgeni	a2, 25
++	WR_MCIR	a2
++1:
 +	RD_PGDR	r6
 +	bclri   r6, 0
 +	lrw	a3, PHYS_OFFSET
 +	subu	r6, a3
 +	bseti   r6, 31
-+#else
-+	lrw     r6, (pgd_current)
-+	ldw     r6, (r6)
-+#endif
 +
 +	RD_MEH  a3
 +	mov     a2, a3
 +	lsri    a2, _PGDIR_SHIFT
 +	lsli    a2, 2
 +	addu    r6, a2
-+
-+	/*
-+	 * get pte table to r6
-+	 */
 +	ldw     r6, (r6)
-+#ifdef CONFIG_MMU_HARD_REFILL
++
 +	lrw	a2, PHYS_OFFSET
 +	subu	r6, a2
 +	bseti   r6, 31
-+#endif
 +
 +	lsri    a3, PTE_INDX_SHIFT
 +	lrw     a2, PTE_INDX_MSK
 +	and     a3, a2
 +	addu    r6, a3
 +	ldw     a3, (r6)/* get pte to a3*/
-+
-+	bgeni   a2, 31	/* TLB probe command, a2 = 0x80000000 */
-+	WR_MCIR	a2	/* find faulting entry */
 +
 +	/*
 +	 * if _PAGE_WRITE == 0, goto tlbmodified.
@@ -11533,32 +8556,11 @@ index 0000000..82a4707
 +	or      a3, a2
 +	stw     a3, (r6)
 +
-+	/* Now reload the entry into the tlb. */
-+	bclri   r6, PTE_BIT
-+#ifdef __CSKYABIV1__
-+	ldw     a2, (r6, 4)
-+	lsri    a2, 6
-+	WR_MEL1	a2
-+	ldw     a2, (r6)
-+	lsri    a2, 6
-+	WR_MEL0	a2
-+#else
-+	ldw     a2, (r6, 4)
-+	WR_MEL1 a2
-+	ldw     a2, (r6)
-+	WR_MEL0 a2
-+#endif
-+
-+	RD_MIR  a3         /* Read MIR */
-+	bgeni   a2, 29     /* Use write index by default */
-+	btsti   a3, 31     /* Is probe success ? */
-+	bf      1f
-+	bgeni   a2, 25
-+	WR_MCIR a2
-+	bgeni   a2, 28     /* If probe failed, invalid index and write random */
-+
-+1:
-+	WR_MCIR	a2
++	movi	a2, 0x32
++	bseti 	a2, 6
++	mtcr    r6, cr22
++	mtcr	a2, cr17
++	sync
 +
 +	mfcr    a3, ss2
 +	mfcr    r6, ss3
@@ -11572,7 +8574,6 @@ index 0000000..82a4707
 +	SAVE_ALL
 +	kuser_cmpxchg_check
 +
-+	SET_CP_MMU
 +	RD_MEH	a3
 +	bmaski  r8, 12
 +	andn    a3, r8          /* a3 = a3 & (~0xfff) */
@@ -11589,7 +8590,6 @@ index 0000000..82a4707
 + */
 +ENTRY(buserr)
 +	SAVE_ALL
-+	SET_SMOD_MMU_CP15
 +	movi    r11_sig, 0        /* r11 = 0, Not a syscall. use in signal handle */
 +	mov     a0, sp            /* Stack address is arg[0] */
 +	jbsr    buserr_c          /* Call C level handler */
@@ -11597,7 +8597,6 @@ index 0000000..82a4707
 +
 +ENTRY(system_call)
 +	SAVE_ALL
-+	SET_SMOD_MMU_CP15
 +
 +	/*
 +	 * Do not use r2-r7 here, because the arguments are saved in r2-r6
@@ -11766,7 +8765,6 @@ index 0000000..82a4707
 +
 +ENTRY(trap)
 +	SAVE_ALL
-+	SET_SMOD_MMU_CP15
 +
 +	movi     r11_sig, 0             /* r11 = 0, Not a syscall. */
 +	mfcr     a0, psr                /* Get psr register */
@@ -11793,7 +8791,6 @@ index 0000000..82a4707
 + */
 +ENTRY(alignment)
 +	SAVE_ALL
-+	SET_SMOD_MMU_CP15
 +	psrset   ee                     /* Enable Exception */
 +	movi     r11_sig, 0             /* r11 = 0, Not a syscall. */
 +	mov      a0, sp                 /* Push Stack pointer arg */
@@ -11980,7 +8977,6 @@ index 0000000..82a4707
 + */
 +ENTRY(inthandler)
 +	SAVE_ALL
-+	SET_SMOD_MMU_CP15
 +	psrset	ee				/* Enable exceptions */
 +
 +	movi	r11_sig, 0			/* r11 = 0, Not a syscall. */
@@ -12028,7 +9024,6 @@ index 0000000..82a4707
 +
 +ENTRY(autohandler)
 +	SAVE_ALL
-+	SET_SMOD_MMU_CP15
 +	psrset  ee       // enable exception
 +	movi    r11_sig, 0                   /* r11 = 0, Not a syscall. */
 +
@@ -13051,12 +10046,22 @@ index 0000000..126b674
 +
 diff --git a/arch/csky/kernel/process.c b/arch/csky/kernel/process.c
 new file mode 100644
-index 0000000..2cea5fa
+index 0000000..5fdc0de
 --- /dev/null
 +++ b/arch/csky/kernel/process.c
-@@ -0,0 +1,171 @@
-+#include <linux/sched.h>
+@@ -0,0 +1,181 @@
 +#include <linux/module.h>
++#include <linux/version.h>
++#include <linux/sched.h>
++#if (LINUX_VERSION_CODE >= KERNEL_VERSION(4, 14, 0))
++#include <linux/sched/task_stack.h>
++#include <linux/sched/debug.h>
++#endif
++#include <linux/delay.h>
++#include <linux/kallsyms.h>
++#include <linux/uaccess.h>
++#include <asm/elf.h>
++#include <linux/ptrace.h>
 +
 +struct cpuinfo_csky cpu_data[NR_CPUS];
 +
@@ -13228,7 +10233,7 @@ index 0000000..2cea5fa
 +
 diff --git a/arch/csky/kernel/ptrace.c b/arch/csky/kernel/ptrace.c
 new file mode 100644
-index 0000000..4ced657
+index 0000000..9930cd5
 --- /dev/null
 +++ b/arch/csky/kernel/ptrace.c
 @@ -0,0 +1,289 @@
@@ -13363,7 +10368,7 @@ index 0000000..4ced657
 +	if (!access_ok(VERIFY_WRITE, data, sizeof(struct user_cskyfp_struct)))
 +		return -EIO;
 +
-+	if(copy_to_user(data, &child->thread.fcr,
++	if(raw_copy_to_user(data, &child->thread.fcr,
 +				sizeof(struct user_cskyfp_struct)))
 +		return -EFAULT;
 +
@@ -13375,7 +10380,7 @@ index 0000000..4ced657
 +	if (!access_ok(VERIFY_READ, data, sizeof(struct user_cskyfp_struct)))
 +		return -EIO;
 +
-+	if(copy_from_user(&child->thread.fcr, data,
++	if(raw_copy_from_user(&child->thread.fcr, data,
 +				sizeof(struct user_cskyfp_struct)))
 +		return -EFAULT;
 +	return 0;
@@ -14305,17 +11310,21 @@ index 0000000..f71b09f
 +};
 diff --git a/arch/csky/kernel/time.c b/arch/csky/kernel/time.c
 new file mode 100644
-index 0000000..8334a75
+index 0000000..107dd64
 --- /dev/null
 +++ b/arch/csky/kernel/time.c
-@@ -0,0 +1,9 @@
+@@ -0,0 +1,13 @@
 +#include <linux/clk-provider.h>
 +#include <linux/clocksource.h>
 +
 +void __init time_init(void)
 +{
 +	of_clk_init(NULL);
++#if (LINUX_VERSION_CODE < KERNEL_VERSION(4, 14, 0)) 
 +	clocksource_probe();
++#else
++	timer_probe();
++#endif
 +}
 +
 diff --git a/arch/csky/kernel/timer-nationalchip.c b/arch/csky/kernel/timer-nationalchip.c
@@ -14473,10 +11482,10 @@ index 0000000..2641c19
 +
 diff --git a/arch/csky/kernel/traps.c b/arch/csky/kernel/traps.c
 new file mode 100644
-index 0000000..4ba1760
+index 0000000..2c4cab0
 --- /dev/null
 +++ b/arch/csky/kernel/traps.c
-@@ -0,0 +1,540 @@
+@@ -0,0 +1,542 @@
 +#include <linux/sched.h>
 +#include <linux/signal.h>
 +#include <linux/kernel.h>
@@ -14517,7 +11526,6 @@ index 0000000..4ba1760
 +asmlinkage void handle_tlbinvalidl(void);
 +asmlinkage void handle_tlbinvalids(void);
 +asmlinkage void handle_tlbmodified(void);
-+asmlinkage void handle_tlbmiss(void);
 +asmlinkage void handle_fpe(void);
 +asmlinkage void handle_illegal(void);
 +
@@ -14574,7 +11582,6 @@ index 0000000..4ba1760
 +	_ramvec[VEC_TLBINVALIDL] = handle_tlbinvalidl;
 +	_ramvec[VEC_TLBINVALIDS] = handle_tlbinvalids;
 +	_ramvec[VEC_TLBMODIFIED] = handle_tlbmodified;
-+	_ramvec[VEC_TLBMISS] = (void *)((unsigned int)handle_tlbmiss | 0x1);
 +	_ramvec[VEC_ILLEGAL] = handle_illegal;
 +	_ramvec[VEC_FPE] = handle_fpe;
 +}
@@ -14589,6 +11596,8 @@ index 0000000..4ba1760
 +
 +asmlinkage void buserr_c(struct frame *fp)
 +{
++	siginfo_t info;
++
 +	printk("%s(%d): Bus Error Trap\n", __FILE__, __LINE__);
 +	show_registers((struct pt_regs *) fp);
 +	/* Only set esp0 if coming from user mode */
@@ -14597,7 +11606,9 @@ index 0000000..4ba1760
 +    } else{
 +		die_if_kernel("Kernel mode BUS error", (struct pt_regs *)fp, 0);
 +    }
-+	force_sig(SIGSEGV, current);
++	info.si_signo = SIGSEGV;
++	info.si_errno = 0;
++	force_sig_info(SIGSEGV, &info, current);
 +}
 +
 +int kstack_depth_to_print = 48;
@@ -14887,11 +11898,11 @@ index 0000000..4ba1760
 +			info.si_code = FPE_FLTRES;
 +		}
 +		else {
-+		info.si_code = __SI_FAULT;
++		info.si_code = NSIGFPE;
 +		}
 +	}
 +	else {
-+		info.si_code = __SI_FAULT;
++		info.si_code = NSIGFPE;
 +		sig = SIGFPE;
 +	}
 +	info.si_signo = SIGFPE;
@@ -15983,22 +12994,23 @@ index 0000000..ac613c1
 +                 
 diff --git a/arch/csky/mm/Makefile b/arch/csky/mm/Makefile
 new file mode 100644
-index 0000000..e985a9c
+index 0000000..2af53f4
 --- /dev/null
 +++ b/arch/csky/mm/Makefile
-@@ -0,0 +1,6 @@
+@@ -0,0 +1,7 @@
 +obj-y := 			cache.o
++obj-y +=			dma-mapping.o
++obj-y +=			fault.o
++obj-$(CONFIG_HIGHMEM) +=	highmem.o
 +obj-y +=			init.o
 +obj-y +=			ioremap.o
-+obj-y +=			fault.o
-+obj-y +=			dma-mapping.o
-+obj-$(CONFIG_HIGHMEM) +=	highmem.o
++obj-y +=			tlb.o
 diff --git a/arch/csky/mm/cache.c b/arch/csky/mm/cache.c
 new file mode 100644
-index 0000000..d7c54f7
+index 0000000..53d9965
 --- /dev/null
 +++ b/arch/csky/mm/cache.c
-@@ -0,0 +1,143 @@
+@@ -0,0 +1,142 @@
 +#include <linux/kernel.h>
 +#include <linux/mm.h>
 +#include <linux/fs.h>
@@ -16019,21 +13031,21 @@ index 0000000..d7c54f7
 +		"mtcr	%1, cr17\n\t" \
 +		::"r"(i), "r"(value))
 +
-+#define CCR2_L2E (1 << 3)
++#define __cache_op_line_atomic(i, value) \
++	__asm__ __volatile__( \
++		"idly4\n\t" \
++		"mtcr	%0, cr22\n\t" \
++		"mtcr	%1, cr17\n\t" \
++		"sync\n\t" \
++		::"r"(i), "r"(value))
++
 +void
 +cache_op_line(unsigned int i, unsigned int value)
 +{
-+	unsigned long flags;
-+	spin_lock_irqsave(&cache_lock, flags);
-+	__cache_op_line(i, value | CACHE_CLR | CACHE_OMS);
-+	spin_unlock_irqrestore(&cache_lock, flags);
-+
-+	if (mfcr_ccr2() & CCR2_L2E)
-+		L1_SYNC;
-+	else
-+		__asm__ __volatile__("sync\n\t");
++	__cache_op_line_atomic(i, value | CACHE_CLR | CACHE_OMS);
 +}
 +
++#define CCR2_L2E (1 << 3)
 +void
 +cache_op_all(unsigned int value, unsigned int l2)
 +{
@@ -16041,18 +13053,14 @@ index 0000000..d7c54f7
 +		"mtcr	%0, cr17\n\t"
 +		::"r"(value | CACHE_CLR));
 +
-+	if (mfcr_ccr2() & CCR2_L2E) {
-+		L1_SYNC;
-+		if (l2) goto flush_l2;
-+	} else
-+		__asm__ __volatile__("sync\n\t");
++	__asm__ __volatile__("sync\n\t");
 +
-+	return;
-+flush_l2:
-+	__asm__ __volatile__(
-+		"mtcr	%0, cr24\n\t"
-+		"sync\n\t"
-+		::"r"(value));
++	if (l2 && (mfcr_ccr2() & CCR2_L2E)) {
++		__asm__ __volatile__(
++			"mtcr	%0, cr24\n\t"
++			"sync\n\t"
++			::"r"(value));
++	}
 +}
 +
 +#define FLUSH_MAX PAGE_SIZE
@@ -16066,7 +13074,7 @@ index 0000000..d7c54f7
 +{
 +	unsigned long i, flags;
 +	unsigned int val = value | CACHE_CLR | CACHE_OMS;
-+	unsigned int l2_en = mfcr_ccr2() & CCR2_L2E;
++	bool l2_sync;
 +
 +	if (unlikely((end - start) >= FLUSH_MAX) ||
 +	    unlikely(start < PAGE_OFFSET) ||
@@ -16075,20 +13083,23 @@ index 0000000..d7c54f7
 +		return;
 +	}
 +
++	if ((mfcr_ccr2() & CCR2_L2E) && l2)
++		l2_sync = 1;
++	else
++		l2_sync = 0;
 +
++	spin_lock_irqsave(&cache_lock, flags);
 +	for(i = start; i < end; i += L1_CACHE_BYTES) {
-+		spin_lock_irqsave(&cache_lock, flags);
 +		__cache_op_line(i, val);
-+		if (l2_en) {
-+			L1_SYNC;
-+			if (l2) __asm__ __volatile__(
++		if (l2_sync) {
++			__asm__ __volatile__(
++				"sync\n\t");
++			__asm__ __volatile__(
 +				"mtcr	%0, cr24\n\t"
 +				::"r"(val));
 +		}
-+		spin_unlock_irqrestore(&cache_lock, flags);
 +	}
-+
-+	if(l2_en && !l2) return;
++	spin_unlock_irqrestore(&cache_lock, flags);
 +
 +	__asm__ __volatile__("sync\n\t");
 +}
@@ -16144,10 +13155,10 @@ index 0000000..d7c54f7
 +
 diff --git a/arch/csky/mm/dma-mapping.c b/arch/csky/mm/dma-mapping.c
 new file mode 100644
-index 0000000..1dfa6cf
+index 0000000..fc1d910
 --- /dev/null
 +++ b/arch/csky/mm/dma-mapping.c
-@@ -0,0 +1,285 @@
+@@ -0,0 +1,284 @@
 +#include <linux/types.h>
 +#include <linux/mm.h>
 +#include <linux/dma-mapping.h>
@@ -16429,16 +13440,15 @@ index 0000000..1dfa6cf
 +
 +	.mapping_error		= csky_dma_mapping_error,
 +	.dma_supported		= csky_dma_supported,
-+	.set_dma_mask		= NULL,
 +};
 +EXPORT_SYMBOL(csky_dma_map_ops);
 +
 diff --git a/arch/csky/mm/fault.c b/arch/csky/mm/fault.c
 new file mode 100755
-index 0000000..9570ec8
+index 0000000..ebb31c3
 --- /dev/null
 +++ b/arch/csky/mm/fault.c
-@@ -0,0 +1,265 @@
+@@ -0,0 +1,262 @@
 +#include <linux/signal.h>
 +#include <linux/module.h>
 +#include <linux/sched.h>
@@ -16454,6 +13464,7 @@ index 0000000..9570ec8
 +#include <linux/version.h>
 +#include <linux/vt_kern.h>
 +#include <linux/kernel.h>
++#include <linux/extable.h>
 +
 +#include <asm/hardirq.h>
 +#include <asm/mmu_context.h>
@@ -16673,21 +13684,17 @@ index 0000000..9570ec8
 +                pmd_t *pmd, *pmd_k;
 +                pte_t *pte_k;
 +
-+#ifdef CONFIG_MMU_HARD_REFILL
 +                unsigned long pgd_base;
 +		pgd_base = tlb_get_pgd();
 +                pgd = (pgd_t *)pgd_base + offset;
-+#else
-+                pgd = (pgd_t *) pgd_current[raw_smp_processor_id()] + offset;
-+#endif /* CONFIG_MMU_HARD_REFILL */
 +                pgd_k = init_mm.pgd + offset;
 +
 +                if (!pgd_present(*pgd_k))
 +                        goto no_context;
 +                set_pgd(pgd, *pgd_k);
 +
-+                pud = pud_offset(pgd, address);
-+                pud_k = pud_offset(pgd_k, address);
++                pud = (pud_t *)pgd;
++                pud_k = (pud_t *)pgd_k;
 +                if (!pud_present(*pud_k))
 +                        goto no_context;
 +
@@ -16706,10 +13713,10 @@ index 0000000..9570ec8
 +
 diff --git a/arch/csky/mm/highmem.c b/arch/csky/mm/highmem.c
 new file mode 100644
-index 0000000..5aa6818
+index 0000000..c1631b9
 --- /dev/null
 +++ b/arch/csky/mm/highmem.c
-@@ -0,0 +1,213 @@
+@@ -0,0 +1,208 @@
 +#include <linux/module.h>
 +#include <linux/highmem.h>
 +#include <linux/smp.h>
@@ -16863,12 +13870,7 @@ index 0000000..5aa6818
 +			for (; (k < PTRS_PER_PMD) && (vaddr != end); pmd++, k++) {
 +				if (pmd_none(*pmd)) {
 +					pte = (pte_t *) alloc_bootmem_low_pages(PAGE_SIZE);
-+#ifdef CONFIG_MMU_HARD_REFILL
-+/* hard refill need fill PA. */
 +					set_pmd(pmd, __pmd(__pa(pte)));
-+#else
-+					set_pmd(pmd, __pmd((unsigned long)pte));
-+#endif
 +					BUG_ON(pte != pte_offset_kernel(pmd, 0));
 +				}
 +				vaddr += PMD_SIZE;
@@ -16906,7 +13908,7 @@ index 0000000..5aa6818
 +	fixrange_init(vaddr, vaddr + PAGE_SIZE*LAST_PKMAP, pgd_base);
 +
 +	pgd = swapper_pg_dir + __pgd_offset(vaddr);
-+	pud = pud_offset(pgd, vaddr);
++	pud = (pud_t *)pgd;
 +	pmd = pmd_offset(pud, vaddr);
 +	pte = pte_offset_kernel(pmd, vaddr);
 +	pkmap_page_table = pte;
@@ -16925,10 +13927,10 @@ index 0000000..5aa6818
 +}
 diff --git a/arch/csky/mm/init.c b/arch/csky/mm/init.c
 new file mode 100644
-index 0000000..281f5ab
+index 0000000..5852dac
 --- /dev/null
 +++ b/arch/csky/mm/init.c
-@@ -0,0 +1,122 @@
+@@ -0,0 +1,114 @@
 +#include <linux/bug.h>
 +#include <linux/module.h>
 +#include <linux/init.h>
@@ -16960,10 +13962,6 @@ index 0000000..281f5ab
 +
 +#ifdef CONFIG_DISCONTIGMEM
 +#error "CONFIG_HIGHMEM and CONFIG_DISCONTIGMEM dont work together yet"
-+#endif
-+
-+#ifndef CONFIG_MMU_HARD_REFILL
-+unsigned long pgd_current[NR_CPUS];
 +#endif
 +
 +pgd_t swapper_pg_dir[PTRS_PER_PGD] __page_aligned_bss;
@@ -17033,11 +14031,7 @@ index 0000000..281f5ab
 +{
 +	int i;
 +
-+#ifdef CONFIG_MMU_HARD_REFILL
 +#define val	(unsigned long) __pa(invalid_pte_table);
-+#else
-+#define val	(unsigned long) invalid_pte_table;
-+#endif
 +
 +	for (i = 0; i < USER_PTRS_PER_PGD*2; i+=8) {
 +		p[i + 0] = val;
@@ -17104,6 +14098,183 @@ index 0000000..1b75798
 +}
 +EXPORT_SYMBOL(iounmap);
 +
+diff --git a/arch/csky/mm/tlb.c b/arch/csky/mm/tlb.c
+new file mode 100644
+index 0000000..dd9db37
+--- /dev/null
++++ b/arch/csky/mm/tlb.c
+@@ -0,0 +1,171 @@
++#include <linux/init.h>
++#include <linux/sched.h>
++#include <linux/mm.h>
++
++#include <asm/setup.h>
++#include <asm/mmu_context.h>
++#include <linux/module.h>
++#include <asm/pgtable.h>
++#include <abi/ckmmu.h>
++
++void local_flush_tlb_all(void)
++{
++	tlb_invalid_all();
++}
++
++void local_flush_tlb_mm(struct mm_struct *mm)
++{
++	int cpu = smp_processor_id();
++
++	if (cpu_context(cpu, mm) != 0)
++		drop_mmu_context(mm,cpu);
++}
++
++void local_flush_tlb_range(struct vm_area_struct *vma, unsigned long start,
++			   unsigned long end)
++{
++	struct mm_struct *mm = vma->vm_mm;
++	int cpu = smp_processor_id();
++
++	if (cpu_context(cpu, mm) != 0) {
++		unsigned long size, flags;
++
++		local_irq_save(flags);
++		size = (end - start + (PAGE_SIZE - 1)) >> PAGE_SHIFT;
++		size = (size + 1) >> 1;
++		if (size <= CSKY_TLB_SIZE/2) {
++			int oldpid = read_mmu_entryhi();
++			int newpid = cpu_asid(cpu, mm);
++
++			start &= (PAGE_MASK << 1);
++			end += ((PAGE_SIZE << 1) - 1);
++			end &= (PAGE_MASK << 1);
++			while (start < end) {
++				int idx;
++
++				write_mmu_entryhi(start | newpid);
++				start += (PAGE_SIZE << 1);
++				tlb_probe();
++				idx = read_mmu_index();
++				if (idx >= 0)
++					tlb_invalid_indexed();
++			}
++			write_mmu_entryhi(oldpid);
++		} else {
++			drop_mmu_context(mm, cpu);
++		}
++		local_irq_restore(flags);
++	}
++}
++
++void local_flush_tlb_kernel_range(unsigned long start, unsigned long end)
++{
++        unsigned long size, flags;
++
++        local_irq_save(flags);
++        size = (end - start + (PAGE_SIZE - 1)) >> PAGE_SHIFT;
++        if (size <= CSKY_TLB_SIZE) {
++                int oldpid = read_mmu_entryhi();
++
++                start &= PAGE_MASK;
++                end += PAGE_SIZE - 1;
++                end &= PAGE_MASK;
++
++                while (start < end) {
++                        int idx;
++                        write_mmu_entryhi(start);
++                        start += PAGE_SIZE;             /* BARRIER */
++                        tlb_probe();
++                        idx = read_mmu_index();
++                        if (idx >= 0)
++                                tlb_invalid_indexed();
++                }
++                write_mmu_entryhi(oldpid);
++        } else {
++                local_flush_tlb_all();
++        }
++        local_irq_restore(flags);
++}
++
++void local_flush_tlb_page(struct vm_area_struct *vma, unsigned long page)
++{
++	int cpu = smp_processor_id();
++
++	if (!vma || cpu_context(cpu, vma->vm_mm) != 0) {
++		unsigned long flags;
++		int oldpid, newpid, idx;
++
++		newpid = cpu_asid(cpu, vma->vm_mm);
++		page &= (PAGE_MASK << 1);
++		local_irq_save(flags);
++		oldpid = read_mmu_entryhi();
++		write_mmu_entryhi(page | newpid);
++		tlb_probe();
++		idx = read_mmu_index();
++		if(idx >= 0)
++			tlb_invalid_indexed();
++		write_mmu_entryhi(oldpid);
++		local_irq_restore(flags);
++	}
++}
++
++/*
++ * Remove one kernel space TLB entry.  This entry is assumed to be marked
++ * global so we don't do the ASID thing.
++ */
++void local_flush_tlb_one(unsigned long page)
++{
++	unsigned long flags;
++	int oldpid, idx;
++
++	page &= (PAGE_MASK << 1);
++	oldpid = read_mmu_entryhi();
++
++	local_irq_save(flags);
++	page = page | (oldpid & 0xff);
++	write_mmu_entryhi(page);
++	tlb_probe();
++	idx = read_mmu_index();
++	if (idx >= 0)
++		tlb_invalid_indexed();
++	write_mmu_entryhi(oldpid);
++	local_irq_restore(flags);
++}
++
++EXPORT_SYMBOL(local_flush_tlb_one);
++
++/* show current 32 jtlbs */
++void show_jtlb_table(void)
++{
++	unsigned long flags;
++	int entryhi, entrylo0, entrylo1;
++	int entry;
++	int oldpid;
++
++	local_irq_save(flags);
++	entry = 0;
++	printk("\n\n\n");
++
++	oldpid = read_mmu_entryhi();
++	while (entry < CSKY_TLB_SIZE)
++	{
++		write_mmu_index(entry);
++		tlb_read();
++		entryhi = read_mmu_entryhi();
++		entrylo0 = read_mmu_entrylo0();
++		entrylo0 = entrylo0;
++		entrylo1 = read_mmu_entrylo1();
++		entrylo1 = entrylo1;
++		printk("jtlb[%d]:	entryhi - 0x%x;	entrylo0 - 0x%x;"
++		       "	entrylo1 - 0x%x\n",
++			 entry, entryhi, entrylo0, entrylo1);
++		entry++;
++	}
++	write_mmu_entryhi(oldpid);
++	local_irq_restore(flags);
++}
++
++void __init csky_tlb_init(void)
++{
++	local_flush_tlb_all();
++}
 diff --git a/arch/csky/oprofile/Makefile b/arch/csky/oprofile/Makefile
 new file mode 100644
 index 0000000..3038fab
