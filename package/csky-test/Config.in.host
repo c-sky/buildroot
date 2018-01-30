@@ -28,6 +28,11 @@ config BR2_CSKY_TEST_GDB_FILE
         depends on !BR2_CSKY_TEST_QEMU
         depends on BR2_PACKAGE_CSKY_TEST
 
+config BR2_CSKY_TEST_NFS_PATH
+        string "csky-ci-test nfs path"
+        depends on !BR2_CSKY_TEST_QEMU
+        depends on BR2_PACKAGE_CSKY_TEST
+
 config BR2_PACKAGE_CSKY_TEST_LTP
         bool "csky-ci-test ltp"
         depends on BR2_PACKAGE_CSKY_TEST
