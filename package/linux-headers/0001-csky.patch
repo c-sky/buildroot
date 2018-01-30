@@ -1,24 +1,24 @@
-commit c5349af4a11cba82ea6a4df6f64f1bf2b1bd7a84
+commit 848e86d42ba6017a4cca7dc6c29f78c1d47a2825
 Author: Guo Ren <ren_guo@c-sky.com>
-Date:   Mon Jan 29 17:21:30 2018 +0800
+Date:   Tue Jan 30 20:22:02 2018 +0800
 
-    commit 3f704f26414ec0914ad99e4f6a653162e96f3b6a
+    commit 411f407362fec7a87753aba6be77980d651e48aa
     Author: Guo Ren <ren_guo@c-sky.com>
-    Date:   Mon Jan 29 16:43:19 2018 +0800
+    Date:   Tue Jan 30 17:35:26 2018 +0800
     
-        csky: move byteorder.h and sigcontext.h to uapi.
+        csky: bugfix use wrong headers.
     
-        Change-Id: I064954d2dcca67499258235309524d21b80f084e
+        Change-Id: I906b931761ae0a1375721db89d59a6b147dfd367
         Signed-off-by: Guo Ren <ren_guo@c-sky.com>
     
     Signed-off-by: Guo Ren <ren_guo@c-sky.com>
 
 diff --git a/arch/csky/Kconfig b/arch/csky/Kconfig
 new file mode 100644
-index 0000000..7bdd715
+index 0000000..4f9a894
 --- /dev/null
 +++ b/arch/csky/Kconfig
-@@ -0,0 +1,334 @@
+@@ -0,0 +1,335 @@
 +#
 +# For a description of the syntax of this configuration file,
 +# see Documentation/kbuild/kconfig-language.txt.
@@ -151,7 +151,6 @@ index 0000000..7bdd715
 +	  It will make merging "kernel csky vendor" easier.
 +
 +if CSKY_ADDONS
-+
 +
 +endif
 +
@@ -366,10 +365,10 @@ index 0000000..f53b6d5
 +endmenu
 diff --git a/arch/csky/Makefile b/arch/csky/Makefile
 new file mode 100644
-index 0000000..ef655ff
+index 0000000..c548ba1
 --- /dev/null
 +++ b/arch/csky/Makefile
-@@ -0,0 +1,89 @@
+@@ -0,0 +1,93 @@
 +OBJCOPYFLAGS	:=-O binary
 +GZFLAGS		:=-9
 +
@@ -387,20 +386,24 @@ index 0000000..ef655ff
 +endif
 +
 +ifdef CONFIG_CPU_CK810
-+CPUTYPE= -mcpu=ck810$(DSPEXT)$(FPUEXT)
++CPUTYPE = -mcpu=ck810$(DSPEXT)$(FPUEXT)
 +CSKYABI	= abiv2
 +endif
 +
 +ifdef CONFIG_CPU_CK807
-+CPUTYPE= -mcpu=ck807$(DSPEXT)$(FPUEXT)
++CPUTYPE = -mcpu=ck807$(DSPEXT)$(FPUEXT)
 +CSKYABI	= abiv2
++endif
++
++ifeq ($(VERSION)_$(PATCHLEVEL), 4_9)
++COMPAT_KERNEL_4_9 = -DCOMPAT_KERNEL_4_9
 +endif
 +
 +KBUILD_CFLAGS +=	-ffreestanding \
 +			-fno-tree-dse \
 +			-pipe \
 +			-Wno-uninitialized \
-+			$(CPUTYPE)
++			$(COMPAT_KERNEL_4_9) $(CPUTYPE)
 +
 +ifeq ($(CONFIG_CSKY_DEBUG_INFO),y)
 +KBUILD_CFLAGS += -g
@@ -432,7 +435,6 @@ index 0000000..ef655ff
 +endif
 +
 +drivers-$(CONFIG_OPROFILE)	+= arch/csky/oprofile/
-+drivers-$(CONFIG_CSKY_ADDONS)	+= addons/
 +
 +all: zImage
 +
@@ -4084,7 +4086,7 @@ index 0000000..2d06a24
 +
 diff --git a/arch/csky/include/asm/dma-mapping.h b/arch/csky/include/asm/dma-mapping.h
 new file mode 100644
-index 0000000..020fa73
+index 0000000..fb2af59
 --- /dev/null
 +++ b/arch/csky/include/asm/dma-mapping.h
 @@ -0,0 +1,15 @@
@@ -4093,7 +4095,7 @@ index 0000000..020fa73
 +
 +extern struct dma_map_ops csky_dma_map_ops;
 +
-+#if (LINUX_VERSION_CODE < KERNEL_VERSION(4, 14, 0))
++#ifdef COMPAT_KERNEL_4_9
 +static inline struct dma_map_ops *get_dma_ops(struct device *dev)
 +#else
 +static inline struct dma_map_ops *get_arch_dma_ops(struct bus_type *bus)
@@ -4258,23 +4260,6 @@ index 0000000..fe3edd2
 +		int uses_interp);
 +
 +#endif
-diff --git a/arch/csky/include/asm/fcntl.h b/arch/csky/include/asm/fcntl.h
-new file mode 100644
-index 0000000..5e52b66
---- /dev/null
-+++ b/arch/csky/include/asm/fcntl.h
-@@ -0,0 +1,11 @@
-+#ifndef __ASM_CSKY_FCNTL_H
-+#define __ASM_CSKY_FCNTL_H
-+
-+#define O_DIRECTORY	040000
-+#define O_NOFOLLOW	0100000
-+#define O_DIRECT	0200000
-+#define O_LARGEFILE	0400000
-+
-+#include <asm-generic/fcntl.h>
-+
-+#endif /* __ASM_CSKY_FCNTL_H */
 diff --git a/arch/csky/include/asm/fixmap.h b/arch/csky/include/asm/fixmap.h
 new file mode 100644
 index 0000000..d7ab79c
@@ -5138,7 +5123,7 @@ index 0000000..0814127
 +#endif /* __ASM_CSKY_PAGE_H */
 diff --git a/arch/csky/include/asm/pgalloc.h b/arch/csky/include/asm/pgalloc.h
 new file mode 100644
-index 0000000..eddc315
+index 0000000..751ea6f
 --- /dev/null
 +++ b/arch/csky/include/asm/pgalloc.h
 @@ -0,0 +1,113 @@
@@ -5165,7 +5150,7 @@ index 0000000..eddc315
 +
 +extern void pgd_init(unsigned long *p);
 +
-+#if (LINUX_VERSION_CODE < KERNEL_VERSION(4, 14, 0))
++#ifdef COMPAT_KERNEL_4_9
 +#define __GFP_RETRY_MAYFAIL __GFP_REPEAT
 +#endif
 +
@@ -5752,161 +5737,6 @@ index 0000000..bb158cd
 +#define cpu_relax() barrier()
 +
 +#endif /* __ASM_CSKY_PROCESSOR_H */
-diff --git a/arch/csky/include/asm/ptrace.h b/arch/csky/include/asm/ptrace.h
-new file mode 100644
-index 0000000..5426e3d
---- /dev/null
-+++ b/arch/csky/include/asm/ptrace.h
-@@ -0,0 +1,149 @@
-+#ifndef _CSKY_PTRACE_H
-+#define _CSKY_PTRACE_H
-+
-+#define REGNO_R0   	0
-+#define REGNO_R1   	1
-+#define REGNO_R2   	2
-+#define REGNO_R3   	3
-+#define REGNO_R4   	4
-+#define REGNO_R5   	5
-+#define REGNO_R6   	6
-+#define REGNO_R7   	7
-+#define REGNO_R8   	8
-+#define REGNO_R9   	9
-+#define REGNO_R10  	10
-+#define REGNO_R11  	11
-+#define REGNO_R12  	12
-+#define REGNO_R13  	13
-+#define REGNO_R14  	14
-+#define REGNO_R15  	15
-+#define REGNO_SR   	32
-+#define REGNO_PC   	33
-+
-+#if (__CSKY__ == 2) 
-+#define REGNO_R16  	16
-+#define REGNO_R17  	17
-+#define REGNO_R18  	18
-+#define REGNO_R19  	19
-+#define REGNO_R20  	20
-+#define REGNO_R21  	21
-+#define REGNO_R22  	22
-+#define REGNO_R23  	23
-+#define REGNO_R24  	24
-+#define REGNO_R25  	25
-+#define REGNO_R26  	26
-+#define REGNO_R27  	27
-+#define REGNO_R28  	28
-+#define REGNO_R29  	29
-+#define REGNO_R30  	30
-+#define REGNO_R31  	31
-+#define REGNO_RHI  	34
-+#define REGNO_RLO  	35
-+#endif/* (__CSKY__ == 2) */
-+
-+#if defined(__CSKYABIV2__)
-+	#define REGNO_USP  REGNO_R14
-+#else
-+	#define REGNO_USP  REGNO_R0
-+#endif
-+
-+#ifndef __ASSEMBLY__
-+
-+/* this struct defines the way the registers are stored on the
-+   stack during a system call. */
-+struct  pt_regs {
-+	unsigned long    pc;
-+	long             orig_a0;
-+	unsigned long    sr;
-+	long             a0;  // ABIV2: r0, ABIV1: r2
-+	long             a1;  // ABIV2: r1, ABIV1: r3
-+	long             a2;  // ABIV2: r2, ABIV1: r4
-+	long             a3;  // ABIV2: r3, ABIV1: r5
-+	// ABIV2: r4 ~ r13,  ABIV1: r6 ~ r14, r1.
-+	long             regs[10];
-+	long             r15;
-+#if (__CSKY__ == 2)
-+	// r16~r31;
-+	long             exregs[16];
-+	long             rhi;
-+	long             rlo;
-+#endif
-+};
-+
-+/*
-+ * This is the extended stack used by the context
-+ * switcher: it's pushed after the normal "struct pt_regs".
-+ *
-+ * ABI_CSKYV2: r4 ~ r11,r16 ~ r17, r26 ~ r30;
-+ * ABI_CSKYV1: r8 ~ r14,r16 ~ r19, r26 ~ r30.
-+ */
-+struct  switch_stack {
-+#if defined(__CSKYABIV2__)
-+	unsigned long   r4;
-+        unsigned long   r5;
-+        unsigned long   r6;
-+        unsigned long   r7;
-+#endif
-+        unsigned long   r8;
-+        unsigned long   r9;
-+        unsigned long   r10;
-+        unsigned long   r11;
-+#if !defined(__CSKYABIV2__)    // ABIV1
-+        unsigned long   r12;
-+        unsigned long   r13;
-+        unsigned long   r14;
-+#endif
-+        unsigned long   r15;
-+#if (__CSKY__ == 2)
-+        unsigned long   r16;
-+        unsigned long   r17;
-+#if !defined(__CSKYABIV2__)    // ABIV1
-+        unsigned long   r18;
-+        unsigned long   r19;
-+#endif
-+        unsigned long   r26;
-+        unsigned long   r27;
-+        unsigned long   r28;
-+        unsigned long   r29;
-+        unsigned long   r30;
-+#endif
-+};
-+
-+/* Arbitrarily choose the same ptrace numbers as used by the Sparc code. */
-+#define PTRACE_GETREGS            12
-+#define PTRACE_SETREGS            13
-+#define PTRACE_GETFPREGS          14
-+#define PTRACE_SETFPREGS          15
-+#define PTRACE_GET_THREAD_AREA    25
-+
-+#ifdef __CSKYABIV2__
-+#define CSKY_HI_NUM               0xcccccccc
-+#define CSKY_LO_NUM               0xcccccccc
-+#else
-+#define CSKY_HI_NUM               34
-+#define CSKY_LO_NUM               35
-+#endif
-+#define CSKY_GREG_NUM             35
-+#define CSKY_FREG_NUM_HI          72
-+#define CSKY_FREG_NUM_LO          40
-+#define CSKY_FCR_NUM              74
-+
-+#ifdef __KERNEL__
-+
-+#ifndef PS_S
-+#define PS_S            0x80000000              /* Supervisor Mode */
-+#define PS_TM           0x0000c000              /* Trace mode */
-+#endif
-+#define arch_has_single_step() (1)
-+#define current_pt_regs() \
-+	(struct pt_regs *)((char *)current_thread_info() + THREAD_SIZE) - 1
-+#define current_user_stack_pointer() rdusp()
-+
-+#define user_mode(regs) (!((regs)->sr & PS_S))
-+#define instruction_pointer(regs) ((regs)->pc)
-+#define profile_pc(regs) instruction_pointer(regs)
-+#define user_stack(regs) (sw_usp)
-+extern void show_regs(struct pt_regs *);
-+#endif /* __KERNEL__ */
-+#endif /* __ASSEMBLY__ */
-+#endif /* _CSKY_PTRACE_H */
 diff --git a/arch/csky/include/asm/readreg.h b/arch/csky/include/asm/readreg.h
 new file mode 100644
 index 0000000..ad89f01
@@ -6031,174 +5861,6 @@ index 0000000..273f423
 +#define __ARCH_FORCE_SHMLBA
 +
 +#endif /* __ASM_CSKY_SHMPARAM_H */
-diff --git a/arch/csky/include/asm/signal.h b/arch/csky/include/asm/signal.h
-new file mode 100644
-index 0000000..0a684aa
---- /dev/null
-+++ b/arch/csky/include/asm/signal.h
-@@ -0,0 +1,162 @@
-+#ifndef _CSKY_SIGNAL_H
-+#define _CSKY_SIGNAL_H
-+
-+#define __ARCH_HAS_SA_RESTORER
-+#include <linux/types.h>
-+
-+/* Avoid too many header ordering problems.  */
-+struct siginfo;
-+
-+#ifdef __KERNEL__
-+
-+/* Most things should be clean enough to redefine this at will, if care
-+   is taken to make libc match.  */
-+
-+#define _NSIG		64
-+#define _NSIG_BPW	32
-+#define _NSIG_WORDS	(_NSIG / _NSIG_BPW)
-+
-+typedef unsigned long old_sigset_t;		/* at least 32 bits */
-+
-+typedef struct {
-+	unsigned long sig[_NSIG_WORDS];
-+} sigset_t;
-+
-+#else
-+
-+/* Here we must cater to libcs that poke about in kernel headers.  */
-+
-+#define NSIG		32
-+typedef unsigned long sigset_t;
-+
-+#endif /* __KERNEL__ */
-+
-+#define SIGHUP		 1
-+#define SIGINT		 2
-+#define SIGQUIT		 3
-+#define SIGILL		 4
-+#define SIGTRAP		 5
-+#define SIGABRT		 6
-+#define SIGIOT		 6
-+#define SIGBUS		 7
-+#define SIGFPE		 8
-+#define SIGKILL		 9
-+#define SIGUSR1		10
-+#define SIGSEGV		11
-+#define SIGUSR2		12
-+#define SIGPIPE		13
-+#define SIGALRM		14
-+#define SIGTERM		15
-+#define SIGSTKFLT	16
-+#define SIGCHLD		17
-+#define SIGCONT		18
-+#define SIGSTOP		19
-+#define SIGTSTP		20
-+#define SIGTTIN		21
-+#define SIGTTOU		22
-+#define SIGURG		23
-+#define SIGXCPU		24
-+#define SIGXFSZ		25
-+#define SIGVTALRM	26
-+#define SIGPROF		27
-+#define SIGWINCH	28
-+#define SIGIO		29
-+#define SIGPOLL		SIGIO
-+/*
-+#define SIGLOST		29
-+*/
-+#define SIGPWR		30
-+#define SIGSYS		31
-+#define	SIGUNUSED	31
-+
-+/* These should not be considered constants from userland.  */
-+#define SIGRTMIN	32
-+#define SIGRTMAX	(_NSIG-1)
-+
-+/*
-+ * SA_FLAGS values:
-+ *
-+ * SA_ONSTACK indicates that a registered stack_t will be used.
-+ * SA_INTERRUPT is a no-op, but left due to historical reasons. Use the
-+ * SA_RESTART flag to get restarting signals (which were the default long ago)
-+ * SA_NOCLDSTOP flag to turn off SIGCHLD when children stop.
-+ * SA_RESETHAND clears the handler when the signal is delivered.
-+ * SA_NOCLDWAIT flag on SIGCHLD to inhibit zombies.
-+ * SA_NODEFER prevents the current signal from being masked in the handler.
-+ *
-+ * SA_ONESHOT and SA_NOMASK are the historical Linux names for the Single
-+ * Unix names RESETHAND and NODEFER respectively.
-+ */
-+#define SA_NOCLDSTOP	0x00000001
-+#define SA_NOCLDWAIT	0x00000002 /* not supported yet */
-+#define SA_SIGINFO		0x00000004
-+#define SA_ONSTACK		0x08000000
-+#define SA_RESTART		0x10000000
-+#define SA_NODEFER		0x40000000
-+#define SA_RESETHAND	0x80000000
-+
-+#define SA_NOMASK		SA_NODEFER
-+#define SA_ONESHOT		SA_RESETHAND
-+#define SA_INTERRUPT	0x20000000 /* dummy -- ignored */
-+
-+/*
-+ * sigaltstack controls
-+ */
-+#define SS_ONSTACK	1
-+#define SS_DISABLE	2
-+
-+#define MINSIGSTKSZ	2048
-+#define SIGSTKSZ	8192
-+
-+#include <asm-generic/signal-defs.h>
-+
-+#ifdef __KERNEL__
-+
-+/*
-+ * These values of sa_flags are used only by the kernel as part of the
-+ * irq handling routines.
-+ *
-+ * SA_INTERRUPT is also used by the irq handling routines.
-+ * SA_SHIRQ is for shared interrupt support on PCI and EISA.
-+ */
-+#define SA_PROBE			SA_ONESHOT
-+#define SA_SAMPLE_RANDOM	SA_RESTART
-+#define SA_SHIRQ			0x04000000
-+#endif
-+
-+#define SIG_BLOCK          0	/* for blocking signals */
-+#define SIG_UNBLOCK        1	/* for unblocking signals */
-+#define SIG_SETMASK        2	/* for setting the signal mask */
-+
-+#ifndef __KERNEL__
-+
-+/* Here we must cater to libcs that poke about in kernel headers.  */
-+
-+struct sigaction {
-+	union {
-+	  __sighandler_t _sa_handler;
-+	  void (*_sa_sigaction)(int, struct siginfo *, void *);
-+	} _u;
-+	sigset_t sa_mask;
-+	unsigned long sa_flags;
-+	void (*sa_restorer)(void);
-+};
-+
-+#define sa_handler	_u._sa_handler
-+#define sa_sigaction	_u._sa_sigaction
-+
-+#endif /* __KERNEL__ */
-+
-+typedef struct sigaltstack {
-+	void *ss_sp;
-+	int ss_flags;
-+	size_t ss_size;
-+} stack_t;
-+
-+#ifdef __KERNEL__
-+
-+#include <asm/sigcontext.h>
-+#define ptrace_signal_deliver() do { } while (0)
-+#endif /* __KERNEL__ */
-+
-+#endif /* _CSKY_SIGNAL_H */
 diff --git a/arch/csky/include/asm/string.h b/arch/csky/include/asm/string.h
 new file mode 100644
 index 0000000..7f7e5d7
@@ -6222,37 +5884,6 @@ index 0000000..7f7e5d7
 +#endif
 +
 +#endif /* _CSKY_STRING_MM_H_ */
-diff --git a/arch/csky/include/asm/swab.h b/arch/csky/include/asm/swab.h
-new file mode 100644
-index 0000000..094a647
---- /dev/null
-+++ b/arch/csky/include/asm/swab.h
-@@ -0,0 +1,25 @@
-+#ifndef __ASM_CSKY_SWAB_H
-+#define __ASM_CSKY_SWAB_H
-+
-+#include <linux/compiler.h>
-+#include <linux/types.h>
-+
-+#ifdef __CSKYABIV2__
-+
-+static inline __attribute_const__ __u16 __arch_swab16(__u16 x)
-+{
-+	__asm__ ("revh %0, %1" : "=r" (x) : "r" (x));
-+	return x;
-+}
-+#define __arch_swab16 __arch_swab16
-+
-+static inline __attribute_const__ __u32 __arch_swab32(__u32 x)
-+{
-+	__asm__ ("revb %0, %1" : "=r" (x) : "r" (x));
-+	return x;
-+}
-+#define __arch_swab32 __arch_swab32
-+
-+#endif /* __CSKYABIV2__ */
-+
-+#endif /* __ASM_CSKY_SWAB_H */
 diff --git a/arch/csky/include/asm/switch_to.h b/arch/csky/include/asm/switch_to.h
 new file mode 100644
 index 0000000..3f771e5
@@ -6599,7 +6230,7 @@ index 0000000..b43c3b4
 +#endif /* __ASM_CSKY_TRAPS_H */
 diff --git a/arch/csky/include/asm/uaccess.h b/arch/csky/include/asm/uaccess.h
 new file mode 100644
-index 0000000..d45aa4b
+index 0000000..91a6419
 --- /dev/null
 +++ b/arch/csky/include/asm/uaccess.h
 @@ -0,0 +1,419 @@
@@ -6984,7 +6615,7 @@ index 0000000..d45aa4b
 +#define raw_copy_from_user(to, from, n) __generic_copy_from_user(to, from, n)
 +#define raw_copy_to_user(to, from, n) __generic_copy_to_user(to, from, n)
 +
-+#if (LINUX_VERSION_CODE < KERNEL_VERSION(4, 14, 0))
++#ifdef COMPAT_KERNEL_4_9
 +#define __copy_from_user(to, from, n) raw_copy_from_user(to, from, n)
 +#define __copy_to_user(to, from, n) raw_copy_to_user(to, from, n)
 +
@@ -7152,10 +6783,10 @@ index 0000000..b6b2765
 +#endif /* __ASM_CSKY_VDSO_H */
 diff --git a/arch/csky/include/uapi/asm/Kbuild b/arch/csky/include/uapi/asm/Kbuild
 new file mode 100644
-index 0000000..eebe85d
+index 0000000..5101228
 --- /dev/null
 +++ b/arch/csky/include/uapi/asm/Kbuild
-@@ -0,0 +1,34 @@
+@@ -0,0 +1,28 @@
 +include include/uapi/asm-generic/Kbuild.asm
 +
 +header-y += cachectl.h
@@ -7163,7 +6794,6 @@ index 0000000..eebe85d
 +
 +generic-y += auxvec.h
 +generic-y += param.h
-+generic-y += ptrace.h
 +generic-y += bpf_perf_event.h
 +generic-y += errno.h
 +generic-y += ioctl.h
@@ -7171,20 +6801,15 @@ index 0000000..eebe85d
 +generic-y += ipcbuf.h
 +generic-y += shmbuf.h
 +generic-y += bitsperlong.h
-+generic-y += fcntl.h
-+generic-y += stat.h
 +generic-y += mman.h
 +generic-y += msgbuf.h
 +generic-y += poll.h
 +generic-y += posix_types.h
 +generic-y += resource.h
 +generic-y += sembuf.h
-+generic-y += setup.h
 +generic-y += siginfo.h
-+generic-y += signal.h
 +generic-y += socket.h
 +generic-y += sockios.h
-+generic-y += swab.h
 +generic-y += statfs.h
 +generic-y += termbits.h
 +generic-y += termios.h
@@ -7235,6 +6860,178 @@ index 0000000..c63285c
 +#define UNCACHEABLE 1   /* make pages uncacheable */
 +
 +#endif /* __ASM_CSKY_CACHECTL_H */
+diff --git a/arch/csky/include/uapi/asm/fcntl.h b/arch/csky/include/uapi/asm/fcntl.h
+new file mode 100644
+index 0000000..5e52b66
+--- /dev/null
++++ b/arch/csky/include/uapi/asm/fcntl.h
+@@ -0,0 +1,11 @@
++#ifndef __ASM_CSKY_FCNTL_H
++#define __ASM_CSKY_FCNTL_H
++
++#define O_DIRECTORY	040000
++#define O_NOFOLLOW	0100000
++#define O_DIRECT	0200000
++#define O_LARGEFILE	0400000
++
++#include <asm-generic/fcntl.h>
++
++#endif /* __ASM_CSKY_FCNTL_H */
+diff --git a/arch/csky/include/uapi/asm/ptrace.h b/arch/csky/include/uapi/asm/ptrace.h
+new file mode 100644
+index 0000000..5426e3d
+--- /dev/null
++++ b/arch/csky/include/uapi/asm/ptrace.h
+@@ -0,0 +1,149 @@
++#ifndef _CSKY_PTRACE_H
++#define _CSKY_PTRACE_H
++
++#define REGNO_R0   	0
++#define REGNO_R1   	1
++#define REGNO_R2   	2
++#define REGNO_R3   	3
++#define REGNO_R4   	4
++#define REGNO_R5   	5
++#define REGNO_R6   	6
++#define REGNO_R7   	7
++#define REGNO_R8   	8
++#define REGNO_R9   	9
++#define REGNO_R10  	10
++#define REGNO_R11  	11
++#define REGNO_R12  	12
++#define REGNO_R13  	13
++#define REGNO_R14  	14
++#define REGNO_R15  	15
++#define REGNO_SR   	32
++#define REGNO_PC   	33
++
++#if (__CSKY__ == 2) 
++#define REGNO_R16  	16
++#define REGNO_R17  	17
++#define REGNO_R18  	18
++#define REGNO_R19  	19
++#define REGNO_R20  	20
++#define REGNO_R21  	21
++#define REGNO_R22  	22
++#define REGNO_R23  	23
++#define REGNO_R24  	24
++#define REGNO_R25  	25
++#define REGNO_R26  	26
++#define REGNO_R27  	27
++#define REGNO_R28  	28
++#define REGNO_R29  	29
++#define REGNO_R30  	30
++#define REGNO_R31  	31
++#define REGNO_RHI  	34
++#define REGNO_RLO  	35
++#endif/* (__CSKY__ == 2) */
++
++#if defined(__CSKYABIV2__)
++	#define REGNO_USP  REGNO_R14
++#else
++	#define REGNO_USP  REGNO_R0
++#endif
++
++#ifndef __ASSEMBLY__
++
++/* this struct defines the way the registers are stored on the
++   stack during a system call. */
++struct  pt_regs {
++	unsigned long    pc;
++	long             orig_a0;
++	unsigned long    sr;
++	long             a0;  // ABIV2: r0, ABIV1: r2
++	long             a1;  // ABIV2: r1, ABIV1: r3
++	long             a2;  // ABIV2: r2, ABIV1: r4
++	long             a3;  // ABIV2: r3, ABIV1: r5
++	// ABIV2: r4 ~ r13,  ABIV1: r6 ~ r14, r1.
++	long             regs[10];
++	long             r15;
++#if (__CSKY__ == 2)
++	// r16~r31;
++	long             exregs[16];
++	long             rhi;
++	long             rlo;
++#endif
++};
++
++/*
++ * This is the extended stack used by the context
++ * switcher: it's pushed after the normal "struct pt_regs".
++ *
++ * ABI_CSKYV2: r4 ~ r11,r16 ~ r17, r26 ~ r30;
++ * ABI_CSKYV1: r8 ~ r14,r16 ~ r19, r26 ~ r30.
++ */
++struct  switch_stack {
++#if defined(__CSKYABIV2__)
++	unsigned long   r4;
++        unsigned long   r5;
++        unsigned long   r6;
++        unsigned long   r7;
++#endif
++        unsigned long   r8;
++        unsigned long   r9;
++        unsigned long   r10;
++        unsigned long   r11;
++#if !defined(__CSKYABIV2__)    // ABIV1
++        unsigned long   r12;
++        unsigned long   r13;
++        unsigned long   r14;
++#endif
++        unsigned long   r15;
++#if (__CSKY__ == 2)
++        unsigned long   r16;
++        unsigned long   r17;
++#if !defined(__CSKYABIV2__)    // ABIV1
++        unsigned long   r18;
++        unsigned long   r19;
++#endif
++        unsigned long   r26;
++        unsigned long   r27;
++        unsigned long   r28;
++        unsigned long   r29;
++        unsigned long   r30;
++#endif
++};
++
++/* Arbitrarily choose the same ptrace numbers as used by the Sparc code. */
++#define PTRACE_GETREGS            12
++#define PTRACE_SETREGS            13
++#define PTRACE_GETFPREGS          14
++#define PTRACE_SETFPREGS          15
++#define PTRACE_GET_THREAD_AREA    25
++
++#ifdef __CSKYABIV2__
++#define CSKY_HI_NUM               0xcccccccc
++#define CSKY_LO_NUM               0xcccccccc
++#else
++#define CSKY_HI_NUM               34
++#define CSKY_LO_NUM               35
++#endif
++#define CSKY_GREG_NUM             35
++#define CSKY_FREG_NUM_HI          72
++#define CSKY_FREG_NUM_LO          40
++#define CSKY_FCR_NUM              74
++
++#ifdef __KERNEL__
++
++#ifndef PS_S
++#define PS_S            0x80000000              /* Supervisor Mode */
++#define PS_TM           0x0000c000              /* Trace mode */
++#endif
++#define arch_has_single_step() (1)
++#define current_pt_regs() \
++	(struct pt_regs *)((char *)current_thread_info() + THREAD_SIZE) - 1
++#define current_user_stack_pointer() rdusp()
++
++#define user_mode(regs) (!((regs)->sr & PS_S))
++#define instruction_pointer(regs) ((regs)->pc)
++#define profile_pc(regs) instruction_pointer(regs)
++#define user_stack(regs) (sw_usp)
++extern void show_regs(struct pt_regs *);
++#endif /* __KERNEL__ */
++#endif /* __ASSEMBLY__ */
++#endif /* _CSKY_PTRACE_H */
 diff --git a/arch/csky/include/uapi/asm/sigcontext.h b/arch/csky/include/uapi/asm/sigcontext.h
 new file mode 100644
 index 0000000..6f6cf5f
@@ -7272,6 +7069,174 @@ index 0000000..6f6cf5f
 +};
 +
 +#endif /* _ASM_CSKY_SIGCONTEXT_H */
+diff --git a/arch/csky/include/uapi/asm/signal.h b/arch/csky/include/uapi/asm/signal.h
+new file mode 100644
+index 0000000..0a684aa
+--- /dev/null
++++ b/arch/csky/include/uapi/asm/signal.h
+@@ -0,0 +1,162 @@
++#ifndef _CSKY_SIGNAL_H
++#define _CSKY_SIGNAL_H
++
++#define __ARCH_HAS_SA_RESTORER
++#include <linux/types.h>
++
++/* Avoid too many header ordering problems.  */
++struct siginfo;
++
++#ifdef __KERNEL__
++
++/* Most things should be clean enough to redefine this at will, if care
++   is taken to make libc match.  */
++
++#define _NSIG		64
++#define _NSIG_BPW	32
++#define _NSIG_WORDS	(_NSIG / _NSIG_BPW)
++
++typedef unsigned long old_sigset_t;		/* at least 32 bits */
++
++typedef struct {
++	unsigned long sig[_NSIG_WORDS];
++} sigset_t;
++
++#else
++
++/* Here we must cater to libcs that poke about in kernel headers.  */
++
++#define NSIG		32
++typedef unsigned long sigset_t;
++
++#endif /* __KERNEL__ */
++
++#define SIGHUP		 1
++#define SIGINT		 2
++#define SIGQUIT		 3
++#define SIGILL		 4
++#define SIGTRAP		 5
++#define SIGABRT		 6
++#define SIGIOT		 6
++#define SIGBUS		 7
++#define SIGFPE		 8
++#define SIGKILL		 9
++#define SIGUSR1		10
++#define SIGSEGV		11
++#define SIGUSR2		12
++#define SIGPIPE		13
++#define SIGALRM		14
++#define SIGTERM		15
++#define SIGSTKFLT	16
++#define SIGCHLD		17
++#define SIGCONT		18
++#define SIGSTOP		19
++#define SIGTSTP		20
++#define SIGTTIN		21
++#define SIGTTOU		22
++#define SIGURG		23
++#define SIGXCPU		24
++#define SIGXFSZ		25
++#define SIGVTALRM	26
++#define SIGPROF		27
++#define SIGWINCH	28
++#define SIGIO		29
++#define SIGPOLL		SIGIO
++/*
++#define SIGLOST		29
++*/
++#define SIGPWR		30
++#define SIGSYS		31
++#define	SIGUNUSED	31
++
++/* These should not be considered constants from userland.  */
++#define SIGRTMIN	32
++#define SIGRTMAX	(_NSIG-1)
++
++/*
++ * SA_FLAGS values:
++ *
++ * SA_ONSTACK indicates that a registered stack_t will be used.
++ * SA_INTERRUPT is a no-op, but left due to historical reasons. Use the
++ * SA_RESTART flag to get restarting signals (which were the default long ago)
++ * SA_NOCLDSTOP flag to turn off SIGCHLD when children stop.
++ * SA_RESETHAND clears the handler when the signal is delivered.
++ * SA_NOCLDWAIT flag on SIGCHLD to inhibit zombies.
++ * SA_NODEFER prevents the current signal from being masked in the handler.
++ *
++ * SA_ONESHOT and SA_NOMASK are the historical Linux names for the Single
++ * Unix names RESETHAND and NODEFER respectively.
++ */
++#define SA_NOCLDSTOP	0x00000001
++#define SA_NOCLDWAIT	0x00000002 /* not supported yet */
++#define SA_SIGINFO		0x00000004
++#define SA_ONSTACK		0x08000000
++#define SA_RESTART		0x10000000
++#define SA_NODEFER		0x40000000
++#define SA_RESETHAND	0x80000000
++
++#define SA_NOMASK		SA_NODEFER
++#define SA_ONESHOT		SA_RESETHAND
++#define SA_INTERRUPT	0x20000000 /* dummy -- ignored */
++
++/*
++ * sigaltstack controls
++ */
++#define SS_ONSTACK	1
++#define SS_DISABLE	2
++
++#define MINSIGSTKSZ	2048
++#define SIGSTKSZ	8192
++
++#include <asm-generic/signal-defs.h>
++
++#ifdef __KERNEL__
++
++/*
++ * These values of sa_flags are used only by the kernel as part of the
++ * irq handling routines.
++ *
++ * SA_INTERRUPT is also used by the irq handling routines.
++ * SA_SHIRQ is for shared interrupt support on PCI and EISA.
++ */
++#define SA_PROBE			SA_ONESHOT
++#define SA_SAMPLE_RANDOM	SA_RESTART
++#define SA_SHIRQ			0x04000000
++#endif
++
++#define SIG_BLOCK          0	/* for blocking signals */
++#define SIG_UNBLOCK        1	/* for unblocking signals */
++#define SIG_SETMASK        2	/* for setting the signal mask */
++
++#ifndef __KERNEL__
++
++/* Here we must cater to libcs that poke about in kernel headers.  */
++
++struct sigaction {
++	union {
++	  __sighandler_t _sa_handler;
++	  void (*_sa_sigaction)(int, struct siginfo *, void *);
++	} _u;
++	sigset_t sa_mask;
++	unsigned long sa_flags;
++	void (*sa_restorer)(void);
++};
++
++#define sa_handler	_u._sa_handler
++#define sa_sigaction	_u._sa_sigaction
++
++#endif /* __KERNEL__ */
++
++typedef struct sigaltstack {
++	void *ss_sp;
++	int ss_flags;
++	size_t ss_size;
++} stack_t;
++
++#ifdef __KERNEL__
++
++#include <asm/sigcontext.h>
++#define ptrace_signal_deliver() do { } while (0)
++#endif /* __KERNEL__ */
++
++#endif /* _CSKY_SIGNAL_H */
 diff --git a/arch/csky/include/uapi/asm/stat.h b/arch/csky/include/uapi/asm/stat.h
 new file mode 100644
 index 0000000..1f110ca
@@ -7362,6 +7327,37 @@ index 0000000..1f110ca
 +};
 +
 +#endif /* _CSKY_STAT_H */
+diff --git a/arch/csky/include/uapi/asm/swab.h b/arch/csky/include/uapi/asm/swab.h
+new file mode 100644
+index 0000000..094a647
+--- /dev/null
++++ b/arch/csky/include/uapi/asm/swab.h
+@@ -0,0 +1,25 @@
++#ifndef __ASM_CSKY_SWAB_H
++#define __ASM_CSKY_SWAB_H
++
++#include <linux/compiler.h>
++#include <linux/types.h>
++
++#ifdef __CSKYABIV2__
++
++static inline __attribute_const__ __u16 __arch_swab16(__u16 x)
++{
++	__asm__ ("revh %0, %1" : "=r" (x) : "r" (x));
++	return x;
++}
++#define __arch_swab16 __arch_swab16
++
++static inline __attribute_const__ __u32 __arch_swab32(__u32 x)
++{
++	__asm__ ("revb %0, %1" : "=r" (x) : "r" (x));
++	return x;
++}
++#define __arch_swab32 __arch_swab32
++
++#endif /* __CSKYABIV2__ */
++
++#endif /* __ASM_CSKY_SWAB_H */
 diff --git a/arch/csky/include/uapi/asm/unistd.h b/arch/csky/include/uapi/asm/unistd.h
 new file mode 100644
 index 0000000..e615aa9
@@ -8223,10 +8219,10 @@ index 0000000..9d0e7ad
 +
 diff --git a/arch/csky/kernel/csky_ksyms.c b/arch/csky/kernel/csky_ksyms.c
 new file mode 100644
-index 0000000..998f8ae
+index 0000000..26ba70e
 --- /dev/null
 +++ b/arch/csky/kernel/csky_ksyms.c
-@@ -0,0 +1,39 @@
+@@ -0,0 +1,36 @@
 +#include <linux/module.h>
 +#include <asm/uaccess.h>
 +#include <asm/cacheflush.h>
@@ -8263,15 +8259,12 @@ index 0000000..998f8ae
 +
 +EXPORT_SYMBOL(get_wchan);
 +
-+extern asmlinkage void trap(void);
-+EXPORT_SYMBOL(trap);
-+
 diff --git a/arch/csky/kernel/entry.S b/arch/csky/kernel/entry.S
 new file mode 100644
-index 0000000..746811d
+index 0000000..64392a6
 --- /dev/null
 +++ b/arch/csky/kernel/entry.S
-@@ -0,0 +1,913 @@
+@@ -0,0 +1,846 @@
 +#include <linux/linkage.h>
 +#include <abi/entry.h>
 +#include <abi/pgtable-bits.h>
@@ -8286,14 +8279,93 @@ index 0000000..746811d
 +#include <asm/thread_info.h>
 +#include <asm/fpu.h>
 +
-+#define PTE_HALF        0
-+#define PTE_SIZE        4
-+#define PTE_BIT         2
-+#define PTEP_INDX_MSK	0xff8
 +#define PTE_INDX_MSK    0xffc
 +#define PTE_INDX_SHIFT  10
 +#define _PGDIR_SHIFT    22
 +#define THREADSIZE_MASK_BIT 13
++
++.text
++
++/*
++ * Use trap 2 use to cmpxchg, reference prototype:
++ *      int __kernel_cmpxchg(int oldval, int newval, int *ptr)
++ *
++ * If *ptr != oldval, direct return 1,
++ * else set *ptr = newval, then return 0.
++ *
++ * Input:
++ *      a0 = oldval
++ *      a1 = newval
++ *      a2 = ptr
++ * Output:
++ *      a0 = returned value (zero or non-zero)
++ *
++ * Clobbered:
++ *      a3!
++ *
++ * Attention: trap 2 is not a atomic function!
++ * The "stw a1, (a2)" may produce tlbmodified exception, then may cause schedule.
++ * So return back to "ldw" after tlbmodified, if stw was interrupted.
++ */
++
++ENTRY(csky_cmpxchg)
++#if defined(__CSKYABIV1__)
++	mtcr     sp, ss1
++	mfcr     sp, ss0
++#endif
++	mfcr     a3, epc		/* Get the trap point */
++#if defined(__CSKYABIV1__)
++	addi     a3, 2			/* Increase the epc */
++#elif defined(__CSKYABIV2__)
++	addi     a3, 4			/* Increase the epc, because the Instruct "trap x" in CK ISA V2 is 32 bit */
++#endif
++	subi     sp, 8
++	stw      a3, (sp, 0)		/* need to save epc to sp */
++	mfcr     a3, epsr
++	stw      a3, (sp, 4)		/* need to save epsr to sp */
++
++	psrset   ee			/* Enable Exception for tlb exception */
++
++1:					/* "1" is for kuser_cmpxchg_fixup */
++	ldw      a3, (a2)
++	cmpne    a0, a3
++	bt16     3f
++2:					/* "2" is for kuser_cmpxchg_fixup */
++	stw      a1, (a2)
++3:
++	mvc      a0			/* return value */
++	ldw      a3, (sp, 0)		/* restore epc */
++	mtcr     a3, epc
++	ldw      a3, (sp, 4)		/* restore epsr */
++	mtcr     a3, epsr
++	addi     sp, 8
++#if defined(__CSKYABIV1__)
++	mtcr     sp, ss0
++	mfcr     sp, ss1
++#endif
++	rte
++
++/*
++ *  Called from kuser_cmpxchg_check macro.
++ *  Input:
++ *  	a0 = address of interrupted insn(epc).
++ *  	1b = first critical insn, 2b = last critical insn.
++ *  Output:
++ *	None.
++ *
++ *  Clobbered:
++ *      a0, a1!
++ *
++ *  If a2 == 2b then saved pt_regs's epc is set to 1b.
++ */
++ENTRY(kuser_cmpxchg_fixup)
++	lrw	a1, 2b
++	cmpne	a1, a0
++	bt	1f
++	subi	a1, (2b - 1b)		/* get 1b */
++	stw	a1, (sp, 0)		/* set pt_reg's epc = 1b */
++1:
++	rts
 +
 +/*
 + * Make sure our user space atomic helper(trap 2) is restarted
@@ -8311,42 +8383,10 @@ index 0000000..746811d
 +1:
 +.endm
 +
-+.export system_call
-+.export buserr
-+.export trap
-+.export alignment
-+.export inthandler
-+.export autohandler
-+.export fasthandler
-+
-+.export fastautohandler
-+.export sys_fork, sys_clone
-+.export sw_usp
-+.export sw_ksp
-+
-+.export handle_tlbinvalidl
-+.export handle_tlbmodified
-+.export tlbinvalidl
-+.export tlbinvalids
-+.export readtlbinvalid
-+.export writetlbinvalid
-+.export handle_fpe
-+.export handle_illegal
-+
-+.import irq_stat
-+
-+.data
-+sw_ksp:
-+.long 0
-+sw_usp:
-+.long 0
-+
-+.text
-+
 +/*
 + * Tlbinvalidl exception handle routine.
 + */
-+ENTRY(handle_tlbinvalidl)
++ENTRY(csky_tlbinvalidl)
 +tlbinvalidl:
 +	mtcr    a3, ss2
 +	mtcr    r6, ss3
@@ -8430,7 +8470,7 @@ index 0000000..746811d
 +/*
 + * Tlbinvalids exception handle routine.
 + */
-+ENTRY(handle_tlbinvalids)
++ENTRY(csky_tlbinvalids)
 +tlbinvalids:
 +	mtcr    a3, ss2
 +	mtcr    r6, ss3
@@ -8518,7 +8558,7 @@ index 0000000..746811d
 +/*
 + * Tlbmodified exception handle routine.
 + */
-+ENTRY(handle_tlbmodified)
++ENTRY(csky_tlbmodified)
 +	mtcr    a3, ss2
 +	mtcr    r6, ss3
 +	mtcr    a2, ss4
@@ -8616,14 +8656,14 @@ index 0000000..746811d
 +/*
 + * This function is used to handle access exception.
 + */
-+ENTRY(buserr)
++ENTRY(csky_buserr)
 +	SAVE_ALL
 +	movi    r11_sig, 0        /* r11 = 0, Not a syscall. use in signal handle */
 +	mov     a0, sp            /* Stack address is arg[0] */
 +	jbsr    buserr_c          /* Call C level handler */
 +	jmpi    ret_from_exception
 +
-+ENTRY(system_call)
++ENTRY(csky_systemcall)
 +	SAVE_ALL
 +
 +	/*
@@ -8791,7 +8831,7 @@ index 0000000..746811d
 + * Common trap handler. Standard traps come through here first
 + */
 +
-+ENTRY(trap)
++ENTRY(csky_trap)
 +	SAVE_ALL
 +
 +	movi     r11_sig, 0             /* r11 = 0, Not a syscall. */
@@ -8806,7 +8846,7 @@ index 0000000..746811d
 + * Common illegal handler.
 + */
 +
-+ENTRY(handle_illegal)
++ENTRY(csky_illegal)
 +	SAVE_ALL
 +	psrset   ee
 +	movi     r11_sig, 0             /* r11 = 0, Not a syscall. */
@@ -8817,127 +8857,13 @@ index 0000000..746811d
 +/*
 + * Alignment_exception handler.
 + */
-+ENTRY(alignment)
++ENTRY(csky_alignment)
 +	SAVE_ALL
 +	psrset   ee                     /* Enable Exception */
 +	movi     r11_sig, 0             /* r11 = 0, Not a syscall. */
 +	mov      a0, sp                 /* Push Stack pointer arg */
 +	jbsr     alignment_c            /* Call C-level align exception handler */
 +	jmpi     ret_from_exception
-+
-+ENTRY(trap1)
-+#if defined(__CSKYABIV1__)
-+	mtcr     sp, ss1
-+	mfcr     sp, ss0
-+	mtcr     a1, ss4
-+#elif defined(__CSKYABIV2__)
-+	subi     sp, 8
-+	stw      a1,(sp)
-+#endif
-+	mfcr     a1, epc                /* Get the trap point */
-+#if defined(__CSKYABIV1__)
-+	addi     a1, 2                  /* Increase the epc */
-+#elif defined(__CSKYABIV2__)
-+	addi     a1, 4                  /* Increase the epc, because the Instruct "trap x" in CK ISA V2 is 32 bit */
-+#endif
-+	mtcr     a1, epc                /* Save return point */
-+
-+	movi     a1, 0x32
-+	mtcr     a1, cr17
-+#if defined(__CSKYABIV1__)
-+	mfcr     a1, ss4
-+	mtcr     sp, ss0
-+	mfcr     sp, ss1
-+#elif defined(__CSKYABIV2__)
-+	ldw      a1,(sp)
-+	addi     sp, 8
-+#endif
-+	rte
-+
-+/*
-+ * exception  trap 2 use to cmpxchg, reference prototype:
-+ *      int __kernel_cmpxchg(int oldval, int newval, int *ptr)
-+ *
-+ * If *ptr != oldval, direct return 1,
-+ * else set *ptr = newval, then return 0.
-+ *
-+ * Input:
-+ *      a0 = oldval
-+ *      a1 = newval
-+ *      a2 = ptr
-+ * Output:
-+ *      a0 = returned value (zero or non-zero)
-+ *
-+ * Clobbered:
-+ *      a3!
-+ *
-+ * Attention: trap 2 is not a atomic function!
-+ * The "stw a1, (a2)" may produce tlbmodified exception, then may cause schedule.
-+ * So return back to "ldw" after tlbmodified, if stw was interrupted.
-+ */
-+
-+ENTRY(trap2)
-+#if defined(__CSKYABIV1__)
-+	mtcr     sp, ss1
-+	mfcr     sp, ss0
-+#endif
-+	mfcr     a3, epc		/* Get the trap point */
-+#if defined(__CSKYABIV1__)
-+	addi     a3, 2			/* Increase the epc */
-+#elif defined(__CSKYABIV2__)
-+	addi     a3, 4			/* Increase the epc, because the Instruct "trap x" in CK ISA V2 is 32 bit */
-+#endif
-+	subi     sp, 8
-+	stw      a3, (sp, 0)		/* need to save epc to sp */
-+	mfcr     a3, epsr
-+	stw      a3, (sp, 4)		/* need to save epsr to sp */
-+
-+	psrset   ee			/* Enable Exception for tlb exception */
-+
-+1:					/* "1" is for kuser_cmpxchg_fixup */
-+	ldw      a3, (a2)
-+	cmpne    a0, a3
-+#if defined(__CSKYABIV1__)
-+	bt       3f
-+#elif defined(__CSKYABIV2__)
-+	bt16     3f
-+#endif
-+2:					/* "2" is for kuser_cmpxchg_fixup */
-+	stw      a1, (a2)
-+3:
-+	mvc      a0			/* return value */
-+	ldw      a3, (sp, 0)		/* restore epc */
-+	mtcr     a3, epc
-+	ldw      a3, (sp, 4)		/* restore epsr */
-+	mtcr     a3, epsr
-+	addi     sp, 8
-+#if defined(__CSKYABIV1__)
-+	mtcr     sp, ss0
-+	mfcr     sp, ss1
-+#endif
-+	rte
-+
-+/*
-+ *  Called from kuser_cmpxchg_check macro.
-+ *  Input:
-+ *  	a0 = address of interrupted insn(epc).
-+ *  	1b = first critical insn, 2b = last critical insn.
-+ *  Output:
-+ *	None.
-+ *
-+ *  Clobbered:
-+ *      a0, a1!
-+ *
-+ *  If a2 == 2b then saved pt_regs's epc is set to 1b.
-+ */
-+ENTRY(kuser_cmpxchg_fixup)
-+	lrw	a1, 2b
-+	cmpne	a1, a0
-+	bt	1f
-+	subi	a1, (2b - 1b)		/* get 1b */
-+	stw	a1, (sp, 0)		/* set pt_reg's epc = 1b */
-+1:
-+	rts
 +
 +/*
 + * Reference prototype:
@@ -8958,7 +8884,7 @@ index 0000000..746811d
 + *          : "=r" (__result) : :  ); \
 + *     __result; })
 + */
-+ENTRY(trap3)                        /*added for get tls*/
++ENTRY(csky_get_tls)                        /*added for get tls*/
 +#if defined(__CSKYABIV1__)
 +	mtcr     sp, ss1
 +	mfcr     sp, ss0
@@ -8989,7 +8915,7 @@ index 0000000..746811d
 +/*
 + * handle FPU exception.
 + */
-+ENTRY(handle_fpe)
++ENTRY(csky_fpe)
 +	SAVE_ALL
 +	/* Clear FPU exception state */
 +#if defined(CONFIG_CPU_HAS_FPU)
@@ -9003,7 +8929,7 @@ index 0000000..746811d
 +/*
 + * handle interrupt.
 + */
-+ENTRY(inthandler)
++ENTRY(csky_inthandler)
 +	SAVE_ALL
 +	psrset	ee				/* Enable exceptions */
 +
@@ -9050,7 +8976,7 @@ index 0000000..746811d
 + *
 + */
 +
-+ENTRY(autohandler)
++ENTRY(csky_autohandler)
 +	SAVE_ALL
 +	psrset  ee       // enable exception
 +	movi    r11_sig, 0                   /* r11 = 0, Not a syscall. */
@@ -10074,14 +10000,14 @@ index 0000000..126b674
 +
 diff --git a/arch/csky/kernel/process.c b/arch/csky/kernel/process.c
 new file mode 100644
-index 0000000..5fdc0de
+index 0000000..7e5258b
 --- /dev/null
 +++ b/arch/csky/kernel/process.c
 @@ -0,0 +1,181 @@
 +#include <linux/module.h>
 +#include <linux/version.h>
 +#include <linux/sched.h>
-+#if (LINUX_VERSION_CODE >= KERNEL_VERSION(4, 14, 0))
++#ifndef COMPAT_KERNEL_4_9
 +#include <linux/sched/task_stack.h>
 +#include <linux/sched/debug.h>
 +#endif
@@ -11338,7 +11264,7 @@ index 0000000..f71b09f
 +};
 diff --git a/arch/csky/kernel/time.c b/arch/csky/kernel/time.c
 new file mode 100644
-index 0000000..107dd64
+index 0000000..1a159ea
 --- /dev/null
 +++ b/arch/csky/kernel/time.c
 @@ -0,0 +1,13 @@
@@ -11348,7 +11274,7 @@ index 0000000..107dd64
 +void __init time_init(void)
 +{
 +	of_clk_init(NULL);
-+#if (LINUX_VERSION_CODE < KERNEL_VERSION(4, 14, 0)) 
++#ifdef COMPAT_KERNEL_4_9
 +	clocksource_probe();
 +#else
 +	timer_probe();
@@ -11510,10 +11436,10 @@ index 0000000..2641c19
 +
 diff --git a/arch/csky/kernel/traps.c b/arch/csky/kernel/traps.c
 new file mode 100644
-index 0000000..2c4cab0
+index 0000000..cf6310b
 --- /dev/null
 +++ b/arch/csky/kernel/traps.c
-@@ -0,0 +1,542 @@
+@@ -0,0 +1,532 @@
 +#include <linux/sched.h>
 +#include <linux/signal.h>
 +#include <linux/kernel.h>
@@ -11540,22 +11466,21 @@ index 0000000..2c4cab0
 +extern void csky_tlb_init(void);
 +void show_registers(struct pt_regs *fp);
 +/* assembler routines */
-+asmlinkage void buserr(void);
-+asmlinkage void alignment(void);
-+asmlinkage void trap(void);
-+asmlinkage void trap1(void);
-+asmlinkage void trap2(void);
-+asmlinkage void trap3(void);
-+asmlinkage void system_call(void);
-+asmlinkage void inthandler(void);
-+asmlinkage void autohandler(void);
-+asmlinkage void fastautohandler(void);
 +
-+asmlinkage void handle_tlbinvalidl(void);
-+asmlinkage void handle_tlbinvalids(void);
-+asmlinkage void handle_tlbmodified(void);
-+asmlinkage void handle_fpe(void);
-+asmlinkage void handle_illegal(void);
++asmlinkage void csky_buserr(void);
++asmlinkage void csky_alignment(void);
++asmlinkage void csky_trap(void);
++asmlinkage void csky_cmpxchg(void);
++asmlinkage void csky_get_tls(void);
++asmlinkage void csky_systemcall(void);
++asmlinkage void csky_inthandler(void);
++asmlinkage void csky_autohandler(void);
++
++asmlinkage void csky_tlbinvalidl(void);
++asmlinkage void csky_tlbinvalids(void);
++asmlinkage void csky_tlbmodified(void);
++asmlinkage void csky_fpe(void);
++asmlinkage void csky_illegal(void);
 +
 +void __init per_cpu_trap_init(void)
 +{
@@ -11585,33 +11510,24 @@ index 0000000..2c4cab0
 +
 +	per_cpu_trap_init();
 +
-+	  /*
-+	 *      There is a common trap handler and common interrupt
-+	 *      handler that handle almost every vector. We treat
-+	 *      the system call and bus error special, they get their
-+	 *      own first level handlers.
-+	 */
 +	for(i = 1; (i <= 31); i++)
-+	{
-+		_ramvec[i] = trap;
-+	}
++		_ramvec[i] = csky_trap;
++
 +	for(; (i < 128); i++)
-+	{
-+		_ramvec[i] = inthandler;
-+	}
++		_ramvec[i] = csky_inthandler;
 +
-+	_ramvec[VEC_ACCESS] = buserr;
-+	_ramvec[VEC_ALIGN] = alignment;
-+	_ramvec[VEC_TRAP0] = system_call;
-+	_ramvec[VEC_TRAP2] = trap2;
-+	_ramvec[VEC_TRAP3] = trap3;
-+	_ramvec[VEC_AUTOVEC] = autohandler;
++	_ramvec[VEC_ACCESS]	= csky_buserr;
++	_ramvec[VEC_ALIGN]	= csky_alignment;
++	_ramvec[VEC_TRAP0]	= csky_systemcall;
++	_ramvec[VEC_TRAP2]	= csky_cmpxchg;
++	_ramvec[VEC_TRAP3]	= csky_get_tls;
++	_ramvec[VEC_AUTOVEC]	= csky_autohandler;
++	_ramvec[VEC_ILLEGAL]	= csky_illegal;
++	_ramvec[VEC_FPE]	= csky_fpe;
 +
-+	_ramvec[VEC_TLBINVALIDL] = handle_tlbinvalidl;
-+	_ramvec[VEC_TLBINVALIDS] = handle_tlbinvalids;
-+	_ramvec[VEC_TLBMODIFIED] = handle_tlbmodified;
-+	_ramvec[VEC_ILLEGAL] = handle_illegal;
-+	_ramvec[VEC_FPE] = handle_fpe;
++	_ramvec[VEC_TLBINVALIDL] = csky_tlbinvalidl;
++	_ramvec[VEC_TLBINVALIDS] = csky_tlbinvalids;
++	_ramvec[VEC_TLBMODIFIED] = csky_tlbmodified;
 +}
 +
 +void die_if_kernel(char *,struct pt_regs *,int);
