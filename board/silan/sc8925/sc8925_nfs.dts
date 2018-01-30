@@ -1,0 +1,68 @@
+/dts-v1/;
+
+/ {
+	model = "silan sc8925";
+	compatible = "csky,silan-sc8925";
+	#address-cells = <1>;
+	#size-cells = <1>;
+
+	memory {
+		device_type = "memory";
+		reg = <0x00000000 0x08000000>;
+	};
+
+	cpus {
+		#address-cells = <0>;
+		#size-cells = <0>;
+
+		cpu {
+			device_type	= "cpu";
+			ccr		= <0x417d>;
+			hint		= <0xe>;
+		};
+	};
+
+	soc {
+		#address-cells = <1>;
+		#size-cells = <1>;
+		compatible = "simple-bus";
+		ranges;
+
+		silan_clk0: silan-clock0 {
+			compatible = "silan,sc8925-clk";
+			#clock-cells = <1>;
+		};
+
+		intc: interrupt-controller {
+			compatible = "csky,intc-v1";
+			reg = <0x1fcb0000 0x400>;
+			interrupt-controller;
+			#interrupt-cells = <1>;
+		};
+
+		timer0: timer@1fcb1000 {
+			compatible = "arm,sp804";
+			reg = <0x1fbc7000 0x1000>;
+			clocks = <&silan_clk0 34>;
+			interrupts = <17>;
+			interrupt-parent = <&intc>;
+		};
+
+		pinctrl: pinctrl {
+			compatible = "silan,sc8925-pinctrl";
+		};
+
+		uart0: serial@1fbc0000 {
+			compatible = "arm,sbsa-uart";
+			reg = <0x1fbc0000 0x1000>;
+			current-speed = <115200>;
+			clocks = <&silan_clk0 9>;
+			interrupts = <11>;
+			interrupt-parent = <&intc>;
+		};
+	};
+
+	chosen {
+		bootargs = "console=ttyAMA0,115200 init=/sbin/init root=/dev/nfs rw nfsroot=172.16.170.97:/home/vmh/nfs/sc8925,v3,tcp,nolock ip=172.16.170.102";
+	};
+};
