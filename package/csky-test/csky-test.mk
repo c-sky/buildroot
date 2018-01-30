@@ -1,11 +1,11 @@
 #
 ##############################################################################
 #
-# csky arch
+# csky test
 #
 ################################################################################
 
-CSKY_TEST_VERSION = 527321fe98535a36365220ca091f11d08b7425ea
+CSKY_TEST_VERSION = c0bfdc6432a159802dae7186f4eec6aecb073e29
 CSKY_TEST_SITE = $(call github,riseandfall,csky-test,$(CSKY_TEST_VERSION))
 ifeq ($(BR2_CSKY_TEST_GDB_FILE),)
 CSKY_TEST_CP_GDBINIT =
@@ -20,6 +20,7 @@ echo CONFIG_QEMU=$(BR2_CSKY_TEST_QEMU) >> $(@D)/config
 echo CONFIG_GDB=$(BR2_CSKY_TEST_GDB_FILE) >> $(@D)/config
 echo CONFIG_NFS=$(BR2_CSKY_TEST_NFS_PATH) >> $(@D)/config
 echo CONFIG_LTP=$(BR2_PACKAGE_CSKY_TEST_LTP) >> $(@D)/config
+echo CONFIG_LMBENCH=$(BR2_PACKAGE_CSKY_TEST_LMBENCH) >> $(@D)/config
 echo CONFIG_DHRYSTONE=$(BR2_PACKAGE_CSKY_TEST_DHRYSTONE) >> $(@D)/config
 echo CONFIG_WHETSTONE=$(BR2_PACKAGE_CSKY_TEST_WHETSTONE) >> $(@D)/config
 endef

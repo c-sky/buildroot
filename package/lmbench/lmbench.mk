@@ -12,6 +12,16 @@ LMBENCH_LICENSE_FILES = COPYING COPYING-2
 
 LMBENCH_CFLAGS = $(TARGET_CFLAGS)
 
+ifeq ($(BR2_csky),y)
+define  LMBENCH_CP_SCRIPT
+        (
+        cp $(@D)/bin/csky/lmbench $(TARGET_DIR)/usr/bin/;\
+        echo cp $(@D)/bin/csky/lmbench $(TARGET_DIR)/usr/bin/;\
+        )
+endef
+LMBENCH_POST_INSTALL_HOOKS += LMBENCH_CP_SCRIPT
+endif
+
 ifeq ($(BR2_PACKAGE_LIBTIRPC),y)
 LMBENCH_DEPENDENCIES += host-pkgconf libtirpc
 LMBENCH_CFLAGS += `$(PKG_CONFIG_HOST_BINARY) --cflags libtirpc`
@@ -34,8 +44,15 @@ define LMBENCH_BUILD_CMDS
 	$(TARGET_MAKE_ENV) $(MAKE) CFLAGS="$(LMBENCH_CFLAGS)" LDLIBS="$(LMBENCH_LDLIBS)" OS=$(ARCH) CC="$(TARGET_CC)" -C $(@D)/src
 endef
 
+ifeq ($(BR2_csky),y)
+define LMBENCH_INSTALL_TARGET_CMDS
+        $(TARGET_MAKE_ENV) $(MAKE) CFLAGS="$(TARGET_CFLAGS)" OS=$(ARCH) CC="$(TARGET_CC)" BASE=$(TARGET_DIR)/usr -C $(@D)/src install
+        cp $(@D)/bin/csky/lmbench $(TARGET_DIR)/usr/bin/
+endef
+else
 define LMBENCH_INSTALL_TARGET_CMDS
 	$(TARGET_MAKE_ENV) $(MAKE) CFLAGS="$(TARGET_CFLAGS)" OS=$(ARCH) CC="$(TARGET_CC)" BASE=$(TARGET_DIR)/usr -C $(@D)/src install
 endef
+endif
 
 $(eval $(generic-package))

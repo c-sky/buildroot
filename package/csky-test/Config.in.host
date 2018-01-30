@@ -39,6 +39,12 @@ config BR2_PACKAGE_CSKY_TEST_LTP
         select BR2_PACKAGE_LTP_TESTSUITE
         default y
 
+config BR2_PACKAGE_CSKY_TEST_LMBENCH
+        bool "csky-ci-test lmbench"
+        depends on BR2_PACKAGE_CSKY_TEST
+        select BR2_PACKAGE_LMBENCH
+        default y
+
 config BR2_PACKAGE_CSKY_TEST_DHRYSTONE
         bool "csky-ci-test dhrystone"
         depends on BR2_PACKAGE_CSKY_TEST
