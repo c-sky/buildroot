@@ -6,7 +6,12 @@
 
 image: buildroot/base
 
-.defconfig_script: &defconfig_script
+stages:
+  - build
+  - test
+  - deploy
+
+.build_buildroot: &build_buildroot
     - echo 'Configure Buildroot'
     - make ${CI_BUILD_NAME}
     - echo 'Build buildroot'
@@ -17,27 +22,7 @@ image: buildroot/base
             exit 1
         }
 
-.defconfig: &defconfig
-    script: *defconfig_script
-    artifacts:
-        when: always
-        expire_in: 2 weeks
-        paths:
-            - build.log
-            - output/build/build-time.log
-            - output/images/
-            - output/build/packages-file-list.txt
-
-.bt_defconfig_script: &bt_defconfig_script
-    - echo 'Configure Buildroot'
-    - make ${CI_BUILD_NAME}
-    - echo 'Build buildroot'
-    - |
-        make > >(tee build.log |grep '>>>') 2>&1 || {
-            echo 'Failed build last output'
-            tail -200 build.log
-            exit 1
-        }
+.run_test: &run_test
     - echo 'Run test'
     - |
         ./output/host/csky-test/run_test.sh || {
@@ -47,8 +32,9 @@ image: buildroot/base
         }
     - cat test_sum.log
 
-.bt_defconfig: &bt_defconfig
-    script: *bt_defconfig_script
+.defconfig: &defconfig
+    stage: build
+    script: *build_buildroot
     cache:
       paths:
         - dl/
@@ -56,15 +42,17 @@ image: buildroot/base
         when: always
         expire_in: 2 weeks
         paths:
-            - build.log
             - output/build/build-time.log
+            - output/host/
             - output/images/
             - output/build/packages-file-list.txt
+            - build.log
             - test.log
             - test_sum.log
-
+            
 .sc8925_defconfig: &sc8925_defconfig
-    script: *bt_defconfig_script
+    stage: build
+    script: *build_buildroot
     tags:
       - vmh-sc8925
     cache:
@@ -74,10 +62,11 @@ image: buildroot/base
         when: always
         expire_in: 2 weeks
         paths:
-            - build.log
             - output/build/build-time.log
+            - output/host/
             - output/images/
             - output/build/packages-file-list.txt
+            - build.log
             - test.log
             - test_sum.log
 
@@ -90,5 +79,18 @@ csky_ytlf_defconfig: *defconfig
 csky_eragon_defconfig: *defconfig
 qemu_csky_ck810_uclibc_defconfig: *defconfig
 qemu_csky_ck610_uclibc_defconfig: *defconfig
-qemu_csky_ck810_glibc_bt_defconfig: *bt_defconfig
+qemu_csky_ck810_glibc_bt_defconfig: *defconfig
 csky_sc8925_bt_defconfig: *sc8925_defconfig
+
+ck810_glibc_test:
+    stage: test
+    script: *run_test
+    dependencies:
+      - qemu_csky_ck810_glibc_bt_defconfig
+
+sc8925_test:
+    stage: test
+    script: *run_test
+    dependencies:
+      - csky_sc8925_bt_defconfig
+
