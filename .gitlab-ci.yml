@@ -49,8 +49,6 @@ image: buildroot/base
 
 .bt_defconfig: &bt_defconfig
     script: *bt_defconfig_script
-    tags:
-      - vmh
     cache:
       paths:
         - dl/
