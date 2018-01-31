@@ -65,6 +65,24 @@ image: buildroot/base
             - test.log
             - test_sum.log
 
+.sc8925_defconfig: &sc8925_defconfig
+    script: *bt_defconfig_script
+    tags:
+      - vmh-sc8925
+    cache:
+      paths:
+        - dl/
+    artifacts:
+        when: always
+        expire_in: 2 weeks
+        paths:
+            - build.log
+            - output/build/build-time.log
+            - output/images/
+            - output/build/packages-file-list.txt
+            - test.log
+            - test_sum.log
+
 csky_gx6605s_defconfig: *defconfig
 csky_gx6605s_fbcon_defconfig: *defconfig
 csky_sc8925_defconfig: *defconfig
@@ -75,4 +93,4 @@ csky_eragon_defconfig: *defconfig
 qemu_csky_ck810_uclibc_defconfig: *defconfig
 qemu_csky_ck610_uclibc_defconfig: *defconfig
 qemu_csky_ck810_glibc_bt_defconfig: *bt_defconfig
-
+csky_sc8925_bt_defconfig: *sc8925_defconfig
