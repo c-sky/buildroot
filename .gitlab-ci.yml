@@ -90,6 +90,8 @@ ck810_glibc_test:
 
 sc8925_test:
     stage: test
+    tags:
+      - vmh-sc8925
     script: *run_test
     dependencies:
       - csky_sc8925_bt_defconfig
