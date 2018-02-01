@@ -5,7 +5,7 @@
 #
 ################################################################################
 
-CSKY_TEST_VERSION = 9a65a370c8e613d4e04409c4b1177f6982a063d5
+CSKY_TEST_VERSION = cba2f17eb964996fcabf5db4fe0be75949819131
 CSKY_TEST_SITE = $(call github,riseandfall,csky-test,$(CSKY_TEST_VERSION))
 ifeq ($(BR2_CSKY_TEST_GDB_FILE),"")
 CSKY_TEST_CP_GDBINIT =
