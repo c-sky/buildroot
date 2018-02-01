@@ -87,9 +87,9 @@ all:
 .PHONY: all
 
 # Set and export the version string
-export BR2_VERSION := 2017.11-git
+export BR2_VERSION := 2018.02-git
 # Actual time the release is cut (for reproducible builds)
-BR2_VERSION_EPOCH = 1504300000
+BR2_VERSION_EPOCH = 1512070000
 
 # Save running make version since it's clobbered by the make package
 RUNNING_MAKE_VERSION := $(MAKE_VERSION)
@@ -141,7 +141,7 @@ noconfig_targets := menuconfig nconfig gconfig xconfig config oldconfig randconf
 # We're building in two situations: when MAKECMDGOALS is empty
 # (default target is to build), or when MAKECMDGOALS contains
 # something else than one of the nobuild_targets.
-nobuild_targets := source %-source source-check \
+nobuild_targets := source %-source \
 	legal-info %-legal-info external-deps _external-deps \
 	clean distclean help show-targets graph-depends \
 	%-graph-depends %-show-depends %-show-version \
@@ -254,7 +254,7 @@ export LANG = C
 export LC_ALL = C
 export GZIP = -n
 BR2_VERSION_GIT_EPOCH = $(shell GIT_DIR=$(TOPDIR)/.git $(GIT) log -1 --format=%at)
-export SOURCE_DATE_EPOCH = $(if $(wildcard $(TOPDIR)/.git),$(BR2_VERSION_GIT_EPOCH),$(BR2_VERSION_EPOCH))
+export SOURCE_DATE_EPOCH ?= $(if $(wildcard $(TOPDIR)/.git),$(BR2_VERSION_GIT_EPOCH),$(BR2_VERSION_EPOCH))
 DEPENDENCIES_HOST_PREREQ += host-fakedate
 endif
 
@@ -483,11 +483,13 @@ include system/system.mk
 include package/Makefile.in
 # arch/arch.mk.* must be after package/Makefile.in because it may need to
 # complement variables defined therein, like BR_NO_CHECK_HASH_FOR.
--include $(wildcard arch/arch.mk.*)
+-include $(sort $(wildcard arch/arch.mk.*))
 include support/dependencies/dependencies.mk
 
-include toolchain/*.mk
-include toolchain/*/*.mk
+PACKAGES += $(DEPENDENCIES_HOST_PREREQ)
+
+include $(sort $(wildcard toolchain/*.mk))
+include $(sort $(wildcard toolchain/*/*.mk))
 
 # Include the package override file if one has been provided in the
 # configuration.
@@ -677,6 +679,10 @@ $(TARGETS_ROOTFS): target-finalize
 .PHONY: target-finalize
 target-finalize: $(PACKAGES)
 	@$(call MESSAGE,"Finalizing target directory")
+	# Check files that are touched by more than one package
+	./support/scripts/check-uniq-files -t target $(BUILD_DIR)/packages-file-list.txt
+	./support/scripts/check-uniq-files -t staging $(BUILD_DIR)/packages-file-list-staging.txt
+	./support/scripts/check-uniq-files -t host $(BUILD_DIR)/packages-file-list-host.txt
 	$(foreach hook,$(TARGET_FINALIZE_HOOKS),$($(hook))$(sep))
 	rm -rf $(TARGET_DIR)/usr/include $(TARGET_DIR)/usr/share/aclocal \
 		$(TARGET_DIR)/usr/lib/pkgconfig $(TARGET_DIR)/usr/share/pkgconfig \
@@ -723,7 +729,8 @@ endif
 		echo "ID=buildroot"; \
 		echo "VERSION_ID=$(BR2_VERSION)"; \
 		echo "PRETTY_NAME=\"Buildroot $(BR2_VERSION)\"" \
-	) >  $(TARGET_DIR)/etc/os-release
+	) >  $(TARGET_DIR)/usr/lib/os-release
+	ln -sf ../usr/lib/os-release $(TARGET_DIR)/etc
 
 	@$(call MESSAGE,"Sanitizing RPATH in target tree")
 	$(TOPDIR)/support/scripts/fix-rpath target
@@ -751,10 +758,6 @@ source: $(foreach p,$(PACKAGES),$(p)-all-source)
 _external-deps: $(foreach p,$(PACKAGES),$(p)-all-external-deps)
 external-deps:
 	@$(MAKE1) -Bs $(EXTRAMAKEARGS) _external-deps | sort -u
-
-# check if download URLs are outdated
-.PHONY: source-check
-source-check: $(foreach p,$(PACKAGES),$(p)-all-source-check)
 
 .PHONY: legal-info-clean
 legal-info-clean:
@@ -787,7 +790,7 @@ legal-info: dirs legal-info-clean legal-info-prepare $(foreach p,$(PACKAGES),$(p
 
 .PHONY: show-targets
 show-targets:
-	@echo $(PACKAGES) $(TARGETS_ROOTFS)
+	@echo $(sort $(PACKAGES)) $(sort $(TARGETS_ROOTFS))
 
 .PHONY: show-build-order
 show-build-order: $(patsubst %,%-show-build-order,$(PACKAGES))
@@ -1042,7 +1045,6 @@ help:
 	@echo
 	@echo 'Miscellaneous:'
 	@echo '  source                 - download all sources needed for offline-build'
-	@echo '  source-check           - check selected packages for valid download URLs'
 	@echo '  external-deps          - list external packages used'
 	@echo '  legal-info             - generate info about license compliance'
 	@echo '  printvars              - dump all the internal variables'
@@ -1107,7 +1109,7 @@ print-version:
 	./support/testing/run-tests -l 2>&1 | sed -r -e '/^test_run \((.*)\).*/!d; s//\1: *runtime_test/' | LC_ALL=C sort >> $@
 
 include docs/manual/manual.mk
--include $(foreach dir,$(BR2_EXTERNAL_DIRS),$(dir)/docs/*/*.mk)
+-include $(foreach dir,$(BR2_EXTERNAL_DIRS),$(sort $(wildcard $(dir)/docs/*/*.mk)))
 
 .PHONY: $(noconfig_targets)
 

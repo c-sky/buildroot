@@ -4,8 +4,8 @@
 #
 ################################################################################
 
-PURE_FTPD_VERSION = 1.0.46
-PURE_FTPD_SITE = http://download.pureftpd.org/pub/pure-ftpd/releases
+PURE_FTPD_VERSION = 1.0.47
+PURE_FTPD_SITE = https://download.pureftpd.org/pub/pure-ftpd/releases
 PURE_FTPD_SOURCE = pure-ftpd-$(PURE_FTPD_VERSION).tar.bz2
 PURE_FTPD_LICENSE = ISC
 PURE_FTPD_LICENSE_FILES = COPYING
@@ -51,6 +51,10 @@ endif
 
 ifeq ($(BR2_PACKAGE_PURE_FTPD_QUOTAS),y)
 PURE_FTPD_CONF_OPTS += --with-quotas
+endif
+
+ifeq ($(BR2_PACKAGE_PURE_FTPD_UPLOADSCRIPT),y)
+PURE_FTPD_CONF_OPTS += --with-uploadscript
 endif
 
 $(eval $(autotools-package))

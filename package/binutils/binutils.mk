@@ -9,32 +9,27 @@
 BINUTILS_VERSION = $(call qstrip,$(BR2_BINUTILS_VERSION))
 ifeq ($(BINUTILS_VERSION),)
 ifeq ($(BR2_arc),y)
-BINUTILS_VERSION = arc-2017.09-rc1
+BINUTILS_VERSION = arc-2017.09-release
 else
-BINUTILS_VERSION = 2.28.1
+BINUTILS_VERSION = 2.29.1
 endif
 endif # BINUTILS_VERSION
 
-ifeq ($(BR2_arc),y)
+ifeq ($(BINUTILS_VERSION),arc-2017.09-release)
 BINUTILS_SITE = $(call github,foss-for-synopsys-dwc-arc-processors,binutils-gdb,$(BINUTILS_VERSION))
 BINUTILS_SOURCE = binutils-$(BINUTILS_VERSION).tar.gz
 BINUTILS_FROM_GIT = y
 endif
 
 ifeq ($(BR2_csky),y)
+BINUTILS_VERSION = 0e3d14ccb217122a4bdaeb23e63536e1836b13a4
 BINUTILS_SITE = $(call github,c-sky,binutils-gdb,$(BINUTILS_VERSION))
 BINUTILS_SOURCE = binutils-$(BINUTILS_VERSION).tar.gz
 BINUTILS_FROM_GIT = y
 endif
 
 BINUTILS_SITE ?= $(BR2_GNU_MIRROR)/binutils
-ifeq ($(BINUTILS_VERSION),2.28.1)
 BINUTILS_SOURCE ?= binutils-$(BINUTILS_VERSION).tar.xz
-else ifeq ($(BINUTILS_VERSION),2.29.1)
-BINUTILS_SOURCE ?= binutils-$(BINUTILS_VERSION).tar.xz
-else
-BINUTILS_SOURCE ?= binutils-$(BINUTILS_VERSION).tar.bz2
-endif
 BINUTILS_EXTRA_CONFIG_OPTIONS = $(call qstrip,$(BR2_BINUTILS_EXTRA_CONFIG_OPTIONS))
 BINUTILS_INSTALL_STAGING = YES
 BINUTILS_DEPENDENCIES = $(TARGET_NLS_DEPENDENCIES)

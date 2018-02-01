@@ -4,7 +4,7 @@
 #
 ################################################################################
 
-PDBG_VERSION = 77158819158d1d7053a737ac090d04fdfbfe9265
+PDBG_VERSION = 139ba071c222a5b0c20075f7c2265029ddd59449
 PDBG_SITE = $(call github,open-power,pdbg,$(PDBG_VERSION))
 PDBG_LICENSE = Apache-2.0
 PDBG_LICENSE_FILES = COPYING
