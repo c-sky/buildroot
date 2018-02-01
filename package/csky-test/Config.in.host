@@ -2,6 +2,7 @@ config BR2_PACKAGE_CSKY_TEST
         bool "csky-ci-test"
 	depends on BR2_LINUX_KERNEL
 	depends on BR2_csky
+        default y     if BR2_csky
 	help
           C-Sky ci test script
 
@@ -37,23 +38,19 @@ config BR2_PACKAGE_CSKY_TEST_LTP
         bool "csky-ci-test ltp"
         depends on BR2_PACKAGE_CSKY_TEST
         select BR2_PACKAGE_LTP_TESTSUITE
-        default y
 
 config BR2_PACKAGE_CSKY_TEST_LMBENCH
         bool "csky-ci-test lmbench"
         depends on BR2_PACKAGE_CSKY_TEST
         select BR2_PACKAGE_LMBENCH
-        default y
 
 config BR2_PACKAGE_CSKY_TEST_DHRYSTONE
         bool "csky-ci-test dhrystone"
         depends on BR2_PACKAGE_CSKY_TEST
         select BR2_PACKAGE_DHRYSTONE
-        default y if !BR2_CSKY_TEST_QEMU
 
 config BR2_PACKAGE_CSKY_TEST_WHETSTONE
         bool "csky-ci-test whetstone"
         depends on BR2_PACKAGE_CSKY_TEST
         select BR2_PACKAGE_WHETSTONE
-        default y if !BR2_CSKY_TEST_QEMU
 

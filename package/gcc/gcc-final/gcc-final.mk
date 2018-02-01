@@ -78,18 +78,6 @@ ifeq ($(BR2_bfin),y)
 HOST_GCC_FINAL_CONF_OPTS += --disable-symvers
 endif
 
-ifeq ($(BR2_csky),y)
-ifeq ($(BR2_TOOLCHAIN_BUILDROOT),y)
-define  HOST_GCC_FINAL_CSKY_TARBALL
-        (cd $(HOST_DIR); \
-         tar -czf $(BINARIES_DIR)/csky_toolchain.tar.gz bin csky-buildroot* include lib lib64 libexec share usr; \
-         cd - ;\
-        )
-endef
-HOST_GCC_FINAL_POST_INSTALL_HOOKS += HOST_GCC_FINAL_CSKY_TARBALL
-endif
-endif
-
 # libcilkrts does not support v8
 ifeq ($(BR2_sparc),y)
 HOST_GCC_FINAL_CONF_OPTS += --disable-libcilkrts
