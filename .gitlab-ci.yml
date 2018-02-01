@@ -67,8 +67,6 @@ stages:
             - output/images/
             - output/build/packages-file-list.txt
             - build.log
-            - test.log
-            - test_sum.log
 
 csky_gx6605s_defconfig: *defconfig
 csky_gx6605s_fbcon_defconfig: *defconfig
@@ -87,6 +85,9 @@ ck810_glibc_test:
     script: *run_test
     dependencies:
       - qemu_csky_ck810_glibc_bt_defconfig
+    artifacts:
+            - test.log
+            - test_sum.log
 
 sc8925_test:
     stage: test
@@ -95,4 +96,7 @@ sc8925_test:
     script: *run_test
     dependencies:
       - csky_sc8925_bt_defconfig
+    artifacts:
+            - test.log
+            - test_sum.log
 
