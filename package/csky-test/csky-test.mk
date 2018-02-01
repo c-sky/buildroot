@@ -32,6 +32,15 @@ define CSKY_TEST_BUILD_CMDS
 make -C $(@D)
 endef
 
+
+ifeq (,$(findstring y,$(BR2_PACKAGE_CSKY_TEST_LTP) $(BR2_PACKAGE_CSKY_TEST_LMBENCH) $(BR2_PACKAGE_CSKY_TEST_DHRYSTONE) $(BR2_PACKAGE_CSKY_TEST_WHETSTONE)))
+define CSKY_TEST_INSTALL_TARGET_CMDS
+mkdir -p $(HOST_DIR)/csky-test/
+mkdir -p $(TARGET_DIR)/usr/lib/csky-test/
+cp -f $(@D)/out/sh/* $(HOST_DIR)/csky-test/
+$(CSKY_TEST_CP_GDBINIT)
+endef
+else
 define CSKY_TEST_INSTALL_TARGET_CMDS
 mkdir -p $(HOST_DIR)/csky-test/
 mkdir -p $(TARGET_DIR)/usr/lib/csky-test/
@@ -40,6 +49,7 @@ cp -f $(@D)/out/configs/* $(TARGET_DIR)/usr/lib/csky-test/
 cp -f $(@D)/out/S90test $(TARGET_DIR)/etc/init.d/
 $(CSKY_TEST_CP_GDBINIT)
 endef
+endif
 
 ifeq ($(BR2_TOOLCHAIN_BUILDROOT),y)
 define  HOST_GCC_FINAL_CSKY_TARBALL
