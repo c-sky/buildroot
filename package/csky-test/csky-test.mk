@@ -56,8 +56,8 @@ define  HOST_GCC_FINAL_CSKY_TARBALL
         (cd $(HOST_DIR); \
          BUILDROOT_VERSION=$$(git log --pretty=oneline|head -1|awk '{print $$1}'); \
          BUILDROOT_CONFIG=$$(grep BR2_DEFCONFIG $(CONFIG_DIR)/.config|awk -F/ '{print $$NF}'|sed 's/\"//g'); \
-         echo $$BUILDROOT_VERSION; \
-         echo $$BUILDROOT_CONFIG; \
+         echo $$BUILDROOT_CONFIG > bin/.csky_bt_commit; \
+         echo $$BUILDROOT_VERSION >> bin/.csky_bt_commit; \
          tar -czf $(BINARIES_DIR)/csky_toolchain_$${BUILDROOT_CONFIG}_$${BUILDROOT_VERSION}.tar.gz bin csky-buildroot* include lib lib64 libexec share usr; \
          cd - ;\
         )
