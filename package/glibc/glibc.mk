@@ -8,8 +8,8 @@ ifeq ($(BR2_arc),y)
 GLIBC_VERSION =  arc-2017.09-release
 GLIBC_SITE = $(call github,foss-for-synopsys-dwc-arc-processors,glibc,$(GLIBC_VERSION))
 else ifeq ($(BR2_csky),y)
-GLIBC_VERSION = 113c3600c63dd7cfa2e19994895e6846d47e19ce
-GLIBC_SITE = $(call github,c-sky,glibc,$(GLIBC_VERSION))
+GLIBC_VERSION = 5f0c55549627c9f80d36c646a86fa87d375ccd0b
+GLIBC_SITE = $(call github,riseandfall,glibc,$(GLIBC_VERSION))
 else
 # Generate version string using:
 #   git describe --match 'glibc-*' --abbrev=40 origin/release/MAJOR.MINOR/master
@@ -44,10 +44,6 @@ GLIBC_INSTALL_STAGING_OPTS = install_root=$(STAGING_DIR) install
 # Thumb build is broken, build in ARM mode
 ifeq ($(BR2_ARM_INSTRUCTIONS_THUMB),y)
 GLIBC_EXTRA_CFLAGS += -marm
-endif
-
-ifeq ($(BR2_csky),y)
-GLIBC_DONT_APPLY_PATCH=y
 endif
 
 # MIPS64 defaults to n32 so pass the correct -mabi if
