@@ -14,7 +14,7 @@ ifeq ($(BR2_GCC_VERSION_ARC),y)
 GCC_SITE = $(call github,foss-for-synopsys-dwc-arc-processors,gcc,$(GCC_VERSION))
 GCC_SOURCE = gcc-$(GCC_VERSION).tar.gz
 else ifeq ($(BR2_csky),y)
-GCC_VERSION = c60d67c3bdf17ea9835ff18d757d17e0e0af99a0
+GCC_VERSION = ef857d04bd32316aa32e3af92f8325bf09481cd2
 GCC_SITE = $(call github,c-sky,gcc,$(GCC_VERSION))
 GCC_SOURCE = gcc-$(GCC_VERSION).tar.gz
 else ifeq ($(BR2_or1k),y)
