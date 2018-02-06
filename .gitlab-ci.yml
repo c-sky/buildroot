@@ -25,7 +25,18 @@ stages:
 .run_test: &run_test
     - echo 'Run test'
     - |
-        ./output/host/csky-test/run_test.sh || {
+        ./output/host/csky-ci/run_test.sh || {
+            echo 'Failed build last output'
+            tail -200 test.log
+            exit 1
+        }
+    - cat test_sum.log
+
+.run_test_board: &run_test_board
+    - echo 'Run test'
+    - ./output/host/csky-ci/gen_rtb.sh
+    - |
+        ./output/host/csky-ci/run_test.sh || {
             echo 'Failed build last output'
             tail -200 test.log
             exit 1
@@ -110,7 +121,7 @@ sc8925_test:
     stage: test
     tags:
       - vmh-sc8925
-    script: *run_test
+    script: *run_test_board
     dependencies:
       - csky_sc8925_bt_defconfig
     artifacts:
