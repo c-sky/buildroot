@@ -69,7 +69,24 @@ stages:
     cache:
       paths:
         - dl/
+    artifacts:
+        when: always
+        expire_in: 2 weeks
+        paths:
+            - output/build/build-time.log
+            - output/host/
+            - output/images/
+            - output/build/packages-file-list.txt
+            - build.log
 
+.gx6622_defconfig: &gx6622_defconfig
+    stage: build
+    script: *build_buildroot
+    tags:
+      - vmh-sc8925
+    cache:
+      paths:
+        - dl/
     artifacts:
         when: always
         expire_in: 2 weeks
@@ -92,6 +109,7 @@ qemu_csky_ck610_uclibc_defconfig: *defconfig
 qemu_csky_ck810_glibc_bt_defconfig: *defconfig
 qemu_csky_ck610_uclibc_bt_defconfig: *defconfig
 csky_sc8925_bt_defconfig: *sc8925_defconfig
+csky_gx6622_bt_defconfig: *gx6622_defconfig
 
 ck810_glibc_test:
     stage: test
@@ -130,3 +148,18 @@ sc8925_test:
         paths:
             - test.log
             - test_sum.log
+
+gx6622_test:
+    stage: test
+    tags:
+      - vmh-sc8925
+    script: *run_test_board
+    dependencies:
+      - csky_gx6622_bt_defconfig
+    artifacts:
+        when: always
+        expire_in: 2 weeks
+        paths:
+            - test.log
+            - test_sum.log
+
