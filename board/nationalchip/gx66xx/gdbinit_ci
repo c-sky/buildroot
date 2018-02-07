@@ -1,4 +1,4 @@
-target jtag jtag://127.0.0.1:1026
+target jtag jtag://127.0.1.1:1026
 reset
 
 # pin mux for serial8250, only for gx6605s
@@ -19,7 +19,7 @@ set $cr18 = 0x7d
 set $r3 = 0x92000000
 
 # Store the devicetree blob(dtb) file to the store address above
-restore gx6605s.dtb binary 0x92000000
+restore gx6622.dtb binary 0x92000000
 
 # Load the debugging elf file
 load
