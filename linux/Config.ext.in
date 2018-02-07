@@ -201,42 +201,5 @@ config BR2_LINUX_KERNEL_EXT_CSKY_ADDONS_GIT_URL
 	default ""
 
 endif # csky addons
-
-#-------------------------------------------------------------------------------
-# csky examples for linux
-config BR2_LINUX_KERNEL_EXT_CSKY_EXAMPLES
-	bool "C-SKY Linux examples"
-	select BR2_PACKAGE_CSKY_EXAMPLES
-	help
-	  Linux examples for C-SKY from the www.c-sky.com
-
-	  https://github.com/c-sky/linux-sdk-examples
-
-if BR2_LINUX_KERNEL_EXT_CSKY_EXAMPLES
-
-choice
-	bool "Examples version"
-	help
-	  Select method to get code, github or custom git repo. And you
-	  can define the version for github.
-
-config BR2_LINUX_KERNEL_EXT_CSKY_EXAMPLES_GITHUB
-	bool "Github"
-
-config BR2_LINUX_KERNEL_EXT_CSKY_EXAMPLES_GIT
-	bool "Custom git repo"
-
-endchoice
-
-config BR2_LINUX_KERNEL_EXT_CSKY_EXAMPLES_VERSION
-	string "Github version"
-	default "HEAD"
-
-config BR2_LINUX_KERNEL_EXT_CSKY_EXAMPLES_GIT_URL
-	string "Git url"
-	depends on BR2_LINUX_KERNEL_EXT_CSKY_EXAMPLES_GIT
-	default ""
-
-endif # csky examples
 endmenu
 
