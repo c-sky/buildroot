@@ -5,7 +5,7 @@
 #
 ################################################################################
 
-CSKY_CI_VERSION = 4d925a47bf25d2f80cb4a9844ed737baaf9ac2f9
+CSKY_CI_VERSION = 3ea7c35321b4fde91f320750b7ab0b7db71807a6
 CSKY_CI_SITE = $(call github,riseandfall,csky-ci,$(CSKY_CI_VERSION))
 
 define CSKY_CI_CONFIGURE_CMDS
