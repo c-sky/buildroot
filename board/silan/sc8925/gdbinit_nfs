@@ -21,7 +21,7 @@ set $cr23 = 0x1018
 set $r1 = 0x82000000
 
 # Store the devicetree blob(dtb) file to the store address above
-restore sc8925_nfs.dtb binary 0x82000000
+restore sc8925.dtb binary 0x82000000
 
 # Load the debugging elf file
 load
