@@ -2,8 +2,7 @@ if BR2_TOOLCHAIN_EXTERNAL_CSKY
 
 config BR2_TOOLCHAIN_EXTERNAL_PREFIX
 	default "csky-linux"		if BR2_ck610
-	default "csky-abiv2-linux"	if BR2_ck807
-	default "csky-abiv2-linux"	if BR2_ck810
+	default "csky-abiv2-linux"	if BR2_ck807 || BR2_ck810 || BR2_ck860
 
 config BR2_PACKAGE_PROVIDES_TOOLCHAIN_EXTERNAL
 	default "toolchain-external-csky"
