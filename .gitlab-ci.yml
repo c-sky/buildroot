@@ -210,7 +210,7 @@ csky_gx6622_bt_defconfig_test:
             - test.log
             - test_sum.log
 
-deploy_dummy:
+deploy_to_github:
     stage: deploy
     script:
       - echo deploy
