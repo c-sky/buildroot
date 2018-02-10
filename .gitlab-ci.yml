@@ -200,7 +200,16 @@ csky_gx6622_bt_defconfig_test:
     stage: test
     tags:
       - vmh-sc8925
-    script: *run_test_board
+    script:
+      - echo 'Run test'
+      - /home/vmh/workspace/DebugServerConsole/dbg_gx6622.sh&
+      - |
+          ./output/host/csky-ci/run_test.sh || {
+              echo 'Failed build last output'
+              tail -200 test.log
+              exit 1
+          }
+      - ps aux|grep DebugServerConsole|grep "port 1026"|awk '{print $2}'|xargs kill -9
     dependencies:
       - csky_gx6622_bt_defconfig
     artifacts:
