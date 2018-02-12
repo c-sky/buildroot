@@ -5,7 +5,7 @@
 #
 ################################################################################
 
-CSKY_CI_VERSION = e3c613dc01466d0a28f5b432eff2c2296f9d8d13
+CSKY_CI_VERSION = 6d2f6c7a8db2f224b294790e970c4e2fd50c5743
 CSKY_CI_SITE = $(call github,c-sky,csky-ci,$(CSKY_CI_VERSION))
 
 define CSKY_CI_CONFIGURE_CMDS
