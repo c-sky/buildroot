@@ -177,6 +177,7 @@ qemu_csky_ck610_uclibc_bt_defconfig_test:
 #    script:
 #      - echo 'Run test'
 #      - touch /home/vmh/workspace/DebugServerConsole/.stamp_gdb_sc8925
+#      - sleep 30
 #      - |
 #          ./output/host/csky-ci/run_test.sh || {
 #              echo 'Failed build last output'
@@ -200,6 +201,7 @@ csky_gx6622_bt_defconfig_test:
     script:
       - echo 'Run test'
       - touch /home/vmh/workspace/DebugServerConsole/.stamp_gdb_gx6622
+      - sleep 30
       - |
           ./output/host/csky-ci/run_test.sh || {
               echo 'Failed build last output'
@@ -223,6 +225,7 @@ csky_eragon_bt_defconfig_tesst:
     script:
       - echo 'Run test'
       - touch /home/vmh/workspace/DebugServerConsole/.stamp_gdb_eragon
+      - sleep 30
       - |
           ./output/host/csky-ci/run_test.sh || {
               echo 'Failed build last output'
