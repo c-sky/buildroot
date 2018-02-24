@@ -96,6 +96,7 @@ qemu_csky_ck610_uclibc_bt_defconfig: *defconfig
 qemu_csky_ck610_glibc_bt_defconfig: *defconfig
 csky_sc8925_bt_defconfig: *sc8925_defconfig
 csky_gx6622_bt_defconfig: *gx6622_defconfig
+csky_eragon_bt_defconfig: *defconfig
 
 qemu_csky_ck810_glibc_bt_defconfig_test:
     stage: test
@@ -208,6 +209,29 @@ csky_gx6622_bt_defconfig_test:
       - touch /home/vmh/workspace/DebugServerConsole/.stamp_gdb_exit_gx6622
     dependencies:
       - csky_gx6622_bt_defconfig
+    artifacts:
+        when: always
+        expire_in: 2 weeks
+        paths:
+            - test.log
+            - test_sum.log
+
+csky_eragon_bt_defconfig_tesst:
+    stage: test
+    tags:
+      - vmh-eragon
+    script:
+      - echo 'Run test'
+      - touch /home/vmh/workspace/DebugServerConsole/.stamp_gdb_eragon
+      - |
+          ./output/host/csky-ci/run_test.sh || {
+              echo 'Failed build last output'
+              tail -200 test.log
+              exit 1
+          }
+      - touch /home/vmh/workspace/DebugServerConsole/.stamp_gdb_exit_eragon
+    dependencies:
+      - csky_eragon_bt_defconfig
     artifacts:
         when: always
         expire_in: 2 weeks
