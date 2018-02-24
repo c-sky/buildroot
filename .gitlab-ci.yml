@@ -32,17 +32,6 @@ stages:
         }
     - cat test_sum.log
 
-.run_test_board: &run_test_board
-    - echo 'Run test'
-    - ./output/host/csky-ci/gen_rtb.sh
-    - |
-        ./output/host/csky-ci/run_test.sh || {
-            echo 'Failed build last output'
-            tail -200 test.log
-            exit 1
-        }
-    - cat test_sum.log
-
 .defconfig: &defconfig
     stage: build
     script: *build_buildroot
@@ -58,8 +47,6 @@ stages:
             - output/images/
             - output/build/packages-file-list.txt
             - build.log
-            - test.log
-            - test_sum.log
             
 .sc8925_defconfig: &sc8925_defconfig
     stage: build
@@ -83,7 +70,7 @@ stages:
     stage: build
     script: *build_buildroot
     tags:
-      - vmh-sc8925
+      - vmh-gx6622
     cache:
       paths:
         - dl/
@@ -186,7 +173,16 @@ qemu_csky_ck610_uclibc_bt_defconfig_test:
 #    stage: test
 #    tags:
 #      - vmh-sc8925
-#    script: *run_test_board
+#    script:
+#      - echo 'Run test'
+#      - touch /home/vmh/workspace/DebugServerConsole/.stamp_gdb_sc8925
+#      - |
+#          ./output/host/csky-ci/run_test.sh || {
+#              echo 'Failed build last output'
+#              tail -200 test.log
+#              exit 1
+#          }
+#      - touch /home/vmh/workspace/DebugServerConsole/.stamp_gdb_exit_sc8925
 #    dependencies:
 #      - csky_sc8925_bt_defconfig
 #    artifacts:
@@ -199,17 +195,17 @@ qemu_csky_ck610_uclibc_bt_defconfig_test:
 csky_gx6622_bt_defconfig_test:
     stage: test
     tags:
-      - vmh-sc8925
+      - vmh-gx6622
     script:
       - echo 'Run test'
-      - /home/vmh/workspace/DebugServerConsole/dbg_gx6622.sh&
+      - touch /home/vmh/workspace/DebugServerConsole/.stamp_gdb_gx6622
       - |
           ./output/host/csky-ci/run_test.sh || {
               echo 'Failed build last output'
               tail -200 test.log
               exit 1
           }
-      - ps aux|grep DebugServerConsole|grep "port 1026"|awk '{print $2}'|xargs kill -9
+      - touch /home/vmh/workspace/DebugServerConsole/.stamp_gdb_exit_gx6622
     dependencies:
       - csky_gx6622_bt_defconfig
     artifacts:
