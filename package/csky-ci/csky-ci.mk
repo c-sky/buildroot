@@ -28,7 +28,7 @@ cp -f $(@D)/out/S90test $(TARGET_DIR)/etc/init.d/
 endef
 
 ifeq ($(BR2_TOOLCHAIN_BUILDROOT),y)
-define  HOST_GCC_FINAL_CSKY_TARBALL
+define CSKY_CI_TOOLCHAIN_TARBALL
         (cd $(HOST_DIR); \
          BUILDROOT_VERSION=$$(git log --pretty=oneline|head -1|awk '{print $$1}'); \
          BUILDROOT_CONFIG=$$(grep BR2_DEFCONFIG $(CONFIG_DIR)/.config|awk -F/ '{print $$NF}'|sed 's/\"//g'); \
@@ -38,7 +38,7 @@ define  HOST_GCC_FINAL_CSKY_TARBALL
          cd - ;\
         )
 endef
-HOST_GCC_FINAL_POST_INSTALL_HOOKS += HOST_GCC_FINAL_CSKY_TARBALL
+BUSYBOX_PRE_EXTRACT_HOOKS += CSKY_CI_TOOLCHAIN_TARBALL
 endif
 
 ifeq ($(BR2_PACKAGE_LMBENCH),y)
