@@ -1,3 +1,3 @@
 #!/bin/sh
-cp ./board/csky/eragon_evb/gdbinit_nfs ${BINARIES_DIR}/.gdbinit
+cp ./board/csky/eragon_evb/gdbinit_ci ${BINARIES_DIR}/.gdbinit
 

@@ -154,6 +154,6 @@
 	};
 
 	chosen {
-		bootargs = "console=ttyS0,115200 init=/sbin/init root=/dev/sda2 rw rootwait";
+		bootargs = "console=ttyS0,115200 CSKY_CI_BOOTARG_STAMP rootwait";
 	};
 };
