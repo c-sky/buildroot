@@ -1,5 +1,6 @@
 # Set the JTAG address according to C-SKY debugserver settings
 tar jtag jtag://127.0.1.1:1028
+reset
 
 # CPU cache settings
 set $cr18=0x7d
@@ -14,7 +15,7 @@ set $r0 = 0x20150401
 set $r1 = 0x8F000000
 
 # Store the devicetree blob(dtb) file to the store address above
-restore eragon.dtb binary 0x8F000000
+restore eragon_evb_ci.dtb binary 0x8F000000
 
 # flush cache
 set $cr17 = 0x33

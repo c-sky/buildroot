@@ -19,7 +19,7 @@ set $cr18 = 0x7d
 set $r3 = 0x92000000
 
 # Store the devicetree blob(dtb) file to the store address above
-restore gx6622.dtb binary 0x92000000
+restore gx6622_ci.dtb binary 0x92000000
 
 # Load the debugging elf file
 load

@@ -34,3 +34,8 @@ printf "Starting network: "
 # sleep 2
 # mkdir -p /mnt/nfs
 # mount -t nfs 172.16.28.159:/home/ztw/work/nfs_share  /mnt/nfs  -o nolock,tcp,sync
+
+if [ -f "/etc/init.d/S90test" ]; then
+    /etc/init.d/S90test start
+fi
+
