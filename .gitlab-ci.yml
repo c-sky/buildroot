@@ -75,9 +75,9 @@ qemu_csky_ck807_glibc_bt_defconfig: *defconfig
 qemu_csky_ck807_uclibc_bt_defconfig: *defconfig
 qemu_csky_ck610_uclibc_bt_defconfig: *defconfig
 qemu_csky_ck610_glibc_bt_defconfig: *defconfig
-csky_ck810_sc8925_bt_defconfig: *localbuild_defconfig
+csky_ck810_sc8925_bt_defconfig: *defconfig
 csky_ck610_gx6622_bt_defconfig: *localbuild_defconfig
-csky_ck807_eragon_bt_defconfig: *localbuild_defconfig
+csky_ck807_eragon_bt_defconfig: *defconfig
 
 qemu_csky_ck810_glibc_bt_defconfig_test:
     stage: test
@@ -201,7 +201,7 @@ csky_ck610_gx6622_bt_defconfig_test:
             - test.log
             - test_sum.log
 
-csky_ck807_eragon_bt_defconfig_tesst:
+csky_ck807_eragon_bt_defconfig_test:
     stage: test
     tags:
       - vmh-eragon
@@ -226,7 +226,7 @@ csky_ck807_eragon_bt_defconfig_tesst:
             - test.log
             - test_sum.log
 
-deploy_to_github:
+deploy_github:
     stage: deploy
     script:
       - echo deploy
