@@ -14,8 +14,16 @@ ifeq ($(BR2_GCC_VERSION_ARC),y)
 GCC_SITE = $(call github,foss-for-synopsys-dwc-arc-processors,gcc,$(GCC_VERSION))
 GCC_SOURCE = gcc-$(GCC_VERSION).tar.gz
 else ifeq ($(BR2_csky),y)
+
+ifeq ($(BR2_CSKY_GERRIT_REPO),y)
+GCC_VERSION = 89f25fc1b7255de2d9a98917fc6985ce110c92c6
+GCC_SITE = ssh://${GITUSER}@192.168.0.78:29418/tools/gcc
+GCC_FINAL_SITE_METHOD = git
+GCC_INITIAL_SITE_METHOD = git
+else
 GCC_VERSION = ef857d04bd32316aa32e3af92f8325bf09481cd2
 GCC_SITE = $(call github,c-sky,gcc,$(GCC_VERSION))
+endif
 GCC_SOURCE = gcc-$(GCC_VERSION).tar.gz
 else ifeq ($(BR2_or1k),y)
 GCC_SITE = $(call github,openrisc,or1k-gcc,$(GCC_VERSION))

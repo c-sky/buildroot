@@ -20,7 +20,7 @@ endchoice
 
 config BR2_CSKY_FPU
 	bool "Enable FPU coprocessor"
-	depends on BR2_ck810 || BR2_ck807
+	depends on BR2_ck807 || BR2_ck810 || BR2_ck860
 	help
 	  You can say N here if your C-SKY CPU doesn't have a
 	  Floating-Point Coprocessor or if you don't need FPU support
@@ -28,7 +28,7 @@ config BR2_CSKY_FPU
 
 config BR2_CSKY_DSP
 	bool "Enable DSP enhanced instructions"
-	depends on BR2_ck810 || BR2_ck807
+	depends on BR2_ck807 || BR2_ck810 || BR2_ck860
 
 config BR2_ARCH
 	default "csky"
@@ -50,3 +50,8 @@ config BR2_GCC_TARGET_CPU
 
 config BR2_READELF_ARCH_NAME
 	default "CSKY"
+
+config BR2_CSKY_GERRIT_REPO
+	bool "Use gerrit repo"
+	default n
+

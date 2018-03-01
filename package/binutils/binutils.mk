@@ -22,8 +22,14 @@ BINUTILS_FROM_GIT = y
 endif
 
 ifeq ($(BR2_csky),y)
+ifeq ($(BR2_CSKY_GERRIT_REPO),y)
+BINUTILS_VERSION = 91ed6c98778b09118fdd9c5b9426aae2b1105f0d
+BINUTILS_SITE = ssh://${GITUSER}@192.168.0.78:29418/tools/binutils-gdb
+BINUTILS_SITE_METHOD = git
+else
 BINUTILS_VERSION = 0e3d14ccb217122a4bdaeb23e63536e1836b13a4
 BINUTILS_SITE = $(call github,c-sky,binutils-gdb,$(BINUTILS_VERSION))
+endif
 BINUTILS_SOURCE = binutils-$(BINUTILS_VERSION).tar.gz
 BINUTILS_FROM_GIT = y
 endif
