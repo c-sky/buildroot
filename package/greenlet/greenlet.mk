@@ -11,7 +11,7 @@ GREENLET_DEPENDENCIES += python
 
 define GREENLET_CONFIGURE_CMDS
 echo CROSS_TOOLCHAIN_PREFIX=$(HOST_DIR)/bin/$(GNU_TARGET_NAME)- > $(@D)/config
-echo PYTHON_INCLUDE= $(HOST_DIR)/csky-buildroot-linux-gnuabiv2/sysroot/usr/include/python*/ >> $(@D)/config
+echo PYTHON_INCLUDE= $(HOST_DIR)/$(GNU_TARGET_NAME)/sysroot/usr/include/python*/ >> $(@D)/config
 cp -f package/greenlet/greenlet.makefile $(@D)/Makefile
 endef
 
