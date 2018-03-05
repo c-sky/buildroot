@@ -73,8 +73,6 @@ stages:
               exit 1
           }
       - touch /home/vmh/workspace/DebugServerConsole/.stamp_gdb_exit_gx6622
-    tags:
-      - vmh
     cache:
       paths:
         - dl/
@@ -83,7 +81,6 @@ stages:
         expire_in: 2 weeks
         paths:
             - output/build/build-time.log
-            - output/host/
             - output/images/
             - output/build/packages-file-list.txt
             - build.log
