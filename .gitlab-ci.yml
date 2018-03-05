@@ -64,13 +64,13 @@ stages:
             tail -200 build.log
             exit 1
         }
-    - BUILDROOT_VERSION=$(git log --pretty=oneline|head -1|awk '{print $1}')
-    - if [ -f /root/build/build_tmp/$BUILDROOT_VERSION/${CI_BUILD_NAME}_test ]; then
-          rm /root/build/build_tmp/$BUILDROOT_VERSION/${CI_BUILD_NAME}_test; 
+    - BUILDROOT_VERSION=$(git log --pretty=oneline|awk 'NR==1'|awk '{print $1}')
+    - if [ -f /root/builds/build_tmp/$BUILDROOT_VERSION/${CI_BUILD_NAME}_test ]; then
+          rm /root/builds/build_tmp/$BUILDROOT_VERSION/${CI_BUILD_NAME}_test; 
       fi
-    - mkdir -p /root/build/build_tmp/$BUILDROOT_VERSION/${CI_BUILD_NAME}_test
-    - mv output/host/csky-ci /root/build/build_tmp/$BUILDROOT_VERSION/${CI_BUILD_NAME}_test
-    - mv output/image /root/build/build_tmp/$BUILDROOT_VERSION/${CI_BUILD_NAME}_test
+    - mkdir -p /root/builds/build_tmp/$BUILDROOT_VERSION/${CI_BUILD_NAME}_test
+    - mv output/host/csky-ci /root/builds/build_tmp/$BUILDROOT_VERSION/${CI_BUILD_NAME}_test
+    - mv output/image /root/builds/build_tmp/$BUILDROOT_VERSION/${CI_BUILD_NAME}_test
     artifacts:
         when: always
         expire_in: 1 day
@@ -196,12 +196,12 @@ csky_ck610_gx6622_uclibc_bt_defconfig_test:
       - vmh-gx6622
     script:
       - echo 'Run test'
-      - BUILDROOT_VERSION=$(git log --pretty=oneline|head -1|awk '{print $1}')
-      - if [ ! -f /root/build/build_tmp/$BUILDROOT_VERSION/${CI_BUILD_NAME} ]; then
+      - BUILDROOT_VERSION=$(git log --pretty=oneline|awk 'NR==1'|awk '{print $1}')
+      - if [ ! -f /root/builds/build_tmp/$BUILDROOT_VERSION/${CI_BUILD_NAME} ]; then
            exit 1;
         fi
-      - cp /root/build/build_tmp/$BUILDROOT_VERSION/${CI_BUILD_NAME}/csky-ci output/host/csky-ci -r
-      - cp /root/build/build_tmp/$BUILDROOT_VERSION/${CI_BUILD_NAME}/image output/image -r
+      - cp /root/builds/build_tmp/$BUILDROOT_VERSION/${CI_BUILD_NAME}/csky-ci output/host/csky-ci -r
+      - cp /root/builds/build_tmp/$BUILDROOT_VERSION/${CI_BUILD_NAME}/image output/image -r
       - tar -vxf output/images/csky_toolchain_*.tar.gz -C output/host
       - ./output/host/csky-ci/gen_rtb.sh
       - touch /home/vmh/workspace/DebugServerConsole/.stamp_gdb_gx6622
@@ -226,12 +226,12 @@ csky_ck610_gx6622_glibc_bt_defconfig_test:
       - vmh-gx6622
     script:
       - echo 'Run test'
-      - BUILDROOT_VERSION=$(git log --pretty=oneline|head -1|awk '{print $1}')
-      - if [ ! -f /root/build/build_tmp/$BUILDROOT_VERSION/${CI_BUILD_NAME} ]; then
+      - BUILDROOT_VERSION=$(git log --pretty=oneline|awk 'NR==1'|awk '{print $1}')
+      - if [ ! -f /root/builds/build_tmp/$BUILDROOT_VERSION/${CI_BUILD_NAME} ]; then
            exit 1;
         fi
-      - cp /root/build/build_tmp/$BUILDROOT_VERSION/${CI_BUILD_NAME}/csky-ci output/host/csky-ci -r
-      - cp /root/build/build_tmp/$BUILDROOT_VERSION/${CI_BUILD_NAME}/image output/image -r
+      - cp /root/builds/build_tmp/$BUILDROOT_VERSION/${CI_BUILD_NAME}/csky-ci output/host/csky-ci -r
+      - cp /root/builds/build_tmp/$BUILDROOT_VERSION/${CI_BUILD_NAME}/image output/image -r
       - tar -vxf output/images/csky_toolchain_*.tar.gz -C output/host
       - ./output/host/csky-ci/gen_rtb.sh
       - touch /home/vmh/workspace/DebugServerConsole/.stamp_gdb_gx6622
