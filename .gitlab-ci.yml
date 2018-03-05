@@ -70,7 +70,7 @@ stages:
       fi
     - mkdir -p /root/builds/build_tmp/$BUILDROOT_VERSION/${CI_BUILD_NAME}_test
     - mv output/host/csky-ci /root/builds/build_tmp/$BUILDROOT_VERSION/${CI_BUILD_NAME}_test
-    - mv output/image /root/builds/build_tmp/$BUILDROOT_VERSION/${CI_BUILD_NAME}_test
+    - mv output/images /root/builds/build_tmp/$BUILDROOT_VERSION/${CI_BUILD_NAME}_test
     artifacts:
         when: always
         expire_in: 1 day
@@ -200,8 +200,9 @@ csky_ck610_gx6622_uclibc_bt_defconfig_test:
       - if [ ! -f /root/builds/build_tmp/$BUILDROOT_VERSION/${CI_BUILD_NAME} ]; then
            exit 1;
         fi
+      - mkdir -p output/host/
       - cp /root/builds/build_tmp/$BUILDROOT_VERSION/${CI_BUILD_NAME}/csky-ci output/host/csky-ci -r
-      - cp /root/builds/build_tmp/$BUILDROOT_VERSION/${CI_BUILD_NAME}/image output/image -r
+      - cp /root/builds/build_tmp/$BUILDROOT_VERSION/${CI_BUILD_NAME}/images output/images -r
       - tar -vxf output/images/csky_toolchain_*.tar.gz -C output/host
       - ./output/host/csky-ci/gen_rtb.sh
       - touch /home/vmh/workspace/DebugServerConsole/.stamp_gdb_gx6622
