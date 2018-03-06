@@ -197,7 +197,7 @@ csky_ck610_gx6622_uclibc_bt_defconfig_test:
     script:
       - echo 'Run test'
       - BUILDROOT_VERSION=$(git log --pretty=oneline|awk 'NR==1'|awk '{print $1}')
-      - if [ ! -f /root/builds/build_tmp/$BUILDROOT_VERSION/${CI_BUILD_NAME} ]; then
+      - if [ ! -d /root/builds/build_tmp/$BUILDROOT_VERSION/${CI_BUILD_NAME} ]; then
            exit 1;
         fi
       - mkdir -p output/host/
@@ -233,6 +233,7 @@ csky_ck610_gx6622_glibc_bt_defconfig_test:
       - if [ ! -d /root/builds/build_tmp/$BUILDROOT_VERSION/${CI_BUILD_NAME} ]; then
            exit 1;
         fi
+      - mkdir -p output/host/
       - cp /root/builds/build_tmp/$BUILDROOT_VERSION/${CI_BUILD_NAME}/csky-ci output/host/csky-ci -r
       - cp /root/builds/build_tmp/$BUILDROOT_VERSION/${CI_BUILD_NAME}/image output/image -r
       - tar -vxf output/images/csky_toolchain_*.tar.gz -C output/host
