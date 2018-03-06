@@ -228,7 +228,7 @@ csky_ck610_gx6622_glibc_bt_defconfig_test:
     script:
       - echo 'Run test'
       - BUILDROOT_VERSION=$(git log --pretty=oneline|awk 'NR==1'|awk '{print $1}')
-      - if [ ! -f /root/builds/build_tmp/$BUILDROOT_VERSION/${CI_BUILD_NAME} ]; then
+      - if [ ! -d /root/builds/build_tmp/$BUILDROOT_VERSION/${CI_BUILD_NAME} ]; then
            exit 1;
         fi
       - cp /root/builds/build_tmp/$BUILDROOT_VERSION/${CI_BUILD_NAME}/csky-ci output/host/csky-ci -r
@@ -257,6 +257,7 @@ csky_ck807_eragon_bt_defconfig_test:
       - vmh-eragon
     script:
       - echo 'Run test'
+      - tar -vxf output/images/csky_toolchain_*.tar.gz -C output/host
       - ./output/host/csky-ci/gen_rtb.sh
       - touch /home/vmh/workspace/DebugServerConsole/.stamp_gdb_eragon
       - sleep 30
