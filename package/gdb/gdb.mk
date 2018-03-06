@@ -14,13 +14,6 @@ GDB_SOURCE = gdb-$(GDB_VERSION).tar.gz
 GDB_FROM_GIT = y
 endif
 
-ifeq ($(BR2_csky),y)
-GDB_VERSION = ce821ab28cc0f96fe4e9912b5e5a1259f67225e5
-GDB_SITE = $(call github,c-sky,binutils-gdb,$(GDB_VERSION))
-GDB_SOURCE = gdb-$(GDB_VERSION).tar.gz
-GDB_FROM_GIT = y
-endif
-
 GDB_LICENSE = GPL-2.0+, LGPL-2.0+, GPL-3.0+, LGPL-3.0+
 GDB_LICENSE_FILES = COPYING COPYING.LIB COPYING3 COPYING3.LIB
 
@@ -58,6 +51,14 @@ endif
 ifeq ($(GDB_FROM_GIT),y)
 GDB_DEPENDENCIES += host-flex host-bison
 HOST_GDB_DEPENDENCIES += host-flex host-bison
+endif
+
+ifeq ($(BR2_csky),y)
+GDB_VERSION = ce821ab28cc0f96fe4e9912b5e5a1259f67225e5
+GDB_SITE = $(call github,c-sky,binutils-gdb,$(GDB_VERSION))
+GDB_SOURCE = gdb-$(GDB_VERSION).tar.gz
+GDB_FROM_GIT = y
+HOST_GDB_DEPENDENCIES =
 endif
 
 # When gdb sources are fetched from the binutils-gdb repository, they
