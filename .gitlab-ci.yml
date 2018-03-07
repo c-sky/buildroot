@@ -24,7 +24,7 @@ stages:
 
 .run_test: &run_test
     - echo 'Run test'
-    - tar -vxf output/images/csky_toolchain_*.tar.gz -C output/host
+    - tar -xf output/images/csky_toolchain_*.tar.gz -C output/host
     - |
         ./output/host/csky-ci/run_test.sh || {
             echo 'Failed build last output'
@@ -48,7 +48,6 @@ stages:
             - output/host/csky-ci
             - output/host/csky-qemu
             - output/images/
-            - build.log
             
 .localbuild_defconfig: &localbuild_defconfig
     stage: build
@@ -77,7 +76,6 @@ stages:
         paths:
             - output/build/build-time.log
             - output/build/packages-file-list.txt
-            - build.log
 
 csky_gx6605s_defconfig: *defconfig
 csky_gx6605s_fbcon_defconfig: *defconfig
@@ -237,7 +235,7 @@ csky_ck610_gx6622_glibc_bt_defconfig_test:
       - mkdir -p output/host/
       - cp /root/builds/build_tmp/$BUILDROOT_VERSION/${CI_BUILD_NAME}/csky-ci output/host/csky-ci -r
       - cp /root/builds/build_tmp/$BUILDROOT_VERSION/${CI_BUILD_NAME}/images output/images -r
-      - tar -vxf output/images/csky_toolchain_*.tar.gz -C output/host
+      - tar -xf output/images/csky_toolchain_*.tar.gz -C output/host
       - ./output/host/csky-ci/gen_rtb.sh
       - touch /home/vmh/workspace/DebugServerConsole/.stamp_gdb_gx6622
       - sleep 30
@@ -264,7 +262,7 @@ csky_ck807_eragon_bt_defconfig_test:
       - vmh-eragon
     script:
       - echo 'Run test'
-      - tar -vxf output/images/csky_toolchain_*.tar.gz -C output/host
+      - tar -xf output/images/csky_toolchain_*.tar.gz -C output/host
       - ./output/host/csky-ci/gen_rtb.sh
       - touch /home/vmh/workspace/DebugServerConsole/.stamp_gdb_eragon
       - sleep 30
