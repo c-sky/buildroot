@@ -213,6 +213,7 @@ csky_ck610_gx6622_uclibc_bt_defconfig_test:
               tail -200 test.log
               exit 1
           }
+      - rm output/images/rootfs output/images/vmlinux output/images/rootfs.tar output/images/.gdbinit output/images/*.dtb -rf
       - touch /home/vmh/workspace/DebugServerConsole/.stamp_gdb_exit_gx6622
     dependencies:
       - csky_ck610_gx6622_uclibc_bt_defconfig
@@ -235,7 +236,7 @@ csky_ck610_gx6622_glibc_bt_defconfig_test:
         fi
       - mkdir -p output/host/
       - cp /root/builds/build_tmp/$BUILDROOT_VERSION/${CI_BUILD_NAME}/csky-ci output/host/csky-ci -r
-      - cp /root/builds/build_tmp/$BUILDROOT_VERSION/${CI_BUILD_NAME}/image output/image -r
+      - cp /root/builds/build_tmp/$BUILDROOT_VERSION/${CI_BUILD_NAME}/images output/images -r
       - tar -vxf output/images/csky_toolchain_*.tar.gz -C output/host
       - ./output/host/csky-ci/gen_rtb.sh
       - touch /home/vmh/workspace/DebugServerConsole/.stamp_gdb_gx6622
@@ -246,6 +247,7 @@ csky_ck610_gx6622_glibc_bt_defconfig_test:
               tail -200 test.log
               exit 1
           }
+      - rm output/images/rootfs output/images/vmlinux output/images/rootfs.tar output/images/.gdbinit output/images/*.dtb -rf
       - touch /home/vmh/workspace/DebugServerConsole/.stamp_gdb_exit_gx6622
     dependencies:
       - csky_ck610_gx6622_glibc_bt_defconfig
