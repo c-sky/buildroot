@@ -809,7 +809,7 @@
 	};
 
 	chosen {
-		bootargs = "console=ttyS2,115200 CSKY_CI_BOOTARG_STAMP clk_ignore_unused loglevel=7";
+		bootargs = "console=ttyS2,115200 rdinit=/sbin/init root=/dev/ram0 clk_ignore_unused loglevel=7";
 	};
 };
 

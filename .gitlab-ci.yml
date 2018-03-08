@@ -262,7 +262,6 @@ csky_ck807_eragon_bt_defconfig_test:
       - cp /root/builds/build_tmp/$BUILDROOT_VERSION/${CI_BUILD_NAME}/csky-ci output/host/csky-ci -r
       - cp /root/builds/build_tmp/$BUILDROOT_VERSION/${CI_BUILD_NAME}/images output/images -r
       - tar -xf output/images/csky_toolchain_*.tar.gz -C output/host
-      - ./output/host/csky-ci/gen_rtb.sh
       - touch /home/vmh/workspace/DebugServerConsole/.stamp_gdb_eragon
       - sleep 30
       - |
