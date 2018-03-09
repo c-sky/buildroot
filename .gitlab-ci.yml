@@ -72,28 +72,14 @@ stages:
 csky_gx6605s_defconfig: *defconfig
 csky_gx6605s_fbcon_defconfig: *defconfig
 csky_sc6138a_defconfig: *defconfig
-qemu_csky_ck810_glibc_bt_defconfig: *defconfig
 qemu_csky_ck810_uclibc_bt_defconfig: *defconfig
 qemu_csky_ck807_glibc_bt_defconfig: *defconfig
-qemu_csky_ck807_uclibc_bt_defconfig: *defconfig
 qemu_csky_ck610_uclibc_bt_defconfig: *defconfig
 qemu_csky_ck610_glibc_bt_defconfig: *defconfig
 csky_ck810_sc8925_bt_defconfig: *defconfig
 csky_ck610_gx6622_glibc_bt_defconfig: *localbuild_defconfig
 csky_ck610_gx6622_uclibc_bt_defconfig: *localbuild_defconfig
 csky_ck807_eragon_bt_defconfig: *localbuild_defconfig
-
-qemu_csky_ck810_glibc_bt_defconfig_test:
-    stage: test
-    script: *run_test
-    dependencies:
-      - qemu_csky_ck810_glibc_bt_defconfig
-    artifacts:
-        when: always
-        expire_in: 2 weeks
-        paths:
-            - test.log
-            - test_sum.log
 
 qemu_csky_ck810_uclibc_bt_defconfig_test:
     stage: test
@@ -112,18 +98,6 @@ qemu_csky_ck807_glibc_bt_defconfig_test:
     script: *run_test
     dependencies:
       - qemu_csky_ck807_glibc_bt_defconfig
-    artifacts:
-        when: always
-        expire_in: 2 weeks
-        paths:
-            - test.log
-            - test_sum.log
-
-qemu_csky_ck807_uclibc_bt_defconfig_test:
-    stage: test
-    script: *run_test
-    dependencies:
-      - qemu_csky_ck807_uclibc_bt_defconfig
     artifacts:
         when: always
         expire_in: 2 weeks
