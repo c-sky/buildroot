@@ -31,7 +31,6 @@ stages:
             tail -200 test.log
             exit 1
         }
-    - cat test_sum.log
 
 .defconfig: &defconfig
     stage: build
