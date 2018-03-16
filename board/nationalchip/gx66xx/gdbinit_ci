@@ -28,3 +28,4 @@ load
 set $cr17 = 0x33
 
 c
+quit

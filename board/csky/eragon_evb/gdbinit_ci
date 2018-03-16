@@ -23,4 +23,4 @@ set $cr17 = 0x33
 # Load the debugging elf file
 load
 c
-
+quit
