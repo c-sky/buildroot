@@ -27,8 +27,6 @@ stages:
     - tar -xf output/images/csky_toolchain_*.tar.gz -C output/host
     - |
         ./output/host/csky-ci/run_test.sh || {
-            echo 'Failed build last output'
-            tail -200 test.log
             exit 1
         }
 
@@ -139,8 +137,6 @@ qemu_csky_ck610_uclibc_bt_defconfig_test:
 #      - sleep 30
 #      - |
 #          ./output/host/csky-ci/run_test.sh _sc8925 || {
-#              echo 'Failed build last output'
-#              tail -200 test.log
 #              exit 1
 #          }
 #      - touch /home/vmh/workspace/DebugServerConsole/.stamp_gdb_exit_sc8925
@@ -172,8 +168,6 @@ csky_ck610_gx6622_uclibc_bt_defconfig_test:
       - sleep 30
       - |
           ./output/host/csky-ci/run_test.sh _gx6622 || {
-              echo 'Failed build last output'
-              tail -200 test.log
               exit 1
           }
       - rm output/images/rootfs output/images/vmlinux output/images/rootfs.tar output/images/.gdbinit output/images/*.dtb -rf
@@ -206,8 +200,6 @@ csky_ck610_gx6622_glibc_bt_defconfig_test:
       - sleep 30
       - |
           ./output/host/csky-ci/run_test.sh _gx6622 || {
-              echo 'Failed build last output'
-              tail -200 test.log
               exit 1
           }
       - rm output/images/rootfs output/images/vmlinux output/images/rootfs.tar output/images/.gdbinit output/images/*.dtb -rf
@@ -239,8 +231,6 @@ csky_ck807_eragon_bt_defconfig_test:
       - sleep 30
       - |
           ./output/host/csky-ci/run_test.sh _eragon || {
-              echo 'Failed build last output'
-              tail -200 test.log
               exit 1
           }
       - rm output/images/rootfs output/images/vmlinux output/images/rootfs.tar output/images/.gdbinit output/images/*.dtb -rf
