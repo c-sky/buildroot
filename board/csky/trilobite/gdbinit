@@ -1,5 +1,6 @@
 tar jtag jtag://127.0.0.1:1025
 
+set height unlimited
 set $cr18=0x7d
 
 # for trilobite
