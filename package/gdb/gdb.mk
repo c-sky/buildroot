@@ -130,10 +130,6 @@ ifeq ($(BR2_arc),y)
 GDB_CONF_OPTS += --disable-build-with-cxx
 endif
 
-ifeq ($(BR2_csky),y)
-GDB_CONF_OPTS += --without-auto-load-safe-path
-endif
-
 # gdb 7.12+ by default builds with a C++ compiler, which doesn't work
 # when we don't have C++ support in the toolchain
 ifneq ($(BR2_INSTALL_LIBSTDCPP),y)
@@ -231,6 +227,11 @@ endif
 define HOST_GDB_BFIN_SIM_WORKAROUND
 	$(RM) $(@D)/sim/common/tconfig.h
 endef
+
+ifeq ($(BR2_csky),y)
+HOST_GDB_CONF_OPTS += --disable-gold --disable-gprof\
+                      --without-auto-load-safe-path
+endif
 
 ifeq ($(BR2_PACKAGE_HOST_GDB_SIM),y)
 HOST_GDB_CONF_OPTS += --enable-sim
