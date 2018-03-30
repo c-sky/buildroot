@@ -1,7 +1,9 @@
 # Set the JTAG address according to C-SKY debugserver settings
 tar jtag jtag://192.168.0.88:1025
 
-set height unlimited
+# Set gdb environment
+set height 0
+
 # Setup MMU MSA0 reg
 set $mcr30 = 0xe
 
