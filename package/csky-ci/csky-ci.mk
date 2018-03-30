@@ -5,7 +5,7 @@
 #
 ################################################################################
 
-CSKY_CI_VERSION = 603649cc4f8e36ff0448d6bbd34f690b9bed4f9f
+CSKY_CI_VERSION = ba7d029d6fcfd0ed77a305e87c442f97b056eec0
 CSKY_CI_SITE = $(call github,c-sky,csky-ci,$(CSKY_CI_VERSION))
 
 define CSKY_CI_CONFIGURE_CMDS
@@ -25,6 +25,7 @@ mkdir -p $(TARGET_DIR)/usr/lib/csky-ci/
 cp -f $(@D)/out/sh/* $(HOST_DIR)/csky-ci/
 cp -f $(@D)/out/configs/* $(TARGET_DIR)/usr/lib/csky-ci/
 cp -f $(@D)/out/S90test $(TARGET_DIR)/etc/init.d/
+cp -f $(@D)/out/test.sh $(TARGET_DIR)/etc/init.d/
 endef
 
 ifeq ($(BR2_TOOLCHAIN_BUILDROOT),y)
