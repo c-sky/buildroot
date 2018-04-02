@@ -242,7 +242,6 @@ csky_ck807_eragon_bt_defconfig_test:
     artifacts:
         when: on_success
         paths:
-            - output/images/
             - test.log
             - test_sum.log
 
