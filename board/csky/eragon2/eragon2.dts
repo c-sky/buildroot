@@ -6,8 +6,8 @@
 #include "../../../../addons/drivers/mailbox/mailbox-csky.h"
 
 / {
-	model = "csky eragon_ls";
-	compatible = "csky,eragon_ls";
+	model = "csky eragon2";
+	compatible = "csky,eragon2";
 	#address-cells = <1>;
 	#size-cells = <1>;
 

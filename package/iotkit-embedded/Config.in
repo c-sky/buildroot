@@ -1,0 +1,25 @@
+config BR2_PACKAGE_ALIYUN_IOTKIT_EMBEDDED
+	bool "Alibaba Cloud iotkit-embedded"
+	help
+	  iotkit-embedded is from Alibaba Cloud, See:
+
+	  https://help.aliyun.com/document_detail/42648.html?spm=5176.60471.237208.5.sUwAzq
+
+	  https://help.aliyun.com/document_detail/42655.html?spm=5176.doc42648.6.563.NKpXhK
+
+if BR2_PACKAGE_ALIYUN_IOTKIT_EMBEDDED
+
+menu "IoT key setting"
+
+comment "setup key to connect the Alibaba Cloud."
+
+config BR2_PACKAGE_IOTKIT_EMBEDDED_PRODUCT_KEY
+	string "Product Key"
+
+config BR2_PACKAGE_IOTKIT_EMBEDDED_DEVICE_NAME
+	string "Device Name"
+
+config BR2_PACKAGE_IOTKIT_EMBEDDED_DEVICE_SECRET
+	string "Device Secret"
+endmenu
+endif
