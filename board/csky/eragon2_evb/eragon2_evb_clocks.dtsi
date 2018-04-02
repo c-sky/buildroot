@@ -1,0 +1,478 @@
+
+/ {
+	clocks {
+		#address-cells = <1>;
+		#size-cells = <1>;
+		ranges;
+
+		/*
+		 * osc_clk
+		 *     |--- cpu_pll
+		 *     |--- ddr_pll
+		 *     |--- audio_pll
+		 *     |--- video_pll
+		 *     |--- divider --- xi
+		 */
+
+		/* osc */
+		osc_clk: oscclk {
+			#clock-cells = <0>;
+			compatible = "fixed-clock";
+			clock-frequency = <24000000>;
+			clock-output-names = "oscclk";
+		};
+
+		rtcclk: rtcclk {
+			#clock-cells = <0>;
+			compatible = "fixed-clock";
+			clock-frequency = <1>;
+			clock-output-names = "rtcclk";
+		};
+
+		/* ---------- PLLs ---------- */
+
+		/* cpu_pll */
+		cpu_pll_800M: cpu_pll_800M {
+			#clock-cells = <0>;
+			compatible = "fixed-clock";
+			clock-frequency = <800000000>;
+			clock-output-names = "cpu_pll_800M";
+		};
+		cpu_pll_600M: cpu_pll_600M {
+			#clock-cells = <0>;
+			compatible = "fixed-clock";
+			clock-frequency = <600000000>;
+			clock-output-names = "cpu_pll_600M";
+		};
+		cpu_pll_400M: cpu_pll_400M {
+			#clock-cells = <0>;
+			compatible = "fixed-clock";
+			clock-frequency = <400000000>;
+			clock-output-names = "cpu_pll_400M";
+		};
+		cpu_pll_300M: cpu_pll_300M {
+			#clock-cells = <0>;
+			compatible = "fixed-clock";
+			clock-frequency = <300000000>;
+			clock-output-names = "cpu_pll_300M";
+		};
+
+		/* audio_pll */
+		audio_pll_147M: audio_pll_147M {
+			#clock-cells = <0>;
+			compatible = "fixed-clock";
+			clock-frequency = <147456000>;
+			clock-output-names = "audio_pll_147M";
+		};
+		audio_pll_135M: audio_pll_135M {
+			#clock-cells = <0>;
+			compatible = "fixed-clock";
+			clock-frequency = <135475200>;
+			clock-output-names = "audio_pll_135M";
+		};
+
+		/* video_pll */
+		clkout_video: clkout_video {
+			#clock-cells = <0>;
+			compatible = "fixed-clock";
+			clock-frequency = <1188000000>; /* 1188M */
+			clock-output-names = "clkout_video";
+		};
+
+		/* ---------- dividers ---------- */
+
+		clkout_cpu_div2: clkout_cpu_div2 {
+			compatible = "fixed-factor-clock";
+			#clock-cells = <0>;
+			clocks = <&clkout_cpu>;
+			clock-mult = <1>;
+			clock-div = <2>;
+			clock-output-names = "clkout_cpu_div2";
+		};
+		clkout_cpu_div4: clkout_cpu_div4 {
+			compatible = "fixed-factor-clock";
+			#clock-cells = <0>;
+			clocks = <&clkout_cpu>;
+			clock-mult = <1>;
+			clock-div = <4>;
+			clock-output-names = "clkout_cpu_div4";
+		};
+		cpuaclk: cpuaclk {
+			compatible = "fixed-factor-clock";
+			#clock-cells = <0>;
+			clocks = <&cpucclk>;
+			clock-mult = <1>;
+			clock-div = <2>;
+			clock-output-names = "cpuaclk";
+		};
+
+		/*
+		 * video_pll
+		 *     |--- videoclk_div2
+		 *     |--- videoclk_div4
+		 *     |--- videoclk_div8
+		 *     |--- videoclk_div16
+		 *     |--- videoclk_div3
+		 *     |--- videoclk_div6
+		 *     |--- videoclk_div12
+		 *     |--- videoclk_div5
+		 *     |--- videoclk_div10
+		 *     |--- videoclk_div11
+		 */
+		videoclk_div2: videoclk_div2 {
+			compatible = "fixed-factor-clock";
+			#clock-cells = <0>;
+			clocks = <&clkout_video>;
+			clock-mult = <1>;
+			clock-div = <2>;
+			clock-output-names = "videoclk_div2";
+		};
+		videoclk_div4: videoclk_div4 {
+			compatible = "fixed-factor-clock";
+			#clock-cells = <0>;
+			clocks = <&clkout_video>;
+			clock-mult = <1>;
+			clock-div = <4>;
+			clock-output-names = "videoclk_div4";
+		};
+		videoclk_div8: videoclk_div8 {
+			compatible = "fixed-factor-clock";
+			#clock-cells = <0>;
+			clocks = <&clkout_video>;
+			clock-mult = <1>;
+			clock-div = <8>;
+			clock-output-names = "videoclk_div8";
+		};
+		videoclk_div16: videoclk_div16 {
+			compatible = "fixed-factor-clock";
+			#clock-cells = <0>;
+			clocks = <&clkout_video>;
+			clock-mult = <1>;
+			clock-div = <16>;
+			clock-output-names = "videoclk_div16";
+		};
+		videoclk_div3: videoclk_div3 {
+			compatible = "fixed-factor-clock";
+			#clock-cells = <0>;
+			clocks = <&clkout_video>;
+			clock-mult = <1>;
+			clock-div = <3>;
+			clock-output-names = "videoclk_div3";
+		};
+		videoclk_div6: videoclk_div6 {
+			compatible = "fixed-factor-clock";
+			#clock-cells = <0>;
+			clocks = <&clkout_video>;
+			clock-mult = <1>;
+			clock-div = <6>;
+			clock-output-names = "videoclk_div6";
+		};
+		videoclk_div12: videoclk_div12 {
+			compatible = "fixed-factor-clock";
+			#clock-cells = <0>;
+			clocks = <&clkout_video>;
+			clock-mult = <1>;
+			clock-div = <12>;
+			clock-output-names = "videoclk_div12";
+		};
+		videoclk_div5: videoclk_div5 {
+			compatible = "fixed-factor-clock";
+			#clock-cells = <0>;
+			clocks = <&clkout_video>;
+			clock-mult = <1>;
+			clock-div = <5>;
+			clock-output-names = "videoclk_div5";
+		};
+		videoclk_div10: videoclk_div10 {
+			compatible = "fixed-factor-clock";
+			#clock-cells = <0>;
+			clocks = <&clkout_video>;
+			clock-mult = <1>;
+			clock-div = <10>;
+			clock-output-names = "videoclk_div10";
+		};
+		videoclk_div11: videoclk_div11 {
+			compatible = "fixed-factor-clock";
+			#clock-cells = <0>;
+			clocks = <&clkout_video>;
+			clock-mult = <1>;
+			clock-div = <11>;
+			clock-output-names = "videoclk_div11";
+		};
+
+		/*
+		 * oscclk
+		 *     |--- oscclk_div2
+		 *     |--- oscclk_div8
+		 *     |--- oscclk_div64
+		 *     |--- oscclk_div512
+		 */
+		oscclk_div2: oscclk_div2 {
+			compatible = "fixed-factor-clock";
+			#clock-cells = <0>;
+			clocks = <&osc_clk>;
+			clock-mult = <1>;
+			clock-div = <2>;
+			clock-output-names = "oscclk_div2";
+		};
+		oscclk_div8: oscclk_div8 {
+			compatible = "fixed-factor-clock";
+			#clock-cells = <0>;
+			clocks = <&osc_clk>;
+			clock-mult = <1>;
+			clock-div = <8>;
+			clock-output-names = "oscclk_div8";
+		};
+		oscclk_div64: oscclk_div64 {
+			compatible = "fixed-factor-clock";
+			#clock-cells = <0>;
+			clocks = <&osc_clk>;
+			clock-mult = <1>;
+			clock-div = <64>;
+			clock-output-names = "oscclk_div64";
+		};
+		oscclk_div512: oscclk_div512 {
+			compatible = "fixed-factor-clock";
+			#clock-cells = <0>;
+			clocks = <&osc_clk>;
+			clock-mult = <1>;
+			clock-div = <512>;
+			clock-output-names = "oscclk_div512";
+		};
+
+		/* ---------- muxes ---------- */
+
+		/*
+		 * Clock Select Control Register0
+		 */
+		vpuaclk: vpuaclk {
+			compatible = "csky,clk-mux";
+			#clock-cells = <0>;
+			reg = <0x1FBD0000 4>;
+			bit-shift = <20>;
+			bit-width = <4>;
+			clocks = <&videoclk_div3>, <&videoclk_div4>,
+				 <&videoclk_div6>, <&videoclk_div8>;
+			clock-output-names = "vpuaclk";
+		};
+		vpucclk: vpucclk {
+			compatible = "csky,clk-mux";
+			#clock-cells = <0>;
+			reg = <0x1FBD0000 4>;
+			bit-shift = <16>;
+			bit-width = <4>;
+			clocks = <&videoclk_div4>, <&videoclk_div5>,
+				 <&videoclk_div6>, <&videoclk_div8>;
+			clock-output-names = "vpucclk";
+		};
+		lcdcclk: lcdcclk {
+			compatible = "csky,clk-mux";
+			#clock-cells = <0>;
+			reg = <0x1FBD0000 4>;
+			bit-shift = <12>;
+			bit-width = <4>;
+			clocks = <&videoclk_div8>, <&videoclk_div4>,
+				 <&videoclk_div6>, <&videoclk_div5>;
+			clock-output-names = "lcdcclk";
+		};
+		dxclk: dxclk {
+			compatible = "csky,clk-mux";
+			#clock-cells = <0>;
+			reg = <0x1FBD0000 4>;
+			bit-shift = <8>;
+			bit-width = <4>;
+			clocks = <&videoclk_div4>, <&videoclk_div5>,
+				 <&videoclk_div6>, <&videoclk_div10>;
+			clock-output-names = "dxclk";
+		};
+		cfgclk: cfgclk {
+			compatible = "csky,clk-mux";
+			#clock-cells = <0>;
+			reg = <0x1FBD0000 4>;
+			bit-shift = <4>;
+			bit-width = <4>;
+			clocks = <&videoclk_div5>, <&videoclk_div6>,
+				 <&videoclk_div10>, <&videoclk_div16>,
+				 <&xiclk>;
+			clock-output-names = "cfgclk";
+		};
+		xiclk: xiclk { /* pmuclk */
+			compatible = "csky,clk-mux";
+			#clock-cells = <0>;
+			reg = <0x1FBD0000 4>;
+			bit-shift = <0>;
+			bit-width = <4>;
+			clocks = <&osc_clk>,
+				 <&oscclk_div2>, <&oscclk_div8>,
+				 <&oscclk_div64>, <&oscclk_div512>;
+			clock-output-names = "xiclk";
+		};
+
+		/*
+		 * Clock Select Control Register1
+		 */
+		sdhcclk: sdhcclk {
+			compatible = "csky,clk-mux";
+			#clock-cells = <0>;
+			reg = <0x1FBD0004 4>;
+			bit-shift = <20>;
+			bit-width = <4>;
+			clocks = <&videoclk_div6>, <&videoclk_div8>;
+			clock-output-names = "sdhcclk";
+		};
+		emmcclk: emmcclk {
+			compatible = "csky,clk-mux";
+			#clock-cells = <0>;
+			reg = <0x1FBD0004 4>;
+			bit-shift = <16>;
+			bit-width = <4>;
+			clocks = <&videoclk_div6>, <&videoclk_div8>;
+			clock-output-names = "emmcclk";
+		};
+		pxclk: pxclk {
+			compatible = "csky,clk-mux";
+			#clock-cells = <0>;
+			reg = <0x1FBD0004 4>;
+			bit-shift = <12>;
+			bit-width = <4>;
+			clocks = <&videoclk_div5>, <&videoclk_div6>,
+				 <&videoclk_div10>, <&videoclk_div16>,
+				 <&xiclk>;
+			clock-output-names = "pxclk";
+		};
+		audcclk: audcclk {
+			compatible = "csky,clk-mux";
+			#clock-cells = <0>;
+			reg = <0x1FBD0004 4>;
+			bit-shift = <8>;
+			bit-width = <4>;
+			clocks = <&videoclk_div5>, <&videoclk_div6>,
+				 <&videoclk_div10>;
+			clock-output-names = "audcclk";
+		};
+		spucclk: spucclk {
+			compatible = "csky,clk-mux";
+			#clock-cells = <0>;
+			reg = <0x1FBD0004 4>;
+			bit-shift = <4>;
+			bit-width = <4>;
+			clocks = <&videoclk_div5>, <&videoclk_div6>,
+				 <&videoclk_div10>;
+			clock-output-names = "spucclk";
+		};
+		lspcclk: lspcclk {
+			compatible = "csky,clk-mux";
+			#clock-cells = <0>;
+			reg = <0x1FBD0004 4>;
+			bit-shift = <0>;
+			bit-width = <4>;
+			read-only;
+			clocks = <&videoclk_div10>, <&videoclk_div12>,
+				 <&videoclk_div16>, <&xiclk>;
+			clock-output-names = "lspcclk";
+		};
+
+		/*
+		 * Audio PLL Control Register High
+		 */
+		clkout_audio: clkout_audio {
+			compatible = "csky,clk-mux";
+			#clock-cells = <0>;
+			reg = <0x1FBD005C 4>;
+			bit-shift = <28>;
+			bit-width = <3>;
+			clocks = <&audio_pll_147M>, <&audio_pll_135M>;
+			clock-output-names = "clkout_audio";
+		};
+
+		/* cpu clock mux */
+
+		clkout_cpu: clkout_cpu {
+			compatible = "csky,clk-mux";
+			#clock-cells = <0>;
+			reg = <0x1FBD0808 4>; /* PMU Register: PLL_CFG_H */
+			bit-shift = <28>;
+			bit-width = <3>;
+			clocks = <&cpu_pll_800M>, <&cpu_pll_600M>,
+				 <&cpu_pll_400M>, <&cpu_pll_300M>;
+			clock-output-names = "clkout_cpu";
+		};
+
+		/*
+		 * clkout_cpu
+		 *     |--------|
+		 *     |--div2--|
+		 *     |--div4--|
+		 *              |--cpucclk--div2--cpuaclk
+		 * xi(pmuclk)---|
+		 */
+		cpucclk: cpucclk {
+			compatible = "csky,clk-mux";
+			#clock-cells = <0>;
+			reg = <0x1FBD0800 4>; /* PMU Register: PMU_CFG */
+			bit-shift = <8>;
+			bit-width = <4>;
+			clocks = <&clkout_cpu>, <&clkout_cpu_div2>,
+				 <&clkout_cpu_div4>, <&xiclk>;
+			clock-output-names = "cpucclk";
+		};
+
+		/* ---------- gates ---------- */
+
+		/*
+		 * Clock Gate Control Register0
+		 */
+		clk_gate0: clk@1FBD0010 {
+			compatible = "csky,clk-gate";
+			#clock-cells = <1>;
+			reg = <0x1FBD0010 0x4>;
+			clock-indices = <0>;
+			clock-output-names = "clk_gate_audio";
+		};
+
+		/*
+		 * Clock Gate Control Register1
+		 */
+		clk_gate1: clk@1FBD0014 {
+			compatible = "csky,clk-gate";
+			#clock-cells = <1>;
+			reg = <0x1FBD0014 0x4>;
+			clock-indices = <5>, <6>,
+					<7>, <8>,
+					<9>, <10>,
+					<13>, <14>,
+					<15>;
+			clock-output-names =
+					"clk_gate_dmac0", "clk_gate_dmac1",
+					"clk_gate_usbotg", "clk_gate_gmac",
+					"clk_gate_sdhc", "clk_gate_emmc",
+					"clk_gate_vpu", "clk_gate_lcdc",
+					"clk_gate_hdmi";
+		};
+
+		/*
+		 * Clock Gate Control Register2
+		 */
+		clk_gate2: clk@1FBD0018 {
+			compatible = "csky,clk-gate";
+			#clock-cells = <1>;
+			reg = <0x1FBD0018 0x4>;
+			clock-indices = <0>, <1>, <2>, <3>, <4>,
+					<9>, <10>,
+					<11>, <12>,
+					<15>, <16>, <17>, <18>, <19>,
+					<20>, <21>;
+			clock-output-names =
+					"clk_gate_i2c0", "clk_gate_i2c1",
+					"clk_gate_i2c2", "clk_gate_i2c3",
+					"clk_gate_i2c4",
+					"clk_gate_spi0", "clk_gate_spi1",
+					"clk_gate_pwm", "clk_gate_wdt",
+					"clk_gate_uart0", "clk_gate_uart1",
+					"clk_gate_uart2", "clk_gate_uart3",
+					"clk_gate_uart4",
+					"clk_gate_i2s0", "clk_gate_i2s1";
+		};
+	};
+};
+
