@@ -35,7 +35,7 @@ define CSKY_CI_TOOLCHAIN_TARBALL
          BUILDROOT_CONFIG=$$(grep BR2_DEFCONFIG $(CONFIG_DIR)/.config|awk -F/ '{print $$NF}'|sed 's/\"//g'); \
          echo $$BUILDROOT_CONFIG > bin/.csky_bt_commit; \
          echo $$BUILDROOT_VERSION >> bin/.csky_bt_commit; \
-         tar -czf $(BINARIES_DIR)/csky_toolchain_$${BUILDROOT_CONFIG}_$${BUILDROOT_VERSION}.tar.gz bin csky-buildroot* include lib lib64 libexec share usr; \
+         tar -czf $(BINARIES_DIR)/csky_toolchain_$${BUILDROOT_CONFIG}_$${BUILDROOT_VERSION}.tar.gz ./; \
          cd - ;\
         )
 endef
