@@ -144,7 +144,7 @@ choice
 	bool "Arch version"
 	help
 	  Select method to get code, github or custom git repo. And you
-	  can define the version for github.
+	  can define the version or use default.
 
 config BR2_LINUX_KERNEL_EXT_CSKY_ARCH_GITHUB
 	bool "Github"
@@ -155,7 +155,7 @@ config BR2_LINUX_KERNEL_EXT_CSKY_ARCH_GIT
 endchoice
 
 config BR2_LINUX_KERNEL_EXT_CSKY_ARCH_VERSION
-	string "Github version"
+	string "Custom arch git version"
 	default ""
 
 config BR2_LINUX_KERNEL_EXT_CSKY_ARCH_GIT_URL
@@ -181,7 +181,7 @@ choice
 	bool "Addons version"
 	help
 	  Select method to get code, github or custom git repo. And you
-	  can define the version for github.
+	  can define the git version or use default.
 
 config BR2_LINUX_KERNEL_EXT_CSKY_ADDONS_GITHUB
 	bool "Github"
@@ -192,7 +192,7 @@ config BR2_LINUX_KERNEL_EXT_CSKY_ADDONS_GIT
 endchoice
 
 config BR2_LINUX_KERNEL_EXT_CSKY_ADDONS_VERSION
-	string "Github version"
+	string "Custom addons git version"
 	default ""
 
 config BR2_LINUX_KERNEL_EXT_CSKY_ADDONS_GIT_URL
