@@ -4,7 +4,7 @@
 #
 ################################################################################
 
-CSKY_ARCH_VERSION = 7138cae3b2203eedc58cf768ccb565e73cf6206e
+CSKY_ARCH_VERSION = 52c747786fe26743723045bddaf405478fb767e4
 
 ifneq ($(BR2_LINUX_KERNEL_EXT_CSKY_ARCH_VERSION), "")
 CSKY_ARCH_VERSION = $(BR2_LINUX_KERNEL_EXT_CSKY_ARCH_VERSION)
