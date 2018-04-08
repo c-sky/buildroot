@@ -13,17 +13,6 @@
 		reg = <0x10000000 0x04000000>;
 	};
 
-	cpus {
-		#address-cells = <0>;
-		#size-cells = <0>;
-
-		cpu {
-			device_type = "cpu";
-			ccr	= <0x7d>;
-			hint	= <0x1c>;
-		};
-	};
-
 	soc {
 		#address-cells = <1>;
 		#size-cells = <1>;
@@ -37,10 +26,17 @@
 			#interrupt-cells = <1>;
 		};
 
+		dummy_apb: apb-clock {
+			compatible = "fixed-clock";
+			clock-frequency = <27000000>;
+			clock-output-names = "dummy_apb";
+			#clock-cells = <0>;
+		};
+
 		timer0 {
 			compatible = "nationalchip,timer-v1";
 			reg = <0x0020a000 0x400>;
-			clock-frequency = <1000000>;
+			clocks = <&dummy_apb>;
 			interrupts = <10>;
 			interrupt-parent = <&intc>;
 		};
