@@ -641,7 +641,15 @@
 		dummy_card {
 			compatible = "simple-audio-card";
 			simple-audio-card,name = "dummy-card";
+			/*
+			 * eragon1/eragon2 (csky,i2s-v1):
+			 *     mclk-fs = <256>, when format = "right_j";
+			 *     mclk-fs = <512>, when format = "i2s" or "left_j"
+			 * eragon3 (csky,i2s-v1.1):
+			 *     mclk-fs and format are independent.
+			 */
 			simple-audio-card,format = "i2s";
+			simple-audio-card,mclk-fs = <512>;
 
 			simple-audio-card,cpu {
 				sound-dai = <&i2s1>;
