@@ -1,0 +1,36 @@
+#!/bin/sh
+
+# To start mdev
+echo "Starting mdev..."
+echo /sbin/mdev > /proc/sys/kernel/hotplug
+mdev -s
+mount -t debugfs none /sys/kernel/debug
+
+# To start network
+printf "Starting network: "
+/sbin/ifup -a
+[ $? = 0 ] && echo "OK" || echo "FAIL"
+
+#
+# To enable telnetd
+#
+/etc/init.d/S50telnet start
+
+#
+# To start sshd
+#
+#/etc/init.d/S50sshd start
+
+#
+# To config network
+#
+# ifconfig eth0 up
+# ifconfig eth0 172.16.150.120 netmask 255.255.255.0
+# route add default gw 172.16.150.254
+
+#
+# To mount NFS
+#
+# sleep 2
+# mkdir -p /mnt/nfs
+# mount -t nfs 172.16.28.159:/home/ztw/work/nfs_share  /mnt/nfs  -o nolock,tcp,sync
