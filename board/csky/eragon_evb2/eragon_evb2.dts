@@ -416,7 +416,7 @@
 			num-slots = <0x1>;
 			card-detect-delay = <200>;
 			cap-sd-highspeed;
-			bus-width = <1>;
+			bus-width = <4>;
 		};
 
 		sdhc1: sdhc1@1FB13000 {

@@ -484,6 +484,12 @@
 				reg = <0x51>;
 				status = "disabled";
 			};
+
+			tlv320aic32x4: tlv320aic32x4@18 {
+				compatible = "ti,tlv320aic32x4-csky";
+				reg = <0x18>;
+				#sound-dai-cells = <0>;
+			};
 		};
 
 		i2c2: i2c@1FBA7000 {
@@ -800,7 +806,7 @@
 			};
 
 			simple-audio-card,codec {
-				sound-dai = <&audio_codec0>;
+				sound-dai = <&tlv320aic32x4>;
 			};
 		};
 
