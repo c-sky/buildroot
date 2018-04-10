@@ -634,7 +634,7 @@
 			 *     mclk-fs and format are independent.
 			 */
 			simple-audio-card,format = "i2s";
-			simple-audio-card,mclk-fs = <512>;
+			simple-audio-card,mclk-fs = <256>;
 
 			simple-audio-card,cpu {
 				sound-dai = <&i2s0>;
@@ -656,7 +656,7 @@
 			 *     mclk-fs and format are independent.
 			 */
 			simple-audio-card,format = "i2s";
-			simple-audio-card,mclk-fs = <512>;
+			simple-audio-card,mclk-fs = <256>;
 
 			simple-audio-card,cpu {
 				sound-dai = <&i2s1>;
