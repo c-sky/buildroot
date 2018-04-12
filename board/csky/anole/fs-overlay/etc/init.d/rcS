@@ -34,17 +34,3 @@ printf "Starting network: "
 # sleep 2
 # mkdir -p /mnt/nfs
 # mount -t nfs 172.16.28.159:/home/ztw/work/nfs_share  /mnt/nfs  -o nolock,tcp,sync
-
-#
-# To set PCM Playback Volume
-#
-#     N:  min         = 0,        max  = 175
-#     dB: dBscale-min = -63.50dB, step = 0.50dB
-# Volume = dBscale-min + ((N - min)*step) = -63.5 + N/2 dB
-#
-amixer cset  numid=1,iface=MIXER,name='PCM Playback Volume'  100,100
-
-if [ -f "/etc/init.d/S90test" ]; then
-    /etc/init.d/S90test start
-fi
-

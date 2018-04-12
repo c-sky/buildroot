@@ -484,6 +484,12 @@
 				reg = <0x51>;
 				status = "disabled";
 			};
+
+			tlv320aic32x4: tlv320aic32x4@18 {
+				compatible = "ti,tlv320aic32x4-csky";
+				reg = <0x18>;
+				#sound-dai-cells = <0>;
+			};
 		};
 
 		i2c2: i2c@1FBA7000 {
@@ -785,21 +791,37 @@
 		sound0 {
 			compatible = "simple-audio-card";
 			simple-audio-card,name = "audio-card0";
+			/*
+			 * eragon1/eragon2 (csky,i2s-v1):
+			 *     mclk-fs = <256>, when format = "right_j";
+			 *     mclk-fs = <512>, when format = "i2s" or "left_j"
+			 * eragon3 (csky,i2s-v1.1):
+			 *     mclk-fs and format are independent.
+			 */
 			simple-audio-card,format = "i2s";
+			simple-audio-card,mclk-fs = <512>;
 
 			simple-audio-card,cpu {
 				sound-dai = <&i2s0>;
 			};
 
 			simple-audio-card,codec {
-				sound-dai = <&audio_codec0>;
+				sound-dai = <&tlv320aic32x4>;
 			};
 		};
 
 		sound1 {
 			compatible = "simple-audio-card";
 			simple-audio-card,name = "audio-card1";
+			/*
+			 * eragon1/eragon2 (csky,i2s-v1):
+			 *     mclk-fs = <256>, when format = "right_j";
+			 *     mclk-fs = <512>, when format = "i2s" or "left_j"
+			 * eragon3 (csky,i2s-v1.1):
+			 *     mclk-fs and format are independent.
+			 */
 			simple-audio-card,format = "i2s";
+			simple-audio-card,mclk-fs = <512>;
 
 			simple-audio-card,cpu {
 				sound-dai = <&i2s1>;

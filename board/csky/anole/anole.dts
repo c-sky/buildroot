@@ -3,17 +3,16 @@
 #include <dt-bindings/gpio/gpio.h>
 #include <dt-bindings/input/input.h>
 #include "../../../../addons/drivers/pinctrl/pinctrl-csky.h"
-#include "../../../../addons/drivers/mailbox/mailbox-csky.h"
 
 / {
-	model = "csky eragon2";
-	compatible = "csky,eragon2";
+	model = "csky eragon";
+	compatible = "csky,eragon";
 	#address-cells = <1>;
 	#size-cells = <1>;
 
 	memory {
 		device_type = "memory";
-		reg = <0x00200000 0x17800000>;	// Reserve for loongson uboot
+		reg = <0x00200000 0x17a00000>;	// Reserve first 2MB for VPU work buf, last 2MB for iram
 	};
 
 	aliases {
@@ -511,6 +510,21 @@
 			dr_mode = "host";
 		};
 
+		vpu_iram: sram@17c00000 {
+			compatible = "mmio-sram";
+			reg = <0x17c00000 0x200000>;
+			clocks = <&dummy_apb>;
+		};
+
+		vpu: vpu@1fa10000 {
+			compatible = "csky,vpu-v1", "cnm,coda7541";
+			reg = <0x1fa10000 0x10000>;
+			interrupt-parent = <&intc>;
+			interrupts = <41>;
+			clocks = <&dummy_apb>, <&dummy_apb>;
+			clock-names = "ahb", "per";
+			iram = <&vpu_iram>;
+		};
 
 		screen_timings: screen_timings {
 			#screen-timings-cells = <2>;
@@ -585,55 +599,6 @@
 			status = "disabled";
 		};
 
-		mailbox_eg: mailbox0 {
-			compatible = "csky,mailbox-1.0";
-			reg = <0x1fbd4000 0xb0>;
-			interrupt-parent = <&intc>;
-			interrupts = <47>;
-			dev-id = <0>;
-			#mbox-cells = <1>;
-		};
-		/*
-		mailbox_ls: mailbox1 {
-			compatible = "csky,mailbox-1.0";
-			reg = <0x1fbd4000 0xb0>;
-			interrupt-parent = <&intc>;
-			interrupts = <48>;
-			dev-id = <1>;
-			#mbox-cells = <1>;
-		};
-		*/
-#if 0
-		mailbox_client_eg {
-			compatible	= "csky,mailbox-client";
-			reg		= <0x1fbd4030 0x40>, <0x1fbd4070 0x40>;
-			mbox-names	= "channel";
-			mboxes		= <&mailbox_eg CSKY_MBOX_CHAN_0>;
-		};
-		/*
-		mailbox_client_ls {
-			compatible	= "csky,mailbox-client";
-			reg		= <0x1fbd4070 0x40>, <0x1fbd4030 0x40>;
-			mbox-names	= "channel";
-			mboxes		= <&mailbox_ls CSKY_MBOX_CHAN_0>;
-		};
-		*/
-#else
-		ttym_eg {
-			compatible	= "csky,tty_mailbox";
-			reg		= <0x1fbd4030 0x40>, <0x1fbd4070 0x40>;
-			mbox-names	= "channel";
-			mboxes		= <&mailbox_eg CSKY_MBOX_CHAN_0>;
-		};
-		/*
-		tty_mailbox_client_ls {
-			compatible	= "csky,tty-mailbox-client";
-			reg		= <0x1fbd4070 0x40>, <0x1fbd4030 0x40>;
-			mbox-names	= "channel";
-			mboxes		= <&mailbox_ls CSKY_MBOX_CHAN_0>;
-		};
-		*/
-#endif
 		i2s0: i2s0@1FB90000 {
 			compatible = "csky,i2s-v1";
 			reg = <0x1FB90000 0x1000>;
@@ -676,15 +641,7 @@
 		dummy_card {
 			compatible = "simple-audio-card";
 			simple-audio-card,name = "dummy-card";
-			/*
-			 * eragon1/eragon2 (csky,i2s-v1):
-			 *     mclk-fs = <256>, when format = "right_j";
-			 *     mclk-fs = <512>, when format = "i2s" or "left_j"
-			 * eragon3 (csky,i2s-v1.1):
-			 *     mclk-fs and format are independent.
-			 */
 			simple-audio-card,format = "i2s";
-			simple-audio-card,mclk-fs = <512>;
 
 			simple-audio-card,cpu {
 				sound-dai = <&i2s1>;
@@ -701,11 +658,6 @@
 			interrupt-parent = <&intc>;
 			interrupts = <7>;
 			clocks = <&dummy_apb>;
-		};
-
-		sha: sha@1fb80000 {
-			compatible = "csky,sha-v2";
-			reg = <0x1fb80000 0x1000>;
 		};
 
 		rsa: rsa@1fb81000 {
@@ -741,6 +693,64 @@
 
 			brightness-levels = <255 253 247 241 225 190 128 1>;
 			default-brightness-level = <7>;
+		};
+
+		scm_conf_pcie: scm_conf@1c24 {
+			compatible = "syscon";
+			reg = <0x1c24 0x0024>;
+		};
+
+		pcie1_phy: pciephy@4a094000 {
+			compatible = "ti,phy-pipe3-pcie";
+			reg = <0x4a094000 0x80>, /* phy_rx */
+			      <0x4a094400 0x64>; /* phy_tx */
+			reg-names = "phy_rx", "phy_tx";
+			syscon-phy-power = <&scm_conf_pcie 0x1c>;
+			syscon-pcs = <&scm_conf_pcie 0x10>;
+			clocks = <&dummy_apb>,
+				 <&dummy_apb>,
+				 <&dummy_apb>,
+				 <&dummy_apb>,
+				 <&dummy_apb>,
+				 <&dummy_apb>,
+				 <&dummy_apb>;
+			clock-names = "dpll_ref", "dpll_ref_m2",
+				      "wkupclk", "refclk",
+				      "div-clk", "phy-div", "sysclk";
+			#phy-cells = <0>;
+		};
+
+		scm_conf1: scm_conf@1c04 {
+			compatible = "syscon";
+			reg = <0x1c04 0x0020>;
+			#syscon-cells = <2>;
+		};
+
+		pcie_ep: pcie_ep@51000000 {
+			compatible = "csky,csky-pcie-ep";
+			/* DBI: Data Bus Interface
+			   conf: Config
+			   space: 0x10000000 = 256MB
+			 */
+			reg = <0x51000000 0x28>, <0x51002000 0x14c>, <0x51001000 0x28>, <0x1000 0x10000000>;
+			reg-names = "ep_dbics", "csky_conf", "ep_dbics2", "addr_space";
+
+
+			ti,hwmods = "pcie1";	/* used in bus/ti-sysc.c, use for what?*/
+
+			/* Below are defined & used by designware */
+			interrupts = <64>;	/* assumption number */
+			num-lanes = <1>;
+			num-ib-windows = <4>;	/* number of inbound address translation windows, use for ATU(Address Translation Unit) */
+			num-ob-windows = <16>;	/* Outbound */
+
+			/* Below are TI's phy difination */
+			phys = <&pcie1_phy>;
+			phy-names = "pcie-phy0";
+			ti,syscon-unaligned-access = <&scm_conf1 0x14 2>;
+
+			/* Below are common config */
+			status = "disabled";
 		};
 	};
 
