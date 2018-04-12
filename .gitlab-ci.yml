@@ -68,24 +68,24 @@ stages:
 
 csky_gx6605s_defconfig: *defconfig
 csky_gx6605s_fbcon_defconfig: *defconfig
-qemu_csky_ck810_uclibc_bt_defconfig: *defconfig
-qemu_csky_ck807_glibc_bt_defconfig: *defconfig
-qemu_csky_ck807_4.15_glibc_bt_defconfig: *defconfig
-qemu_csky_ck807_uclibc_bt_defconfig: *defconfig
-qemu_csky_ck610_uclibc_bt_defconfig: *defconfig
-qemu_csky_ck610_glibc_bt_defconfig: *defconfig
-csky_ck810_sc8925_bt_defconfig: *defconfig
+qemu_csky_ck810f_4.15_uclibc_defconfig: *defconfig
+qemu_csky_ck807_4.9_glibc_defconfig: *defconfig
+qemu_csky_ck807f_4.15_glibc_defconfig: *defconfig
+qemu_csky_ck807_4.15_uclibc_defconfig: *defconfig
+qemu_csky_ck610_4.15_uclibc_defconfig: *defconfig
+qemu_csky_ck610_4.9_glibc_defconfig: *defconfig
+csky_ck810_sc8925_4.9_glibc_bt_defconfig: *defconfig
 csky_eragon3_defconfig: *defconfig
 
-csky_ck610_gx6622_glibc_bt_defconfig: *localbuild_defconfig
-csky_ck610_gx6622_uclibc_bt_defconfig: *localbuild_defconfig
-csky_ck807_eragon_bt_defconfig: *localbuild_defconfig
+csky_ck610_gx6622_4.15_glibc_bt_defconfig: *localbuild_defconfig
+csky_ck610_gx6622_4.9_uclibc_bt_defconfig: *localbuild_defconfig
+csky_ck807_eragon_4.9_glibc_bt_defconfig: *localbuild_defconfig
 
-qemu_csky_ck810_uclibc_bt_defconfig_test:
+qemu_csky_ck810f_4.15_uclibc_defconfig_test:
     stage: test
     script: *run_test
     dependencies:
-      - qemu_csky_ck810_uclibc_bt_defconfig
+      - qemu_csky_ck810f_4.15_uclibc_defconfig
     artifacts:
         when: always
         expire_in: 2 weeks
@@ -93,11 +93,11 @@ qemu_csky_ck810_uclibc_bt_defconfig_test:
             - test.log
             - test_sum.log
 
-qemu_csky_ck807_glibc_bt_defconfig_test:
+qemu_csky_ck807_4.9_glibc_defconfig_test:
     stage: test
     script: *run_test
     dependencies:
-      - qemu_csky_ck807_glibc_bt_defconfig
+      - qemu_csky_ck807_4.9_glibc_defconfig
     artifacts:
         when: always
         expire_in: 2 weeks
@@ -105,11 +105,11 @@ qemu_csky_ck807_glibc_bt_defconfig_test:
             - test.log
             - test_sum.log
 
-qemu_csky_ck807_uclibc_bt_defconfig_test:
+qemu_csky_ck807f_4.15_glibc_defconfig_test:
     stage: test
     script: *run_test
     dependencies:
-      - qemu_csky_ck807_uclibc_bt_defconfig
+      - qemu_csky_ck807f_4.15_glibc_defconfig
     artifacts:
         when: always
         expire_in: 2 weeks
@@ -117,11 +117,11 @@ qemu_csky_ck807_uclibc_bt_defconfig_test:
             - test.log
             - test_sum.log
 
-qemu_csky_ck610_glibc_bt_defconfig_test:
+qemu_csky_ck807_4.15_uclibc_defconfig_test:
     stage: test
     script: *run_test
     dependencies:
-      - qemu_csky_ck610_glibc_bt_defconfig
+      - qemu_csky_ck807_4.15_uclibc_defconfig
     artifacts:
         when: always
         expire_in: 2 weeks
@@ -129,11 +129,23 @@ qemu_csky_ck610_glibc_bt_defconfig_test:
             - test.log
             - test_sum.log
 
-qemu_csky_ck610_uclibc_bt_defconfig_test:
+qemu_csky_ck610_4.9_glibc_defconfig_test:
     stage: test
     script: *run_test
     dependencies:
-      - qemu_csky_ck610_uclibc_bt_defconfig
+      - qemu_csky_ck610_4.9_glibc_defconfig
+    artifacts:
+        when: always
+        expire_in: 2 weeks
+        paths:
+            - test.log
+            - test_sum.log
+
+qemu_csky_ck610_4.15_uclibc_defconfig_test:
+    stage: test
+    script: *run_test
+    dependencies:
+      - qemu_csky_ck610_4.15_uclibc_defconfig
     artifacts:
         when: always
         expire_in: 2 weeks
@@ -156,7 +168,7 @@ qemu_csky_ck610_uclibc_bt_defconfig_test:
 #          }
 #      - touch /home/vmh/workspace/DebugServerConsole/.stamp_gdb_exit_sc8925
 #    dependencies:
-#      - csky_ck810_sc8925_bt_defconfig
+#      - csky_ck810_sc8925_4.9_glibc_bt_defconfig
 #    artifacts:
 #        when: always
 #        expire_in: 2 weeks
@@ -164,7 +176,7 @@ qemu_csky_ck610_uclibc_bt_defconfig_test:
 #            - test.log
 #            - test_sum.log
 
-csky_ck610_gx6622_uclibc_bt_defconfig_test:
+csky_ck610_gx6622_4.9_uclibc_bt_defconfig_test:
     stage: test
     tags:
       - vmh-gx6622
@@ -188,7 +200,7 @@ csky_ck610_gx6622_uclibc_bt_defconfig_test:
       - rm output/images/rootfs output/images/vmlinux output/images/rootfs.tar output/images/.gdbinit output/images/*.dtb -rf
       - touch /home/vmh/workspace/DebugServerConsole/.stamp_gdb_exit_gx6622
     dependencies:
-      - csky_ck610_gx6622_uclibc_bt_defconfig
+      - csky_ck610_gx6622_4.9_uclibc_bt_defconfig
     artifacts:
         when: on_success
         paths:
@@ -196,7 +208,7 @@ csky_ck610_gx6622_uclibc_bt_defconfig_test:
             - test.log
             - test_sum.log
 
-csky_ck610_gx6622_glibc_bt_defconfig_test:
+csky_ck610_gx6622_4.15_glibc_bt_defconfig_test:
     stage: test
     tags:
       - vmh-gx6622
@@ -220,7 +232,7 @@ csky_ck610_gx6622_glibc_bt_defconfig_test:
       - rm output/images/rootfs output/images/vmlinux output/images/rootfs.tar output/images/.gdbinit output/images/*.dtb -rf
       - touch /home/vmh/workspace/DebugServerConsole/.stamp_gdb_exit_gx6622
     dependencies:
-      - csky_ck610_gx6622_glibc_bt_defconfig
+      - csky_ck610_gx6622_4.15_glibc_bt_defconfig
     artifacts:
         when: on_success
         paths:
@@ -228,7 +240,7 @@ csky_ck610_gx6622_glibc_bt_defconfig_test:
             - test.log
             - test_sum.log
 
-csky_ck807_eragon_bt_defconfig_test:
+csky_ck807_eragon_4.9_glibc_bt_defconfig_test:
     stage: test
     tags:
       - vmh-eragon
@@ -251,7 +263,7 @@ csky_ck807_eragon_bt_defconfig_test:
       - rm output/images/rootfs output/images/vmlinux output/images/rootfs.tar output/images/.gdbinit output/images/*.dtb -rf
       - touch /home/vmh/workspace/DebugServerConsole/.stamp_gdb_exit_eragon
     dependencies:
-      - csky_ck807_eragon_bt_defconfig
+      - csky_ck807_eragon_4.9_glibc_bt_defconfig
     artifacts:
         when: on_success
         paths:
