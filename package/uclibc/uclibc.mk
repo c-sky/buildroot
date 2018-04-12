@@ -5,7 +5,7 @@
 ################################################################################
 
 ifeq ($(BR2_csky),y)
-UCLIBC_VERSION = 24aa768e496fb32c8f3feac375f707f93e4e068f
+UCLIBC_VERSION = ec3c303f8cd166f8cf572d18c15ed81a2b8e9c41
 UCLIBC_SOURCE = uClibc-ng-$(UCLIBC_VERSION).tar.gz
 UCLIBC_SITE = $(call github,c-sky,uclibc-ng,$(UCLIBC_VERSION))
 UCLIBC_LICENSE = LGPL-2.1+
