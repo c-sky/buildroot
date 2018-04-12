@@ -8,7 +8,7 @@ ifeq ($(BR2_arc),y)
 GLIBC_VERSION =  arc-2017.09-release
 GLIBC_SITE = $(call github,foss-for-synopsys-dwc-arc-processors,glibc,$(GLIBC_VERSION))
 else ifeq ($(BR2_csky),y)
-GLIBC_VERSION = e1a72449e40a1f65052c1c42f9c40a4c018c6357
+GLIBC_VERSION = 48487234e1c6e702d669ff8fbcc5ccb222e0cd47
 GLIBC_SITE = $(call github,c-sky,glibc,$(GLIBC_VERSION))
 else
 # Generate version string using:
