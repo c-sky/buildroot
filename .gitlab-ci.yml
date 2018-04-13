@@ -182,8 +182,6 @@ csky_ck610_gx6622_4.9_uclibc_bt_defconfig_test:
       - vmh-gx6622
     script:
       - echo 'Run test'
-      - /home/vmh/workspace/switch/switch /dev/ttyUSB2 off
-      - sleep 5
       - /home/vmh/workspace/switch/switch /dev/ttyUSB2 on
       - BUILDROOT_VERSION=$(git log --pretty=oneline|awk 'NR==1'|awk '{print $1}')
       - if [ ! -d /root/builds/build_tmp/$BUILDROOT_VERSION/${CI_BUILD_NAME} ]; then
@@ -202,6 +200,7 @@ csky_ck610_gx6622_4.9_uclibc_bt_defconfig_test:
           }
       - rm output/images/rootfs output/images/vmlinux output/images/rootfs.tar output/images/.gdbinit output/images/*.dtb -rf
       - touch /home/vmh/workspace/DebugServerConsole/.stamp_gdb_exit_gx6622
+      - /home/vmh/workspace/switch/switch /dev/ttyUSB2 off
     dependencies:
       - csky_ck610_gx6622_4.9_uclibc_bt_defconfig
     artifacts:
@@ -217,8 +216,6 @@ csky_ck610_gx6622_4.15_glibc_bt_defconfig_test:
       - vmh-gx6622
     script:
       - echo 'Run test'
-      - /home/vmh/workspace/switch/switch /dev/ttyUSB2 off
-      - sleep 5
       - /home/vmh/workspace/switch/switch /dev/ttyUSB2 on
       - BUILDROOT_VERSION=$(git log --pretty=oneline|awk 'NR==1'|awk '{print $1}')
       - if [ ! -d /root/builds/build_tmp/$BUILDROOT_VERSION/${CI_BUILD_NAME} ]; then
@@ -237,6 +234,7 @@ csky_ck610_gx6622_4.15_glibc_bt_defconfig_test:
           }
       - rm output/images/rootfs output/images/vmlinux output/images/rootfs.tar output/images/.gdbinit output/images/*.dtb -rf
       - touch /home/vmh/workspace/DebugServerConsole/.stamp_gdb_exit_gx6622
+      - /home/vmh/workspace/switch/switch /dev/ttyUSB2 off
     dependencies:
       - csky_ck610_gx6622_4.15_glibc_bt_defconfig
     artifacts:
