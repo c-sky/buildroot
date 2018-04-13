@@ -183,6 +183,7 @@ csky_ck610_gx6622_4.9_uclibc_bt_defconfig_test:
     script:
       - echo 'Run test'
       - /home/vmh/workspace/switch/switch /dev/ttyUSB2 off
+      - sleep 5
       - /home/vmh/workspace/switch/switch /dev/ttyUSB2 on
       - BUILDROOT_VERSION=$(git log --pretty=oneline|awk 'NR==1'|awk '{print $1}')
       - if [ ! -d /root/builds/build_tmp/$BUILDROOT_VERSION/${CI_BUILD_NAME} ]; then
@@ -217,6 +218,7 @@ csky_ck610_gx6622_4.15_glibc_bt_defconfig_test:
     script:
       - echo 'Run test'
       - /home/vmh/workspace/switch/switch /dev/ttyUSB2 off
+      - sleep 5
       - /home/vmh/workspace/switch/switch /dev/ttyUSB2 on
       - BUILDROOT_VERSION=$(git log --pretty=oneline|awk 'NR==1'|awk '{print $1}')
       - if [ ! -d /root/builds/build_tmp/$BUILDROOT_VERSION/${CI_BUILD_NAME} ]; then
