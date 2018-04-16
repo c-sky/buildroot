@@ -23,7 +23,7 @@ int main(int argc __attribute__((unused)),
          char** argv __attribute__((unused)))
 {
     if((LINUX_VERSION_CODE & ~0xFF)
-        != KERNEL_VERSION(${HDR_M},${HDR_m},0))
+        < KERNEL_VERSION(${HDR_M},${HDR_m},0))
     {
         printf("Incorrect selection of kernel headers: ");
         printf("expected %d.%d.x, got %d.%d.x\n", ${HDR_M}, ${HDR_m},
