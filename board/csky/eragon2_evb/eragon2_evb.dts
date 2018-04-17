@@ -747,7 +747,6 @@
 		};
 #endif
 
-#if 0 // For Linux 4.16.2
 		i2s0: i2s0@1FB90000 {
 			compatible = "csky,i2s-v1";
 			reg = <0x1FB90000 0x1000>;
@@ -830,7 +829,7 @@
 				sound-dai = <&audio_codec1>;
 			};
 		};
-#endif
+
 		watchdog0: watchdog@1FBA0000 {
 			compatible = "csky,wdt-v1";
 			reg = <0x1FBA0000 0x1000>;
