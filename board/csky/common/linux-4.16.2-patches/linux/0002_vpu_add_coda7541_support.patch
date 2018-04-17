@@ -1,0 +1,393 @@
+diff --git a/drivers/media/platform/Kconfig b/drivers/media/platform/Kconfig
+index 614fbef..699fa92 100644
+--- a/drivers/media/platform/Kconfig
++++ b/drivers/media/platform/Kconfig
+@@ -182,7 +182,7 @@ if V4L_MEM2MEM_DRIVERS
+ 
+ config VIDEO_CODA
+ 	tristate "Chips&Media Coda multi-standard codec IP"
+-	depends on VIDEO_DEV && VIDEO_V4L2 && (ARCH_MXC || COMPILE_TEST)
++	depends on VIDEO_DEV && VIDEO_V4L2 && (ARCH_MXC || COMPILE_TEST || CSKY_VPU)
+ 	depends on HAS_DMA
+ 	select SRAM
+ 	select VIDEOBUF2_DMA_CONTIG
+diff --git a/drivers/media/platform/coda/coda-bit.c b/drivers/media/platform/coda/coda-bit.c
+index 9fe113c..d411871 100644
+--- a/drivers/media/platform/coda/coda-bit.c
++++ b/drivers/media/platform/coda/coda-bit.c
+@@ -69,7 +69,8 @@ static void coda_command_async(struct coda_ctx *ctx, int cmd)
+ 	struct coda_dev *dev = ctx->dev;
+ 
+ 	if (dev->devtype->product == CODA_960 ||
+-	    dev->devtype->product == CODA_7541) {
++	    dev->devtype->product == CODA_7541 ||
++	    dev->devtype->product == CODA_7541_ERAGON) {
+ 		/* Restore context related registers to CODA */
+ 		coda_write(dev, ctx->bit_stream_param,
+ 				CODA_REG_BIT_BIT_STREAM_PARAM);
+@@ -506,7 +507,8 @@ static int coda_alloc_context_buffers(struct coda_ctx *ctx,
+ 			goto err;
+ 	}
+ 
+-	if (!ctx->psbuf.vaddr && dev->devtype->product == CODA_7541) {
++	if (!ctx->psbuf.vaddr && dev->devtype->product == CODA_7541 ||
++	                         dev->devtype->product == CODA_7541_ERAGON) {
+ 		ret = coda_alloc_context_buf(ctx, &ctx->psbuf,
+ 					     CODA7_PS_BUF_SIZE, "psbuf");
+ 		if (ret < 0)
+@@ -608,6 +610,11 @@ static void coda_setup_iram(struct coda_ctx *ctx)
+ 		bit_bits = CODA7_USE_HOST_BIT_ENABLE | CODA7_USE_BIT_ENABLE;
+ 		ip_bits = CODA7_USE_HOST_IP_ENABLE | CODA7_USE_IP_ENABLE;
+ 		break;
++	case CODA_7541_ERAGON:
++		dbk_bits = 0;
++		bit_bits = 0;
++		ip_bits = 0;
++		break;
+ 	case CODA_960:
+ 		dbk_bits = CODA9_USE_HOST_DBK_ENABLE | CODA9_USE_DBK_ENABLE;
+ 		bit_bits = CODA9_USE_HOST_BIT_ENABLE | CODA7_USE_BIT_ENABLE;
+@@ -688,7 +695,8 @@ static void coda_setup_iram(struct coda_ctx *ctx)
+ 		v4l2_dbg(1, coda_debug, &ctx->dev->v4l2_dev,
+ 			 "IRAM smaller than needed\n");
+ 
+-	if (dev->devtype->product == CODA_7541) {
++	if (dev->devtype->product == CODA_7541 ||
++	    dev->devtype->product == CODA_7541_ERAGON) {
+ 		/* TODO - Enabling these causes picture errors on CODA7541 */
+ 		if (ctx->inst_type == CODA_INST_DECODER) {
+ 			/* fw 1.4.50 */
+@@ -707,6 +715,7 @@ static void coda_setup_iram(struct coda_ctx *ctx)
+ static u32 coda_supported_firmwares[] = {
+ 	CODA_FIRMWARE_VERNUM(CODA_DX6, 2, 2, 5),
+ 	CODA_FIRMWARE_VERNUM(CODA_7541, 1, 4, 50),
++	CODA_FIRMWARE_VERNUM(CODA_7541_ERAGON, 1, 4, 50),
+ 	CODA_FIRMWARE_VERNUM(CODA_960, 2, 1, 5),
+ 	CODA_FIRMWARE_VERNUM(CODA_960, 2, 3, 10),
+ 	CODA_FIRMWARE_VERNUM(CODA_960, 3, 1, 1),
+@@ -891,6 +900,7 @@ static int coda_start_encoding(struct coda_ctx *ctx)
+ 		coda_write(dev, 0, CODA9_GDI_WPROT_RGN_EN);
+ 		/* fallthrough */
+ 	case CODA_7541:
++	case CODA_7541_ERAGON:
+ 		coda_write(dev, CODA7_STREAM_BUF_DYNALLOC_EN |
+ 			CODA7_STREAM_BUF_PIC_RESET, CODA_REG_BIT_STREAM_CTRL);
+ 		break;
+@@ -920,6 +930,7 @@ static int coda_start_encoding(struct coda_ctx *ctx)
+ 			 << CODA_PICHEIGHT_OFFSET;
+ 		break;
+ 	case CODA_7541:
++	case CODA_7541_ERAGON:
+ 		if (dst_fourcc == V4L2_PIX_FMT_H264) {
+ 			value = (round_up(q_data_src->width, 16) &
+ 				 CODA7_PICWIDTH_MASK) << CODA7_PICWIDTH_OFFSET;
+@@ -1087,6 +1098,7 @@ static int coda_start_encoding(struct coda_ctx *ctx)
+ 			coda_write(dev, value, CODADX6_CMD_ENC_SEQ_FMO);
+ 			break;
+ 		case CODA_7541:
++		case CODA_7541_ERAGON:
+ 			coda_write(dev, ctx->iram_info.search_ram_paddr,
+ 					CODA7_CMD_ENC_SEQ_SEARCH_BASE);
+ 			coda_write(dev, ctx->iram_info.search_ram_size,
+@@ -1131,7 +1143,8 @@ static int coda_start_encoding(struct coda_ctx *ctx)
+ 	coda_write(dev, num_fb, CODA_CMD_SET_FRAME_BUF_NUM);
+ 	coda_write(dev, stride, CODA_CMD_SET_FRAME_BUF_STRIDE);
+ 
+-	if (dev->devtype->product == CODA_7541) {
++	if (dev->devtype->product == CODA_7541 ||
++	    dev->devtype->product == CODA_7541_ERAGON) {
+ 		coda_write(dev, q_data_src->bytesperline,
+ 				CODA7_CMD_SET_FRAME_SOURCE_BUF_STRIDE);
+ 	}
+@@ -1664,7 +1677,8 @@ static int __coda_start_decoding(struct coda_ctx *ctx)
+ 			   CODA_CMD_DEC_SEQ_MP4_ASP_CLASS);
+ 	}
+ 	if (src_fourcc == V4L2_PIX_FMT_H264) {
+-		if (dev->devtype->product == CODA_7541) {
++		if (dev->devtype->product == CODA_7541 ||
++	    	    dev->devtype->product == CODA_7541_ERAGON) {
+ 			coda_write(dev, ctx->psbuf.paddr,
+ 					CODA_CMD_DEC_SEQ_PS_BB_START);
+ 			coda_write(dev, (CODA7_PS_BUF_SIZE / 1024),
+@@ -1715,6 +1729,8 @@ static int __coda_start_decoding(struct coda_ctx *ctx)
+ 
+ 	width = round_up(width, 16);
+ 	height = round_up(height, 16);
++	ctx->pic_width = width;
++	ctx->pic_height = height;
+ 
+ 	v4l2_dbg(1, coda_debug, &dev->v4l2_dev, "%s instance %d now: %dx%d\n",
+ 		 __func__, ctx->idx, width, height);
+@@ -1791,7 +1807,8 @@ static int __coda_start_decoding(struct coda_ctx *ctx)
+ 				CODA_CMD_SET_FRAME_SLICE_BB_SIZE);
+ 	}
+ 
+-	if (dev->devtype->product == CODA_7541) {
++	if (dev->devtype->product == CODA_7541 ||
++	    dev->devtype->product == CODA_7541_ERAGON) {
+ 		int max_mb_x = 1920 / 16;
+ 		int max_mb_y = 1088 / 16;
+ 		int max_mb_num = max_mb_x * max_mb_y;
+@@ -1899,7 +1916,14 @@ static int coda_prepare_decode(struct coda_ctx *ctx)
+ 			reg_stride = CODA_CMD_DEC_PIC_ROT_STRIDE;
+ 		}
+ 		coda_write_base(ctx, q_data_dst, dst_buf, reg_addr);
+-		coda_write(dev, q_data_dst->bytesperline, reg_stride);
++
++		if (dev->devtype->product != CODA_7541_ERAGON) {
++			coda_write(dev, q_data_dst->bytesperline, reg_stride);
++		}
++		else {
++			coda_write(dev, ctx->pic_width, reg_stride);
++			coda_write(dev, ctx->pic_width, CODA_CMD_DEC_PIC_CHUNK_SIZE);
++		}
+ 
+ 		rot_mode = CODA_ROT_MIR_ENABLE | ctx->params.rot_mode;
+ 	}
+@@ -1910,6 +1934,7 @@ static int coda_prepare_decode(struct coda_ctx *ctx)
+ 	case CODA_DX6:
+ 		/* TBD */
+ 	case CODA_7541:
++	case CODA_7541_ERAGON:
+ 		coda_write(dev, CODA_PRE_SCAN_EN, CODA_CMD_DEC_PIC_OPTION);
+ 		break;
+ 	case CODA_960:
+@@ -2014,9 +2039,17 @@ static void coda_finish_decode(struct coda_ctx *ctx)
+ 				 ctx->slicebuf.size);
+ 	}
+ 
+-	val = coda_read(dev, CODA_RET_DEC_PIC_SIZE);
+-	width = (val >> 16) & 0xffff;
+-	height = val & 0xffff;
++	/* CODA_7541_ERAGON can't read it, width and height always be 0 */
++	if (dev->devtype->product == CODA_7541_ERAGON) {
++		/* Eragon only support 800x480 display on LCD (2017-05-27) */
++		width = success ? ctx->pic_width : 0;
++		height = success ? ctx->pic_height : 0;
++	}
++	else {
++		val = coda_read(dev, CODA_RET_DEC_PIC_SIZE);
++		width = (val >> 16) & 0xffff;
++		height = val & 0xffff;
++	}
+ 
+ 	q_data_dst = get_q_data(ctx, V4L2_BUF_TYPE_VIDEO_CAPTURE);
+ 
+@@ -2049,7 +2082,8 @@ static void coda_finish_decode(struct coda_ctx *ctx)
+ 		v4l2_err(&dev->v4l2_dev,
+ 			 "errors in %d macroblocks\n", err_mb);
+ 
+-	if (dev->devtype->product == CODA_7541) {
++	if (dev->devtype->product == CODA_7541 ||
++	    dev->devtype->product == CODA_7541_ERAGON) {
+ 		val = coda_read(dev, CODA_RET_DEC_PIC_OPTION);
+ 		if (val == 0) {
+ 			/* not enough bitstream data */
+@@ -2114,11 +2148,16 @@ static void coda_finish_decode(struct coda_ctx *ctx)
+ 			 * should be enough to detect most errors and saves us
+ 			 * from doing different things based on the format.
+ 			 */
+-			if ((val & 0xffff) != (meta->sequence & 0xffff)) {
+-				v4l2_err(&dev->v4l2_dev,
+-					 "sequence number mismatch (%d(%d) != %d)\n",
+-					 val, ctx->sequence_offset,
+-					 meta->sequence);
++			if (dev->devtype->product != CODA_7541_ERAGON) {
++				/* It seems that eragon read the frame num is
++				 * 0xa and 0xb, will not increase.
++				 */
++				if ((val & 0xffff) != (meta->sequence & 0xffff)) {
++					v4l2_err(&dev->v4l2_dev,
++						 "sequence number mismatch (%d(%d) != %d)\n",
++						 val, ctx->sequence_offset,
++						 meta->sequence);
++				}
+ 			}
+ 			ctx->frame_metas[decoded_idx] = *meta;
+ 			kfree(meta);
+@@ -2171,6 +2210,13 @@ static void coda_finish_decode(struct coda_ctx *ctx)
+ 		dst_buf->flags |= ctx->frame_types[ctx->display_idx];
+ 		meta = &ctx->frame_metas[ctx->display_idx];
+ 		dst_buf->timecode = meta->timecode;
++		if (dev->devtype->product == CODA_7541_ERAGON) {
++			/* Use timecode.userbits to transer YUV phy address */
++			dma_addr_t *disp_paddr = (dma_addr_t*)(dst_buf->timecode.userbits);
++			dma_addr_t *p_disp_paddr = (dma_addr_t*)vb2_dma_contig_memops.cookie(
++					dst_buf->vb2_buf.planes[0].mem_priv);
++			*disp_paddr = *p_disp_paddr;
++		}
+ 		dst_buf->vb2_buf.timestamp = meta->timestamp;
+ 
+ 		trace_coda_dec_rot_done(ctx, dst_buf, meta);
+diff --git a/drivers/media/platform/coda/coda-common.c b/drivers/media/platform/coda/coda-common.c
+index e8a7554..6e4766b 100644
+--- a/drivers/media/platform/coda/coda-common.c
++++ b/drivers/media/platform/coda/coda-common.c
+@@ -77,18 +77,31 @@ MODULE_PARM_DESC(enable_bwb, "Enable BWB unit for decoding, may crash on certain
+ 
+ void coda_write(struct coda_dev *dev, u32 data, u32 reg)
+ {
+-	v4l2_dbg(2, coda_debug, &dev->v4l2_dev,
+-		 "%s: data=0x%x, reg=0x%x\n", __func__, data, reg);
++	/* Just for reduce CODA_REG_BIT_CODE_DOWN log when firmware download */
++	if (reg != CODA_REG_BIT_CODE_DOWN ||
++	    (reg == CODA_REG_BIT_CODE_DOWN && (((data & 0xff0000) >> 16) < 0x10)) ) {
++		v4l2_dbg(2, coda_debug, &dev->v4l2_dev,
++			 "%s: data=0x%x, reg=0x%x\n", __func__, data, reg);
++	}
+ 	writel(data, dev->regs_base + reg);
+ }
+ 
++/* Just for reduce CODA_REG_BIT_BUSY log when waiting for cmd finish */
++static int s_last_read_reg = 0;
+ unsigned int coda_read(struct coda_dev *dev, u32 reg)
+ {
+ 	u32 data;
+ 
+ 	data = readl(dev->regs_base + reg);
+-	v4l2_dbg(2, coda_debug, &dev->v4l2_dev,
+-		 "%s: data=0x%x, reg=0x%x\n", __func__, data, reg);
++
++	if(data == 0 ||
++	   s_last_read_reg != CODA_REG_BIT_BUSY ||
++	   reg != CODA_REG_BIT_BUSY) {
++		v4l2_dbg(2, coda_debug, &dev->v4l2_dev,
++			 "%s: data=0x%x, reg=0x%x\n", __func__, data, reg);
++	}
++
++	s_last_read_reg = reg;
+ 	return data;
+ }
+ 
+@@ -333,6 +346,7 @@ const char *coda_product_name(int product)
+ 	case CODA_DX6:
+ 		return "CodaDx6";
+ 	case CODA_7541:
++	case CODA_7541_ERAGON:
+ 		return "CODA7541";
+ 	case CODA_960:
+ 		return "CODA960";
+@@ -1158,8 +1172,11 @@ static void coda_pic_run_work(struct work_struct *work)
+ 		return;
+ 	}
+ 
++	/* The timeout should be 1000(ms), but in C-SKY Eragon FPGA version,
++	 * it's not meet the performance, extend it to be 2000(ms)
++	 */
+ 	if (!wait_for_completion_timeout(&ctx->completion,
+-					 msecs_to_jiffies(1000))) {
++					 msecs_to_jiffies(2000))) {
+ 		dev_err(&dev->plat_dev->dev, "CODA PIC_RUN timeout\n");
+ 
+ 		ctx->hold = true;
+@@ -1491,6 +1508,8 @@ static int coda_start_streaming(struct vb2_queue *q, unsigned int count)
+ 			mutex_unlock(&ctx->bitstream_mutex);
+ 
+ 			if (coda_get_bitstream_payload(ctx) < 512) {
++				v4l2_err(v4l2_dev, "length(%d) < 512",
++					 coda_get_bitstream_payload(ctx));
+ 				ret = -EINVAL;
+ 				goto err;
+ 			}
+@@ -2005,6 +2024,7 @@ static int coda_open(struct file *file)
+ 			ctx->frame_mem_ctrl = CODA9_FRAME_ENABLE_BWB;
+ 		/* fallthrough */
+ 	case CODA_7541:
++	case CODA_7541_ERAGON:
+ 		ctx->reg_idx = 0;
+ 		break;
+ 	default:
+@@ -2182,7 +2202,8 @@ static int coda_hw_init(struct coda_dev *dev)
+ 
+ 	/* Tell the BIT where to find everything it needs */
+ 	if (dev->devtype->product == CODA_960 ||
+-	    dev->devtype->product == CODA_7541) {
++	    dev->devtype->product == CODA_7541 ||
++	    dev->devtype->product == CODA_7541_ERAGON) {
+ 		coda_write(dev, dev->tempbuf.paddr,
+ 				CODA_REG_BIT_TEMP_BUF_ADDR);
+ 		coda_write(dev, 0, CODA_REG_BIT_BIT_STREAM_PARAM);
+@@ -2390,6 +2411,7 @@ enum coda_platform {
+ 	CODA_IMX53,
+ 	CODA_IMX6Q,
+ 	CODA_IMX6DL,
++	CODA_ERAGON,
+ };
+ 
+ static const struct coda_devtype coda_devdata[] = {
+@@ -2452,6 +2474,20 @@ static const struct coda_devtype coda_devdata[] = {
+ 		.tempbuf_size = 204 * 1024,
+ 		.iram_size    = 0x1f000, /* leave 4k for suspend code */
+ 	},
++	[CODA_ERAGON] = {
++		.firmware     = {
++			"vpu_fw_eragon.bin",
++			"v4l-coda7541-eragon.bin"
++		},
++		.product      = CODA_7541_ERAGON,
++		.codecs       = coda7_codecs,
++		.num_codecs   = ARRAY_SIZE(coda7_codecs),
++		.vdevs        = coda7_video_devices,
++		.num_vdevs    = ARRAY_SIZE(coda7_video_devices),
++		.workbuf_size = 256 * 1024,
++		.tempbuf_size = 304 * 1024,
++		.iram_size    = 0x14000,
++	},
+ };
+ 
+ static const struct platform_device_id coda_platform_ids[] = {
+@@ -2466,6 +2502,7 @@ static const struct of_device_id coda_dt_ids[] = {
+ 	{ .compatible = "fsl,imx53-vpu", .data = &coda_devdata[CODA_IMX53] },
+ 	{ .compatible = "fsl,imx6q-vpu", .data = &coda_devdata[CODA_IMX6Q] },
+ 	{ .compatible = "fsl,imx6dl-vpu", .data = &coda_devdata[CODA_IMX6DL] },
++	{ .compatible = "csky,vpu-v1", .data = &coda_devdata[CODA_ERAGON] },
+ 	{ /* sentinel */ }
+ };
+ MODULE_DEVICE_TABLE(of, coda_dt_ids);
+@@ -2517,6 +2554,7 @@ static int coda_probe(struct platform_device *pdev)
+ 	dev->regs_base = devm_ioremap_resource(&pdev->dev, res);
+ 	if (IS_ERR(dev->regs_base))
+ 		return PTR_ERR(dev->regs_base);
++	dev_info(&pdev->dev, "coda regs_base=0x%08x\n", dev->regs_base);
+ 
+ 	/* IRQ */
+ 	irq = platform_get_irq_byname(pdev, "bit");
+diff --git a/drivers/media/platform/coda/coda.h b/drivers/media/platform/coda/coda.h
+index c5f504d..4716868 100644
+--- a/drivers/media/platform/coda/coda.h
++++ b/drivers/media/platform/coda/coda.h
+@@ -44,6 +44,7 @@ enum coda_inst_type {
+ enum coda_product {
+ 	CODA_DX6 = 0xf001,
+ 	CODA_7541 = 0xf012,
++	CODA_7541_ERAGON = 0xf00a,
+ 	CODA_960 = 0xf020,
+ };
+ 
+@@ -246,6 +247,13 @@ struct coda_ctx {
+ 	bool				use_bit;
+ 	bool				use_vdoa;
+ 	struct vdoa_ctx			*vdoa;
++
++	/* CODA_7541_ERAGON can't read CODA_RET_DEC_PIC_SIZE, width and height
++	 * always be 0, so store the picture width and height in
++	 * coda_prepare_decode() and use it when needed
++	 */
++	u32				pic_width;
++	u32				pic_height;
+ };
+ 
+ extern int coda_debug;
+diff --git a/drivers/media/v4l2-core/v4l2-mem2mem.c b/drivers/media/v4l2-core/v4l2-mem2mem.c
+index c4f963d..73557a2 100644
+--- a/drivers/media/v4l2-core/v4l2-mem2mem.c
++++ b/drivers/media/v4l2-core/v4l2-mem2mem.c
+@@ -27,7 +27,7 @@ MODULE_DESCRIPTION("Mem to mem device framework for videobuf");
+ MODULE_AUTHOR("Pawel Osciak, <pawel@osciak.com>");
+ MODULE_LICENSE("GPL");
+ 
+-static bool debug;
++static bool debug = true;
+ module_param(debug, bool, 0644);
+ 
+ #define dprintk(fmt, arg...)						\
