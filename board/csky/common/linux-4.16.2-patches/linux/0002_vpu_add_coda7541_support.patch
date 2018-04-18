@@ -12,7 +12,7 @@ index 614fbef..699fa92 100644
  	select SRAM
  	select VIDEOBUF2_DMA_CONTIG
 diff --git a/drivers/media/platform/coda/coda-bit.c b/drivers/media/platform/coda/coda-bit.c
-index 9fe113c..d411871 100644
+index 9fe113c..1566078 100644
 --- a/drivers/media/platform/coda/coda-bit.c
 +++ b/drivers/media/platform/coda/coda-bit.c
 @@ -69,7 +69,8 @@ static void coda_command_async(struct coda_ctx *ctx, int cmd)
@@ -30,8 +30,8 @@ index 9fe113c..d411871 100644
  	}
  
 -	if (!ctx->psbuf.vaddr && dev->devtype->product == CODA_7541) {
-+	if (!ctx->psbuf.vaddr && dev->devtype->product == CODA_7541 ||
-+	                         dev->devtype->product == CODA_7541_ERAGON) {
++	if (!ctx->psbuf.vaddr && (dev->devtype->product == CODA_7541 ||
++	                          dev->devtype->product == CODA_7541_ERAGON)) {
  		ret = coda_alloc_context_buf(ctx, &ctx->psbuf,
  					     CODA7_PS_BUF_SIZE, "psbuf");
  		if (ret < 0)
@@ -105,7 +105,7 @@ index 9fe113c..d411871 100644
  	if (src_fourcc == V4L2_PIX_FMT_H264) {
 -		if (dev->devtype->product == CODA_7541) {
 +		if (dev->devtype->product == CODA_7541 ||
-+	    	    dev->devtype->product == CODA_7541_ERAGON) {
++		    dev->devtype->product == CODA_7541_ERAGON) {
  			coda_write(dev, ctx->psbuf.paddr,
  					CODA_CMD_DEC_SEQ_PS_BB_START);
  			coda_write(dev, (CODA7_PS_BUF_SIZE / 1024),
