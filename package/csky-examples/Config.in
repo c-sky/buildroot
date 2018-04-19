@@ -1,21 +1,13 @@
-config BR2_PACKAGE_CSKY_EXAMPLES
-	bool "csky examples"
-	depends on BR2_LINUX_KERNEL
-	help
-	  csky linux examples
-
-# fixme !!! wrong !!!
-#-------------------------------------------------------------------------------
 # csky examples for linux
-config BR2_LINUX_KERNEL_EXT_CSKY_EXAMPLES
+config BR2_PACKAGE_CSKY_EXAMPLES
 	bool "C-SKY Linux examples"
-	select BR2_PACKAGE_CSKY_EXAMPLES
+	depends on BR2_LINUX_KERNEL
 	help
 	  Linux examples for C-SKY from the www.c-sky.com
 
 	  https://github.com/c-sky/linux-sdk-examples
 
-if BR2_LINUX_KERNEL_EXT_CSKY_EXAMPLES
+if BR2_PACKAGE_CSKY_EXAMPLES
 
 choice
 	bool "Examples version"
@@ -23,21 +15,21 @@ choice
 	  Select method to get code, github or custom git repo. And you
 	  can define the version for github.
 
-config BR2_LINUX_KERNEL_EXT_CSKY_EXAMPLES_GITHUB
+config BR2_PACKAGE_CSKY_EXAMPLES_GITHUB
 	bool "Github"
 
-config BR2_LINUX_KERNEL_EXT_CSKY_EXAMPLES_GIT
+config BR2_PACKAGE_CSKY_EXAMPLES_GIT
 	bool "Custom git repo"
 
 endchoice
 
-config BR2_LINUX_KERNEL_EXT_CSKY_EXAMPLES_VERSION
+config BR2_PACKAGE_CSKY_EXAMPLES_VERSION
 	string "Github version"
 	default "HEAD"
 
-config BR2_LINUX_KERNEL_EXT_CSKY_EXAMPLES_GIT_URL
+config BR2_PACKAGE_CSKY_EXAMPLES_GIT_URL
 	string "Git url"
-	depends on BR2_LINUX_KERNEL_EXT_CSKY_EXAMPLES_GIT
+	depends on BR2_PACKAGE_CSKY_EXAMPLES_GIT
 	default ""
 
 endif # csky examples
