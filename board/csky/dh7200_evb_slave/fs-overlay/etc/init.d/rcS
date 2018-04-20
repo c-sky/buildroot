@@ -35,8 +35,3 @@ printf "Starting network: "
 # mkdir -p /mnt/nfs
 # mount -t nfs 172.16.28.159:/home/ztw/work/nfs_share  /mnt/nfs  -o nolock,tcp,sync
 
-#
-# To insmod sc8925's ko
-#
-cd /ko; ./insmod.sh; cd -
-
