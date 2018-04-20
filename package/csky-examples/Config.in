@@ -33,3 +33,5 @@ config BR2_PACKAGE_CSKY_EXAMPLES_GIT_URL
 	default ""
 
 endif # csky examples
+
+source "package/csky-examples/Config.in.options"

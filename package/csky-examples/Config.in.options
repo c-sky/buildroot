@@ -1,0 +1,94 @@
+if BR2_PACKAGE_CSKY_EXAMPLES
+
+config BR2_PACKAGE_CSKY_EXAMPLES_WATCHDOG
+	bool "csky-examples: watchdog"
+	default y
+	help
+	  Select this option if you want to build csky-examples
+	  with the testcase 'watchdog'.
+
+config BR2_PACKAGE_CSKY_EXAMPLES_FB
+	bool "csky-examples: fb"
+	default y
+	help
+	  Select this option if you want to build csky-examples
+	  with the testcase 'fb'.
+
+config BR2_PACKAGE_CSKY_EXAMPLES_SPI_FLASH
+	bool "csky-examples: spi_flash"
+	default y
+	help
+	  Select this option if you want to build csky-examples
+	  with the testcase 'spi_flash'.
+
+config BR2_PACKAGE_CSKY_EXAMPLES_STORAGE
+	bool "csky-examples: storage"
+	default y
+	help
+	  Select this option if you want to build csky-examples
+	  with the testcase 'storage'.
+
+config BR2_PACKAGE_CSKY_EXAMPLES_TIMER
+	bool "csky-examples: timer"
+	default y
+	help
+	  Select this option if you want to build csky-examples
+	  with the testcase 'timer'.
+
+config BR2_PACKAGE_CSKY_EXAMPLES_PWM
+	bool "csky-examples: pwm"
+	default y
+	help
+	  Select this option if you want to build csky-examples
+	  with the testcase 'pwm'.
+
+config BR2_PACKAGE_CSKY_EXAMPLES_NETWORK
+	bool "csky-examples: network"
+	default y
+	help
+	  Select this option if you want to build csky-examples
+	  with the testcase 'network'.
+
+config BR2_PACKAGE_CSKY_EXAMPLES_RTC
+	bool "csky-examples: rtc"
+	default y
+	help
+	  Select this option if you want to build csky-examples
+	  with the testcase 'rtc'.
+
+config BR2_PACKAGE_CSKY_EXAMPLES_UART
+	bool "csky-examples: uart"
+	default y
+	help
+	  Select this option if you want to build csky-examples
+	  with the testcase 'uart'.
+
+config BR2_PACKAGE_CSKY_EXAMPLES_V4L2_DECODE
+	bool "csky-examples: v4l2_decode"
+	default y
+	help
+	  Select this option if you want to build csky-examples
+	  with the testcase 'v4l2_decode'.
+
+config BR2_PACKAGE_CSKY_EXAMPLES_V4L2_ENCODE
+	bool "csky-examples: v4l2_encode"
+	default y
+	help
+	  Select this option if you want to build csky-examples
+	  with the testcase 'v4l2_encode'.
+
+config BR2_PACKAGE_CSKY_EXAMPLES_IIS
+	bool "csky-examples: iis"
+	default y
+	help
+	  Select this option if you want to build csky-examples
+	  with the testcase 'iis'.
+
+config BR2_PACKAGE_CSKY_EXAMPLES_FFMPEG_PLAYER
+	bool "csky-examples: ffmpeg player"
+	default y
+	help
+	  Select this option if you want to build csky-examples
+	  with the ffmpeg player related testcases.
+
+endif
