@@ -1,0 +1,65 @@
+--- a/libgcc/config/csky/linux-unwind.h	2018-04-19 23:07:31.000000000 +0800
++++ b/libgcc/config/csky/linux-unwind.h	2018-04-23 10:06:32.843552338 +0800
+@@ -90,7 +90,7 @@
+   }
+   else  return _URC_END_OF_STACK;
+ 
+-  new_cfa = (_Unwind_Ptr) sc->sc_usp;
++  new_cfa = (_Unwind_Ptr) sc->sc_pt_regs.usp;
+   fs->regs.cfa_how = CFA_REG_OFFSET;
+   fs->regs.cfa_reg = STACK_POINTER_REGNUM;
+   fs->regs.cfa_offset = new_cfa - (_Unwind_Ptr) context->cfa;
+@@ -102,43 +102,43 @@
+ #define ARG_OFF 0
+ #endif
+   fs->regs.reg[0 + ARG_OFF].how = REG_SAVED_OFFSET;
+-  fs->regs.reg[0 + ARG_OFF].loc.offset = (_Unwind_Ptr)&(sc->sc_a0) - new_cfa;
++  fs->regs.reg[0 + ARG_OFF].loc.offset = (_Unwind_Ptr)&(sc->sc_pt_regs.a0) - new_cfa;
+ 
+   fs->regs.reg[1 + ARG_OFF].how = REG_SAVED_OFFSET;
+-  fs->regs.reg[1 + ARG_OFF].loc.offset = (_Unwind_Ptr)&(sc->sc_a1) - new_cfa;
++  fs->regs.reg[1 + ARG_OFF].loc.offset = (_Unwind_Ptr)&(sc->sc_pt_regs.a1) - new_cfa;
+ 
+   fs->regs.reg[2 + ARG_OFF].how = REG_SAVED_OFFSET;
+-  fs->regs.reg[2 + ARG_OFF].loc.offset = (_Unwind_Ptr)&(sc->sc_a2) - new_cfa;
++  fs->regs.reg[2 + ARG_OFF].loc.offset = (_Unwind_Ptr)&(sc->sc_pt_regs.a2) - new_cfa;
+ 
+   fs->regs.reg[3 + ARG_OFF].how = REG_SAVED_OFFSET;
+-  fs->regs.reg[3 + ARG_OFF].loc.offset = (_Unwind_Ptr)&(sc->sc_a3) - new_cfa;
++  fs->regs.reg[3 + ARG_OFF].loc.offset = (_Unwind_Ptr)&(sc->sc_pt_regs.a3) - new_cfa;
+ 
+ #ifdef  __CSKYABIV1__
+   for (i = 6; i < 15; i++) {  /* for abiv1, r6~r14 */
+     fs->regs.reg[i].how = REG_SAVED_OFFSET;
+-    fs->regs.reg[i].loc.offset = (_Unwind_Ptr)&(sc->sc_regs[i - 6]) - new_cfa;
++    fs->regs.reg[i].loc.offset = (_Unwind_Ptr)&(sc->sc_pt_regs.regs[i - 6]) - new_cfa;
+   }
+   /* for abiv1, r1 */
+   fs->regs.reg[1].how = REG_SAVED_OFFSET;
+-  fs->regs.reg[1].loc.offset = (_Unwind_Ptr)&(sc->sc_regs[9]) - new_cfa;
++  fs->regs.reg[1].loc.offset = (_Unwind_Ptr)&(sc->sc_pt_regs.regs[9]) - new_cfa;
+ #else
+   for (i = 4; i < 14; i++) {  /* for abiv2, r4~r13 */
+     fs->regs.reg[i].how = REG_SAVED_OFFSET;
+-    fs->regs.reg[i].loc.offset = (_Unwind_Ptr)&(sc->sc_regs[i - 4]) - new_cfa;
++    fs->regs.reg[i].loc.offset = (_Unwind_Ptr)&(sc->sc_pt_regs.regs[i - 4]) - new_cfa;
+   }
+ 
+   for (i = 16; i < 32; i++) {  /* for abiv2, r16~r31 */
+     fs->regs.reg[i].how = REG_SAVED_OFFSET;
+-    fs->regs.reg[i].loc.offset = (_Unwind_Ptr)&(sc->sc_exregs[i - 16]) - new_cfa;
++    fs->regs.reg[i].loc.offset = (_Unwind_Ptr)&(sc->sc_pt_regs.exregs[i - 16]) - new_cfa;
+   }
+ 
+   /* FIXME : hi lo ? */
+ #endif
+   fs->regs.reg[15].how = REG_SAVED_OFFSET;
+-  fs->regs.reg[15].loc.offset = (_Unwind_Ptr)&(sc->sc_r15) - new_cfa;
++  fs->regs.reg[15].loc.offset = (_Unwind_Ptr)&(sc->sc_pt_regs.lr) - new_cfa;
+ 
+   fs->regs.reg[56].how = REG_SAVED_OFFSET;
+-  fs->regs.reg[56].loc.offset = (_Unwind_Ptr)&(sc->sc_pc) - new_cfa;
++  fs->regs.reg[56].loc.offset = (_Unwind_Ptr)&(sc->sc_pt_regs.pc) - new_cfa;
+   fs->retaddr_column = 56;
+   fs->signal_frame = 1;
+ 

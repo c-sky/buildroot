@@ -58,6 +58,12 @@ endef
 endif
 endif
 
+ifeq ($(ARCH),csky)
+define HOST_GCC_APPLY_CSKY_PATCH
+	$(APPLY_PATCHES) $(@D) package/gcc/csky-patch 0001-csky-unwind-sigcontext-fixup.patch
+endef
+endif
+
 # gcc is a special package, not named gcc, but gcc-initial and
 # gcc-final, but patches are nonetheless stored in package/gcc in the
 # tree, and potentially in BR2_GLOBAL_PATCH_DIR directories as well.
@@ -71,6 +77,7 @@ define HOST_GCC_APPLY_PATCHES
 		fi; \
 	done
 	$(HOST_GCC_APPLY_POWERPC_PATCH)
+	$(HOST_GCC_APPLY_CSKY_PATCH)
 endef
 
 HOST_GCC_EXCLUDES = \
