@@ -1,0 +1,40 @@
+diff --git a/arch/csky/include/asm/msi.h b/arch/csky/include/asm/msi.h
+new file mode 100644
+index 0000000..c8c6c38
+--- /dev/null
++++ b/arch/csky/include/asm/msi.h
+@@ -0,0 +1 @@
++#include <asm-generic/msi.h>
+diff --git a/arch/csky/include/asm/pci.h b/arch/csky/include/asm/pci.h
+new file mode 100644
+index 0000000..a11491a
+--- /dev/null
++++ b/arch/csky/include/asm/pci.h
+@@ -0,0 +1,27 @@
++/* SPDX-License-Identifier: GPL-2.0 */
++
++#ifndef __CSKY_ASM_PCI_H
++#define __CSKY_ASM_PCI_H
++
++#ifdef __KERNEL__
++
++
++#include <asm-generic/pci.h>
++#include <asm/io.h>
++
++#define PCIBIOS_MIN_IO		0x1000
++#define PCIBIOS_MIN_MEM		0
++
++/*
++ * Set to 1 if the kernel should re-assign all PCI bus numbers
++ */
++#define pcibios_assign_all_busses()  0
++
++static inline int pci_proc_domain(struct pci_bus *bus)
++{
++	return 1;
++}
++
++#endif  /* __KERNEL__ */
++#endif  /* __ASM_PCI_H */
++

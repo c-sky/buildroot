@@ -1,0 +1,26 @@
+diff --git a/drivers/i2c/busses/i2c-designware-common.c b/drivers/i2c/busses/i2c-designware-common.c
+index 27ebd90de..8db2e312e 100644
+--- a/drivers/i2c/busses/i2c-designware-common.c
++++ b/drivers/i2c/busses/i2c-designware-common.c
+@@ -156,6 +156,7 @@ void __i2c_dw_enable(struct dw_i2c_dev *dev, bool enable)
+ 
+ void __i2c_dw_enable_and_wait(struct dw_i2c_dev *dev, bool enable)
+ {
++#if 0
+ 	int timeout = 100;
+ 
+ 	do {
+@@ -173,6 +174,13 @@ void __i2c_dw_enable_and_wait(struct dw_i2c_dev *dev, bool enable)
+ 
+ 	dev_warn(dev->dev, "timeout in %sabling adapter\n",
+ 		 enable ? "en" : "dis");
++#else
++	/*
++	 * The register 0x9c is IC_MULTI_SLAVE, not DW_IC_ENABLE_STATUS, on eragon SoCs.
++	 * So, there is no need to wait adapter enabling/disabling done.
++	 */
++	__i2c_dw_enable(dev, enable);
++#endif
+ }
+ 
+ unsigned long i2c_dw_clk_rate(struct dw_i2c_dev *dev)
