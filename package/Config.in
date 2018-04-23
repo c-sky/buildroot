@@ -1,6 +1,9 @@
 menu "Target packages"
 
+menu "C-SKY Examples"
 	source "package/csky-examples/Config.in"
+endmenu
+
 	source "package/busybox/Config.in"
 	source "package/skeleton/Config.in"
 	source "package/skeleton-custom/Config.in"
