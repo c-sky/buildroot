@@ -55,3 +55,5 @@ config BR2_CSKY_GERRIT_REPO
 	bool "Use gerrit repo"
 	default n
 
+source "package/Config.in.csky"
+

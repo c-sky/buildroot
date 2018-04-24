@@ -1,4 +1,5 @@
 # csky examples for linux
+menu "C-SKY Examples"
 config BR2_PACKAGE_CSKY_EXAMPLES
 	bool "C-SKY Linux examples"
 	depends on BR2_LINUX_KERNEL
@@ -35,3 +36,4 @@ config BR2_PACKAGE_CSKY_EXAMPLES_GIT_URL
 endif # csky examples
 
 source "package/csky-examples/Config.in.options"
+endmenu

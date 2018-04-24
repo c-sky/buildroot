@@ -1,9 +1,4 @@
 menu "Target packages"
-
-menu "C-SKY Examples"
-	source "package/csky-examples/Config.in"
-endmenu
-
 	source "package/busybox/Config.in"
 	source "package/skeleton/Config.in"
 	source "package/skeleton-custom/Config.in"
@@ -85,7 +80,6 @@ menu "Debugging, profiling and benchmark"
 	source "package/blktrace/Config.in"
 	source "package/bonnie/Config.in"
 	source "package/cache-calibrator/Config.in"
-	source "package/csky-ci/Config.in"
 	source "package/dhrystone/Config.in"
 	source "package/dieharder/Config.in"
 	source "package/dmalloc/Config.in"
@@ -414,8 +408,6 @@ endmenu
 	source "package/edid-decode/Config.in"
 	source "package/eudev/Config.in"
 	source "package/ev3dev-linux-drivers/Config.in"
-	source "package/csky-arch/Config.in"
-	source "package/csky-addons/Config.in"
 	source "package/evemu/Config.in"
 	source "package/evtest/Config.in"
 	source "package/fan-ctrl/Config.in"
