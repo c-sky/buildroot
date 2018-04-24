@@ -60,7 +60,7 @@ endif
 
 ifeq ($(ARCH),csky)
 define HOST_GCC_APPLY_CSKY_PATCH
-	$(APPLY_PATCHES) $(@D) package/gcc/csky-patch 0001-csky-unwind-sigcontext-fixup.patch
+	cp package/gcc/csky-patch/linux-unwind.h $(@D)/libgcc/config/csky/
 endef
 endif
 
