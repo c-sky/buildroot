@@ -1,0 +1,60 @@
+diff --git a/drivers/pci/Kconfig b/drivers/pci/Kconfig
+index 34b56a8..0a172d6 100644
+--- a/drivers/pci/Kconfig
++++ b/drivers/pci/Kconfig
+@@ -26,7 +26,7 @@ config PCI_MSI
+ 	   If you don't know what to do here, say Y.
+ 
+ config PCI_MSI_IRQ_DOMAIN
+-	def_bool ARC || ARM || ARM64 || X86
++	def_bool ARC || ARM || ARM64 || X86 || CSKY
+ 	depends on PCI_MSI
+ 	select GENERIC_MSI_IRQ_DOMAIN
+ 
+diff --git a/drivers/pci/dwc/Kconfig b/drivers/pci/dwc/Kconfig
+index 0f666b1..8be8db1 100644
+--- a/drivers/pci/dwc/Kconfig
++++ b/drivers/pci/dwc/Kconfig
+@@ -63,6 +63,42 @@ config PCIE_DW_PLAT
+ 
+ 	 If unsure, say N.
+ 
++config PCI_CSKY
++	bool "CSKY PCIe controller"
++	depends on COMPILE_TEST
++	depends on PCIE_DW_PLAT
++	depends on (PCI && PCI_MSI_IRQ_DOMAIN) || PCI_ENDPOINT
++	depends on OF && HAS_IOMEM
++	help
++	 Enables support for the PCIe controller in the C-SKY SoCs. There
++	 are two instances of PCIe controller. This controller can work either
++	 as EP or RC. In order to enable host-specific features PCI_CSKY_HOST
++	 must be selected and in order to enable device-specific features
++	 PCI_CSKY_EP must be selected. This uses the DesignWare core.
++
++if PCI_CSKY
++
++config PCI_CSKY_HOST
++	bool "PCI CSKY Host Mode"
++	depends on PCI
++	depends on PCI_MSI_IRQ_DOMAIN
++	select PCIE_DW_HOST
++	default y
++	help
++	 Enables support for the PCIe controller in the CSKY SoC to work in
++	 host mode.
++
++config PCI_CSKY_EP
++	bool "PCI CSKY Endpoint Mode"
++	depends on PCI
++	select PCIE_DW_EP
++	select PCI_ENDPOINT
++	help
++	 Enables support for the PCIe controller in the CSKY SoC to work in
++	 endpoint mode.
++
++endif
++
+ config PCI_EXYNOS
+ 	bool "Samsung Exynos PCIe controller"
+ 	depends on PCI

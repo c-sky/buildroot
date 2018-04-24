@@ -20,7 +20,7 @@
 		   0x17a00000 - 0x17c00000: Reserve for slave CPU's uboot
 		   0x17c00000 - 0x18000000: Reserved for VPU iram
 		*/
-		reg = <0x00200000 0x17800000 0x98000000 0x28000000>;
+		reg = <0x00200000 0x17800000>;
 	};
 
 	cpus {
@@ -420,7 +420,6 @@
 			interrupts = <32>;
 			clocks = <&emmcclk>, <&emmcclk>;
 			clock-names = "ciu", "biu";
-			num-slots = <0x1>;
 			card-detect-delay = <200>;
 			cap-sd-highspeed;
 			bus-width = <4>;
@@ -435,7 +434,6 @@
 			interrupts = <33>;
 			clocks = <&emmcclk>, <&emmcclk>;
 			clock-names = "ciu", "biu";
-			num-slots = <0x1>;
 			card-detect-delay = <200>;
 			cap-mmc-highspeed;
 			non-removable;
