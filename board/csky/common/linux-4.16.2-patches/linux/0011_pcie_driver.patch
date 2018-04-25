@@ -12,10 +12,10 @@ index 34b56a8..0a172d6 100644
  	select GENERIC_MSI_IRQ_DOMAIN
  
 diff --git a/drivers/pci/dwc/Kconfig b/drivers/pci/dwc/Kconfig
-index 0f666b1..8be8db1 100644
+index 0f666b1..8fdbf57 100644
 --- a/drivers/pci/dwc/Kconfig
 +++ b/drivers/pci/dwc/Kconfig
-@@ -63,6 +63,42 @@ config PCIE_DW_PLAT
+@@ -63,6 +63,40 @@ config PCIE_DW_PLAT
  
  	 If unsure, say N.
  
@@ -23,7 +23,6 @@ index 0f666b1..8be8db1 100644
 +	bool "CSKY PCIe controller"
 +	depends on COMPILE_TEST
 +	depends on PCIE_DW_PLAT
-+	depends on (PCI && PCI_MSI_IRQ_DOMAIN) || PCI_ENDPOINT
 +	depends on OF && HAS_IOMEM
 +	help
 +	 Enables support for the PCIe controller in the C-SKY SoCs. There
@@ -39,7 +38,6 @@ index 0f666b1..8be8db1 100644
 +	depends on PCI
 +	depends on PCI_MSI_IRQ_DOMAIN
 +	select PCIE_DW_HOST
-+	default y
 +	help
 +	 Enables support for the PCIe controller in the CSKY SoC to work in
 +	 host mode.
