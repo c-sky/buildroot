@@ -17,10 +17,9 @@
 	memory {
 		device_type = "memory";
 		/* 0x00000000 - 0x00200000: Reserved for VPU work buf
-		   0x17a00000 - 0x17c00000: Reserve for slave CPU's uboot
-		   0x17c00000 - 0x18000000: Reserved for VPU iram
+		   0x17a00000 - 0x17c00000: Reserved for VPU iram
 		*/
-		reg = <0x00200000 0x17800000>;
+		reg = <0x00200000 0x17a00000>;
 	};
 
 	cpus {
@@ -557,7 +556,7 @@
 
 		vpu_iram: sram@17c00000 {
 			compatible = "mmio-sram";
-			reg = <0x17c00000 0x200000>;
+			reg = <0x17a00000 0x200000>;
 			clocks = <&dummy_apb>;
 		};
 
