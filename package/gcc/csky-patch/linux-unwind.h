@@ -28,9 +28,13 @@ see the files COPYING3 and COPYING.RUNTIME respectively.  If not, see
 
 #include <linux/version.h>
 
-#if (LINUX_VERSION_CODE < 0x40000)
-# include <linux-unwind_old.h>
+#if (LINUX_VERSION_CODE < KERNEL_VERSION(4,0,0))
+#define sc_pt_regs(x) (sc->sc_##x)
+#define sc_pt_regs_tls(x) (sc->sc_exregs[15])
 #else
+#define sc_pt_regs(x) (sc->sc_pt_regs.x)
+#define sc_pt_regs_tls(x) sc_pt_regs(x)
+#endif
 
 #include <signal.h>
 #include <asm/unistd.h>
@@ -108,49 +112,48 @@ csky_fallback_frame_state (struct _Unwind_Context *context,
 #define ARG_OFF 0
 #endif
   fs->regs.reg[0 + ARG_OFF].how = REG_SAVED_OFFSET;
-  fs->regs.reg[0 + ARG_OFF].loc.offset = (_Unwind_Ptr)&(sc->sc_pt_regs.a0) - new_cfa;
+  fs->regs.reg[0 + ARG_OFF].loc.offset = (_Unwind_Ptr)&sc_pt_regs(a0) - new_cfa;
 
   fs->regs.reg[1 + ARG_OFF].how = REG_SAVED_OFFSET;
-  fs->regs.reg[1 + ARG_OFF].loc.offset = (_Unwind_Ptr)&(sc->sc_pt_regs.a1) - new_cfa;
+  fs->regs.reg[1 + ARG_OFF].loc.offset = (_Unwind_Ptr)&sc_pt_regs(a1) - new_cfa;
 
   fs->regs.reg[2 + ARG_OFF].how = REG_SAVED_OFFSET;
-  fs->regs.reg[2 + ARG_OFF].loc.offset = (_Unwind_Ptr)&(sc->sc_pt_regs.a2) - new_cfa;
+  fs->regs.reg[2 + ARG_OFF].loc.offset = (_Unwind_Ptr)&sc_pt_regs(a2) - new_cfa;
 
   fs->regs.reg[3 + ARG_OFF].how = REG_SAVED_OFFSET;
-  fs->regs.reg[3 + ARG_OFF].loc.offset = (_Unwind_Ptr)&(sc->sc_pt_regs.a3) - new_cfa;
+  fs->regs.reg[3 + ARG_OFF].loc.offset = (_Unwind_Ptr)&sc_pt_regs(a3) - new_cfa;
 
 #ifdef  __CSKYABIV1__
   for (i = 6; i < 15; i++) {  /* for abiv1, r6~r14 */
     fs->regs.reg[i].how = REG_SAVED_OFFSET;
-    fs->regs.reg[i].loc.offset = (_Unwind_Ptr)&(sc->sc_pt_regs.regs[i - 6]) - new_cfa;
+    fs->regs.reg[i].loc.offset = (_Unwind_Ptr)&sc_pt_regs(regs[i - 6]) - new_cfa;
   }
   /* for abiv1, r1 */
   fs->regs.reg[1].how = REG_SAVED_OFFSET;
-  fs->regs.reg[1].loc.offset = (_Unwind_Ptr)&(sc->sc_pt_regs.regs[9]) - new_cfa;
+  fs->regs.reg[1].loc.offset = (_Unwind_Ptr)&sc_pt_regs(regs[9]) - new_cfa;
 #else
   for (i = 4; i < 14; i++) {  /* for abiv2, r4~r13 */
     fs->regs.reg[i].how = REG_SAVED_OFFSET;
-    fs->regs.reg[i].loc.offset = (_Unwind_Ptr)&(sc->sc_pt_regs.regs[i - 4]) - new_cfa;
+    fs->regs.reg[i].loc.offset = (_Unwind_Ptr)&sc_pt_regs(regs[i - 4]) - new_cfa;
   }
 
-  for (i = 16; i < 32; i++) {  /* for abiv2, r16~r31 */
+  for (i = 16; i < 31; i++) {  /* for abiv2, r16~r30 */
     fs->regs.reg[i].how = REG_SAVED_OFFSET;
-    fs->regs.reg[i].loc.offset = (_Unwind_Ptr)&(sc->sc_pt_regs.exregs[i - 16]) - new_cfa;
+    fs->regs.reg[i].loc.offset = (_Unwind_Ptr)&sc_pt_regs(exregs[i - 16]) - new_cfa;
   }
 
+    fs->regs.reg[31].loc.offset = (_Unwind_Ptr)&sc_pt_regs_tls(tls) - new_cfa;
   /* FIXME : hi lo ? */
 #endif
   fs->regs.reg[15].how = REG_SAVED_OFFSET;
-  fs->regs.reg[15].loc.offset = (_Unwind_Ptr)&(sc->sc_pt_regs.lr) - new_cfa;
+  fs->regs.reg[15].loc.offset = (_Unwind_Ptr)&sc_pt_regs(lr) - new_cfa;
 
   fs->regs.reg[56].how = REG_SAVED_OFFSET;
-  fs->regs.reg[56].loc.offset = (_Unwind_Ptr)&(sc->sc_pt_regs.pc) - new_cfa;
+  fs->regs.reg[56].loc.offset = (_Unwind_Ptr)&sc_pt_regs(pc) - new_cfa;
   fs->retaddr_column = 56;
   fs->signal_frame = 1;
 
   return _URC_NO_REASON;
 }
-
-#endif /* LINUX_VERSION_CODE < 0x40000 */
 
 #endif
