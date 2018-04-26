@@ -36,6 +36,6 @@ define CSKY_LINUX_TAR_BALL
 	tar czf $(BINARIES_DIR)/linux-$(LINUX_VERSION).tar.gz linux-$(LINUX_VERSION); \
 	cd -
 endef
-LINUX_PRE_BUILD_HOOKS += CSKY_LINUX_TAR_BALL
+LINUX_POST_CONFIGURE_HOOKS += CSKY_LINUX_TAR_BALL
 
 $(eval $(generic-package))
