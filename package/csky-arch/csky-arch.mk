@@ -25,14 +25,17 @@ endef
 LINUX_HEADERS_POST_PATCH_HOOKS += LINUX_HEADERS_CSKY_ARCH
 endif
 
-define CSKY_ARCH_TARBALL
-	cp $(BR2_DL_DIR)/csky-arch-$(CSKY_ARCH_VERSION).tar.gz $(BINARIES_DIR)/
-endef
-CSKY_ARCH_POST_INSTALL_TARGET_HOOKS += CSKY_ARCH_TARBALL
-
 define CSKY_ARCH_VERSION_ADD
 	echo "CFLAGS_cpu-probe.o := -DCSKY_ARCH_VERSION=\"\\\"$(CSKY_ARCH_VERSION)\\\"\"" >> $(CSKY_ARCH_DIR)/arch/csky/kernel/Makefile
 endef
 CSKY_ARCH_POST_EXTRACT_HOOKS += CSKY_ARCH_VERSION_ADD
+
+define CSKY_LINUX_TAR_BALL
+	rm -f $(BINARIES_DIR)/linux-$(LINUX_VERSION).tar.gz
+	cd $(LINUX_DIR)/../; \
+	tar czf $(BINARIES_DIR)/linux-$(LINUX_VERSION).tar.gz linux-$(LINUX_VERSION); \
+	cd -
+endef
+LINUX_PRE_BUILD_HOOKS += CSKY_LINUX_TAR_BALL
 
 $(eval $(generic-package))
