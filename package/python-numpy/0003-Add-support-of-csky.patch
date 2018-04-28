@@ -1,0 +1,37 @@
+From 9a225e7d4fb1de5c99c6b5b17cae2fc4c2d1c59a Mon Sep 17 00:00:00 2001
+From: Charles Lu <chongzhi_lu@c-sky.com>
+Date: Fri, 27 Apr 2018 21:33:14 +0800
+Subject: [PATCH] Add support of C-SKY
+---
+--- a/numpy/core/include/numpy/npy_cpu.h
++++ b/numpy/core/include/numpy/npy_cpu.h
+@@ -17,6 +17,7 @@
+  *              NPY_CPU_SH_BE
+  *              NPY_CPU_ARCEL
+  *              NPY_CPU_ARCEB
++ *              NPY_CPU_CSKY
+  */
+ #ifndef _NPY_CPUARCH_H_
+ #define _NPY_CPUARCH_H_
+@@ -82,6 +83,8 @@
+     #define NPY_CPU_ARCEL
+ #elif defined(__arc__) && defined(__BIG_ENDIAN__)
+     #define NPY_CPU_ARCEB
++#elif defined(__csky__)
++    #define NPY_CPU_CSKY
+ #else
+     #error Unknown CPU, please report this to numpy maintainers with \
+     information about your platform (OS, CPU and compiler)
+
+--- a/numpy/core/include/numpy/npy_endian.h
++++ b/numpy/core/include/numpy/npy_endian.h
+@@ -46,7 +46,8 @@
+             || defined(NPY_CPU_SH_LE)   \
+             || defined(NPY_CPU_MIPSEL)  \
+             || defined(NPY_CPU_PPC64LE) \
+-            || defined(NPY_CPU_ARCEL)
++            || defined(NPY_CPU_ARCEL)   \
++            || defined(NPY_CPU_CSKY)
+         #define NPY_BYTE_ORDER NPY_LITTLE_ENDIAN
+     #elif defined(NPY_CPU_PPC)          \
+             || defined(NPY_CPU_SPARC)   \
