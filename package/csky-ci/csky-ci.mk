@@ -33,9 +33,9 @@ define CSKY_CI_TOOLCHAIN_TARBALL
         (cd $(HOST_DIR); \
          BUILDROOT_VERSION=$$(git log --pretty=oneline|head -1|awk '{print $$1}'); \
          BUILDROOT_CONFIG=$$(grep BR2_DEFCONFIG $(CONFIG_DIR)/.config|awk -F/ '{print $$NF}'|sed 's/\"//g'); \
-         echo $$BUILDROOT_CONFIG > bin/.csky_bt_commit; \
-         echo $$BUILDROOT_VERSION >> bin/.csky_bt_commit; \
-         tar -czf $(BINARIES_DIR)/csky_toolchain_$${BUILDROOT_CONFIG}_$${BUILDROOT_VERSION}.tar.gz ./; \
+         echo $$BUILDROOT_CONFIG > csky_buildroot_version; \
+         echo $$BUILDROOT_VERSION >> csky_buildroot_version; \
+         tar -cJf $(BINARIES_DIR)/csky_toolchain_$${BUILDROOT_CONFIG}_$${BUILDROOT_VERSION}.tar.xz ./; \
          cd - ;\
         )
 endef
