@@ -30,12 +30,23 @@ define CSKY_ARCH_VERSION_ADD
 endef
 CSKY_ARCH_POST_EXTRACT_HOOKS += CSKY_ARCH_VERSION_ADD
 
-define CSKY_LINUX_TAR_BALL
-	rm -f $(BINARIES_DIR)/linux-$(LINUX_VERSION).tar.gz
+define CSKY_LINUX_GENERATE_PATCH
 	cd $(LINUX_DIR)/../; \
-	tar cJf $(BINARIES_DIR)/linux-$(LINUX_VERSION).tar.xz linux-$(LINUX_VERSION); \
+	mv linux-$(LINUX_VERSION) b; \
+	diff -ruN a b > $(BINARIES_DIR)/linux-$(LINUX_VERSION).patch; \
+	rm $(BINARIES_DIR)/linux-$(LINUX_VERSION).patch.xz; \
+	xz -z $(BINARIES_DIR)/linux-$(LINUX_VERSION).patch; \
+	mv b linux-$(LINUX_VERSION); \
+	rm -rf a; \
 	cd -
 endef
-LINUX_POST_CONFIGURE_HOOKS += CSKY_LINUX_TAR_BALL
+LINUX_POST_CONFIGURE_HOOKS += CSKY_LINUX_GENERATE_PATCH
+
+define CSKY_LINUX_PREPARE_SRC_A
+	cd $(LINUX_DIR)/../; \
+	cp -raf linux-$(LINUX_VERSION) a; \
+	cd -
+endef
+LINUX_POST_EXTRACT_HOOKS += CSKY_LINUX_PREPARE_SRC_A
 
 $(eval $(generic-package))
