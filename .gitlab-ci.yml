@@ -24,7 +24,7 @@ stages:
 
 .run_test: &run_test
     - echo 'Run test'
-    - tar -xf output/images/csky_toolchain_*.tar.gz -C output/host
+    - tar -xf output/images/csky_toolchain_*.tar.xz -C output/host
     - |
         ./output/host/csky-ci/run_test.sh || {
             exit 1
@@ -203,7 +203,7 @@ csky_ck610_gx6622_4.9_uclibc_bt_defconfig_test:
       - mkdir -p output/host/
       - cp /root/builds/build_tmp/$BUILDROOT_VERSION/${CI_BUILD_NAME}/csky-ci output/host/csky-ci -r
       - cp /root/builds/build_tmp/$BUILDROOT_VERSION/${CI_BUILD_NAME}/images output/images -r
-      - tar -xf output/images/csky_toolchain_*.tar.gz -C output/host
+      - tar -xf output/images/csky_toolchain_*.tar.xz -C output/host
       - ./output/host/csky-ci/gen_rtb.sh
       - touch /home/vmh/workspace/DebugServerConsole/.stamp_gdb_gx6622
       - sleep 30
@@ -237,7 +237,7 @@ csky_ck610_gx6622_4.16_glibc_bt_defconfig_test:
       - mkdir -p output/host/
       - cp /root/builds/build_tmp/$BUILDROOT_VERSION/${CI_BUILD_NAME}/csky-ci output/host/csky-ci -r
       - cp /root/builds/build_tmp/$BUILDROOT_VERSION/${CI_BUILD_NAME}/images output/images -r
-      - tar -xf output/images/csky_toolchain_*.tar.gz -C output/host
+      - tar -xf output/images/csky_toolchain_*.tar.xz -C output/host
       - ./output/host/csky-ci/gen_rtb.sh
       - touch /home/vmh/workspace/DebugServerConsole/.stamp_gdb_gx6622
       - sleep 30
@@ -270,7 +270,7 @@ csky_ck807_eragon_4.9_glibc_bt_defconfig_test:
       - mkdir -p output/host/
       - cp /root/builds/build_tmp/$BUILDROOT_VERSION/${CI_BUILD_NAME}/csky-ci output/host/csky-ci -r
       - cp /root/builds/build_tmp/$BUILDROOT_VERSION/${CI_BUILD_NAME}/images output/images -r
-      - tar -xf output/images/csky_toolchain_*.tar.gz -C output/host
+      - tar -xf output/images/csky_toolchain_*.tar.xz -C output/host
       - touch /home/vmh/workspace/DebugServerConsole/.stamp_gdb_eragon
       - sleep 30
       - |
