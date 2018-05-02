@@ -40,8 +40,6 @@ stages:
         when: always
         expire_in: 7 day
         paths:
-            - output/host/csky-ci
-            - output/host/csky-qemu
             - output/images/
             
 .localbuild_defconfig: &localbuild_defconfig
