@@ -102,7 +102,7 @@ csky_fallback_frame_state (struct _Unwind_Context *context,
   */
   if((*(pc+0) == (0x6000 + (127 << 4) + 1)) &&
      (*(pc+1) == (0x2000 + ( 12 << 4) + 1)) &&
-     (*(pc+2) ==  0x0008)
+     (*(pc+2) ==  0x0008))
 #else
   /*
    * movi r7, __NR_rt_sigreturn
