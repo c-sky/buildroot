@@ -31,14 +31,17 @@ endef
 CSKY_ARCH_POST_EXTRACT_HOOKS += CSKY_ARCH_VERSION_ADD
 
 define CSKY_LINUX_GENERATE_PATCH
+	if [ ! -z $(LINUX_DIR)/.stamp_patched_csky ]; then \
 	cd $(LINUX_DIR)/../; \
 	mv linux-$(LINUX_VERSION) b; \
-	diff -ruN a b > $(BINARIES_DIR)/linux-$(LINUX_VERSION).patch; \
 	rm $(BINARIES_DIR)/linux-$(LINUX_VERSION).patch.xz; \
+	diff -ruN a b > $(BINARIES_DIR)/linux-$(LINUX_VERSION).patch; \
 	xz -z $(BINARIES_DIR)/linux-$(LINUX_VERSION).patch; \
 	mv b linux-$(LINUX_VERSION); \
 	rm -rf a; \
-	cd -
+	cd -; \
+	touch $(LINUX_DIR)/.stamp_patched_csky; \
+	fi
 endef
 LINUX_POST_CONFIGURE_HOOKS += CSKY_LINUX_GENERATE_PATCH
 
