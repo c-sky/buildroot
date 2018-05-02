@@ -24,6 +24,7 @@ stages:
 
 .run_test: &run_test
     - echo 'Run test'
+    - mkdir -p output/host/
     - tar -xf output/images/csky_toolchain_*.tar.xz -C output/host
     - |
         ./output/host/csky-ci/run_test.sh || {
