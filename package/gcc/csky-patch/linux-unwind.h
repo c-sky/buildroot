@@ -60,9 +60,11 @@ csky_fallback_frame_state (struct _Unwind_Context *context,
   struct sigcontext *sc;
   _Unwind_Ptr new_cfa;
   int i;
-  // FIXME
-  /* movi r1, __NR_rt_sigreturn; trap 0  */
+
+#if (LINUX_VERSION_CODE < KERNEL_VERSION(4,0,0))
+/* #define _NR_sigreturn 119 */
 #ifdef  __CSKYABIV1__
+  /* movi r1, __NR_sigreturn; trap 0  */
   if ((*(pc+0) == (0x6000 + (119 << 4) + 1)) && (*(pc+1) == 0x0008))
 #else
   /* movi r7, __NR_rt_sigreturn; trap 0  */
@@ -79,14 +81,36 @@ csky_fallback_frame_state (struct _Unwind_Context *context,
     } *_rt = context->cfa;
     sc = _rt->psc; // &(_rt->sc);
   }
-  /* movi r1, 127, addi r1, 32, addi r1, (_NR_rt_sigreturn - 127 - 32); trap 0  */
+
+/* #define _NR_rt_sigreturn 173 */
 #ifdef  __CSKYABIV1__
+  /* movi r1, 127, addi r1, 32, addi r1, (_NR_rt_sigreturn - 127 - 32); trap 0  */
   else if((*(pc+0) == (0x6000 + (127 << 4) + 1)) && (*(pc+1) == (0x2000 + (31 << 4) + 1)) &&
           (*(pc+2) == (0x2000 + ((173 - 127 - 32 - 1) << 4) + 1)) && (*(pc+3) == 0x0008))
 #else
   /* movi r7, __NR_rt_sigreturn; trap 0  */
   else if ((*(pc+0) == 0xea07) && (*(pc+1) == 173) &&
       (*(pc+2) == 0xc000) &&  (*(pc+3) == 0x2020))
+#endif
+#else
+/* #define _NR_rt_sigreturn 139 */
+#ifdef  __CSKYABIV1__
+ /*
+  * movi r1, 127
+  * addi r1, (_NR_rt_sigreturn - 127)
+  * trap 0
+  */
+  if((*(pc+0) == (0x6000 + (127 << 4) + 1)) &&
+     (*(pc+1) == (0x2000 + ( 12 << 4) + 1)) &&
+     (*(pc+2) ==  0x0008)
+#else
+  /*
+   * movi r7, __NR_rt_sigreturn
+   * trap 0
+   */
+  if ((*(pc+0) == 0xea07) && (*(pc+1) == 139) &&
+      (*(pc+2) == 0xc000) && (*(pc+3) == 0x2020))
+#endif
 #endif
   {
     struct rt_sigframe {
