@@ -30,6 +30,10 @@ config BR2_CSKY_DSP
 	bool "Enable DSP enhanced instructions"
 	depends on BR2_ck807 || BR2_ck810 || BR2_ck860
 
+config BR2_GCC_TARGET_FLOAT_ABI
+	default "soft"		if !BR2_CSKY_FPU
+	default "hard"		if BR2_CSKY_FPU
+
 config BR2_ARCH
 	default "csky"
 
