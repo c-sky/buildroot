@@ -31,17 +31,37 @@
 			clock-output-names = "dummy_apb";
 			#clock-cells = <0>;
 		};
+		dummy_rtc_clock: rtc-clock {
+			compatible = "fixed-clock";
+			clock-frequency = <1000000>;
+			clock-output-names = "dummy_rtc_clock";
+			#clock-cells = <0>;
+		};
 
 		intc: interrupt-controller {
-			compatible = "csky,intc-v2";
+			compatible = "csky,intc-v1";
+			reg = <0x1FB15000 0x1000>;
 			interrupt-controller;
 			#interrupt-cells = <1>;
 		};
 
-		timer0: timer {
-			compatible = "csky,timer-v1";
+		/* clockevent */
+		timer0 {
+			compatible = "snps,dw-apb-timer";
+			reg = <0x1FBA2000 0x1000>;
 			clocks = <&dummy_apb>;
-			interrupts = <16>;
+			clock-names = "timer";
+			interrupts = <4>;
+			interrupt-parent = <&intc>;
+		};
+
+		/* clocksource */
+		timer1 {
+			compatible = "snps,dw-apb-timer";
+			reg = <0x1FBA2014 0x800>;
+			clocks = <&dummy_apb>;
+			clock-names = "timer";
+			interrupts = <5>;
 			interrupt-parent = <&intc>;
 		};
 
@@ -49,7 +69,7 @@
 			compatible = "snps,dw-apb-uart";
 			reg = <0x1FBA4000 0x1000>;
 			interrupt-parent = <&intc>;
-			interrupts = <43>;
+			interrupts = <11>;
 			clocks = <&dummy_apb>;
 			clock-names = "baudclk";
 			reg-shift = <2>;
@@ -60,13 +80,71 @@
 			compatible = "snps,dwmac";
 			reg = <0x1FB10000 0x2000>;
 			interrupt-parent = <&intc>;
-			interrupts = <66>;
+			interrupts = <34>;
 			interrupt-names = "macirq";
 			clocks = <&dummy_apb>;
 			clock-names = "stmmaceth";
 			snps,pbl = <32>;
 			snps,fixed-burst;
 			phy-mode = "mii";
+		};
+
+		sdhc0: sdhc0@1FB12000 {
+			#address-cells = <1>;
+			#size-cells = <0>;
+			compatible = "snps,dw-mshc";
+			reg = <0x1FB12000 0x1000>;
+			interrupt-parent = <&intc>;
+			interrupts = <32>;
+			clocks = <&dummy_apb>, <&dummy_apb>;
+			clock-names = "ciu", "biu";
+			num-slots = <0x1>;
+			card-detect-delay = <200>;
+			cap-sd-highspeed;
+			bus-width = <4>;
+		};
+
+		sdhc1: sdhc1@1FB13000 {
+			#address-cells = <1>;
+			#size-cells = <0>;
+			compatible = "snps,dw-mshc";
+			reg = <0x1FB13000 0x1000>;
+			interrupt-parent = <&intc>;
+			interrupts = <33>;
+			clocks = <&dummy_apb>, <&dummy_apb>;
+			clock-names = "ciu", "biu";
+			num-slots = <0x1>;
+			card-detect-delay = <200>;
+			cap-mmc-highspeed;
+			cap-cmd23;
+			non-removable;
+			bus-width = <0x8>;
+		};
+
+		rtc: rtc@1FBA1000 {
+			compatible = "apm,xgene-rtc";
+			reg = <0x1FBA1000 0x1000>;
+			interrupt-parent = <&intc>;
+			interrupts = <8>;
+			clocks = <&dummy_rtc_clock>;
+		};
+
+		usb@1fb00000 {
+			compatible = "csky,usb-v1", "snps,dwc2";
+			reg = <0x1fb00000 0x10000>;
+			interrupt-parent = <&intc>;
+			interrupts = <35>;
+			clocks = <&dummy_apb>;
+			clock-names = "otg";
+			dr_mode = "host";
+		};
+
+		watchdog0: watchdog@1FBA0000 {
+			compatible = "csky,wdt-v1";
+			reg = <0x1FBA0000 0x1000>;
+			interrupt-parent = <&intc>;
+			interrupts = <7>;
+			clocks = <&dummy_apb>;
 		};
 	};
 
