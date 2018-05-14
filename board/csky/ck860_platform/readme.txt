@@ -1,9 +1,9 @@
 C-SKY Development Kit
 
-How to build it
-===============
+Build from buildroot
+====================
 
-  $ make csky_eragon3_gerrit_defconfig
+  $ make csky_ck860_platform_defconfig
   $ make
 
 Result of the build
@@ -12,20 +12,35 @@ Result of the build
 After building, you should obtain this tree:
 
     output/images/
-    ├── eragon3.dtb
-    ├── media-partition.ext2
-    ├── rootfs.cpio
-    ├── rootfs.tar
-    ├── spl_uboot.bin
-    ├── u-boot.bin
-    ├── u-boot-spl.bin
-    └── uImage
+    ├── ck860_platform.dtb
+    ├── csky_toolchain_csky_ck860_platform_defconfig_<commit-id>.tar.xz
+    ├── linux-4.16.2.patch.xz
+    ├── rootfs.cpio.xz
+    ├── rootfs.tar.xz
+    ├── gdbinit
+    └── vmlinux.xz
 
-Run with initramfs
-==================
+How to Run
+==========
 
 Check the gdbinit, the IP and Port must be the same as DebugServer.
 
-  $ cd output/images
-  $ ../host/usr/bin/csky-abiv2-linux-gdb -x ../../board/csky/eragon3/gdbinit ../build/<linux-kernel-dir>/vmlinux
+  $ <csky_toolchain dir>/bin/csky-linux-gdb -x gdbinit vmlinux
+
+  - csky-linux-gdb is from "tar -Jxf csky_toolchain_<...>.tar.xz"
+  - gdbinit is the Jtag Server connect init script
+  - vmlinux is from "xz -d vmlinux.xz"
+
+Build kernel fast
+=================
+
+  - Download the clean kernel source from kernel.org.
+  $ xz -d rootfs.cpio.xz
+  $ xz -d linux-4.16.2.patch.xz
+  $ tar -Jxf linux-4.16.2.tar.xz
+
+  - patch and make
+  $ cd linux-4.16.2
+  $ patch -p1 < ../linux-4.16.2.patch
+  $ BR_BINARIES_DIR=.. make ARCH=csky CROSS_COMPILE=<csky_toolchain dir>/bin/csky-linux- vmlinux
 

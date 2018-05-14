@@ -93,7 +93,7 @@ qemu_csky_ck807_4.16_uclibc_defconfig: *defconfig
 qemu_csky_ck610_4.16_uclibc_defconfig: *defconfig
 qemu_csky_ck610_4.9_glibc_defconfig: *defconfig
 csky_ck810_sc8925_4.9_glibc_bt_defconfig: *defconfig
-csky_ck860_eragon3_defconfig: *defconfig
+csky_ck860_platform_defconfig: *defconfig
 
 csky_ck610_gx6622_4.16_glibc_bt_defconfig: *localbuild_defconfig
 csky_ck610_gx6622_4.9_uclibc_bt_defconfig: *localbuild_defconfig
