@@ -21,11 +21,17 @@ stages:
             tail -200 build.log
             exit 1
         }
+    - xz -z output/images/vmlinux
+    - xz -z output/images/rootfs.tar
+    - xz -z output/images/rootfs.cpio
 
 .run_test: &run_test
     - echo 'Run test'
     - mkdir -p output/host/
     - tar -xf output/images/csky_toolchain_*.tar.xz -C output/host
+    - xz -d output/images/vmlinux.xz
+    - xz -d output/images/rootfs.tar.xz
+    - xz -d output/images/rootfs.cpio.xz
     - |
         ./output/host/csky-ci/run_test.sh || {
             exit 1
@@ -210,7 +216,7 @@ csky_ck610_gx6622_4.9_uclibc_bt_defconfig_test:
           ./output/host/csky-ci/run_test.sh _gx6622 || {
               exit 1
           }
-      - rm output/images/rootfs output/images/vmlinux output/images/rootfs.tar output/images/.gdbinit output/images/*.dtb -rf
+      - rm output/images/rootfs output/images/vmlinux output/images/rootfs.* output/images/.gdbinit output/images/*.dtb -rf
       - touch /home/vmh/workspace/DebugServerConsole/.stamp_gdb_exit_gx6622
       - /home/vmh/workspace/switch/switch /dev/ttyUSB2 off
     dependencies:
@@ -244,7 +250,7 @@ csky_ck610_gx6622_4.16_glibc_bt_defconfig_test:
           ./output/host/csky-ci/run_test.sh _gx6622 || {
               exit 1
           }
-      - rm output/images/rootfs output/images/vmlinux output/images/rootfs.tar output/images/.gdbinit output/images/*.dtb -rf
+      - rm output/images/rootfs output/images/vmlinux output/images/rootfs.* output/images/.gdbinit output/images/*.dtb -rf
       - touch /home/vmh/workspace/DebugServerConsole/.stamp_gdb_exit_gx6622
       - /home/vmh/workspace/switch/switch /dev/ttyUSB2 off
     dependencies:
@@ -276,7 +282,7 @@ csky_ck807_eragon_4.9_glibc_bt_defconfig_test:
           ./output/host/csky-ci/run_test.sh _eragon || {
               exit 1
           }
-      - rm output/images/rootfs output/images/vmlinux output/images/rootfs.tar output/images/.gdbinit output/images/*.dtb -rf
+      - rm output/images/rootfs output/images/vmlinux output/images/rootfs.* output/images/.gdbinit output/images/*.dtb -rf
       - touch /home/vmh/workspace/DebugServerConsole/.stamp_gdb_exit_eragon
     dependencies:
       - csky_ck807_eragon_4.9_glibc_bt_defconfig
