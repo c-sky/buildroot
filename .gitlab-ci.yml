@@ -21,11 +21,29 @@ stages:
             tail -200 build.log
             exit 1
         }
+    - if [ -f output/images/vmlinux ]; then
+          xz -z output/images/vmlinux;
+      fi
+    - if [ -f output/images/rootfs.tar ]; then
+          xz -z output/images/rootfs.tar;
+      fi
+    - if [ -f output/images/rootfs.cpio ]; then
+          xz -z output/images/rootfs.cpio;
+      fi
 
 .run_test: &run_test
     - echo 'Run test'
     - mkdir -p output/host/
     - tar -xf output/images/csky_toolchain_*.tar.xz -C output/host
+    - if [ -f output/images/vmlinux.xz ]; then
+          xz -d output/images/vmlinux.xz;
+      fi
+    - if [ -f output/images/rootfs.tar.xz ]; then
+          xz -d output/images/rootfs.tar.xz;
+      fi
+    - if [ -f output/images/rootfs.cpio.xz ]; then
+          xz -d output/images/rootfs.cpio.xz;
+      fi
     - |
         ./output/host/csky-ci/run_test.sh || {
             exit 1
