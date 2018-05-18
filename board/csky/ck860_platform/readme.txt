@@ -1,8 +1,8 @@
-C-SKY Development Kit
-
 Build from buildroot
 ====================
 
+  $ git clone https://github.com/c-sky/buildroot.git
+  $ cd buildroot
   $ make csky_ck860_platform_defconfig
   $ make
 
@@ -16,7 +16,6 @@ After building, you should obtain this tree:
     ├── csky_toolchain_csky_ck860_platform_defconfig_<commit-id>.tar.xz
     ├── linux-4.16.2.patch.xz
     ├── rootfs.cpio.xz
-    ├── rootfs.tar.xz
     ├── gdbinit
     └── vmlinux.xz
 

@@ -40,6 +40,7 @@ define HOST_CSKY_QEMU_INSTALL_CMDS
 	$(HOST_MAKE_ENV) $(MAKE) -C $(@D) install
 	cp $(@D)/cskyv1-softmmu/qemu-system-cskyv1 $(HOST_DIR)/csky-qemu/bin
 	cp $(@D)/cskyv2-softmmu/qemu-system-cskyv2 $(HOST_DIR)/csky-qemu/bin
+	cp board/qemu/csky/readme.txt $(BINARIES_DIR)/
 endef
 
 $(eval $(host-generic-package))
