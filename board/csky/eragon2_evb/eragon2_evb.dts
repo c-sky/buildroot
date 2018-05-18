@@ -19,7 +19,7 @@
 		/* 0x00000000 - 0x00200000: Reserved for VPU work buf
 		   0x17a00000 - 0x17c00000: Reserved for VPU iram
 		*/
-		reg = <0x00200000 0x17a00000>;
+		reg = <0x00200000 0x17a00000 0x98000000 0x28000000>;
 	};
 
 	cpus {
@@ -123,12 +123,15 @@
 			compatible = "csky,pinctrl-v1";
 			reg = <0x1fbac008 0x4>;
 
+			interrupt-parent = <&intc>;
+			interrupts = <0>, <1>, <2>, <3>;
 			#address-cells = <1>;
 			#size-cells = <1>;
 			ranges;
 
 			gpio0: gpio0@1fbac000 {
 				compatible = "csky,gpio-bank-v1";
+				interrupts = <0>;
 				reg = <0x1fbac000 0x1000>;
 
 				gpio-controller;
@@ -140,6 +143,7 @@
 
 			gpio1: gpio1@1fbad000 {
 				compatible = "csky,gpio-bank-v1";
+				interrupts = <1>;
 				reg = <0x1fbad000 0x1000>;
 
 				gpio-controller;
@@ -151,6 +155,7 @@
 
 			gpio2: gpio2@1fbae000 {
 				compatible = "csky,gpio-bank-v1";
+				interrupts = <2>;
 				reg = <0x1fbae000 0x1000>;
 
 				gpio-controller;
@@ -162,6 +167,7 @@
 
 			gpio3: gpio3@1fbaf000 {
 				compatible = "csky,gpio-bank-v1";
+				interrupts = <3>;
 				reg = <0x1fbaf000 0x1000>;
 
 				gpio-controller;
@@ -240,25 +246,25 @@
 
 			green0 {
 				label = "green0";
-				gpios = <&gpio0 0 GPIO_ACTIVE_LOW>;
+				gpios = <&gpio0 4 GPIO_ACTIVE_LOW>;
 				default-state = "on";
 			};
 
 			green1 {
 				label = "green1";
-				gpios = <&gpio0 1 GPIO_ACTIVE_LOW>;
+				gpios = <&gpio0 5 GPIO_ACTIVE_LOW>;
 				default-state = "off";
 			};
 
 			green2 {
 				label = "green2";
-				gpios = <&gpio0 2 GPIO_ACTIVE_LOW>;
+				gpios = <&gpio0 6 GPIO_ACTIVE_LOW>;
 				default-state = "on";
 			};
 
 			green3 {
 				label = "green3";
-				gpios = <&gpio0 3 GPIO_ACTIVE_LOW>;
+				gpios = <&gpio0 7 GPIO_ACTIVE_LOW>;
 				default-state = "off";
 			};
 		};
@@ -268,25 +274,25 @@
 			autorepeat;
 
 			key_0 {
-				gpios = <&gpio0 4 GPIO_ACTIVE_LOW>;
+				gpios = <&gpio0 0 GPIO_ACTIVE_LOW>;
 				linux,code = <KEY_F1>;
 				label = "key_0";
 			};
 
 			key_1 {
-				gpios = <&gpio0 5 GPIO_ACTIVE_LOW>;
+				gpios = <&gpio0 1 GPIO_ACTIVE_LOW>;
 				linux,code = <KEY_F2>;
 				label = "key_1";
 			};
 
 			key_2 {
-				gpios = <&gpio0 6 GPIO_ACTIVE_LOW>;
+				gpios = <&gpio0 2 GPIO_ACTIVE_LOW>;
 				linux,code = <KEY_F3>;
 				label = "key_2";
 			};
 
 			key_3 {
-				gpios = <&gpio0 7 GPIO_ACTIVE_LOW>;
+				gpios = <&gpio0 3 GPIO_ACTIVE_LOW>;
 				linux,code = <KEY_F4>;
 				label = "key_3";
 			};
