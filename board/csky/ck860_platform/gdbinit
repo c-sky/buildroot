@@ -25,7 +25,7 @@ set $cr23 = 0x8
 set $r1 = 0x8F000000
 
 # Store the devicetree blob(dtb) file to the store address above
-restore ck860_platform.dtb binary 0x8F000000
+restore ck860_platform_lite.dtb binary 0x8F000000
 load
 
 # Sync I/Dcache before run kernel
