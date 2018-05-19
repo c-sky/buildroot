@@ -5,6 +5,22 @@
 	#address-cells = <1>;
 	#size-cells = <1>;
 
+	cpus {
+		#address-cells = <1>;
+		#size-cells = <0>;
+		cpu@0 {
+			device_type = "cpu";
+			reg = <0>;
+			status = "enable";
+		};
+
+		cpu@1 {
+			device_type = "cpu";
+			reg = <1>;
+			status = "enable";
+		};
+	};
+
 	memory {
 		device_type = "memory";
 		/*
