@@ -34,9 +34,11 @@ Build kernel fast
 =================
 
   - Download the clean kernel source from kernel.org.
+  $ wget https://cdn.kernel.org/pub/linux/kernel/v4.x/linux-4.16.2.tar.xz
+  $ tar -Jxf linux-4.16.2.tar.xz
+
   $ xz -d rootfs.cpio.xz
   $ xz -d linux-4.16.2.patch.xz
-  $ tar -Jxf linux-4.16.2.tar.xz
 
   - patch and make
   $ cd linux-4.16.2
