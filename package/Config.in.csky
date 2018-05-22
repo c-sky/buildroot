@@ -2,4 +2,4 @@ source "package/csky-examples/Config.in"
 source "package/csky-ci/Config.in"
 source "package/csky-arch/Config.in"
 source "package/csky-addons/Config.in"
-
+source "package/libffipost/jamvm-csky/Config.in"

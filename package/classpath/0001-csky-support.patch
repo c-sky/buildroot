@@ -1,0 +1,29 @@
+diff --git a/java/util/EnumSet.java b/java/util/EnumSet.java
+index 60d0106..b98c259 100644
+--- a/java/util/EnumSet.java
++++ b/java/util/EnumSet.java
+@@ -249,7 +249,8 @@ public abstract class EnumSet<T extends Enum<T>>
+         boolean result = false;
+         if (c instanceof EnumSet)
+         {
+-          EnumSet<T> other = (EnumSet<T>) c;
++          Object tmp = c;
++          EnumSet<T> other = (EnumSet<T>) tmp;
+           if (enumClass == other.enumClass)
+           {
+             store.or(other.store);
+diff --git a/native/fdlibm/ieeefp.h b/native/fdlibm/ieeefp.h
+index c230bbb..6ec3bf8 100644
+--- a/native/fdlibm/ieeefp.h
++++ b/native/fdlibm/ieeefp.h
+@@ -27,6 +27,10 @@
+ #endif
+ #endif
+ 
++#ifdef __csky__
++#define __IEEE_LITTLE_ENDIAN
++#endif
++
+ #ifdef __hppa__
+ #define __IEEE_BIG_ENDIAN
+ #endif
