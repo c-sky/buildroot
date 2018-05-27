@@ -1,0 +1,25 @@
+
+config BR2_PACKAGE_CSKY_JAMVM_CLASSPATH
+	bool "C-SKY jamvm"
+	select BR2_PACKAGE_LIBFFI
+	select BR2_PACKAGE_CLASSPATH_ARCH_SUPPORTS
+
+config BR2_PACKAGE_JAMVM_CSKY
+	bool
+	depends on BR2_TOOLCHAIN_HAS_THREADS
+	depends on !BR2_STATIC_LIBS
+	depends on BR2_PACKAGE_LIBFFI
+	select BR2_PACKAGE_ZLIB
+	select BR2_PACKAGE_CLASSPATH
+	default y if BR2_PACKAGE_CSKY_JAMVM_CLASSPATH \
+		&& !BR2_PACKAGE_JAMVM
+	help
+	  JamVM is a new Java Virtual Machine which conforms to the
+	  JVM specification version 2 (blue book).
+
+	  http://jamvm.sf.net
+
+comment "jamvm needs a toolchain w/ threads, dynamic library"
+	depends on BR2_PACKAGE_JAMVM_CSKY
+	depends on BR2_PACKAGE_CLASSPATH_ARCH_SUPPORTS
+	depends on !BR2_TOOLCHAIN_HAS_THREADS || BR2_STATIC_LIBS

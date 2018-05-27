@@ -1,0 +1,36 @@
+# Set the JTAG address according to C-SKY debugserver settings
+tar jtag jtag://192.168.0.88:1025
+
+# Setup MMU MSA0 reg
+set $mcr30 = 0x8e
+
+# Setup hint reg
+set $cr31 = 0x0704
+
+# Invalid L1-cache include I/Dcache
+set $cr17 = (1<<4) | 3 | (7<<16)
+
+# Enable L1 cache and MMU and other CPU features
+set $cr18 = 0x3087d
+
+# Invalid L2 cache exec l2cache.iall
+set *0x8f000000=0x9820c100
+set $pc=0x8f000000
+si
+
+# Enable L2 cache
+set $cr23 = 0x8
+
+# Pass the devicetree blob(dtb) store address to Linux kernel
+set $r1 = 0x8F000000
+
+# Store the devicetree blob(dtb) file to the store address above
+restore output/images/ck860_smp_platform.dtb binary 0x8F000000
+load
+
+# Sync I/Dcache before run kernel
+set $cr17 = 0x33
+
+# pinctrl setup for serail output
+set *0xbfbad008 = 0xff
+
