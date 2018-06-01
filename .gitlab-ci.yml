@@ -64,7 +64,7 @@ stages:
 .localbuild_defconfig: &localbuild_defconfig
     stage: build
     tags:
-      - vmh
+      - vmh3
     script:
     - echo 'Configure Buildroot'
     - make ${CI_BUILD_NAME}
