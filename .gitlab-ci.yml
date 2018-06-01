@@ -191,13 +191,13 @@ qemu_csky_ck610_4.16_uclibc_defconfig_test:
     - cp /tmp/gitlab-runner/$BUILDROOT_VERSION/${CI_BUILD_NAME}/csky-ci output/host/csky-ci -r
     - cp /tmp/gitlab-runner/$BUILDROOT_VERSION/${CI_BUILD_NAME}/images output/images -r
     - tar -xf output/images/csky_toolchain_*.tar.xz -C output/host
-    - touch /home/vmh/workspace/DebugServerConsole/.stamp_gdb
+    - touch /root/DebugServerConsole/.stamp_gdb
     - sleep 10
     - |
         ./output/host/csky-ci/run_test.sh || {
             exit 1
         }
-    - touch /home/vmh/workspace/DebugServerConsole/.stamp_gdb_exit
+    - touch /root/DebugServerConsole/.stamp_gdb_exit
     - csky_switch /dev/ttyUSB1 off
 
 csky_ck610_gx6622_4.16_glibc_bt_defconfig:
