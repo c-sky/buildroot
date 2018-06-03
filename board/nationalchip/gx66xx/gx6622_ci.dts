@@ -161,6 +161,6 @@
 	};
 
 	chosen {
-		bootargs = "console=ttyS0,115200 CSKY_CI_BOOTARG_STAMP rootwait";
+		bootargs = "console=ttyS0,115200 rootwait init=/sbin/init root=/dev/nfs rw nfsroot=192.168.101.200:/tmp/rootfs_nfs,v3,tcp,nolock ip=192.168.101.23";
 	};
 };

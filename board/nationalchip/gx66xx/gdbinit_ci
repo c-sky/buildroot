@@ -1,4 +1,4 @@
-target jtag jtag://127.0.1.1:1026
+target jtag jtag://127.0.0.1:1025
 reset
 
 # pin mux for serial8250, only for gx6605s
