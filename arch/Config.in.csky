@@ -26,9 +26,9 @@ config BR2_CSKY_FPU
 	  Floating-Point Coprocessor or if you don't need FPU support
 	  for your user-space programs.
 
-config BR2_CSKY_DSP
-	bool "Enable DSP enhanced instructions"
-	depends on BR2_ck807 || BR2_ck810 || BR2_ck860
+config BR2_CSKY_VDSP
+	bool "Enable VDSP 3.0 enhanced instructions Co-processor"
+	depends on BR2_ck860
 
 config BR2_GCC_TARGET_FLOAT_ABI
 	default "soft"		if !BR2_CSKY_FPU
@@ -41,16 +41,15 @@ config BR2_ENDIAN
 	default "LITTLE"
 
 config BR2_GCC_TARGET_CPU
-	default "ck610"		if (BR2_ck610 && !BR2_CSKY_FPU && !BR2_CSKY_DSP)
-	default "ck807"		if (BR2_ck807 && !BR2_CSKY_FPU && !BR2_CSKY_DSP)
-	default "ck807e"	if (BR2_ck807 && !BR2_CSKY_FPU &&  BR2_CSKY_DSP)
-	default "ck807f"	if (BR2_ck807 &&  BR2_CSKY_FPU && !BR2_CSKY_DSP)
-	default "ck807ef"	if (BR2_ck807 &&  BR2_CSKY_FPU &&  BR2_CSKY_DSP)
-	default "ck810"		if (BR2_ck810 && !BR2_CSKY_FPU && !BR2_CSKY_DSP)
-	default "ck810e"	if (BR2_ck810 && !BR2_CSKY_FPU &&  BR2_CSKY_DSP)
-	default "ck810f"	if (BR2_ck810 &&  BR2_CSKY_FPU && !BR2_CSKY_DSP)
-	default "ck810ef"	if (BR2_ck810 &&  BR2_CSKY_FPU &&  BR2_CSKY_DSP)
-	default "ck860"		if (BR2_ck860 && !BR2_CSKY_FPU && !BR2_CSKY_DSP)
+	default "ck610"		if (BR2_ck610 && !BR2_CSKY_FPU && !BR2_CSKY_VDSP)
+	default "ck807"		if (BR2_ck807 && !BR2_CSKY_FPU && !BR2_CSKY_VDSP)
+	default "ck807f"	if (BR2_ck807 &&  BR2_CSKY_FPU && !BR2_CSKY_VDSP)
+	default "ck810"		if (BR2_ck810 && !BR2_CSKY_FPU && !BR2_CSKY_VDSP)
+	default "ck810f"	if (BR2_ck810 &&  BR2_CSKY_FPU && !BR2_CSKY_VDSP)
+	default "ck860"		if (BR2_ck860 && !BR2_CSKY_FPU && !BR2_CSKY_VDSP)
+	default "ck860f"	if (BR2_ck860 &&  BR2_CSKY_FPU && !BR2_CSKY_VDSP)
+	default "ck860v"	if (BR2_ck860 && !BR2_CSKY_FPU &&  BR2_CSKY_VDSP)
+	default "ck860vf"	if (BR2_ck860 &&  BR2_CSKY_FPU &&  BR2_CSKY_VDSP)
 
 config BR2_READELF_ARCH_NAME
 	default "CSKY"
