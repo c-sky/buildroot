@@ -33,8 +33,17 @@ define CSKY_CI_TOOLCHAIN_TARBALL
         (cd $(HOST_DIR); \
          BUILDROOT_VERSION=$$(git log --pretty=oneline|head -1|awk '{print $$1}'); \
          BUILDROOT_CONFIG=$$(grep BR2_DEFCONFIG $(CONFIG_DIR)/.config|awk -F/ '{print $$NF}'|sed 's/\"//g'); \
-         echo $$BUILDROOT_CONFIG > csky_buildroot_version; \
-         echo $$BUILDROOT_VERSION >> csky_buildroot_version; \
+         echo buildroot:$$BUILDROOT_CONFIG $$BUILDROOT_VERSION > csky_buildroot_version.txt; \
+         echo linux-$(LINUX_VERSION) >> csky_buildroot_version.txt; \
+         echo linux-csky-arch:$(CSKY_ARCH_VERSION) >> csky_buildroot_version.txt; \
+         echo gcc:$(GCC_VERSION) >> csky_buildroot_version.txt; \
+         echo binutils:$(BINUTILS_VERSION) >> csky_buildroot_version.txt; \
+         echo glibc:$(GLIBC_VERSION) >> csky_buildroot_version.txt; \
+         echo uclibc:$(UCLIBC_VERSION) >> csky_buildroot_version.txt; \
+         echo gdb:$(GDB_VERSION) >> csky_buildroot_version.txt; \
+         echo qemu:$(CSKY_QEMU_VERSION) >> csky_buildroot_version.txt; \
+         echo Jtag:$(CSKY_DEBUG_VERSION) >> csky_buildroot_version.txt; \
+         cp csky_buildroot_version.txt $(BINARIES_DIR)/; \
          tar -cJf $(BINARIES_DIR)/csky_toolchain_$${BUILDROOT_CONFIG}_$${BUILDROOT_VERSION}.tar.xz ./; \
          cd - ;\
         )

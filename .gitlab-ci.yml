@@ -24,13 +24,15 @@ stages:
         }
     - xz -z build.log
     - if [ -f output/images/vmlinux ]; then
+          output/host/bin/csky-linux-strip -sg output/images/vmlinux;
           xz -z output/images/vmlinux;
+      fi
+    - if [ -f output/images/rootfs.cpio ]; then
+          rm -f output/images/rootfs.tar;
+          xz -z output/images/rootfs.cpio;
       fi
     - if [ -f output/images/rootfs.tar ]; then
           xz -z output/images/rootfs.tar;
-      fi
-    - if [ -f output/images/rootfs.cpio ]; then
-          xz -z output/images/rootfs.cpio;
       fi
 
 .run_test: &run_test
