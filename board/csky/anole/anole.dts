@@ -132,6 +132,25 @@
 			#syscon-cells = <2>;
 		};
 
+		usb_phy: usb-phy@5700ffff {
+			compatible = "snps,usb3-phy";
+			reg = <0x5700ffff 0x10000>;
+			reg-names = "phy";
+			#phy-cells = <0>;
+		};
+
+		usb: dwc3@50f00000 {
+			compatible = "snps,dwc3";
+			reg = <0x50f00000 0x10000>;
+			interrupts = <27>
+			usb-phy = <&usb_phy>;
+			maximum-speed = "super-speed";
+			dr_mode = "peripheral";
+			g-rx-fifo-size = <256>;
+			g-tx-fifo-size = <256>;
+			g-np-tx-fifo-size = <256>;
+		};
+
 		pcie_ep: pcie_ep@51000000 {
 			compatible = "csky,csky-pcie-ep";
 			/* DBI: Data Bus Interface
