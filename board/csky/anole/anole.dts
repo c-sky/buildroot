@@ -68,7 +68,7 @@
 			clocks = <&dummy_apb>;
 			clock-names = "baudclk";
 			reg-shift = <2>;
-			reg-io-width = <1>;
+			reg-io-width = <4>;
 			fifo-size = <16>;
 			/*
 			 * rx-trigger-level:
@@ -88,7 +88,7 @@
 			clocks = <&dummy_apb>;
 			clock-names = "baudclk";
 			reg-shift = <2>;
-			reg-io-width = <1>;
+			reg-io-width = <4>;
 			fifo-size = <16>;
 			/*
 			 * rx-trigger-level:

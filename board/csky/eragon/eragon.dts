@@ -299,7 +299,7 @@
 			clocks = <&dummy_apb>;
 			clock-names = "baudclk";
 			reg-shift = <2>;
-			reg-io-width = <1>;
+			reg-io-width = <4>;
 			pinctrl-names = "default";
 			pinctrl-0 = <&uart0_x>;
 			fifo-size = <16>;
@@ -324,7 +324,7 @@
 			clocks = <&dummy_apb>;
 			clock-names = "baudclk";
 			reg-shift = <2>;
-			reg-io-width = <1>;
+			reg-io-width = <4>;
 			fifo-size = <16>;
 			/*
 			 * rx-trigger-level:
@@ -347,7 +347,7 @@
 			clocks = <&dummy_apb>;
 			clock-names = "baudclk";
 			reg-shift = <2>;
-			reg-io-width = <1>;
+			reg-io-width = <4>;
 			pinctrl-names = "default";
 			pinctrl-0 = <&uart2_x>;
 		};
@@ -360,7 +360,7 @@
 			clocks = <&dummy_apb>;
 			clock-names = "baudclk";
 			reg-shift = <2>;
-			reg-io-width = <1>;
+			reg-io-width = <4>;
 			pinctrl-names = "default";
 			pinctrl-0 = <&uart3_x>;
 		};
@@ -373,7 +373,7 @@
 			clocks = <&dummy_apb>;
 			clock-names = "baudclk";
 			reg-shift = <2>;
-			reg-io-width = <1>;
+			reg-io-width = <4>;
 		};
 
 		gmac: ethernet@1FB10000 {

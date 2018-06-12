@@ -282,7 +282,7 @@
 			clocks = <&dummy_apb>;
 			clock-names = "baudclk";
 			reg-shift = <2>;
-			reg-io-width = <1>;
+			reg-io-width = <4>;
 		};
 
 		gmac: ethernet@1FB10000 {
