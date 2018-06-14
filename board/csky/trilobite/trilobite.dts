@@ -63,7 +63,7 @@
 			clocks = <&dummy_apb>;
 			baud = <115200>;
 			reg-shift = <2>;
-			reg-io-width = <1>;
+			reg-io-width = <4>;
 		};
 
 		gmac: ethernet@10006000 {
