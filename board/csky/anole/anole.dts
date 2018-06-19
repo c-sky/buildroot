@@ -5,14 +5,14 @@
 #include "../../../../addons/drivers/pinctrl/pinctrl-csky.h"
 
 / {
-	model = "csky eragon";
-	compatible = "csky,eragon";
+	model = "csky anole";
+	compatible = "csky,anole";
 	#address-cells = <1>;
 	#size-cells = <1>;
 
 	memory {
 		device_type = "memory";
-		reg = <0xC0000000 0x40000000>;	/* Charles: checked */
+		reg = <0xC0000000 0x40000000>;
 	};
 
 	aliases {
@@ -28,14 +28,14 @@
 
 		dummy_apb: apb-clock {
 			compatible = "fixed-clock";
-			clock-frequency = <60000000>;
+			clock-frequency = <50000000>;
 			clock-output-names = "dummy_apb";
 			#clock-cells = <0>;
 		};
 
 		intc: interrupt-controller {
 			compatible = "csky,intc-v1";
-			reg = <0x00400000 0x1000>;	/* Charles checked, same with Eragon???????????? */
+			reg = <0x00400000 0x1000>;
 			interrupt-controller;
 			#interrupt-cells = <1>;
 		};
@@ -43,20 +43,20 @@
 		/* clockevent */
 		timer0 {
 			compatible = "snps,dw-apb-timer";
-			reg = <0x01020000 0x1000>;			/* Charles: checked */
+			reg = <0x01020000 0x1000>;
 			clocks = <&dummy_apb>;
 			clock-names = "timer";
-			interrupts = <4>;
+			interrupts = <1>;
 			interrupt-parent = <&intc>;
 		};
 
 		/* clocksource */
 		timer1 {
 			compatible = "snps,dw-apb-timer";
-			reg = <0x1FBA2014 0x800>;
+			reg = <0x01020014 0x800>;
 			clocks = <&dummy_apb>;
 			clock-names = "timer";
-			interrupts = <5>;
+			interrupts = <2>;
 			interrupt-parent = <&intc>;
 		};
 
@@ -64,7 +64,7 @@
 			compatible = "snps,dw-apb-uart";
 			reg = <0x010A0000 0x1000>;
 			interrupt-parent = <&intc>;
-			interrupts = <9>;
+			interrupts = <12>;
 			clocks = <&dummy_apb>;
 			clock-names = "baudclk";
 			reg-shift = <2>;
@@ -84,7 +84,7 @@
 			compatible = "snps,dw-apb-uart";
 			reg = <0x010B0000 0x1000>;
 			interrupt-parent = <&intc>;
-			interrupts = <10>;
+			interrupts = <13>;
 			clocks = <&dummy_apb>;
 			clock-names = "baudclk";
 			reg-shift = <2>;
@@ -101,37 +101,6 @@
 		};
 
 #if 0
-		scm_conf_pcie: scm_conf@1c24 {
-			compatible = "syscon";
-			reg = <0x1c24 0x0024>;
-		};
-
-		pcie1_phy: pciephy@4a094000 {
-			compatible = "ti,phy-pipe3-pcie";
-			reg = <0x4a094000 0x80>, /* phy_rx */
-			      <0x4a094400 0x64>; /* phy_tx */
-			reg-names = "phy_rx", "phy_tx";
-			syscon-phy-power = <&scm_conf_pcie 0x1c>;
-			syscon-pcs = <&scm_conf_pcie 0x10>;
-			clocks = <&dummy_apb>,
-				 <&dummy_apb>,
-				 <&dummy_apb>,
-				 <&dummy_apb>,
-				 <&dummy_apb>,
-				 <&dummy_apb>,
-				 <&dummy_apb>;
-			clock-names = "dpll_ref", "dpll_ref_m2",
-				      "wkupclk", "refclk",
-				      "div-clk", "phy-div", "sysclk";
-			#phy-cells = <0>;
-		};
-
-		scm_conf1: scm_conf@1c04 {
-			compatible = "syscon";
-			reg = <0x1c04 0x0020>;
-			#syscon-cells = <2>;
-		};
-
 		usb_phy: usb-phy@5700ffff {
 			compatible = "snps,usb3-phy";
 			reg = <0x5700ffff 0x10000>;
@@ -151,38 +120,33 @@
 			g-np-tx-fifo-size = <256>;
 		};
 
-		pcie_ep: pcie_ep@51000000 {
+		pcie_ep: pcie_ep@1fa20000 {
 			compatible = "csky,csky-pcie-ep";
-			/* DBI: Data Bus Interface
-			   conf: Config
-			   space: 0x10000000 = 256MB
-			 */
-			reg = <0x51000000 0x28>, <0x51002000 0x14c>, <0x51001000 0x28>, <0x1000 0x10000000>;
+			/* DBI: Data Bus Interface;  conf: Config; space: 0x10000000 = 256MB */
+			reg = <0x1fa20000 0x28>, <0x1fa22000 0x14c>, <0x1fa21000 0x28>, <0x1000 0x8000>;
 			reg-names = "ep_dbics", "csky_conf", "ep_dbics2", "addr_space";
 
-
-			ti,hwmods = "pcie1";	/* used in bus/ti-sysc.c, use for what?*/
-
-			/* Below are defined & used by designware */
-			interrupts = <64>;	/* assumption number */
-			num-lanes = <1>;
+			interrupt-parent = <&intc>;
+			interrupts = <50>;
+			max-link-speed = <3>;	/* Must be '4' for gen4, '3' for gen3, ... Any other values are invalid. */
+			num-lanes = <2>;
 			num-ib-windows = <4>;	/* number of inbound address translation windows, use for ATU(Address Translation Unit) */
 			num-ob-windows = <16>;	/* Outbound */
 
-			/* Below are TI's phy difination */
+			/* Below are TI's phy difination
 			phys = <&pcie1_phy>;
 			phy-names = "pcie-phy0";
 			ti,syscon-unaligned-access = <&scm_conf1 0x14 2>;
+			*/
 
-			/* Below are common config */
-			status = "disabled";
+			status = "ok";
 		};
 #endif
 	};
 
 	chosen {
 		// bootargs = "console=ttyS2,115200 init=/sbin/init root=/dev/nfs rw nfsroot=172.16.28.184:/home/rtos_nfs/br/rootfs,v3,tcp,nolock ip=172.16.150.100::172.16.150.254:255.255.255.0";
-		bootargs = "console=ttyS2,115200 rdinit=/sbin/init root=/dev/ram0 loglevel=7";
+		bootargs = "console=ttyS0,115200 rdinit=/sbin/init root=/dev/ram0 loglevel=7";
 	};
 };
 
