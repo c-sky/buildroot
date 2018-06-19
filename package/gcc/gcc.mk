@@ -21,7 +21,7 @@ GCC_SITE = ssh://${GITUSER}@192.168.0.78:29418/tools/gcc
 GCC_FINAL_SITE_METHOD = git
 GCC_INITIAL_SITE_METHOD = git
 else
-GCC_VERSION = d985fbfeb69dd3b80f0c0276013ccbeaaa6d7e0d
+GCC_VERSION = 080eee5e337301372ee587b8e7938629fe5e3fb8
 GCC_SITE = $(call github,c-sky,gcc,$(GCC_VERSION))
 endif
 GCC_SOURCE = gcc-$(GCC_VERSION).tar.gz
