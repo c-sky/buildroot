@@ -35,8 +35,8 @@ stages:
           xz -z output/images/rootfs.tar;
       fi
 
-.run_test: &run_test
-    - echo 'Run test'
+.prepare_to_run: &prepare_to_run
+    - echo 'Prepare to run'
     - mkdir -p output/host/
     - tar -xf output/images/csky_toolchain_*.tar.xz -C output/host
     - if [ -f output/images/vmlinux.xz ]; then
@@ -48,10 +48,29 @@ stages:
     - if [ -f output/images/rootfs.cpio.xz ]; then
           xz -d output/images/rootfs.cpio.xz;
       fi
+
+.run_test: &run_test
+    - prepare_to_run
+    - echo 'Run qemu test'
     - |
         ./output/host/csky-ci/run_test.sh || {
             exit 1
         }
+
+.run_local: &run_local
+    - prepare_to_run
+    - echo 'Run local test'
+    - csky_switch /dev/ttyUSB1 off
+    - sleep 5
+    - csky_switch /dev/ttyUSB1 on
+    - touch /root/DebugServerConsole/.stamp_gdb
+    - sleep 10
+    - |
+        ./output/host/csky-ci/run_test.sh || {
+            exit 1
+        }
+    - touch /root/DebugServerConsole/.stamp_gdb_exit
+    - csky_switch /dev/ttyUSB1 off
 
 .defconfig: &defconfig
     stage: build
@@ -165,22 +184,6 @@ qemu_csky_ck610_4.16_uclibc_defconfig_test:
         paths:
             - test.log
             - test_sum.log
-
-.run_local: &run_local
-    - echo 'Run test'
-    - csky_switch /dev/ttyUSB1 off
-    - sleep 5
-    - csky_switch /dev/ttyUSB1 on
-    - mkdir -p output/host/
-    - tar -xf output/images/csky_toolchain_*.tar.xz -C output/host
-    - touch /root/DebugServerConsole/.stamp_gdb
-    - sleep 10
-    - |
-        ./output/host/csky-ci/run_test.sh || {
-            exit 1
-        }
-    - touch /root/DebugServerConsole/.stamp_gdb_exit
-    - csky_switch /dev/ttyUSB1 off
 
 csky_ck610_gx6622_4.9_uclibc_bt_defconfig_test:
     stage: test
