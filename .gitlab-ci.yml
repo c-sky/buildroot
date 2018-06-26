@@ -67,6 +67,8 @@ stages:
     - sleep 10
     - |
         ./output/host/csky-ci/run_test.sh || {
+            touch /root/DebugServerConsole/.stamp_gdb_exit
+            csky_switch /dev/ttyUSB1 off
             exit 1
         }
     - touch /root/DebugServerConsole/.stamp_gdb_exit
