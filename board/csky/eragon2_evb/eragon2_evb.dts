@@ -16,10 +16,8 @@
 
 	memory {
 		device_type = "memory";
-		/* 0x00000000 - 0x00200000: Reserved for VPU work buf
-		   0x17a00000 - 0x17c00000: Reserved for VPU iram
-		*/
-		reg = <0x00200000 0x17a00000 0x98000000 0x28000000>;
+		/* 0x00000000-0x00100000: Reserved for VPU work buf & iram */
+		reg = <0x00100000 0x17f00000 0x98000000 0x28000000>;
 	};
 
 	cpus {
@@ -560,9 +558,9 @@
 			dr_mode = "host";
 		};
 
-		vpu_iram: sram@17c00000 {
+		vpu_iram: sram@40000 {
 			compatible = "mmio-sram";
-			reg = <0x17a00000 0x200000>;
+			reg = <0x40000 0xc0000>;
 			clocks = <&dummy_apb>;
 		};
 
@@ -574,6 +572,7 @@
 			clocks = <&dummy_apb>, <&dummy_apb>;
 			clock-names = "ahb", "per";
 			iram = <&vpu_iram>;
+			resets = <&swrc1 13>; /* SWRC1[13]: SW_IP_VPU_RST */
 		};
 
 		screen_timings: screen_timings {
