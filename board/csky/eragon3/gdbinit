@@ -21,7 +21,7 @@ set $cr24 = (1<<4)
 set $cr23 = 0x1018
 
 # Pass the vmlinux entry address to tee_sim.elf
-set $r0 = 0x80200000
+set $r0 = 0x81200000
 
 # Pass the devicetree blob(dtb) store address to Linux kernel
 set $r1 = 0x8F000000
@@ -33,7 +33,7 @@ file board/csky/eragon3/tee_sim.elf
 load
 
 # Load the vmlinux
-file output/build/linux-4.9.56/vmlinux
+file output/build/linux-4.16.2/vmlinux
 load
 
 # Sync I/Dcache before run kernel
