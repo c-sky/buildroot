@@ -35,7 +35,7 @@ stages:
           xz -z output/images/rootfs.tar;
       fi
 
-.prepare_to_run: &prepare_to_run
+.run_test: &run_test
     - echo 'Prepare to run'
     - mkdir -p output/host/
     - tar -xf output/images/csky_toolchain_*.tar.xz -C output/host
@@ -48,8 +48,6 @@ stages:
     - if [ -f output/images/rootfs.cpio.xz ]; then
           xz -d output/images/rootfs.cpio.xz;
       fi
-
-.run_test: &run_test
     - echo 'Run qemu test'
     - |
         ./output/host/csky-ci/run_test.sh || {
@@ -57,6 +55,18 @@ stages:
         }
 
 .run_local: &run_local
+    - echo 'Prepare to run'
+    - mkdir -p output/host/
+    - tar -xf output/images/csky_toolchain_*.tar.xz -C output/host
+    - if [ -f output/images/vmlinux.xz ]; then
+          xz -d output/images/vmlinux.xz;
+      fi
+    - if [ -f output/images/rootfs.tar.xz ]; then
+          xz -d output/images/rootfs.tar.xz;
+      fi
+    - if [ -f output/images/rootfs.cpio.xz ]; then
+          xz -d output/images/rootfs.cpio.xz;
+      fi
     - echo 'Run local test'
     - csky_switch /dev/ttyUSB1 off
     - sleep 5
@@ -103,7 +113,7 @@ csky_gx6605s_defconfig: *defconfig
 
 qemu_csky_ck810f_4.16_uclibc_defconfig_test:
     stage: test
-    script: *prepare_to_run *run_test
+    script: *run_test
     dependencies:
       - qemu_csky_ck810f_4.16_uclibc_defconfig
     artifacts:
@@ -115,7 +125,7 @@ qemu_csky_ck810f_4.16_uclibc_defconfig_test:
 
 qemu_csky_ck807_4.9_glibc_defconfig_test:
     stage: test
-    script: *prepare_to_run *run_test
+    script: *run_test
     dependencies:
       - qemu_csky_ck807_4.9_glibc_defconfig
     artifacts:
@@ -127,7 +137,7 @@ qemu_csky_ck807_4.9_glibc_defconfig_test:
 
 qemu_csky_ck810f_4.16_glibc_defconfig_test:
     stage: test
-    script: *prepare_to_run *run_test
+    script: *run_test
     dependencies:
       - qemu_csky_ck810f_4.16_glibc_defconfig
     artifacts:
@@ -139,7 +149,7 @@ qemu_csky_ck810f_4.16_glibc_defconfig_test:
 
 qemu_csky_ck807f_4.16_glibc_defconfig_test:
     stage: test
-    script: *prepare_to_run *run_test
+    script: *run_test
     dependencies:
       - qemu_csky_ck807f_4.16_glibc_defconfig
     artifacts:
@@ -151,7 +161,7 @@ qemu_csky_ck807f_4.16_glibc_defconfig_test:
 
 qemu_csky_ck807_4.16_uclibc_defconfig_test:
     stage: test
-    script: *prepare_to_run *run_test
+    script: *run_test
     dependencies:
       - qemu_csky_ck807_4.16_uclibc_defconfig
     artifacts:
@@ -163,7 +173,7 @@ qemu_csky_ck807_4.16_uclibc_defconfig_test:
 
 qemu_csky_ck610_4.9_glibc_defconfig_test:
     stage: test
-    script: *prepare_to_run *run_test
+    script: *run_test
     dependencies:
       - qemu_csky_ck610_4.9_glibc_defconfig
     artifacts:
@@ -175,7 +185,7 @@ qemu_csky_ck610_4.9_glibc_defconfig_test:
 
 qemu_csky_ck610_4.16_uclibc_defconfig_test:
     stage: test
-    script: *prepare_to_run *run_test
+    script: *run_test
     dependencies:
       - qemu_csky_ck610_4.16_uclibc_defconfig
     artifacts:
@@ -189,7 +199,7 @@ csky_ck610_gx6622_4.9_uclibc_bt_defconfig_test:
     stage: test
     tags:
       - vmh-ck610-gx-0
-    script: *prepare_to_run *run_local
+    script: *run_local
     dependencies:
       - csky_ck610_gx6622_4.9_uclibc_bt_defconfig
     artifacts:
@@ -202,7 +212,7 @@ csky_ck610_gx6622_4.16_glibc_bt_defconfig_test:
     stage: test
     tags:
       - vmh-ck610-gx-0
-    script: *prepare_to_run *run_local
+    script: *run_local
     dependencies:
       - csky_ck610_gx6622_4.16_glibc_bt_defconfig
     artifacts:
@@ -215,7 +225,7 @@ csky_ck807_eragon_4.9_glibc_bt_defconfig_test:
     stage: test
     tags:
       - vmh-ck807-eragon-0
-    script: *prepare_to_run *run_local
+    script: *run_local
     dependencies:
       - csky_ck807_eragon_4.9_glibc_bt_defconfig
     artifacts:
