@@ -12,7 +12,7 @@ index 614fbef..699fa92 100644
  	select SRAM
  	select VIDEOBUF2_DMA_CONTIG
 diff --git a/drivers/media/platform/coda/coda-bit.c b/drivers/media/platform/coda/coda-bit.c
-index 9fe113c..1566078 100644
+index 9fe113c..d688d44 100644
 --- a/drivers/media/platform/coda/coda-bit.c
 +++ b/drivers/media/platform/coda/coda-bit.c
 @@ -69,7 +69,8 @@ static void coda_command_async(struct coda_ctx *ctx, int cmd)
@@ -25,7 +25,29 @@ index 9fe113c..1566078 100644
  		/* Restore context related registers to CODA */
  		coda_write(dev, ctx->bit_stream_param,
  				CODA_REG_BIT_BIT_STREAM_PARAM);
-@@ -506,7 +507,8 @@ static int coda_alloc_context_buffers(struct coda_ctx *ctx,
+@@ -130,9 +131,18 @@ int coda_hw_reset(struct coda_ctx *ctx)
+ 		}
+ 	}
+ 
+-	ret = reset_control_reset(dev->rstc);
+-	if (ret < 0)
+-		return ret;
++	if (dev->devtype->product == CODA_7541_ERAGON) {
++		ret = reset_control_assert(dev->rstc);
++		if (ret < 0)
++			return ret;
++		ret = reset_control_deassert(dev->rstc);
++		if (ret < 0)
++			return ret;
++	} else {
++		ret = reset_control_reset(dev->rstc);
++		if (ret < 0)
++			return ret;
++	}
+ 
+ 	if (dev->devtype->product == CODA_960)
+ 		coda_write(dev, 0x00, CODA9_GDI_BUS_CTRL);
+@@ -506,7 +516,8 @@ static int coda_alloc_context_buffers(struct coda_ctx *ctx,
  			goto err;
  	}
  
@@ -35,7 +57,7 @@ index 9fe113c..1566078 100644
  		ret = coda_alloc_context_buf(ctx, &ctx->psbuf,
  					     CODA7_PS_BUF_SIZE, "psbuf");
  		if (ret < 0)
-@@ -608,6 +610,11 @@ static void coda_setup_iram(struct coda_ctx *ctx)
+@@ -608,6 +619,11 @@ static void coda_setup_iram(struct coda_ctx *ctx)
  		bit_bits = CODA7_USE_HOST_BIT_ENABLE | CODA7_USE_BIT_ENABLE;
  		ip_bits = CODA7_USE_HOST_IP_ENABLE | CODA7_USE_IP_ENABLE;
  		break;
@@ -47,7 +69,7 @@ index 9fe113c..1566078 100644
  	case CODA_960:
  		dbk_bits = CODA9_USE_HOST_DBK_ENABLE | CODA9_USE_DBK_ENABLE;
  		bit_bits = CODA9_USE_HOST_BIT_ENABLE | CODA7_USE_BIT_ENABLE;
-@@ -688,7 +695,8 @@ static void coda_setup_iram(struct coda_ctx *ctx)
+@@ -688,7 +704,8 @@ static void coda_setup_iram(struct coda_ctx *ctx)
  		v4l2_dbg(1, coda_debug, &ctx->dev->v4l2_dev,
  			 "IRAM smaller than needed\n");
  
@@ -57,7 +79,7 @@ index 9fe113c..1566078 100644
  		/* TODO - Enabling these causes picture errors on CODA7541 */
  		if (ctx->inst_type == CODA_INST_DECODER) {
  			/* fw 1.4.50 */
-@@ -707,6 +715,7 @@ static void coda_setup_iram(struct coda_ctx *ctx)
+@@ -707,6 +724,7 @@ static void coda_setup_iram(struct coda_ctx *ctx)
  static u32 coda_supported_firmwares[] = {
  	CODA_FIRMWARE_VERNUM(CODA_DX6, 2, 2, 5),
  	CODA_FIRMWARE_VERNUM(CODA_7541, 1, 4, 50),
@@ -65,7 +87,7 @@ index 9fe113c..1566078 100644
  	CODA_FIRMWARE_VERNUM(CODA_960, 2, 1, 5),
  	CODA_FIRMWARE_VERNUM(CODA_960, 2, 3, 10),
  	CODA_FIRMWARE_VERNUM(CODA_960, 3, 1, 1),
-@@ -891,6 +900,7 @@ static int coda_start_encoding(struct coda_ctx *ctx)
+@@ -891,6 +909,7 @@ static int coda_start_encoding(struct coda_ctx *ctx)
  		coda_write(dev, 0, CODA9_GDI_WPROT_RGN_EN);
  		/* fallthrough */
  	case CODA_7541:
@@ -73,7 +95,7 @@ index 9fe113c..1566078 100644
  		coda_write(dev, CODA7_STREAM_BUF_DYNALLOC_EN |
  			CODA7_STREAM_BUF_PIC_RESET, CODA_REG_BIT_STREAM_CTRL);
  		break;
-@@ -920,6 +930,7 @@ static int coda_start_encoding(struct coda_ctx *ctx)
+@@ -920,6 +939,7 @@ static int coda_start_encoding(struct coda_ctx *ctx)
  			 << CODA_PICHEIGHT_OFFSET;
  		break;
  	case CODA_7541:
@@ -81,7 +103,7 @@ index 9fe113c..1566078 100644
  		if (dst_fourcc == V4L2_PIX_FMT_H264) {
  			value = (round_up(q_data_src->width, 16) &
  				 CODA7_PICWIDTH_MASK) << CODA7_PICWIDTH_OFFSET;
-@@ -1087,6 +1098,7 @@ static int coda_start_encoding(struct coda_ctx *ctx)
+@@ -1087,6 +1107,7 @@ static int coda_start_encoding(struct coda_ctx *ctx)
  			coda_write(dev, value, CODADX6_CMD_ENC_SEQ_FMO);
  			break;
  		case CODA_7541:
@@ -89,7 +111,7 @@ index 9fe113c..1566078 100644
  			coda_write(dev, ctx->iram_info.search_ram_paddr,
  					CODA7_CMD_ENC_SEQ_SEARCH_BASE);
  			coda_write(dev, ctx->iram_info.search_ram_size,
-@@ -1131,7 +1143,8 @@ static int coda_start_encoding(struct coda_ctx *ctx)
+@@ -1131,7 +1152,8 @@ static int coda_start_encoding(struct coda_ctx *ctx)
  	coda_write(dev, num_fb, CODA_CMD_SET_FRAME_BUF_NUM);
  	coda_write(dev, stride, CODA_CMD_SET_FRAME_BUF_STRIDE);
  
@@ -99,7 +121,7 @@ index 9fe113c..1566078 100644
  		coda_write(dev, q_data_src->bytesperline,
  				CODA7_CMD_SET_FRAME_SOURCE_BUF_STRIDE);
  	}
-@@ -1664,7 +1677,8 @@ static int __coda_start_decoding(struct coda_ctx *ctx)
+@@ -1664,7 +1686,8 @@ static int __coda_start_decoding(struct coda_ctx *ctx)
  			   CODA_CMD_DEC_SEQ_MP4_ASP_CLASS);
  	}
  	if (src_fourcc == V4L2_PIX_FMT_H264) {
@@ -109,7 +131,7 @@ index 9fe113c..1566078 100644
  			coda_write(dev, ctx->psbuf.paddr,
  					CODA_CMD_DEC_SEQ_PS_BB_START);
  			coda_write(dev, (CODA7_PS_BUF_SIZE / 1024),
-@@ -1715,6 +1729,8 @@ static int __coda_start_decoding(struct coda_ctx *ctx)
+@@ -1715,6 +1738,8 @@ static int __coda_start_decoding(struct coda_ctx *ctx)
  
  	width = round_up(width, 16);
  	height = round_up(height, 16);
@@ -118,7 +140,7 @@ index 9fe113c..1566078 100644
  
  	v4l2_dbg(1, coda_debug, &dev->v4l2_dev, "%s instance %d now: %dx%d\n",
  		 __func__, ctx->idx, width, height);
-@@ -1791,7 +1807,8 @@ static int __coda_start_decoding(struct coda_ctx *ctx)
+@@ -1791,7 +1816,8 @@ static int __coda_start_decoding(struct coda_ctx *ctx)
  				CODA_CMD_SET_FRAME_SLICE_BB_SIZE);
  	}
  
@@ -128,7 +150,7 @@ index 9fe113c..1566078 100644
  		int max_mb_x = 1920 / 16;
  		int max_mb_y = 1088 / 16;
  		int max_mb_num = max_mb_x * max_mb_y;
-@@ -1899,7 +1916,14 @@ static int coda_prepare_decode(struct coda_ctx *ctx)
+@@ -1899,7 +1925,14 @@ static int coda_prepare_decode(struct coda_ctx *ctx)
  			reg_stride = CODA_CMD_DEC_PIC_ROT_STRIDE;
  		}
  		coda_write_base(ctx, q_data_dst, dst_buf, reg_addr);
@@ -144,7 +166,7 @@ index 9fe113c..1566078 100644
  
  		rot_mode = CODA_ROT_MIR_ENABLE | ctx->params.rot_mode;
  	}
-@@ -1910,6 +1934,7 @@ static int coda_prepare_decode(struct coda_ctx *ctx)
+@@ -1910,6 +1943,7 @@ static int coda_prepare_decode(struct coda_ctx *ctx)
  	case CODA_DX6:
  		/* TBD */
  	case CODA_7541:
@@ -152,7 +174,7 @@ index 9fe113c..1566078 100644
  		coda_write(dev, CODA_PRE_SCAN_EN, CODA_CMD_DEC_PIC_OPTION);
  		break;
  	case CODA_960:
-@@ -2014,9 +2039,17 @@ static void coda_finish_decode(struct coda_ctx *ctx)
+@@ -2014,9 +2048,17 @@ static void coda_finish_decode(struct coda_ctx *ctx)
  				 ctx->slicebuf.size);
  	}
  
@@ -173,7 +195,7 @@ index 9fe113c..1566078 100644
  
  	q_data_dst = get_q_data(ctx, V4L2_BUF_TYPE_VIDEO_CAPTURE);
  
-@@ -2049,7 +2082,8 @@ static void coda_finish_decode(struct coda_ctx *ctx)
+@@ -2049,7 +2091,8 @@ static void coda_finish_decode(struct coda_ctx *ctx)
  		v4l2_err(&dev->v4l2_dev,
  			 "errors in %d macroblocks\n", err_mb);
  
@@ -183,7 +205,7 @@ index 9fe113c..1566078 100644
  		val = coda_read(dev, CODA_RET_DEC_PIC_OPTION);
  		if (val == 0) {
  			/* not enough bitstream data */
-@@ -2114,11 +2148,16 @@ static void coda_finish_decode(struct coda_ctx *ctx)
+@@ -2114,11 +2157,16 @@ static void coda_finish_decode(struct coda_ctx *ctx)
  			 * should be enough to detect most errors and saves us
  			 * from doing different things based on the format.
  			 */
@@ -205,7 +227,7 @@ index 9fe113c..1566078 100644
  			}
  			ctx->frame_metas[decoded_idx] = *meta;
  			kfree(meta);
-@@ -2171,6 +2210,13 @@ static void coda_finish_decode(struct coda_ctx *ctx)
+@@ -2171,6 +2219,13 @@ static void coda_finish_decode(struct coda_ctx *ctx)
  		dst_buf->flags |= ctx->frame_types[ctx->display_idx];
  		meta = &ctx->frame_metas[ctx->display_idx];
  		dst_buf->timecode = meta->timecode;
@@ -220,7 +242,7 @@ index 9fe113c..1566078 100644
  
  		trace_coda_dec_rot_done(ctx, dst_buf, meta);
 diff --git a/drivers/media/platform/coda/coda-common.c b/drivers/media/platform/coda/coda-common.c
-index e8a7554..6e4766b 100644
+index e8a7554..239458a 100644
 --- a/drivers/media/platform/coda/coda-common.c
 +++ b/drivers/media/platform/coda/coda-common.c
 @@ -77,18 +77,31 @@ MODULE_PARM_DESC(enable_bwb, "Enable BWB unit for decoding, may crash on certain
@@ -348,7 +370,7 @@ index e8a7554..6e4766b 100644
  	dev->regs_base = devm_ioremap_resource(&pdev->dev, res);
  	if (IS_ERR(dev->regs_base))
  		return PTR_ERR(dev->regs_base);
-+	dev_info(&pdev->dev, "coda regs_base=0x%08x\n", dev->regs_base);
++	dev_info(&pdev->dev, "coda regs_base=0x%08x\n", (u32)(dev->regs_base));
  
  	/* IRQ */
  	irq = platform_get_irq_byname(pdev, "bit");
