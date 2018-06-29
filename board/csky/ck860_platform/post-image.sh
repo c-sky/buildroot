@@ -1,3 +1,3 @@
 #!/bin/sh
-cp ./board/csky/ck860_platform/gdbinit
-cp ./board/csky/ck860_platform/readme.txt
+cp ./board/csky/ck860_platform/gdbinit ${BINARIES_DIR}
+cp ./board/csky/ck860_platform/readme.txt ${BINARIES_DIR}
