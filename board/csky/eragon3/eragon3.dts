@@ -22,11 +22,7 @@
 
 	memory {
 		device_type = "memory";
-		/*
-		 * 0x00000000 - 0x00200000: Reserved for VPU work buf
-		 * 0x17c00000 - 0x18000000: Reserved for VPU iram
-		 */
-		reg = <0x00200000 0x17a00000>;
+		reg = <0x01200000 0x16a00000>;
 	};
 
 	aliases {
@@ -450,7 +446,7 @@
 			clock-names = "otg";
 			dr_mode = "host";
 		};
-
+/*
 		vpu_iram: sram@17c00000 {
 			compatible = "mmio-sram";
 			reg = <0x17c00000 0x200000>;
@@ -466,7 +462,7 @@
 			clock-names = "ahb", "per";
 			iram = <&vpu_iram>;
 		};
-
+*/
 		screen_timings: screen_timings {
 			#screen-timings-cells = <2>;
 			display-timings {
