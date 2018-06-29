@@ -36,7 +36,7 @@ stages:
       fi
 
 .run_test: &run_test
-    - echo 'Run test'
+    - echo 'Prepare to run'
     - mkdir -p output/host/
     - tar -xf output/images/csky_toolchain_*.tar.xz -C output/host
     - if [ -f output/images/vmlinux.xz ]; then
@@ -48,10 +48,39 @@ stages:
     - if [ -f output/images/rootfs.cpio.xz ]; then
           xz -d output/images/rootfs.cpio.xz;
       fi
+    - echo 'Run qemu test'
     - |
         ./output/host/csky-ci/run_test.sh || {
             exit 1
         }
+
+.run_local: &run_local
+    - echo 'Prepare to run'
+    - mkdir -p output/host/
+    - tar -xf output/images/csky_toolchain_*.tar.xz -C output/host
+    - if [ -f output/images/vmlinux.xz ]; then
+          xz -d output/images/vmlinux.xz;
+      fi
+    - if [ -f output/images/rootfs.tar.xz ]; then
+          xz -d output/images/rootfs.tar.xz;
+      fi
+    - if [ -f output/images/rootfs.cpio.xz ]; then
+          xz -d output/images/rootfs.cpio.xz;
+      fi
+    - echo 'Run local test'
+    - csky_switch /dev/ttyUSB1 off
+    - sleep 5
+    - csky_switch /dev/ttyUSB1 on
+    - touch /root/DebugServerConsole/.stamp_gdb
+    - sleep 10
+    - |
+        ./output/host/csky-ci/run_test.sh || {
+            touch /root/DebugServerConsole/.stamp_gdb_exit
+            csky_switch /dev/ttyUSB1 off
+            exit 1
+        }
+    - touch /root/DebugServerConsole/.stamp_gdb_exit
+    - csky_switch /dev/ttyUSB1 off
 
 .defconfig: &defconfig
     stage: build
@@ -67,8 +96,6 @@ stages:
             - build.log.xz
             - build.log
 
-csky_gx6605s_defconfig: *defconfig
-csky_gx6605s_fbcon_defconfig: *defconfig
 qemu_csky_ck810f_4.16_uclibc_defconfig: *defconfig
 qemu_csky_ck807_4.9_glibc_defconfig: *defconfig
 qemu_csky_ck807f_4.16_glibc_defconfig: *defconfig
@@ -77,7 +104,12 @@ qemu_csky_ck807_4.16_uclibc_defconfig: *defconfig
 qemu_csky_ck610_4.16_uclibc_defconfig: *defconfig
 qemu_csky_ck610_4.9_glibc_defconfig: *defconfig
 csky_ck810_sc8925_4.9_glibc_bt_defconfig: *defconfig
+csky_ck610_gx6622_4.16_glibc_bt_defconfig: *defconfig
+csky_ck610_gx6622_4.9_uclibc_bt_defconfig: *defconfig
+csky_ck807_eragon_4.9_glibc_bt_defconfig: *defconfig
 csky_ck860_platform_defconfig: *defconfig
+csky_gx6605s_fbcon_defconfig: *defconfig
+csky_gx6605s_defconfig: *defconfig
 
 qemu_csky_ck810f_4.16_uclibc_defconfig_test:
     stage: test
@@ -163,73 +195,11 @@ qemu_csky_ck610_4.16_uclibc_defconfig_test:
             - test.log
             - test_sum.log
 
-#
-# Board local build & test
-#
-.build_local: &build_local
-    - echo 'Configure Buildroot'
-    - make ${CI_BUILD_NAME}
-    - echo 'Build buildroot'
-    - |
-        make > >(tee build.log |grep '>>>') 2>&1 || {
-            echo 'Failed build last output'
-            tail -200 build.log
-            exit 1
-        }
-    - BUILDROOT_VERSION=$(git log --pretty=oneline|awk 'NR==1'|awk '{print $1}')
-    - if [ -f /tmp/gitlab-runner/$BUILDROOT_VERSION/${CI_BUILD_NAME}_test ]; then
-          rm /tmp/gitlab-runner/$BUILDROOT_VERSION/${CI_BUILD_NAME}_test; 
-      fi
-    - rm -rf   /tmp/gitlab-runner/$BUILDROOT_VERSION/${CI_BUILD_NAME}_test
-    - mkdir -p /tmp/gitlab-runner/$BUILDROOT_VERSION/${CI_BUILD_NAME}_test
-    - mv output/host/csky-ci /tmp/gitlab-runner/$BUILDROOT_VERSION/${CI_BUILD_NAME}_test
-    - mv output/images /tmp/gitlab-runner/$BUILDROOT_VERSION/${CI_BUILD_NAME}_test
-
-.run_local: &run_local
-    - echo 'Run test'
-    - csky_switch /dev/ttyUSB1 off
-    - sleep 5
-    - csky_switch /dev/ttyUSB1 on
-    - BUILDROOT_VERSION=$(git log --pretty=oneline|awk 'NR==1'|awk '{print $1}')
-    - if [ ! -d /tmp/gitlab-runner/$BUILDROOT_VERSION/${CI_BUILD_NAME} ]; then
-         exit 1;
-      fi
-    - mkdir -p output/host/
-    - cp /tmp/gitlab-runner/$BUILDROOT_VERSION/${CI_BUILD_NAME}/csky-ci output/host/csky-ci -r
-    - cp /tmp/gitlab-runner/$BUILDROOT_VERSION/${CI_BUILD_NAME}/images output/images -r
-    - tar -xf output/images/csky_toolchain_*.tar.xz -C output/host
-    - touch /root/DebugServerConsole/.stamp_gdb
-    - sleep 10
-    - |
-        ./output/host/csky-ci/run_test.sh || {
-            exit 1
-        }
-    - touch /root/DebugServerConsole/.stamp_gdb_exit
-    - csky_switch /dev/ttyUSB1 off
-
-csky_ck610_gx6622_4.16_glibc_bt_defconfig:
-    stage: build
-    script: *build_local
-    tags:
-      - vmh-ck610-gx-0
-
-csky_ck610_gx6622_4.9_uclibc_bt_defconfig:
-    stage: build
-    script: *build_local
-    tags:
-      - vmh-ck610-gx-0
-
-csky_ck807_eragon_4.9_glibc_bt_defconfig:
-    stage: build
-    script: *build_local
-    tags:
-      - vmh-ck807-eragon-0
-
 csky_ck610_gx6622_4.9_uclibc_bt_defconfig_test:
     stage: test
     tags:
       - vmh-ck610-gx-0
-    script: *run_local 
+    script: *run_local
     dependencies:
       - csky_ck610_gx6622_4.9_uclibc_bt_defconfig
     artifacts:
@@ -242,7 +212,7 @@ csky_ck610_gx6622_4.16_glibc_bt_defconfig_test:
     stage: test
     tags:
       - vmh-ck610-gx-0
-    script: *run_local 
+    script: *run_local
     dependencies:
       - csky_ck610_gx6622_4.16_glibc_bt_defconfig
     artifacts:
@@ -255,7 +225,7 @@ csky_ck807_eragon_4.9_glibc_bt_defconfig_test:
     stage: test
     tags:
       - vmh-ck807-eragon-0
-    script: *run_local 
+    script: *run_local
     dependencies:
       - csky_ck807_eragon_4.9_glibc_bt_defconfig
     artifacts:

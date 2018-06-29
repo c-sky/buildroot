@@ -30,6 +30,10 @@ config BR2_CSKY_VDSP
 	bool "Enable VDSP 3.0 enhanced instructions Co-processor"
 	depends on BR2_ck860
 
+config BR2_CSKY_TRUSTZONE
+	bool "Enable C-SKY TRUST-Zone Feature"
+	depends on BR2_ck810
+
 config BR2_GCC_TARGET_FLOAT_ABI
 	default "soft"		if !BR2_CSKY_FPU
 	default "hard"		if BR2_CSKY_FPU
@@ -45,7 +49,9 @@ config BR2_GCC_TARGET_CPU
 	default "ck807"		if (BR2_ck807 && !BR2_CSKY_FPU && !BR2_CSKY_VDSP)
 	default "ck807f"	if (BR2_ck807 &&  BR2_CSKY_FPU && !BR2_CSKY_VDSP)
 	default "ck810"		if (BR2_ck810 && !BR2_CSKY_FPU && !BR2_CSKY_VDSP)
+	default "ck810t"	if (BR2_ck810 && !BR2_CSKY_FPU && !BR2_CSKY_VDSP && BR2_CSKY_TRUSTZONE)
 	default "ck810f"	if (BR2_ck810 &&  BR2_CSKY_FPU && !BR2_CSKY_VDSP)
+	default "ck810ft"	if (BR2_ck810 &&  BR2_CSKY_FPU && !BR2_CSKY_VDSP && BR2_CSKY_TRUSTZONE)
 	default "ck860"		if (BR2_ck860 && !BR2_CSKY_FPU && !BR2_CSKY_VDSP)
 	default "ck860f"	if (BR2_ck860 &&  BR2_CSKY_FPU && !BR2_CSKY_VDSP)
 	default "ck860v"	if (BR2_ck860 && !BR2_CSKY_FPU &&  BR2_CSKY_VDSP)
