@@ -3,18 +3,21 @@
 #include <dt-bindings/gpio/gpio.h>
 #include <dt-bindings/input/input.h>
 #include "../../../../addons/drivers/pinctrl/pinctrl-csky.h"
-#include "eragon2_evb_clocks.dtsi"
+#include "../../../../addons/drivers/mailbox/mailbox-csky.h"
+#include "eragon2_scpu_evb_clocks.dtsi"
 
+/* To test mailbox without other cpu cores */
+//#define MAILBOX_TEST
 / {
-	model = "csky eragon2_evb";
-	compatible = "csky,eragon2_evb";
+	model = "csky eragon2_scpu_evb";
+	compatible = "csky,eragon2_scpu_evb";
 	#address-cells = <1>;
 	#size-cells = <1>;
 
 	memory {
 		device_type = "memory";
 		/* 0x00000000-0x00100000: Reserved for VPU work buf & iram */
-		reg = <0x00100000 0x17f00000 0x98000000 0x28000000>;
+		reg = <0x00100000 0x17a00000 0x98000000 0x28000000>;
 	};
 
 	cpus {
@@ -708,6 +711,45 @@
 			clocks = <&lspcclk>;
 			status = "disabled";
 		};
+
+		mailbox_eg: mailbox0 {
+				compatible = "csky,mailbox-1.0";
+				reg = <0x1fbd4000 0xb0>;
+				interrupt-parent = <&intc>;
+				interrupts = <47>;
+				dev-id = <0>;
+				#mbox-cells = <1>;
+		};
+#ifdef MAILBOX_TEST
+		mailbox_ls: mailbox1 {
+				compatible = "csky,mailbox-1.0";
+				reg = <0x1fbd4000 0xb0>;
+				interrupt-parent = <&intc>;
+				interrupts = <48>;
+				dev-id = <1>;
+				#mbox-cells = <1>;
+		};
+
+		mailbox_client_eg {
+				compatible		= "csky,mailbox-client";
+				reg				= <0x1fbd4030 0x40>, <0x1fbd4070 0x40>;
+				mbox-names		= "channel";
+				mboxes			= <&mailbox_eg CSKY_MBOX_CHAN_0>;
+		};
+		mailbox_client_ls {
+				compatible		= "csky,mailbox-client";
+				reg				= <0x1fbd4070 0x40>, <0x1fbd4030 0x40>;
+				mbox-names		= "channel";
+				mboxes			= <&mailbox_ls CSKY_MBOX_CHAN_0>;
+		};
+#else
+		ttym_eg {
+				compatible		= "csky,tty_mailbox";
+				reg				= <0x1fbd4030 0x40>, <0x1fbd4070 0x40>;
+				mbox-names		= "channel";
+				mboxes			= <&mailbox_eg CSKY_MBOX_CHAN_0>;
+		};
+#endif
 
 		i2s0: i2s0@1FB90000 {
 			compatible = "csky,i2s-v1";
