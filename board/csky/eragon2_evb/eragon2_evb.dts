@@ -829,7 +829,7 @@
 
 		backlight {
 			compatible = "pwm-backlight";
-			pwms = <&pwm 0 625000>;/* 1.6K Hz */
+			pwms = <&pwm 0 5000000>;/* 200 Hz */
 
 			brightness-levels = <255 253 247 241 225 190 128 1>;
 			default-brightness-level = <7>;
