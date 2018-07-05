@@ -5,7 +5,7 @@ tar jtag jtag://192.168.0.88:1025
 set $cr18=0x7d
 
 # Setup MMU MSA0 reg
-set $mcr30 = 0xc000000e
+set $mcr30 = 0x0000000e
 
 # Enable prefetch (bit 4)
 set $cr31 = 0x1fff

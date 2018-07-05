@@ -12,7 +12,7 @@
 
 	memory {
 		device_type = "memory";
-		reg = <0xC0000000 0x40000000>;
+		reg = <0x00000000 0x80000000>;
 	};
 
 	aliases {
@@ -35,7 +35,7 @@
 
 		intc: interrupt-controller {
 			compatible = "csky,intc-v1";
-			reg = <0x00400000 0x1000>;
+			reg = <0xFFF60000 0x1000>;
 			interrupt-controller;
 			#interrupt-cells = <1>;
 		};
@@ -43,28 +43,28 @@
 		/* clockevent */
 		timer0 {
 			compatible = "snps,dw-apb-timer";
-			reg = <0x01020000 0x1000>;
+			reg = <0xFFF70000 0x1000>;
 			clocks = <&dummy_apb>;
 			clock-names = "timer";
-			interrupts = <1>;
+			interrupts = <0>;
 			interrupt-parent = <&intc>;
 		};
 
 		/* clocksource */
 		timer1 {
 			compatible = "snps,dw-apb-timer";
-			reg = <0x01020014 0x800>;
+			reg = <0xFFF70014 0x800>;
 			clocks = <&dummy_apb>;
 			clock-names = "timer";
-			interrupts = <2>;
+			interrupts = <1>;
 			interrupt-parent = <&intc>;
 		};
 
-		uart0: serial@010A0000 {
+		uart0: serial@FFF73000 {
 			compatible = "snps,dw-apb-uart";
-			reg = <0x010A0000 0x1000>;
+			reg = <0xFFF73000 0x1000>;
 			interrupt-parent = <&intc>;
-			interrupts = <12>;
+			interrupts = <7>;
 			clocks = <&dummy_apb>;
 			clock-names = "baudclk";
 			reg-shift = <2>;
@@ -80,11 +80,11 @@
 			rx-trigger-level = <2>;
 		};
 
-		uart1: serial@010B0000 {
+		uart1: serial@FFF73400 {
 			compatible = "snps,dw-apb-uart";
-			reg = <0x010B0000 0x1000>;
+			reg = <0xFFF73400 0x1000>;
 			interrupt-parent = <&intc>;
-			interrupts = <13>;
+			interrupts = <8>;
 			clocks = <&dummy_apb>;
 			clock-names = "baudclk";
 			reg-shift = <2>;
