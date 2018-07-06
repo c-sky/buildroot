@@ -18,8 +18,8 @@
 //#define TEST_PINMUX
 
 / {
-	model = "csky eragon";
-	compatible = "csky,eragon";
+	model = "csky ytlf";
+	compatible = "csky,ytlf";
 	#address-cells = <1>;
 	#size-cells = <1>;
 
