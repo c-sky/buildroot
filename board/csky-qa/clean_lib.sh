@@ -45,8 +45,9 @@ chown $user:$group -R /home/$user/
 #chown $user:$user /home/$user/.ssh/authorized_keys
 chmod 600 /home/$user/.ssh/authorized_keys
 echo \"sshd:x:74:74:Privilege-separated SSH:/var/empty/sshd:/sbin/nologin\" >>/etc/passwd
-#chmod 600 /usr/local/etc/*
+chmod 600 /usr/local/etc/*
+chmod 600 etc/ssh/ssh_host_*
 /usr/sbin/sshd
 echo \"Finishd sshd !\"
-" > $FS_OVERLAY_DIR/etc/init.d/S70sshd
-chmod +x $FS_OVERLAY_DIR/etc/init.d/S70sshd
+" > $FS_OVERLAY_DIR/etc/init.d/S50sshd
+chmod +x $FS_OVERLAY_DIR/etc/init.d/S50sshd

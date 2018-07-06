@@ -15,7 +15,8 @@ chown toolsbuild:cskyadmin -R /home/toolsbuild/
 #chown toolsbuild:toolsbuild /home/toolsbuild/.ssh/authorized_keys
 chmod 600 /home/toolsbuild/.ssh/authorized_keys
 echo "sshd:x:74:74:Privilege-separated SSH:/var/empty/sshd:/sbin/nologin" >>/etc/passwd
-#chmod 600 /usr/local/etc/*
-/usr/local/bin/sshd
+chmod 600 /usr/local/etc/*
+chmod 600 etc/ssh/ssh_host_*
+/usr/sbin/sshd
 echo "Finishd sshd !"
 
