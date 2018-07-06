@@ -21,7 +21,7 @@ set $cr23 = 0x1018
 set $r1 = 0x9F000000
 
 # Store the devicetree blob(dtb) file to the store address above
-restore ytlf.dtb binary 0x9F000000
+restore output/images/ytlf-mini.dtb binary 0x9F000000
 
 # Load the debugging elf file
 load
