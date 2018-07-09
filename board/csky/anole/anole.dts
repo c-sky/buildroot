@@ -100,6 +100,36 @@
 			rx-trigger-level = <2>;
 		};
 
+		gmac: ethernet@FFFC0000 {
+			compatible = "snps,dwmac";
+			reg = <0xFFFC0000 0x2000>;
+			interrupt-parent = <&intc>;
+			interrupts = <23>;
+			interrupt-names = "macirq";
+			clocks = <&dummy_apb>;
+			clock-names = "stmmaceth";
+			snps,pbl = <32>;
+			snps,fixed-burst;
+
+			/* Use mii now */
+#if 1
+			phy-mode = "mii";
+#else
+			phy-mode = "gmii";
+			phy-handle = <&phy_88E1111>;
+
+			mdio0 {
+				#address-cells = <1>;
+				#size-cells = <0>;
+				compatible = "snps,dwmac-mdio";
+
+				phy_88E1111: ethernet-phy@0 {
+					reg = <0>;
+				};
+			};
+#endif
+		};
+
 #if 0
 		usb_phy: usb-phy@5700ffff {
 			compatible = "snps,usb3-phy";
