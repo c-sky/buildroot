@@ -1,17 +1,28 @@
 # Set the JTAG address according to C-SKY debugserver settings
 tar jtag jtag://192.168.0.88:1025
 
-# CPU cache settings
-set $cr18=0x7d
+# Invalid L1-cache include I/Dcache
+set $cr17 = (1<<4) | 3 | (7<<16)
 
 # Setup MMU MSA0 reg
-set $mcr30 = 0x0000000e
+set $mcr30 = 0x8e
 
-# Enable prefetch (bit 4)
-set $cr31 = 0x1fff
+# Setup CPU features regs
+# Enable MMU, Icache, Dcache, Return Stack, BPB, BTB, IBTB ...
+set $cr31 = 0x0704
+set $cr18 = 0x3087d
 
-# Pass a magic number to Linux kernel for validation.
-set $r0 = 0x20150401
+# Invalid L2 cache by 'exec l2cache.iall'
+set *0x8f000000=0x9820c100
+set $pc=0x8f000000
+si
+
+# Enable L2 cache
+set $cr23 = 0x8
+
+#################################
+# Pass dtb to linux and jmp linux
+#################################
 
 # Pass the devicetree blob(dtb) store address to Linux kernel
 set $r1 = 0x8F000000
@@ -22,5 +33,6 @@ restore anole.dtb binary 0x8F000000
 # Load the debugging elf file
 load
 
-# flush cache
+# Sync I/Dcache before run kernel
 set $cr17 = 0x33
+

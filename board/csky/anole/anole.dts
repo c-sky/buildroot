@@ -5,10 +5,26 @@
 #include "../../../../addons/drivers/pinctrl/pinctrl-csky.h"
 
 / {
-	model = "csky anole";
-	compatible = "csky,anole";
+	model = "csky anole_ck860smp";
+	compatible = "csky,anole_ck860smp";
 	#address-cells = <1>;
 	#size-cells = <1>;
+
+	cpus {
+		#address-cells = <1>;
+		#size-cells = <0>;
+		cpu@0 {
+			device_type = "cpu";
+			reg = <0>;
+			status = "enable";
+		};
+
+		cpu@1 {
+			device_type = "cpu";
+			reg = <1>;
+			status = "enable";
+		};
+	};
 
 	memory {
 		device_type = "memory";
@@ -34,29 +50,16 @@
 		};
 
 		intc: interrupt-controller {
-			compatible = "csky,intc-v1";
-			reg = <0xFFF60000 0x1000>;
+			compatible = "csky,intc-v2";
 			interrupt-controller;
 			#interrupt-cells = <1>;
 		};
 
 		/* clockevent */
-		timer0 {
-			compatible = "snps,dw-apb-timer";
-			reg = <0xFFF70000 0x1000>;
+		timer0: timer {
+			compatible = "csky,timer-v1";
 			clocks = <&dummy_apb>;
-			clock-names = "timer";
-			interrupts = <0>;
-			interrupt-parent = <&intc>;
-		};
-
-		/* clocksource */
-		timer1 {
-			compatible = "snps,dw-apb-timer";
-			reg = <0xFFF70014 0x800>;
-			clocks = <&dummy_apb>;
-			clock-names = "timer";
-			interrupts = <1>;
+			interrupts = <16>;
 			interrupt-parent = <&intc>;
 		};
 
@@ -64,7 +67,7 @@
 			compatible = "snps,dw-apb-uart";
 			reg = <0xFFF73000 0x1000>;
 			interrupt-parent = <&intc>;
-			interrupts = <7>;
+			interrupts = <39>;
 			clocks = <&dummy_apb>;
 			clock-names = "baudclk";
 			reg-shift = <2>;
@@ -84,7 +87,7 @@
 			compatible = "snps,dw-apb-uart";
 			reg = <0xFFF73400 0x1000>;
 			interrupt-parent = <&intc>;
-			interrupts = <8>;
+			interrupts = <40>;
 			clocks = <&dummy_apb>;
 			clock-names = "baudclk";
 			reg-shift = <2>;
@@ -100,11 +103,12 @@
 			rx-trigger-level = <2>;
 		};
 
+#if 0
 		gmac: ethernet@FFFC0000 {
 			compatible = "snps,dwmac";
 			reg = <0xFFFC0000 0x2000>;
 			interrupt-parent = <&intc>;
-			interrupts = <23>;
+			interrupts = <55>;
 			interrupt-names = "macirq";
 			clocks = <&dummy_apb>;
 			clock-names = "stmmaceth";
@@ -129,6 +133,7 @@
 			};
 #endif
 		};
+#endif
 
 #if 0
 		usb_phy: usb-phy@5700ffff {
@@ -176,7 +181,7 @@
 
 	chosen {
 		// bootargs = "console=ttyS2,115200 init=/sbin/init root=/dev/nfs rw nfsroot=172.16.28.184:/home/rtos_nfs/br/rootfs,v3,tcp,nolock ip=172.16.150.100::172.16.150.254:255.255.255.0";
-		bootargs = "console=ttyS0,115200 rdinit=/sbin/init root=/dev/ram0 loglevel=7";
+		bootargs = "console=ttyS0,115200 rdinit=/sbin/init root=/dev/ram0 clk_ignore_unused loglevel=7";
 	};
 };
 
