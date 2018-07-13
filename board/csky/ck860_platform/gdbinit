@@ -5,11 +5,11 @@ tar jtag jtag://127.0.0.1:1025
 set $cr17 = (1<<4) | 3 | (7<<16)
 
 # Setup MMU MSA0 reg
-set $mcr30 = 0x8e
+set $mcr30 = 0xc000008e
 
 # Setup CPU features regs
 # Enable MMU, Icache, Dcache, Return Stack, BPB, BTB, IBTB ...
-set $cr31 = 0x0704
+set $cr31 = 0x0
 set $cr18 = 0x3087d
 
 # Invalid L2 cache by 'exec l2cache.iall'
