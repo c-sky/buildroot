@@ -14,8 +14,7 @@ ifeq ($(BR2_GCC_VERSION_ARC),y)
 GCC_SITE = $(call github,foss-for-synopsys-dwc-arc-processors,gcc,$(GCC_VERSION))
 GCC_SOURCE = gcc-$(GCC_VERSION).tar.gz
 else ifeq ($(BR2_csky),y)
-#GCC_VERSION = 080eee5e337301372ee587b8e7938629fe5e3fb8
-GCC_VERSION = 0b5f4e4cd203a9e950d7f40be20416dcd676d379
+GCC_VERSION = 080eee5e337301372ee587b8e7938629fe5e3fb8
 ifeq ($(BR2_CSKY_GERRIT_REPO),y)
 GCC_SITE = ssh://${GITUSER}@192.168.0.78:29418/tools/gcc
 GCC_FINAL_SITE_METHOD = git
@@ -60,6 +59,7 @@ endif
 ifeq ($(ARCH),csky)
 define HOST_GCC_APPLY_CSKY_PATCH
 	cp package/gcc/csky-patch/linux-unwind.h $(@D)/libgcc/config/csky/
+	cp package/gcc/csky-patch/abiv2_csky_cores.def $(@D)/gcc/config/csky/
 endef
 endif
 
