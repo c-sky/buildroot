@@ -54,7 +54,7 @@ HOST_GDB_DEPENDENCIES += host-flex host-bison
 endif
 
 ifeq ($(BR2_csky),y)
-GDB_VERSION = e1f6e1e6dcb62d1bcd7af9971630a2f2aad7564b
+GDB_VERSION = 4ecb98fbc2f94dbe01b69384afbc515107de73df
 GDB_SITE = $(call github,c-sky,binutils-gdb,$(GDB_VERSION))
 GDB_SOURCE = gdb-$(GDB_VERSION).tar.gz
 GDB_FROM_GIT = y
