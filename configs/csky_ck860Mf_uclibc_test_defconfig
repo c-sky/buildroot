@@ -1,7 +1,6 @@
 BR2_csky=y
 BR2_ck860=y
 BR2_CSKY_FPU=y
-BR2_CSKY_VDSP=y
 BR2_OPTIMIZE_2=y
 BR2_PACKAGE_OVERRIDE_FILE="board/csky/ck860_platform/local.mk"
 BR2_TOOLCHAIN_EXTERNAL=y
