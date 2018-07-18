@@ -59,6 +59,7 @@ endif
 ifeq ($(ARCH),csky)
 define HOST_GCC_APPLY_CSKY_PATCH
 	cp package/gcc/csky-patch/linux-unwind.h $(@D)/libgcc/config/csky/
+	cp package/gcc/csky-patch/abiv2_csky_cores.def $(@D)/gcc/config/csky/
 endef
 endif
 

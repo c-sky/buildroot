@@ -2,10 +2,10 @@
 tar jtag jtag://192.168.0.88:1025
 
 # Setup MMU MSA0 reg
-set $mcr30 = 0x8e
+set $mcr30 = 0xc000008e
 
 # Setup hint reg
-set $cr31 = 0x0704
+set $cr31 = 0x0
 
 # Invalid L1-cache include I/Dcache
 set $cr17 = (1<<4) | 3 | (7<<16)
