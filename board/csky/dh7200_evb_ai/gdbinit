@@ -1,0 +1,7 @@
+# Set the JTAG address according to C-SKY debugserver settings
+tar jtag jtag://192.168.0.88:1025
+set endian little
+# Enable IAS
+set *0xb1000048=0x80000041
+# Load vmlinux
+lo
