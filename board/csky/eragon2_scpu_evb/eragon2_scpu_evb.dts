@@ -483,7 +483,6 @@
 			pcf8563_1: pcf8563_1@51 {
 				compatible = "nxp,pcf8563";
 				reg = <0x51>;
-				status = "disabled";
 			};
 
 			tlv320aic32x4: tlv320aic32x4@18 {
