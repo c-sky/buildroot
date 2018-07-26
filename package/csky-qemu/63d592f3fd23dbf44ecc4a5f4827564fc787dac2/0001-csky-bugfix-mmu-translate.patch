@@ -1,0 +1,80 @@
+From ea939edd97c179c3d1fc589112e9c67f732353b3 Mon Sep 17 00:00:00 2001
+From: Guo Ren <ren_guo@c-sky.com>
+Date: Thu, 26 Jul 2018 09:34:13 +0800
+Subject: [PATCH] csky: bugfix mmu translate
+
+---
+ target-csky/mmu.c | 50 ++++++--------------------------------------------
+ 1 file changed, 6 insertions(+), 44 deletions(-)
+
+diff --git a/target-csky/mmu.c b/target-csky/mmu.c
+index 8007784..0c859dd 100644
+--- a/target-csky/mmu.c
++++ b/target-csky/mmu.c
+@@ -337,57 +337,19 @@ int mmu_get_physical_address(struct CPUCSKYState *env,
+ 
+     super_mode = env->psr_s;
+ 
+-    if (address >= 0x80000000 && address < 0xa0000000) {
++    if (address >= 0x80000000 && address < 0xc0000000) {
+         if (super_mode) {
+-#if !defined(TARGET_CSKYV2)
+             *physical = address - 0x80000000;
+             *prot = PAGE_READ | PAGE_WRITE;
+             return TLBRET_MATCH;
+-#else
+-            if (!(env->mmu.msa0 & 0x2)) {
+-                return TLBRET_INVALID;
+-            }
+-            if (rw == 0 || env->mmu.msa0 & 0x4) {
+-                *physical = address - 0x80000000 + (env->mmu.msa0 & 0xe0000000);
+-                *prot = PAGE_READ;
+-                if (env->mmu.msa0 & 0x4) {
+-                    *prot |= PAGE_WRITE;
+-                }
+-                return TLBRET_MATCH;
+-            }
+-            return TLBRET_DIRTY;
+-#endif
+-        }
+-        return TLBRET_BADADDR;
+-    } else if (address >= 0xa0000000 && address < 0xc0000000) {
+-        if (super_mode) {
+-#if !defined(TARGET_CSKYV2)
+-            *physical = address - 0xa0000000;
+-            *prot = PAGE_READ | PAGE_WRITE;
+-            return TLBRET_MATCH;
+-#else
+-            if (!(env->mmu.msa1 & 0x2)) {
+-                return TLBRET_INVALID;
+-            }
+-            if (rw == 0 || env->mmu.msa1 & 0x4) {
+-                *physical = address - 0xa0000000 + (env->mmu.msa1 & 0xe0000000);
+-                *prot = PAGE_READ;
+-                if (env->mmu.msa1 & 0x4) {
+-                    *prot |= PAGE_WRITE;
+-                }
+-                return TLBRET_MATCH;
+-            }
+-            return TLBRET_DIRTY;
+-#endif
+-        }
+-        return TLBRET_BADADDR;
++        } else
++            return TLBRET_BADADDR;
+     } else if (address >= 0xc0000000) {
+-        if (super_mode) {
++        if (super_mode)
+             goto do_map;
+-        }
+-        return TLBRET_BADADDR;
++        else
++            return TLBRET_BADADDR;
+     }
+-
+ do_map:
+     /* MMU is enable */
+     ASID = env->mmu.meh & 0xff;
+-- 
+2.7.4
+

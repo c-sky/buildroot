@@ -4,12 +4,11 @@
 #
 ################################################################################
 
-ifeq ($(BR2_CSKY_QEMU_GERRIT), y)
 CSKY_QEMU_VERSION = 63d592f3fd23dbf44ecc4a5f4827564fc787dac2
+ifeq ($(BR2_CSKY_QEMU_GERRIT), y)
 CSKY_QEMU_SITE = "ssh://${GITUSER}@192.168.0.78:29418/tools/qemu"
 CSKY_QEMU_SITE_METHOD = git
 else
-CSKY_QEMU_VERSION = 943f291cbaed0744681f51a3632f8ecb8cfbd243
 CSKY_QEMU_SITE = $(call github,c-sky,qemu,$(CSKY_QEMU_VERSION))
 endif
 
@@ -41,6 +40,12 @@ define HOST_CSKY_QEMU_INSTALL_CMDS
 	cp $(@D)/cskyv1-softmmu/qemu-system-cskyv1 $(HOST_DIR)/csky-qemu/bin
 	cp $(@D)/cskyv2-softmmu/qemu-system-cskyv2 $(HOST_DIR)/csky-qemu/bin
 	cp board/qemu/csky/readme.txt $(BINARIES_DIR)/
+endef
+
+define HOST_CSKY_QEMU_APPLY_PATCHES
+	if test -d package/csky-qemu/$(CSKY_QEMU_VERSION); then \
+		$(APPLY_PATCHES) $(@D) $${patchdir} \*.patch || exit 1; \
+	fi
 endef
 
 $(eval $(host-generic-package))
