@@ -185,7 +185,7 @@ qemu_csky_ck807f_4.9_uclibc_defconfig_test:
     stage: test
     script: *run_test
     dependencies:
-      - qemu_csky_ck807_4.9_uclibc_defconfig
+      - qemu_csky_ck807f_4.9_uclibc_defconfig
     artifacts:
         when: always
         expire_in: 2 weeks
@@ -198,7 +198,7 @@ qemu_csky_ck807f_4.9_glibc_defconfig_test:
     stage: test
     script: *run_test
     dependencies:
-      - qemu_csky_ck807_4.9_glibc_defconfig
+      - qemu_csky_ck807f_4.9_glibc_defconfig
     artifacts:
         when: always
         expire_in: 2 weeks
