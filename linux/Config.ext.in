@@ -140,27 +140,8 @@ config BR2_LINUX_KERNEL_EXT_CSKY_ARCH
 
 if BR2_LINUX_KERNEL_EXT_CSKY_ARCH
 
-choice
-	bool "Arch version"
-	help
-	  Select method to get code, github or custom git repo. And you
-	  can define the version or use default.
-
-config BR2_LINUX_KERNEL_EXT_CSKY_ARCH_GITHUB
-	bool "Github"
-
-config BR2_LINUX_KERNEL_EXT_CSKY_ARCH_GIT
-	bool "Custom git repo"
-
-endchoice
-
 config BR2_LINUX_KERNEL_EXT_CSKY_ARCH_VERSION
 	string "Custom arch git version"
-	default ""
-
-config BR2_LINUX_KERNEL_EXT_CSKY_ARCH_GIT_URL
-	string "Git url"
-	depends on BR2_LINUX_KERNEL_EXT_CSKY_ARCH_GIT
 	default ""
 
 endif # csky arch
@@ -177,27 +158,8 @@ config BR2_LINUX_KERNEL_EXT_CSKY_ADDONS
 
 if BR2_LINUX_KERNEL_EXT_CSKY_ADDONS
 
-choice
-	bool "Addons version"
-	help
-	  Select method to get code, github or custom git repo. And you
-	  can define the git version or use default.
-
-config BR2_LINUX_KERNEL_EXT_CSKY_ADDONS_GITHUB
-	bool "Github"
-
-config BR2_LINUX_KERNEL_EXT_CSKY_ADDONS_GIT
-	bool "Custom git repo"
-
-endchoice
-
 config BR2_LINUX_KERNEL_EXT_CSKY_ADDONS_VERSION
 	string "Custom addons git version"
-	default ""
-
-config BR2_LINUX_KERNEL_EXT_CSKY_ADDONS_GIT_URL
-	string "Git url"
-	depends on BR2_LINUX_KERNEL_EXT_CSKY_ADDONS_GIT
 	default ""
 
 endif # csky addons

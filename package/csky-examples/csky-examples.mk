@@ -4,12 +4,17 @@
 #
 ################################################################################
 
+CSKY_EXAMPLES_VERSION = 5cfd4c3e5625adfc9912b6aabc25ba8c2117f71a
+
+ifneq ($(BR2_PACKAGE_CSKY_EXAMPLES_VERSION), "")
 CSKY_EXAMPLES_VERSION = $(BR2_PACKAGE_CSKY_EXAMPLES_VERSION)
-ifeq ($(BR2_PACKAGE_CSKY_EXAMPLES_GITHUB),y)
-CSKY_EXAMPLES_SITE = $(call github,c-sky,linux-sdk-examples,$(CSKY_EXAMPLES_VERSION))
-else
-CSKY_EXAMPLES_SITE = $(BR2_PACKAGE_CSKY_EXAMPLES_GIT_URL)
+endif
+
+ifeq ($(BR2_CSKY_GERRIT_REPO),y)
+CSKY_EXAMPLES_SITE = ssh://${GITUSER}@192.168.0.78:29418/test/linux_driver
 CSKY_EXAMPLES_SITE_METHOD = git
+else
+CSKY_EXAMPLES_SITE = $(call github,c-sky,linux-sdk-examples,$(CSKY_EXAMPLES_VERSION))
 endif
 
 ifeq ($(BR2_PACKAGE_FFMPEG),y)

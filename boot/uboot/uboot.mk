@@ -12,7 +12,19 @@ UBOOT_LICENSE_FILES = Licenses/gpl-2.0.txt
 
 UBOOT_INSTALL_IMAGES = YES
 
-ifeq ($(UBOOT_VERSION),custom)
+ifeq ($(BR2_csky),y)
+BR2_TARGET_UBOOT_CUSTOM_GIT=y
+BR2_TARGET_UBOOT_CUSTOM_REPO_URL = ssh://${GITUSER}@192.168.0.78:29418/os/u-boot
+ifeq ($(BR2_TARGET_UBOOT_CUSTOM_REPO_VERSION), "")
+BR2_TARGET_UBOOT_CUSTOM_REPO_VERSION = 37d82e40662b38f9783d91c4f4184697c70a6380
+endif
+ifeq ($(BR2_CSKY_GERRIT_REPO),y)
+UBOOT_SITE = $(call qstrip,$(BR2_TARGET_UBOOT_CUSTOM_REPO_URL))
+UBOOT_SITE_METHOD = git
+else
+UBOOT_SITE = $(call github,c-sky,csky_uboot,$(BR2_TARGET_UBOOT_CUSTOM_REPO_VERSION))
+endif
+else ifeq ($(UBOOT_VERSION),custom)
 # Handle custom U-Boot tarballs as specified by the configuration
 UBOOT_TARBALL = $(call qstrip,$(BR2_TARGET_UBOOT_CUSTOM_TARBALL_LOCATION))
 UBOOT_SITE = $(patsubst %/,%,$(dir $(UBOOT_TARBALL)))

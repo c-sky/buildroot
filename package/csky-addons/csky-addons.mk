@@ -10,11 +10,15 @@ ifneq ($(BR2_LINUX_KERNEL_EXT_CSKY_ADDONS_VERSION), "")
 CSKY_ADDONS_VERSION = $(BR2_LINUX_KERNEL_EXT_CSKY_ADDONS_VERSION)
 endif
 
-ifeq ($(BR2_LINUX_KERNEL_EXT_CSKY_ADDONS_GITHUB),y)
-CSKY_ADDONS_SITE = $(call github,c-sky,addons-linux,$(CSKY_ADDONS_VERSION))
-else
-CSKY_ADDONS_SITE = $(BR2_LINUX_KERNEL_EXT_CSKY_ADDONS_GIT_URL)
+ifeq ($(BR2_CSKY_GERRIT_REPO),y)
+CSKY_ADDONS_SITE = ssh://${GITUSER}@192.168.0.78:29418/os/linux-csky-addons
 CSKY_ADDONS_SITE_METHOD = git
+else
+CSKY_ADDONS_SITE = $(call github,c-sky,addons-linux,$(CSKY_ADDONS_VERSION))
+endif
+
+ifeq ($(BR2_GERRIT),y)
+BR2_CSKY_GERRIT_REPO=y
 endif
 
 $(eval $(generic-package))
