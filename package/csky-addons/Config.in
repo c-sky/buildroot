@@ -8,5 +8,3 @@ config BR2_PACKAGE_CSKY_ADDONS
 	  Linux addons for C-CSKY CPU
 
 	  This is only the download helper for the kernel patch.
-
-	  https://github.com/c-sky/addons-linux

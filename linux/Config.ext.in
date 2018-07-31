@@ -154,13 +154,20 @@ config BR2_LINUX_KERNEL_EXT_CSKY_ADDONS
 	help
 	  Linux addons for C-SKY from the www.c-sky.com
 
-	  https://github.com/c-sky/csky-addons
+	  default url: https://github.com/c-sky/linux-csky-addons
 
 if BR2_LINUX_KERNEL_EXT_CSKY_ADDONS
 
 config BR2_LINUX_KERNEL_EXT_CSKY_ADDONS_VERSION
 	string "Custom addons git version"
 	default ""
+
+config BR2_LINUX_KERNEL_EXT_CSKY_ADDONS_USE_VENDOR_REPO
+	bool "C-SKY Linux addons"
+	help
+	  Linux addons for C-SKY from the www.c-sky.com
+
+	  change url: https://github.com/c-sky/csky-addons
 
 endif # csky addons
 endmenu
