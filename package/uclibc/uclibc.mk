@@ -5,7 +5,7 @@
 ################################################################################
 
 ifeq ($(BR2_csky),y)
-UCLIBC_VERSION = 3bfaa0f6ee2a5b838609d88485f898bdbc20c7ca
+UCLIBC_VERSION = 74692112a59b5b6db6af8884e55ab2d515d47325
 ifeq ($(BR2_CSKY_GERRIT_REPO),y)
 UCLIBC_SITE = ssh://${GITUSER}@192.168.0.78:29418/tools/uClibc
 UCLIBC_SITE_METHOD = git
