@@ -96,7 +96,6 @@ stages:
             - build.log.xz
             - build.log
 
-csky_ck860_platform_defconfig: *defconfig
 csky_gx6605s_fbcon_defconfig: *defconfig
 csky_gx6605s_defconfig: *defconfig
 
