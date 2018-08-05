@@ -69,10 +69,9 @@ stages:
       fi
     - echo 'Run local test'
     - csky_switch /dev/ttyUSB1 off
-    - sleep 5
     - csky_switch /dev/ttyUSB1 on
     - touch /root/DebugServerConsole/.stamp_gdb
-    - sleep 10
+    - sleep 25
     - |
         ./output/host/csky-ci/run_test.sh || {
             touch /root/DebugServerConsole/.stamp_gdb_exit
