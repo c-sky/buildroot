@@ -7,10 +7,10 @@
 image: maohan001/ubuntu-buildroot
 
 stages:
-  - qemu-build
-  - qemu-test
   - chip-build
   - chip-test
+  - qemu-build
+  - qemu-test
   - multilib-toolchain
 
 .build_buildroot: &build_buildroot
@@ -85,6 +85,21 @@ stages:
 
 .defconfig: &defconfig
     script: *build_buildroot
+    stage: qemu-build
+    cache:
+      paths:
+        - dl/
+    artifacts:
+        when: always
+        expire_in: 2 weeks
+        paths:
+            - output/images/
+            - build.log.xz
+            - build.log
+
+.chip-defconfig: &chip-defconfig
+    script: *build_buildroot
+    stage: chip-build
     cache:
       paths:
         - dl/
@@ -98,7 +113,6 @@ stages:
 
 # qemu ck810f
 qemu_csky_ck810f_4.16_uclibc_defconfig: *defconfig
-    stage: qemu-build
 qemu_csky_ck810f_4.16_uclibc_defconfig_test:
     stage: qemu-test
     script: *qemu_test
@@ -112,7 +126,6 @@ qemu_csky_ck810f_4.16_uclibc_defconfig_test:
             - test_sum.log
 
 qemu_csky_ck810f_4.16_glibc_defconfig: *defconfig
-    stage: qemu-build
 qemu_csky_ck810f_4.16_glibc_defconfig_test:
     stage: qemu-test
     script: *qemu_test
@@ -126,7 +139,6 @@ qemu_csky_ck810f_4.16_glibc_defconfig_test:
             - test_sum.log
 
 qemu_csky_ck810f_4.9_uclibc_defconfig: *defconfig
-    stage: qemu-build
 qemu_csky_ck810f_4.9_uclibc_defconfig_test:
     stage: qemu-test
     script: *qemu_test
@@ -140,7 +152,6 @@ qemu_csky_ck810f_4.9_uclibc_defconfig_test:
             - test_sum.log
 
 qemu_csky_ck810f_4.9_glibc_defconfig: *defconfig
-    stage: qemu-build
 qemu_csky_ck810f_4.9_glibc_defconfig_test:
     stage: qemu-test
     script: *qemu_test
@@ -155,7 +166,6 @@ qemu_csky_ck810f_4.9_glibc_defconfig_test:
 
 # qemu ck807f
 qemu_csky_ck807f_4.16_uclibc_defconfig: *defconfig
-    stage: qemu-build
 qemu_csky_ck807f_4.16_uclibc_defconfig_test:
     stage: qemu-test
     script: *qemu_test
@@ -169,7 +179,6 @@ qemu_csky_ck807f_4.16_uclibc_defconfig_test:
             - test_sum.log
 
 qemu_csky_ck807f_4.16_glibc_defconfig: *defconfig
-    stage: qemu-build
 qemu_csky_ck807f_4.16_glibc_defconfig_test:
     stage: qemu-test
     script: *qemu_test
@@ -183,7 +192,6 @@ qemu_csky_ck807f_4.16_glibc_defconfig_test:
             - test_sum.log
 
 qemu_csky_ck807f_4.9_uclibc_defconfig: *defconfig
-    stage: qemu-build
 qemu_csky_ck807f_4.9_uclibc_defconfig_test:
     stage: qemu-test
     script: *qemu_test
@@ -197,7 +205,6 @@ qemu_csky_ck807f_4.9_uclibc_defconfig_test:
             - test_sum.log
 
 qemu_csky_ck807f_4.9_glibc_defconfig: *defconfig
-    stage: qemu-build
 qemu_csky_ck807f_4.9_glibc_defconfig_test:
     stage: qemu-test
     script: *qemu_test
@@ -212,7 +219,6 @@ qemu_csky_ck807f_4.9_glibc_defconfig_test:
 
 # qemu ck610
 qemu_csky_ck610_4.16_uclibc_defconfig: *defconfig
-    stage: qemu-build
 qemu_csky_ck610_4.16_uclibc_defconfig_test:
     stage: qemu-test
     script: *qemu_test
@@ -226,7 +232,6 @@ qemu_csky_ck610_4.16_uclibc_defconfig_test:
             - test_sum.log
 
 qemu_csky_ck610_4.16_glibc_defconfig: *defconfig
-    stage: qemu-build
 qemu_csky_ck610_4.16_glibc_defconfig_test:
     stage: qemu-test
     script: *qemu_test
@@ -240,7 +245,6 @@ qemu_csky_ck610_4.16_glibc_defconfig_test:
             - test_sum.log
 
 qemu_csky_ck610_4.9_uclibc_defconfig: *defconfig
-    stage: qemu-build
 qemu_csky_ck610_4.9_uclibc_defconfig_test:
     stage: qemu-test
     script: *qemu_test
@@ -254,7 +258,6 @@ qemu_csky_ck610_4.9_uclibc_defconfig_test:
             - test_sum.log
 
 qemu_csky_ck610_4.9_glibc_defconfig: *defconfig
-    stage: qemu-build
 qemu_csky_ck610_4.9_glibc_defconfig_test:
     stage: qemu-test
     script: *qemu_test
@@ -268,16 +271,12 @@ qemu_csky_ck610_4.9_glibc_defconfig_test:
             - test_sum.log
 
 # chip
-csky_ck860_platform_defconfig: *defconfig
-    stage: chip-build
-csky_gx6605s_fbcon_defconfig: *defconfig
-    stage: chip-build
-csky_gx6605s_defconfig: *defconfig
-    stage: chip-build
+csky_ck860_platform_defconfig: *chip-defconfig
+csky_gx6605s_fbcon_defconfig: *chip-defconfig
+csky_gx6605s_defconfig: *chip-defconfig
 
 
-csky_ck610_gx6622_4.9_uclibc_bt_defconfig: *defconfig
-    stage: chip-build
+csky_ck610_gx6622_4.9_uclibc_bt_defconfig: *chip-defconfig
 csky_ck610_gx6622_4.9_uclibc_bt_defconfig_test:
     stage: chip-test
     tags:
@@ -291,8 +290,7 @@ csky_ck610_gx6622_4.9_uclibc_bt_defconfig_test:
             - test.log
             - test_sum.log
 
-csky_ck610_gx6622_4.16_glibc_bt_defconfig: *defconfig
-    stage: chip-build
+csky_ck610_gx6622_4.16_glibc_bt_defconfig: *chip-defconfig
 csky_ck610_gx6622_4.16_glibc_bt_defconfig_test:
     stage: chip-test
     tags:
@@ -306,8 +304,7 @@ csky_ck610_gx6622_4.16_glibc_bt_defconfig_test:
             - test.log
             - test_sum.log
 
-csky_ck807_eragon_4.9_glibc_bt_defconfig: *defconfig
-    stage: chip-build
+csky_ck807_eragon_4.9_glibc_bt_defconfig: *chip-defconfig
 csky_ck807_eragon_4.9_glibc_bt_defconfig_test:
     stage: chip-test
     tags:
