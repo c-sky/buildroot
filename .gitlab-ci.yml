@@ -11,7 +11,7 @@ stages:
   - chip-test
   - qemu-build
   - qemu-test
-  - multilib-toolchain
+  - toolchain-multi-libs
 
 .build_buildroot: &build_buildroot
     - echo 'Configure Buildroot'
@@ -85,6 +85,7 @@ stages:
 
 .defconfig: &defconfig
     script: *build_buildroot
+    dependencies: []
     stage: qemu-build
     cache:
       paths:
@@ -99,6 +100,7 @@ stages:
 
 .chip-defconfig: &chip-defconfig
     script: *build_buildroot
+    dependencies: []
     stage: chip-build
     cache:
       paths:
@@ -275,7 +277,6 @@ csky_ck860_platform_defconfig: *chip-defconfig
 csky_gx6605s_fbcon_defconfig: *chip-defconfig
 csky_gx6605s_defconfig: *chip-defconfig
 
-
 csky_ck610_gx6622_4.9_uclibc_bt_defconfig: *chip-defconfig
 csky_ck610_gx6622_4.9_uclibc_bt_defconfig_test:
     stage: chip-test
@@ -318,13 +319,15 @@ csky_ck807_eragon_4.9_glibc_bt_defconfig_test:
             - test.log
             - test_sum.log
 
-# multilib-toolchain
+# toolchain-multi-libs
 abiv2-uclibc:
-    stage: multilib-toolchain
+    stage: toolchain-multi-libs
+    dependencies: []
     script:
       - echo abiv2-uclibc
 
 abiv2-glibc:
-    stage: multilib-toolchain
+    stage: toolchain-multi-libs
+    dependencies: []
     script:
       - echo abiv2-glibc
