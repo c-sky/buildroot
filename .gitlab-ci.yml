@@ -7,9 +7,11 @@
 image: maohan001/ubuntu-buildroot
 
 stages:
-  - build
-  - test
-  - deploy
+  - qemu-build
+  - qemu-test
+  - chip-build
+  - chip-test
+  - multilib-toolchain
 
 .build_buildroot: &build_buildroot
     - echo 'Configure Buildroot'
@@ -35,7 +37,7 @@ stages:
           xz -z output/images/rootfs.tar;
       fi
 
-.run_test: &run_test
+.qemu_test: &qemu_test
     - echo 'Prepare to run'
     - mkdir -p output/host/
     - tar -xf output/images/csky_toolchain_*.tar.xz -C output/host
@@ -54,7 +56,7 @@ stages:
             exit 1
         }
 
-.run_local: &run_local
+.chip_test: &chip_test
     - echo 'Prepare to run'
     - mkdir -p output/host/
     - tar -xf output/images/csky_toolchain_*.tar.xz -C output/host
@@ -82,28 +84,24 @@ stages:
     - csky_switch /dev/ttyUSB1 off
 
 .defconfig: &defconfig
-    stage: build
     script: *build_buildroot
     cache:
       paths:
         - dl/
     artifacts:
         when: always
-        expire_in: 7 day
+        expire_in: 2 weeks
         paths:
             - output/images/
             - build.log.xz
             - build.log
 
-csky_ck860_platform_defconfig: *defconfig
-csky_gx6605s_fbcon_defconfig: *defconfig
-csky_gx6605s_defconfig: *defconfig
-
-# ck810f
+# qemu ck810f
 qemu_csky_ck810f_4.16_uclibc_defconfig: *defconfig
+    stage: qemu-build
 qemu_csky_ck810f_4.16_uclibc_defconfig_test:
-    stage: test
-    script: *run_test
+    stage: qemu-test
+    script: *qemu_test
     dependencies:
       - qemu_csky_ck810f_4.16_uclibc_defconfig
     artifacts:
@@ -114,9 +112,10 @@ qemu_csky_ck810f_4.16_uclibc_defconfig_test:
             - test_sum.log
 
 qemu_csky_ck810f_4.16_glibc_defconfig: *defconfig
+    stage: qemu-build
 qemu_csky_ck810f_4.16_glibc_defconfig_test:
-    stage: test
-    script: *run_test
+    stage: qemu-test
+    script: *qemu_test
     dependencies:
       - qemu_csky_ck810f_4.16_glibc_defconfig
     artifacts:
@@ -127,9 +126,10 @@ qemu_csky_ck810f_4.16_glibc_defconfig_test:
             - test_sum.log
 
 qemu_csky_ck810f_4.9_uclibc_defconfig: *defconfig
+    stage: qemu-build
 qemu_csky_ck810f_4.9_uclibc_defconfig_test:
-    stage: test
-    script: *run_test
+    stage: qemu-test
+    script: *qemu_test
     dependencies:
       - qemu_csky_ck810f_4.9_uclibc_defconfig
     artifacts:
@@ -140,9 +140,10 @@ qemu_csky_ck810f_4.9_uclibc_defconfig_test:
             - test_sum.log
 
 qemu_csky_ck810f_4.9_glibc_defconfig: *defconfig
+    stage: qemu-build
 qemu_csky_ck810f_4.9_glibc_defconfig_test:
-    stage: test
-    script: *run_test
+    stage: qemu-test
+    script: *qemu_test
     dependencies:
       - qemu_csky_ck810f_4.9_glibc_defconfig
     artifacts:
@@ -152,11 +153,12 @@ qemu_csky_ck810f_4.9_glibc_defconfig_test:
             - test.log
             - test_sum.log
 
-# ck807f
+# qemu ck807f
 qemu_csky_ck807f_4.16_uclibc_defconfig: *defconfig
+    stage: qemu-build
 qemu_csky_ck807f_4.16_uclibc_defconfig_test:
-    stage: test
-    script: *run_test
+    stage: qemu-test
+    script: *qemu_test
     dependencies:
       - qemu_csky_ck807f_4.16_uclibc_defconfig
     artifacts:
@@ -167,9 +169,10 @@ qemu_csky_ck807f_4.16_uclibc_defconfig_test:
             - test_sum.log
 
 qemu_csky_ck807f_4.16_glibc_defconfig: *defconfig
+    stage: qemu-build
 qemu_csky_ck807f_4.16_glibc_defconfig_test:
-    stage: test
-    script: *run_test
+    stage: qemu-test
+    script: *qemu_test
     dependencies:
       - qemu_csky_ck807f_4.16_glibc_defconfig
     artifacts:
@@ -180,9 +183,10 @@ qemu_csky_ck807f_4.16_glibc_defconfig_test:
             - test_sum.log
 
 qemu_csky_ck807f_4.9_uclibc_defconfig: *defconfig
+    stage: qemu-build
 qemu_csky_ck807f_4.9_uclibc_defconfig_test:
-    stage: test
-    script: *run_test
+    stage: qemu-test
+    script: *qemu_test
     dependencies:
       - qemu_csky_ck807f_4.9_uclibc_defconfig
     artifacts:
@@ -193,9 +197,10 @@ qemu_csky_ck807f_4.9_uclibc_defconfig_test:
             - test_sum.log
 
 qemu_csky_ck807f_4.9_glibc_defconfig: *defconfig
+    stage: qemu-build
 qemu_csky_ck807f_4.9_glibc_defconfig_test:
-    stage: test
-    script: *run_test
+    stage: qemu-test
+    script: *qemu_test
     dependencies:
       - qemu_csky_ck807f_4.9_glibc_defconfig
     artifacts:
@@ -205,11 +210,12 @@ qemu_csky_ck807f_4.9_glibc_defconfig_test:
             - test.log
             - test_sum.log
 
-# ck610
+# qemu ck610
 qemu_csky_ck610_4.16_uclibc_defconfig: *defconfig
+    stage: qemu-build
 qemu_csky_ck610_4.16_uclibc_defconfig_test:
-    stage: test
-    script: *run_test
+    stage: qemu-test
+    script: *qemu_test
     dependencies:
       - qemu_csky_ck610_4.16_uclibc_defconfig
     artifacts:
@@ -220,9 +226,10 @@ qemu_csky_ck610_4.16_uclibc_defconfig_test:
             - test_sum.log
 
 qemu_csky_ck610_4.16_glibc_defconfig: *defconfig
+    stage: qemu-build
 qemu_csky_ck610_4.16_glibc_defconfig_test:
-    stage: test
-    script: *run_test
+    stage: qemu-test
+    script: *qemu_test
     dependencies:
       - qemu_csky_ck610_4.16_glibc_defconfig
     artifacts:
@@ -233,9 +240,10 @@ qemu_csky_ck610_4.16_glibc_defconfig_test:
             - test_sum.log
 
 qemu_csky_ck610_4.9_uclibc_defconfig: *defconfig
+    stage: qemu-build
 qemu_csky_ck610_4.9_uclibc_defconfig_test:
-    stage: test
-    script: *run_test
+    stage: qemu-test
+    script: *qemu_test
     dependencies:
       - qemu_csky_ck610_4.9_uclibc_defconfig
     artifacts:
@@ -246,9 +254,10 @@ qemu_csky_ck610_4.9_uclibc_defconfig_test:
             - test_sum.log
 
 qemu_csky_ck610_4.9_glibc_defconfig: *defconfig
+    stage: qemu-build
 qemu_csky_ck610_4.9_glibc_defconfig_test:
-    stage: test
-    script: *run_test
+    stage: qemu-test
+    script: *qemu_test
     dependencies:
       - qemu_csky_ck610_4.9_glibc_defconfig
     artifacts:
@@ -258,13 +267,22 @@ qemu_csky_ck610_4.9_glibc_defconfig_test:
             - test.log
             - test_sum.log
 
-# board
+# chip
+csky_ck860_platform_defconfig: *defconfig
+    stage: chip-build
+csky_gx6605s_fbcon_defconfig: *defconfig
+    stage: chip-build
+csky_gx6605s_defconfig: *defconfig
+    stage: chip-build
+
+
 csky_ck610_gx6622_4.9_uclibc_bt_defconfig: *defconfig
+    stage: chip-build
 csky_ck610_gx6622_4.9_uclibc_bt_defconfig_test:
-    stage: test
+    stage: chip-test
     tags:
       - vmh-ck610-gx-0
-    script: *run_local
+    script: *chip_test
     dependencies:
       - csky_ck610_gx6622_4.9_uclibc_bt_defconfig
     artifacts:
@@ -274,11 +292,12 @@ csky_ck610_gx6622_4.9_uclibc_bt_defconfig_test:
             - test_sum.log
 
 csky_ck610_gx6622_4.16_glibc_bt_defconfig: *defconfig
+    stage: chip-build
 csky_ck610_gx6622_4.16_glibc_bt_defconfig_test:
-    stage: test
+    stage: chip-test
     tags:
       - vmh-ck610-gx-0
-    script: *run_local
+    script: *chip_test
     dependencies:
       - csky_ck610_gx6622_4.16_glibc_bt_defconfig
     artifacts:
@@ -288,11 +307,12 @@ csky_ck610_gx6622_4.16_glibc_bt_defconfig_test:
             - test_sum.log
 
 csky_ck807_eragon_4.9_glibc_bt_defconfig: *defconfig
+    stage: chip-build
 csky_ck807_eragon_4.9_glibc_bt_defconfig_test:
-    stage: test
+    stage: chip-test
     tags:
       - vmh-ck807-eragon-0
-    script: *run_local
+    script: *chip_test
     dependencies:
       - csky_ck807_eragon_4.9_glibc_bt_defconfig
     artifacts:
@@ -301,9 +321,13 @@ csky_ck807_eragon_4.9_glibc_bt_defconfig_test:
             - test.log
             - test_sum.log
 
-# deploy
-deploy_github:
-    stage: deploy
+# multilib-toolchain
+abiv2-uclibc:
+    stage: multilib-toolchain
     script:
-      - echo deploy
+      - echo abiv2-uclibc
 
+abiv2-glibc:
+    stage: multilib-toolchain
+    script:
+      - echo abiv2-glibc
