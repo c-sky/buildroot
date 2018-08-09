@@ -5,7 +5,7 @@
 ################################################################################
 
 ifeq ($(BR2_csky),y)
-UCLIBC_VERSION = ffac6413047d3c36db714b3069219a8ab469199e
+UCLIBC_VERSION = 3d2bff45a6b2017f3d43d6b21d886bd8bdee4920
 ifeq ($(BR2_CSKY_GERRIT_REPO),y)
 UCLIBC_SITE = ssh://${GITUSER}@192.168.0.78:29418/tools/uClibc
 UCLIBC_SITE_METHOD = git
@@ -155,6 +155,30 @@ endef
 endif
 
 endif # arm
+
+#
+# C-SKY definitions
+#
+
+ifeq ($(UCLIBC_TARGET_ARCH),csky)
+ifeq ($(BR2_ck610),y)
+define UCLIBC_CSKY_ABI_CONFIG
+	$(SED) '/.*CSKY_ABI.*/d' $(@D)/.config
+	$(SED) '/^TARGET_SUBARCH.*/d' $(@D)/.config
+	$(call KCONFIG_ENABLE_OPT,CSKY_ABIV1,$(@D)/.config)
+	$(call KCONFIG_DISABLE_OPT,CSKY_ABIV2,$(@D)/.config)
+	$(call KCONFIG_SET_OPT,TARGET_SUBARCH,"cskyv1",$(@D)/.config)
+endef
+else
+define UCLIBC_CSKY_ABI_CONFIG
+	$(SED) '/.*CSKY_ABI.*/d' $(@D)/.config
+	$(SED) '/^TARGET_SUBARCH.*/d' $(@D)/.config
+	$(call KCONFIG_ENABLE_OPT,CSKY_ABIV2,$(@D)/.config)
+	$(call KCONFIG_DISABLE_OPT,CSKY_ABIV1,$(@D)/.config)
+	$(call KCONFIG_SET_OPT,TARGET_SUBARCH,"cskyv2",$(@D)/.config)
+endef
+endif
+endif # csky
 
 #
 # m68k/coldfire definitions
@@ -420,6 +444,7 @@ define UCLIBC_KCONFIG_FIXUP_CMDS
 	$(UCLIBC_ARM_ABI_CONFIG)
 	$(UCLIBC_ARM_BINFMT_FLAT)
 	$(UCLIBC_ARM_NO_CONTEXT_FUNCS)
+	$(UCLIBC_CSKY_ABI_CONFIG)
 	$(UCLIBC_M68K_BINFMT_FLAT)
 	$(UCLIBC_MIPS_ABI_CONFIG)
 	$(UCLIBC_MIPS_NAN_CONFIG)
