@@ -8,7 +8,7 @@ ifeq ($(BR2_arc),y)
 GLIBC_VERSION =  arc-2017.09-release
 GLIBC_SITE = $(call github,foss-for-synopsys-dwc-arc-processors,glibc,$(GLIBC_VERSION))
 else ifeq ($(BR2_csky),y)
-GLIBC_VERSION = cf2da50a27c53845a150181c890fb10b358ad26c
+GLIBC_VERSION = 58cfa083d9895ffde2438a2fe8b835751aaa115c
 ifeq ($(BR2_CSKY_GERRIT_REPO),y)
 GLIBC_SITE = ssh://${GITUSER}@192.168.0.78:29418/tools/glibc
 GLIBC_SITE_METHOD = git
