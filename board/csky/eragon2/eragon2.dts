@@ -13,7 +13,7 @@
 
 	memory {
 		device_type = "memory";
-		reg = <0x00200000 0x17800000>;	// Reserve for loongson uboot
+		reg = <0x00100000 0x17800000>;	// Reserve for loongson uboot
 	};
 
 	aliases {
@@ -78,7 +78,7 @@
 		};
 
 		intc: interrupt-controller {
-			compatible = "csky,intc-v1";
+			compatible = "csky,apb-intc";
 			reg = <0x1FBA3000 0x1000>;
 			interrupt-controller;
 			#interrupt-cells = <1>;
@@ -110,12 +110,15 @@
 			compatible = "csky,pinctrl-v1";
 			reg = <0x1fbac008 0x4>;
 
+			interrupt-parent = <&intc>;
+			interrupts = <0>, <1>, <2>, <3>;
 			#address-cells = <1>;
 			#size-cells = <1>;
 			ranges;
 
 			gpio0: gpio0@1fbac000 {
 				compatible = "csky,gpio-bank-v1";
+				interrupts = <0>;
 				reg = <0x1fbac000 0x1000>;
 
 				gpio-controller;
@@ -127,6 +130,7 @@
 
 			gpio1: gpio1@1fbad000 {
 				compatible = "csky,gpio-bank-v1";
+				interrupts = <1>;
 				reg = <0x1fbad000 0x1000>;
 
 				gpio-controller;
@@ -138,6 +142,7 @@
 
 			gpio2: gpio2@1fbae000 {
 				compatible = "csky,gpio-bank-v1";
+				interrupts = <2>;
 				reg = <0x1fbae000 0x1000>;
 
 				gpio-controller;
@@ -149,6 +154,7 @@
 
 			gpio3: gpio3@1fbaf000 {
 				compatible = "csky,gpio-bank-v1";
+				interrupts = <3>;
 				reg = <0x1fbaf000 0x1000>;
 
 				gpio-controller;
