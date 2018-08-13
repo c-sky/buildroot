@@ -1,0 +1,181 @@
+/dts-v1/;
+#include <dt-bindings/interrupt-controller/irq.h>
+#include <dt-bindings/gpio/gpio.h>
+#include <dt-bindings/input/input.h>
+#include "../../../../addons/drivers/pinctrl/pinctrl-csky.h"
+
+/ {
+	model = "csky anole";
+	compatible = "csky,anole";
+	#address-cells = <1>;
+	#size-cells = <1>;
+
+	memory {
+		device_type = "memory";
+		reg = <0x00000000 0x80000000>;
+	};
+
+	aliases {
+		serial0 = &uart0;
+		serial1 = &uart1;
+	};
+
+	soc {
+		#address-cells = <1>;
+		#size-cells = <1>;
+		compatible = "simple-bus";
+		ranges;
+
+		dummy_apb: apb-clock {
+			compatible = "fixed-clock";
+			clock-frequency = <50000000>;
+			clock-output-names = "dummy_apb";
+			#clock-cells = <0>;
+		};
+
+		intc: interrupt-controller {
+			compatible = "csky,intc-v1";
+			reg = <0xFFF60000 0x1000>;
+			interrupt-controller;
+			#interrupt-cells = <1>;
+		};
+
+		/* clockevent */
+		timer0 {
+			compatible = "snps,dw-apb-timer";
+			reg = <0xFFF70000 0x1000>;
+			clocks = <&dummy_apb>;
+			clock-names = "timer";
+			interrupts = <0>;
+			interrupt-parent = <&intc>;
+		};
+
+		/* clocksource */
+		timer1 {
+			compatible = "snps,dw-apb-timer";
+			reg = <0xFFF70014 0x800>;
+			clocks = <&dummy_apb>;
+			clock-names = "timer";
+			interrupts = <1>;
+			interrupt-parent = <&intc>;
+		};
+
+		uart0: serial@FFF73000 {
+			compatible = "snps,dw-apb-uart";
+			reg = <0xFFF73000 0x1000>;
+			interrupt-parent = <&intc>;
+			interrupts = <7>;
+			clocks = <&dummy_apb>;
+			clock-names = "baudclk";
+			reg-shift = <2>;
+			reg-io-width = <4>;
+			fifo-size = <16>;
+			/*
+			 * rx-trigger-level:
+			 *     0 - 1 character
+			 *     1 - 1/4 full
+			 *     2 - 1/2 full
+			 *     3 - (fifo size - 2)
+			 */
+			rx-trigger-level = <2>;
+		};
+
+		uart1: serial@FFF73400 {
+			compatible = "snps,dw-apb-uart";
+			reg = <0xFFF73400 0x1000>;
+			interrupt-parent = <&intc>;
+			interrupts = <8>;
+			clocks = <&dummy_apb>;
+			clock-names = "baudclk";
+			reg-shift = <2>;
+			reg-io-width = <4>;
+			fifo-size = <16>;
+			/*
+			 * rx-trigger-level:
+			 *     0 - 1 character
+			 *     1 - 1/4 full
+			 *     2 - 1/2 full
+			 *     3 - (fifo size - 2)
+			 */
+			rx-trigger-level = <2>;
+		};
+
+		gmac: ethernet@FFFC0000 {
+			compatible = "snps,dwmac";
+			reg = <0xFFFC0000 0x2000>;
+			interrupt-parent = <&intc>;
+			interrupts = <23>;
+			interrupt-names = "macirq";
+			clocks = <&dummy_apb>;
+			clock-names = "stmmaceth";
+			snps,pbl = <32>;
+			snps,fixed-burst;
+
+#if 0
+			phy-mode = "mii";
+#else
+			phy-mode = "gmii";
+			phy-handle = <&phy_88E1111>;
+
+			mdio0 {
+				#address-cells = <1>;
+				#size-cells = <0>;
+				compatible = "snps,dwmac-mdio";
+
+				phy_88E1111: ethernet-phy@0 {
+					reg = <0>;
+				};
+			};
+#endif
+		};
+
+#if 0
+		usb_phy: usb-phy@5700ffff {
+			compatible = "snps,usb3-phy";
+			reg = <0x5700ffff 0x10000>;
+			reg-names = "phy";
+			#phy-cells = <0>;
+		};
+
+		usb: dwc3@50f00000 {
+			compatible = "snps,dwc3";
+			reg = <0x50f00000 0x10000>;
+			interrupts = <27>
+			usb-phy = <&usb_phy>;
+			maximum-speed = "super-speed";
+			dr_mode = "peripheral";
+			g-rx-fifo-size = <256>;
+			g-tx-fifo-size = <256>;
+			g-np-tx-fifo-size = <256>;
+		};
+
+		pcie_ep: pcie_ep@1fa20000 {
+			compatible = "csky,csky-pcie-ep";
+			/* DBI: Data Bus Interface;  conf: Config; space: 0x10000000 = 256MB */
+			reg = <0x1fa20000 0x28>, <0x1fa22000 0x14c>, <0x1fa21000 0x28>, <0x1000 0x8000>;
+			reg-names = "ep_dbics", "csky_conf", "ep_dbics2", "addr_space";
+
+			interrupt-parent = <&intc>;
+			interrupts = <50>;
+			max-link-speed = <3>;	/* Must be '4' for gen4, '3' for gen3, ... Any other values are invalid. */
+			num-lanes = <2>;
+			num-ib-windows = <4>;	/* number of inbound address translation windows, use for ATU(Address Translation Unit) */
+			num-ob-windows = <16>;	/* Outbound */
+
+			/* Below are TI's phy difination
+			phys = <&pcie1_phy>;
+			phy-names = "pcie-phy0";
+			ti,syscon-unaligned-access = <&scm_conf1 0x14 2>;
+			*/
+
+			status = "ok";
+		};
+#endif
+	};
+
+	chosen {
+		// bootargs = "console=ttyS2,115200 init=/sbin/init root=/dev/nfs rw nfsroot=172.16.28.184:/home/rtos_nfs/br/rootfs,v3,tcp,nolock ip=172.16.150.100::172.16.150.254:255.255.255.0";
+		bootargs = "console=ttyS0,115200 rdinit=/sbin/init root=/dev/ram0 clk_ignore_unused loglevel=7";
+	};
+};
+
