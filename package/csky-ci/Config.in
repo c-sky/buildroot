@@ -17,9 +17,4 @@ config BR2_PACKAGE_CSKY_CI_LMBENCH
 	bool "csky-ci-lmbench"
 	depends on BR2_PACKAGE_CSKY_CI
 	select BR2_PACKAGE_LMBENCH
-
-config BR2_PACKAGE_CSKY_CI_DHRYSTONE
-	bool "csky-ci-dhrystone"
-	depends on BR2_PACKAGE_CSKY_CI
-	select BR2_PACKAGE_DHRYSTONE
 endmenu
