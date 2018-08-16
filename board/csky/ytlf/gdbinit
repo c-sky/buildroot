@@ -1,9 +1,6 @@
 # Set the JTAG address according to C-SKY debugserver settings
 tar jtag jtag://172.16.150.27:1025
 
-# Setup MMU MSA0 reg
-set $mcr30 = 0x8000000e
-
 # Setup hint reg
 set $cr31 = 0x1ff
 
@@ -18,10 +15,10 @@ set $cr24 = (1<<4)
 set $cr23 = 0x1018
 
 # Pass the devicetree blob(dtb) store address to Linux kernel
-set $r1 = 0x9F000000
+set $r1 = 0x8F000000
 
 # Store the devicetree blob(dtb) file to the store address above
-restore output/images/ytlf-mini.dtb binary 0x9F000000
+restore output/images/ytlf-mini.dtb binary 0x8F000000
 
 # Load the debugging elf file
 load
