@@ -1,7 +1,46 @@
 # Set the JTAG address according to C-SKY debugserver settings
 tar jtag jtag://192.168.0.88:1025
 set endian little
-# Enable IAS
+
+# Enable NPU
 set *0xb1000048=0x80000041
+
+# Set PLL
+set *0xb1001000=0xfffffffe
+
+# Enable isif 0/1/2/3 clk
+set *0xb100002c=0x01010101
+
+# Sensor0 is MIPI, default. and 0x11000038[25]=0
+set *0xb100302c=0x00000001
+
+# Enable isp/vou axi/mipi pixel clk, isp clk 400MHZ
+set *0xb1000038=0xe1041041
+
+# Enable vps clk, sel 475.2Mhz
+set *0xb100003c=0x80000041
+
+# Enable avc clk, sel 475.2Mhz
+set *0xb1000040=0x80000041
+
+# Enable jpeg clk, sel 475.2Mhz
+set *0xb1000044=0x80000041
+
+# Enable hevc clk, sel 450Mhz
+set *0xb1000050=0x80000041
+set *0xb100101c=0x08080808
+set *0xb1001020=0x08080808
+set *0xb1001024=0x00000808
+
+# Enable four sensor ref clk, sel 24Mhz for vi fps = 20
+#set *0xb1000054=0xF00006bd
+
+# Enable four sensor ref clk, sel 37Mhz for vi fps = 30
+set *0xb1000054=0xF0000b6d
+
+# set avc
+set *0xb1000044=0x80000041
+set *0xb1000040=0x80000041
+
 # Load vmlinux
 lo
