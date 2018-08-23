@@ -1,19 +1,19 @@
 Build from buildroot
 ====================
 
-  $ git clone https://github.com/c-sky/buildroot.git
+  $ git clone https://gitlab.com/c-sky/buildroot.git
   $ cd buildroot
-  $ make qemu_csky_ck807f_4.16_glibc_defconfig
+  $ git checkout <buildroot-version>
+  $ make <buildroot-config>
   $ make
 
 Result of the build
 -------------------
 
-After building, you should obtain this tree:
-
     output/images/
-    ├── csky_toolchain_qemu_csky_ck807f_4.16_glibc_defconfig_<commit-id>.tar.xz
-    ├── linux-4.16.2.patch.xz
+    ├── csky_buildroot_version.txt (Contain version details)
+    ├── <buildroot-config>_<buildroot-version>.tar.xz
+    ├── linux-<kernel-version>.patch.xz
     ├── qemu.dtb
     ├── rootfs.cpio.xz
     └── vmlinux.xz
@@ -21,30 +21,37 @@ After building, you should obtain this tree:
 How to Run
 ==========
 
-  $ <csky_toolchain dir>/csky-qemu/bin/qemu-system-cskyv2 -machine virt -kernel vmlinux -dtb qemu.dtb -nographic
+Download all files above.
 
-  - qemu-system-cskyv2 is from "tar -Jxf csky_toolchain_<...>.tar.xz"
-  - vmlinux is from "xz -d vmlinux.xz"
+  $ xz -d vmlinux.xz
+  $ mkdir toolchain
+  $ cd toolchain
+  $ tar -Jxf ../<buildroot-config>_<buildroot-version>.tar.xz
+  $ cd ..
+  $ toolchain/csky-qemu/bin/qemu-system-csky -machine virt -kernel vmlinux -dtb qemu.dtb -nographic
 
 Run with network
-================
 
-  You need setup tap0 in your host PC, then execute:
+  You need setup tap0 in your host PC first, and then execute:
 
-  $ <csky_toolchain dir>/csky-qemu/bin/qemu-system-cskyv2 -machine virt -kernel vmlinux -dtb qemu.dtb -nographic -net nic -net tap,ifname=tap0
+  $ toolchain/csky-qemu/bin/qemu-system-csky -machine virt -kernel vmlinux -dtb qemu.dtb -nographic -net nic -net tap,ifname=tap0
 
-Build kernel alone
+Build linux kernel
 ==================
 
-  - Download the clean kernel source from kernel.org
-  $ wget https://cdn.kernel.org/pub/linux/kernel/v4.x/linux-4.16.2.tar.xz
-  $ tar -Jxf linux-4.16.2.tar.xz
+Download the clean kernel source from kernel.org
+
+  $ wget https://cdn.kernel.org/pub/linux/kernel/v4.x/linux-<kernel-version>.tar.xz
+  $ tar -Jxf linux-<kernel-version>.tar.xz
 
   $ xz -d rootfs.cpio.xz
-  $ xz -d linux-4.16.2.patch.xz
+  $ xz -d linux-<kernel-version>.patch.xz
 
-  - patch and make
-  $ cd linux-4.16.2
-  $ patch -p1 < ../linux-4.16.2.patch
-  $ BR_BINARIES_DIR=.. make ARCH=csky CROSS_COMPILE=<csky_toolchain dir>/bin/csky-linux- vmlinux
+Patch linux kernel
 
+  $ cd linux-<kernel-version>
+  $ patch -p1 < ../linux-<kernel-version>.patch
+
+Build linux kernel
+
+  $ BR_BINARIES_DIR=.. make ARCH=csky CROSS_COMPILE=../toolchain/bin/csky-linux- vmlinux
