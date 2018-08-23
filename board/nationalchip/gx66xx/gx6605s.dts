@@ -3,8 +3,8 @@
 #include <dt-bindings/input/input.h>
 
 / {
-	model = "Nationalchip csky gx6605s";
-	compatible = "csky,nationalchip-gx6605s";
+	model = "NationalChip gx6605s";
+	compatible = "natchip,gx6605s";
 	#address-cells = <1>;
 	#size-cells = <1>;
 
@@ -19,13 +19,6 @@
 		compatible = "simple-bus";
 		ranges;
 
-		intc: interrupt-controller {
-			compatible = "nationalchip,intc-v1,ave";
-			reg = <0x00500000 0x400>;
-			interrupt-controller;
-			#interrupt-cells = <1>;
-		};
-
 		dummy_apb: apb-clock {
 			compatible = "fixed-clock";
 			clock-frequency = <27000000>;
@@ -33,8 +26,15 @@
 			#clock-cells = <0>;
 		};
 
+		intc: interrupt-controller {
+			compatible = "natchip,gx6605s-intc";
+			reg = <0x00500000 0x400>;
+			interrupt-controller;
+			#interrupt-cells = <1>;
+		};
+
 		timer0 {
-			compatible = "nationalchip,timer-v1";
+			compatible = "natchip,gx6605s-timer";
 			reg = <0x0020a000 0x400>;
 			clocks = <&dummy_apb>;
 			interrupts = <10>;
