@@ -5,6 +5,7 @@
 ################################################################################
 
 CSKY_AI_VERSION = 7d6458af147f82d3d3ed38261040ee9c06e0bf20
+CSKY_AI_DEPENDENCIES = linux
 
 ifneq ($(BR2_PACKAGE_CSKY_AI_VERSION), "")
 CSKY_AI_VERSION = $(BR2_PACKAGE_CSKY_AI_VERSION)
@@ -39,6 +40,7 @@ endef
 
 define CSKY_AI_INSTALL_TARGET_CMDS
 	@echo ">>> Copy NPU driver/lib into target rootfs ..."
+	@mkdir -p $(TARGET_DIR)/ko
 	@cp -v $(CSKY_NPU_SDK_DIR)/install/ko/*.ko $(TARGET_DIR)/ko/
 	@cp -v $(CSKY_NPU_SDK_DIR)/install/lib/*.so $(TARGET_DIR)/lib/
 	@echo ">>> NPU driver/lib Install OK"
