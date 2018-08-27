@@ -1,0 +1,18 @@
+menu "C-SKY AI"
+config BR2_PACKAGE_CSKY_AI
+	bool "C-SKY AI Related"
+	depends on BR2_LINUX_KERNEL
+	depends on BR2_LINUX_KERNEL_CUSTOM_CONFIG_FILE = "board/csky/dh7200_evb_ai/linux.config"
+	help
+	  C-SKY AI (Artificial Intelligence) related package from www.c-sky.com
+
+	  https://github.com/c-sky/linux-ai
+
+if BR2_PACKAGE_CSKY_AI
+config BR2_PACKAGE_CSKY_AI_VERSION
+	string "Git version"
+	default ""
+endif
+
+source "package/csky-ai/Config.in.options"
+endmenu
