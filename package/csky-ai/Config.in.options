@@ -1,0 +1,9 @@
+if BR2_PACKAGE_CSKY_AI
+
+config BR2_PACKAGE_CSKY_AI_DEMO_VOD
+	bool "C-SKY AI demo of Video Object Detection"
+	default y
+	help
+	  Select this option if you want to build ai-demo of Video Object Dection.
+
+endif
