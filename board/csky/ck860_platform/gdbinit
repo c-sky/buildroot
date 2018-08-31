@@ -18,7 +18,7 @@ set $pc=0x8f000000
 si
 
 # Enable L2 cache
-set $cr23 = 0x8
+set $cr23 = 0x0
 
 #################################
 # Pass dtb to linux and jmp linux
