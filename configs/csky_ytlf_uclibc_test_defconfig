@@ -1,6 +1,7 @@
 BR2_csky=y
 BR2_ck810=y
 BR2_CSKY_FPU=y
+BR2_CSKY_GERRIT_REPO=y
 BR2_OPTIMIZE_2=y
 BR2_PACKAGE_OVERRIDE_FILE="board/csky/ytlf/local.mk"
 BR2_GLOBAL_PATCH_DIR="board/csky/common/linux-$(BR2_LINUX_KERNEL_CUSTOM_VERSION_VALUE)-patches"
