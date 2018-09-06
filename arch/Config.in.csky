@@ -64,5 +64,9 @@ config BR2_CSKY_GERRIT_REPO
 	bool "Use gerrit repo"
 	default n
 
+config BR2_CSKY_UPSTREAM
+	bool "Use CKUPS_XXX_VERSION in arch-csky,glibc,uclibc,ucligc-ng-test"
+	default n
+
 source "package/Config.in.csky"
 

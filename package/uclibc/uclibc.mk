@@ -5,7 +5,13 @@
 ################################################################################
 
 ifeq ($(BR2_csky),y)
-UCLIBC_VERSION = d3f4207b45475ab375e907f96a1f69b43190edde
+CKUPS_UCLIBC_VERSION = d3f4207b45475ab375e907f96a1f69b43190edde
+CKTST_UCLIBC_VERSION = d3f4207b45475ab375e907f96a1f69b43190edde
+ifeq ($(BR2_CSKY_UPSTREAM),y)
+UCLIBC_VERSION = $(CKUPS_UCLIBC_VERSION)
+else
+UCLIBC_VERSION = $(CKTST_UCLIBC_VERSION)
+endif
 ifeq ($(BR2_CSKY_GERRIT_REPO),y)
 UCLIBC_SITE = ssh://${GITUSER}@192.168.0.78:29418/tools/uClibc
 UCLIBC_SITE_METHOD = git
