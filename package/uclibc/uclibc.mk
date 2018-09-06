@@ -5,8 +5,8 @@
 ################################################################################
 
 ifeq ($(BR2_csky),y)
-CKUPS_UCLIBC_VERSION = 72129b989a23632cf92383b6cc50bdf4d43a554a
-CKTST_UCLIBC_VERSION = 72129b989a23632cf92383b6cc50bdf4d43a554a
+CKUPS_UCLIBC_VERSION = 1e6c40d87a6a776a546e326bc8ddeac9f6a0cf2b
+CKTST_UCLIBC_VERSION = 1e6c40d87a6a776a546e326bc8ddeac9f6a0cf2b
 ifeq ($(BR2_CSKY_UPSTREAM),y)
 UCLIBC_VERSION = $(CKUPS_UCLIBC_VERSION)
 else
