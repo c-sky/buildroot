@@ -208,6 +208,9 @@ endif
 ifneq ($(BR2_CCACHE_DIR),)
 BR_CACHE_DIR := $(BR2_CCACHE_DIR)
 endif
+ifeq ($(BR2_CSKY_GERRIT),y)
+BR2_CSKY_GERRIT_REPO=y
+endif
 
 # Need that early, before we scan packages
 # Avoids doing the $(or...) everytime
