@@ -5,10 +5,8 @@ tar jtag jtag://192.168.0.88:1025
 set height 0
 
 # CPU cache settings
+set $cr31 = 0
 set $cr18=0x7d
-
-# Enable prefetch (bit 4)
-set $cr31 = (1 << 4)
 
 # Pass a magic number to Linux kernel for validation.
 set $r0 = 0x20150401

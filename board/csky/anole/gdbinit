@@ -9,7 +9,7 @@ set $mcr30 = 0x8e
 
 # Setup CPU features regs
 # Enable MMU, Icache, Dcache, Return Stack, BPB, BTB, IBTB ...
-set $cr31 = 0x0704
+set $cr31 = 0
 set $cr18 = 0x3087d
 
 # Invalid L2 cache by 'exec l2cache.iall'
