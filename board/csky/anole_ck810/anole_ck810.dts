@@ -12,7 +12,7 @@
 
 	memory {
 		device_type = "memory";
-		reg = <0x00000000 0x80000000>;
+		reg = <0x00000000 0x10000000>;
 	};
 
 	aliases {
@@ -111,7 +111,7 @@
 			snps,pbl = <32>;
 			snps,fixed-burst;
 
-#if 0
+#if 1
 			phy-mode = "mii";
 #else
 			phy-mode = "gmii";
@@ -127,6 +127,13 @@
 				};
 			};
 #endif
+		};
+
+		galcore: galcore@fff10000 {
+			compatible = "verisilicon,galcore";
+			reg = <0xfff10000 0x1000>;
+			interrupt-parent = <&intc>;
+			interrupts = <50>;
 		};
 
 #if 0

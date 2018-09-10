@@ -20,11 +20,19 @@ endif
 
 CSKY_AI_INSTALL_TARGET = YES
 
-#CSKY_AI_TARGET_DIR = $(TARGET_DIR)/ai
-CSKY_NPU_SDK_DIR = $(@D)/target/bsp/dh7200_evb/npu_sdk/
+# $(BR2_LINUX_KERNEL_CUSTOM_CONFIG_FILE), for example: "board/csky/anole_ck810/linux.config"
+# To get board name, replace "/" with " ",for example: "board csky anole_ck810 linux.config"
+CSKY_BOARD_NAME:=$(subst /, ,$(BR2_LINUX_KERNEL_CUSTOM_CONFIG_FILE))
+# Then, get 3rd word, that is the board name
+CSKY_BOARD_NAME:=$(word 3,$(CSKY_BOARD_NAME))
+$(info >>> Build NPU SDK for board: "$(CSKY_BOARD_NAME)".)
+
+CSKY_NPU_SDK_DIR = $(@D)/target/bsp/$(CSKY_BOARD_NAME)/npu_sdk/
 
 define CSKY_AI_BUILD_CMDS
 	@echo > $(CSKY_AI_DIR)/Makefile.param
+	@echo "BUILDROOT_TOPDIR=$(TOPDIR)" >> $(CSKY_AI_DIR)/Makefile.param
+	@echo "CSKY_BOARD_NAME=$(CSKY_BOARD_NAME)" >> $(CSKY_AI_DIR)/Makefile.param
 	@echo "# Set buildroot toolchain & parameters" >> $(CSKY_AI_DIR)/Makefile.param
 	@echo "LINUX_DIR=$(LINUX_DIR)" >> $(CSKY_AI_DIR)/Makefile.param
 	@echo "PACKAGE_DIR := $(CSKY_AI_DIR)" >> $(CSKY_AI_DIR)/Makefile.param
