@@ -4,8 +4,8 @@
 #
 ################################################################################
 
-CKUPS_CSKY_ARCH_VERSION = 9a4910fbef3a93d55ce521edf40acf2cfd7b6189
-CKTST_CSKY_ARCH_VERSION = 9a4910fbef3a93d55ce521edf40acf2cfd7b6189
+CKUPS_CSKY_ARCH_VERSION = 322dbad7427e5bf817fd677cb98ad4f84434789c
+CKTST_CSKY_ARCH_VERSION = 322dbad7427e5bf817fd677cb98ad4f84434789c
 ifeq ($(BR2_CSKY_UPSTREAM),y)
 CSKY_ARCH_VERSION = $(CKUPS_CSKY_ARCH_VERSION)
 else
