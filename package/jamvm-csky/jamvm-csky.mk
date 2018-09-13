@@ -20,6 +20,10 @@ JAMVM_CSKY_CONF_OPTS = \
 	--without-pic \
 	--enable-ffi \
 
+ifeq ($(BR2_PACKAGE_LIBFFI),y)
+JAMVM_CSKY_DEPENDENCIES += libffi
+endif
+
 # Needed for autoreconf
 define JAMVM_CSKY_CREATE_M4_DIR
 	mkdir -p $(@D)/m4
