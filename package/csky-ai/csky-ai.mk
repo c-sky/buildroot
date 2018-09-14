@@ -27,8 +27,6 @@ CSKY_BOARD_NAME:=$(subst /, ,$(BR2_LINUX_KERNEL_CUSTOM_CONFIG_FILE))
 CSKY_BOARD_NAME:=$(word 3,$(CSKY_BOARD_NAME))
 $(info >>> Build NPU SDK for board: "$(CSKY_BOARD_NAME)".)
 
-CSKY_NPU_SDK_DIR = $(@D)/target/bsp/$(CSKY_BOARD_NAME)/npu_sdk/
-
 define CSKY_AI_BUILD_CMDS
 	@echo > $(CSKY_AI_DIR)/Makefile.param
 	@echo "BUILDROOT_TOPDIR=$(TOPDIR)" >> $(CSKY_AI_DIR)/Makefile.param
@@ -40,18 +38,20 @@ define CSKY_AI_BUILD_CMDS
 	@echo "TOOLCHAIN_PREFIX := $(TOOLCHAIN_EXTERNAL_PREFIX)" >> $(CSKY_AI_DIR)/Makefile.param
 	@echo "CC := $(TARGET_CC)" >> $(CSKY_AI_DIR)/Makefile.param
 	@echo "CXX := $(TARGET_CXX)" >> $(CSKY_AI_DIR)/Makefile.param
+	@echo "CPP := $(TARGET_CXX)" >> $(CSKY_AI_DIR)/Makefile.param
 	@echo "AR := $(TARGET_AR)" >> $(CSKY_AI_DIR)/Makefile.param
+	@echo "RAN := $(TARGET_RAN)" >> $(CSKY_AI_DIR)/Makefile.param
 
-	$(MAKE) BR2_PACKAGE_CSKY_AI_DEMO_VOD=$(BR2_PACKAGE_CSKY_AI_DEMO_VOD) \
-		CC="$(TARGET_CC)" -C $(CSKY_NPU_SDK_DIR) -f buildroot.mk
+	$(MAKE) -C $(CSKY_AI_DIR)/target/ -f buildroot.mk npu_sdk
+	$(MAKE) -C $(CSKY_AI_DIR)/target/ -f buildroot.mk tools
+	ifeq ($(BR2_PACKAGE_CSKY_AI_DEMO_VOD),y)
+		$(MAKE) -C $(CSKY_AI_DIR)/target/ -f buildroot.mk ai_demo
+	endif
 endef
 
 define CSKY_AI_INSTALL_TARGET_CMDS
-	@echo ">>> Copy NPU driver/lib into target rootfs ..."
-	@mkdir -p $(TARGET_DIR)/ko
-	@cp -v $(CSKY_NPU_SDK_DIR)/install/ko/*.ko $(TARGET_DIR)/ko/
-	@cp -v $(CSKY_NPU_SDK_DIR)/install/lib/*.so $(TARGET_DIR)/lib/
-	@echo ">>> NPU driver/lib Install OK"
+	@cp -rv $(CSKY_AI_DIR)/target/install/* $(TARGET_DIR)/
+	@echo ">>> AI SDK Install OK"
 endef
 
 $(eval $(generic-package))
