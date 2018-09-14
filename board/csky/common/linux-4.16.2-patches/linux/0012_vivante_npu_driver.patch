@@ -1,0 +1,44 @@
+diff --git a/arch/csky/mm/init.c b/arch/csky/mm/init.c
+index 268b0f8..b08b030 100644
+--- a/arch/csky/mm/init.c
++++ b/arch/csky/mm/init.c
+@@ -33,6 +33,9 @@ pgd_t swapper_pg_dir[PTRS_PER_PGD] __page_aligned_bss;
+ pte_t invalid_pte_table[PTRS_PER_PTE] __page_aligned_bss;
+ unsigned long empty_zero_page[PAGE_SIZE / sizeof(unsigned long)] __page_aligned_bss;
+ 
++/* Export for Vivante NPU driver. Charles Lu, 20180911 */
++EXPORT_SYMBOL(invalid_pte_table);
++
+ void __init mem_init(void)
+ {
+ #ifdef CONFIG_HIGHMEM
+
+diff --git a/fs/read_write.c b/fs/read_write.c
+index f8547b8..25251ee 100644
+--- a/fs/read_write.c
++++ b/fs/read_write.c
+@@ -552,6 +552,8 @@ ssize_t vfs_write(struct file *file, const char __user *buf, size_t count, loff_
+ 
+ 	return ret;
+ }
++/* Export for Vivante NPU driver. Charles Lu, 20180911 */
++EXPORT_SYMBOL(vfs_write);
+ 
+ static inline loff_t file_pos_read(struct file *file)
+ {
+ 
+diff --git a/mm/nobootmem.c b/mm/nobootmem.c
+index 9b02fda..16f48ac 100644
+--- a/mm/nobootmem.c
++++ b/mm/nobootmem.c
+@@ -37,6 +37,10 @@ unsigned long min_low_pfn;
+ unsigned long max_pfn;
+ unsigned long long max_possible_pfn;
+ 
++/* Export for Vivante NPU driver. Charles Lu, 20180911 */
++EXPORT_SYMBOL(min_low_pfn);
++EXPORT_SYMBOL(max_pfn);
++
+ static void * __init __alloc_memory_core_early(int nid, u64 size, u64 align,
+ 					u64 goal, u64 limit)
+ {
