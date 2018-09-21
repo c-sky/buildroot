@@ -52,7 +52,7 @@ define CSKY_AI_BUILD_CMDS
 	@echo "RAN := $(TARGET_RANLIB)" >> $(CSKY_AI_DIR)/target/buildroot.param
 	@echo "# Set build targets" >> $(CSKY_AI_DIR)/target/buildroot.param
 	@echo "CSKY_AI_DEMO_VOD := $(BR2_PACKAGE_CSKY_AI_DEMO_VOD)" >> $(CSKY_AI_DIR)/target/buildroot.param
-
+	@echo "CSKY_NPU_TEST_CASES := $(BR2_PACKAGE_CSKY_NPU_TEST_CASES)" >> $(CSKY_AI_DIR)/target/buildroot.param
 
 	@if [ $(CSKY_BOARD_NAME) = dh7200_evb_ai ]; then \
 		mkdir -p $(CSKY_AI_DIR)/target/install_$(CSKY_BOARD_NAME)/lib; \
@@ -63,7 +63,8 @@ define CSKY_AI_BUILD_CMDS
 endef
 
 define CSKY_AI_INSTALL_TARGET_CMDS
-	@cp -rv $(CSKY_AI_DIR)/target/install_$(CSKY_BOARD_NAME)/* $(TARGET_DIR)/
+	@cp -r $(CSKY_AI_DIR)/target/install_$(CSKY_BOARD_NAME)/* $(TARGET_DIR)/
+	@tree $(CSKY_AI_DIR)/target/install_$(CSKY_BOARD_NAME)/
 	@echo ">>> AI SDK Install OK"
 endef
 
