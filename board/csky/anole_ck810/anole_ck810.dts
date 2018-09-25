@@ -12,7 +12,7 @@
 
 	memory {
 		device_type = "memory";
-		reg = <0x00000000 0x10000000>;
+		reg = <0x00000000 0x20000000>;
 	};
 
 	aliases {
@@ -129,13 +129,6 @@
 #endif
 		};
 
-		galcore: galcore@fff10000 {
-			compatible = "verisilicon,galcore";
-			reg = <0xfff10000 0x1000>;
-			interrupt-parent = <&intc>;
-			interrupts = <50>;
-		};
-
 #if 0
 		usb_phy: usb-phy@5700ffff {
 			compatible = "snps,usb3-phy";
@@ -178,6 +171,13 @@
 			status = "ok";
 		};
 #endif
+		npu: npu@fff10000 {
+			compatible = "verisilicon,vip8000";
+			reg = <0xfff10000 0x1000>;
+			interrupt-parent = <&intc>;
+			interrupts = <50>;
+		};
+
 	};
 
 	chosen {
