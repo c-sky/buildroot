@@ -11,4 +11,21 @@ config BR2_PACKAGE_CSKY_NPU_TEST_CASES
 	default n
 	help
 	  Select this option if want to build NPU test cases.
+
+if BR2_PACKAGE_CSKY_NPU_TEST_CASES
+
+config BR2_PACKAGE_CSKY_NPU_TEST_HANDWRITE_NUMBER
+	bool "NPU test case: handwrite_number"
+	default n
+	help
+	  Select this option if want to build this NPU test case.
+
+config BR2_PACKAGE_CSKY_NPU_TEST_CAINIAO
+	bool "NPU test case: cainiao"
+	default n
+	help
+	  Select this option if want to build this NPU test case.
+
+endif
+
 endif
