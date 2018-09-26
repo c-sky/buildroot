@@ -4,12 +4,12 @@
 #
 ################################################################################
 
-CSKY_QEMU_VERSION = 63d592f3fd23dbf44ecc4a5f4827564fc787dac2
+CSKY_QEMU_VERSION = 3c8a7416b7bd4b8e0b878637e6aad7694be3409a
 ifeq ($(BR2_CSKY_QEMU_GERRIT), y)
 CSKY_QEMU_SITE = "ssh://${GITUSER}@192.168.0.78:29418/tools/qemu"
 CSKY_QEMU_SITE_METHOD = git
 else
-CSKY_QEMU_SITE = $(call github,c-sky,qemu,$(CSKY_QEMU_VERSION))
+CSKY_QEMU_SITE = $(call gitlab,guoren83,qemu,$(CSKY_QEMU_VERSION))
 endif
 
 HOST_CSKY_QEMU_DEPENDENCIES = host-pkgconf host-python host-zlib \
