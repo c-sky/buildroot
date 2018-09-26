@@ -2,8 +2,30 @@ if BR2_PACKAGE_CSKY_AI
 
 config BR2_PACKAGE_CSKY_AI_DEMO_VOD
 	bool "C-SKY AI demo of Video Object Detection"
-	default y
+	default n
 	help
-	  Select this option if you want to build ai-demo of Video Object Dection.
+	  Select this option if want to build ai-demo of Video Object Dection.
+
+config BR2_PACKAGE_CSKY_NPU_TEST_CASES
+	bool "NPU test cases"
+	default n
+	help
+	  Select this option if want to build NPU test cases.
+
+if BR2_PACKAGE_CSKY_NPU_TEST_CASES
+
+config BR2_PACKAGE_CSKY_NPU_TEST_HANDWRITE_NUMBER
+	bool "NPU test case: handwrite_number"
+	default n
+	help
+	  Select this option if want to build this NPU test case.
+
+config BR2_PACKAGE_CSKY_NPU_TEST_CAINIAO
+	bool "NPU test case: cainiao"
+	default n
+	help
+	  Select this option if want to build this NPU test case.
+
+endif
 
 endif

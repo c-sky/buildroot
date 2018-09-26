@@ -7,7 +7,7 @@
 CSKY_AI_VERSION = $(BR2_PACKAGE_CSKY_AI_VERSION)
 CSKY_AI_DEPENDENCIES = linux
 
-ifeq ($(BR2_PACKAGE_CSKY_AI_DEMO_VOD), y)
+ifeq ($(BR2_PACKAGE_CSKY_AI_DEMO_VOD),y)
 CSKY_AI_DEPENDENCIES += gstreamer1
 CSKY_AI_DEPENDENCIES += gst1-rtsp-server
 CSKY_AI_DEPENDENCIES += gst1-plugins-good
@@ -52,7 +52,9 @@ define CSKY_AI_BUILD_CMDS
 	@echo "RAN := $(TARGET_RANLIB)" >> $(CSKY_AI_DIR)/target/buildroot.param
 	@echo "# Set build targets" >> $(CSKY_AI_DIR)/target/buildroot.param
 	@echo "CSKY_AI_DEMO_VOD := $(BR2_PACKAGE_CSKY_AI_DEMO_VOD)" >> $(CSKY_AI_DIR)/target/buildroot.param
-
+	@echo "CSKY_NPU_TEST_CASES := $(BR2_PACKAGE_CSKY_NPU_TEST_CASES)" >> $(CSKY_AI_DIR)/target/buildroot.param
+	@echo "BR2_PACKAGE_CSKY_NPU_TEST_HANDWRITE_NUMBER := $(BR2_PACKAGE_CSKY_NPU_TEST_HANDWRITE_NUMBER)" >> $(CSKY_AI_DIR)/target/buildroot.param
+	@echo "BR2_PACKAGE_CSKY_NPU_TEST_CAINIAO := $(BR2_PACKAGE_CSKY_NPU_TEST_CAINIAO)" >> $(CSKY_AI_DIR)/target/buildroot.param
 
 	@if [ $(CSKY_BOARD_NAME) = dh7200_evb_ai ]; then \
 		mkdir -p $(CSKY_AI_DIR)/target/install_$(CSKY_BOARD_NAME)/lib; \
@@ -63,7 +65,8 @@ define CSKY_AI_BUILD_CMDS
 endef
 
 define CSKY_AI_INSTALL_TARGET_CMDS
-	@cp -rv $(CSKY_AI_DIR)/target/install_$(CSKY_BOARD_NAME)/* $(TARGET_DIR)/
+	@cp -r $(CSKY_AI_DIR)/target/install_$(CSKY_BOARD_NAME)/* $(TARGET_DIR)/
+	@tree $(CSKY_AI_DIR)/target/install_$(CSKY_BOARD_NAME)/
 	@echo ">>> AI SDK Install OK"
 endef
 
