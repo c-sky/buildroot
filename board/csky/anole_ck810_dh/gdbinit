@@ -1,0 +1,24 @@
+# Set the JTAG address according to C-SKY debugserver settings
+tar jtag jtag://192.168.0.88:1025
+
+# CPU cache settings
+set $cr18=0x7d
+
+# Setup MMU MSA0 reg
+set $cr31 = 0x0
+set $mcr30 = 0x0000000e
+
+# Pass a magic number to Linux kernel for validation.
+set $r0 = 0x20150401
+
+# Pass the devicetree blob(dtb) store address to Linux kernel
+set $r1 = 0x8F000000
+
+# Store the devicetree blob(dtb) file to the store address above
+restore anole_ck810_dh.dtb binary 0x8F000000
+
+# Load the debugging elf file
+load
+
+# flush cache
+set $cr17 = 0x33
