@@ -1,5 +1,5 @@
 diff --git a/drivers/media/platform/Kconfig b/drivers/media/platform/Kconfig
-index 5ff803ef..6f2e4b5d 100644
+index 5ff803e..6f2e4b5 100644
 --- a/drivers/media/platform/Kconfig
 +++ b/drivers/media/platform/Kconfig
 @@ -151,7 +151,7 @@ if V4L_MEM2MEM_DRIVERS
@@ -12,7 +12,7 @@ index 5ff803ef..6f2e4b5d 100644
  	select SRAM
  	select VIDEOBUF2_DMA_CONTIG
 diff --git a/drivers/media/platform/coda/coda-bit.c b/drivers/media/platform/coda/coda-bit.c
-index b6625047..1a9025b8 100644
+index b662504..fa3a296 100644
 --- a/drivers/media/platform/coda/coda-bit.c
 +++ b/drivers/media/platform/coda/coda-bit.c
 @@ -68,7 +68,8 @@ static void coda_command_async(struct coda_ctx *ctx, int cmd)
@@ -89,7 +89,13 @@ index b6625047..1a9025b8 100644
  			coda_write(dev, ctx->iram_info.search_ram_paddr,
  					CODA7_CMD_ENC_SEQ_SEARCH_BASE);
  			coda_write(dev, ctx->iram_info.search_ram_size,
-@@ -1082,7 +1094,8 @@ static int coda_start_encoding(struct coda_ctx *ctx)
+@@ -1077,12 +1089,13 @@ static int coda_start_encoding(struct coda_ctx *ctx)
+ 	} else {
+ 		ctx->num_internal_frames = 0;
+ 		num_fb = 0;
+-		stride = 0;
++		stride = q_data_src->bytesperline;
+ 	}
  	coda_write(dev, num_fb, CODA_CMD_SET_FRAME_BUF_NUM);
  	coda_write(dev, stride, CODA_CMD_SET_FRAME_BUF_STRIDE);
  
@@ -230,7 +236,7 @@ index b6625047..1a9025b8 100644
  
  		trace_coda_dec_rot_done(ctx, dst_buf, meta);
 diff --git a/drivers/media/platform/coda/coda-common.c b/drivers/media/platform/coda/coda-common.c
-index c39718a6..6bbdec62 100644
+index c39718a..6bbdec6 100644
 --- a/drivers/media/platform/coda/coda-common.c
 +++ b/drivers/media/platform/coda/coda-common.c
 @@ -68,18 +68,30 @@ MODULE_PARM_DESC(disable_tiling, "Disable tiled frame buffers");
@@ -362,7 +368,7 @@ index c39718a6..6bbdec62 100644
  	/* IRQ */
  	irq = platform_get_irq_byname(pdev, "bit");
 diff --git a/drivers/media/platform/coda/coda.h b/drivers/media/platform/coda/coda.h
-index 53f96661..342fc336 100644
+index 53f9666..342fc33 100644
 --- a/drivers/media/platform/coda/coda.h
 +++ b/drivers/media/platform/coda/coda.h
 @@ -44,6 +44,7 @@ enum coda_inst_type {
@@ -388,7 +394,7 @@ index 53f96661..342fc336 100644
  
  extern int coda_debug;
 diff --git a/drivers/media/v4l2-core/v4l2-mem2mem.c b/drivers/media/v4l2-core/v4l2-mem2mem.c
-index 6bc27e7b..870d760c 100644
+index 6bc27e7..870d760 100644
 --- a/drivers/media/v4l2-core/v4l2-mem2mem.c
 +++ b/drivers/media/v4l2-core/v4l2-mem2mem.c
 @@ -27,7 +27,7 @@ MODULE_DESCRIPTION("Mem to mem device framework for videobuf");
