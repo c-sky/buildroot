@@ -32,14 +32,21 @@
 			clock-output-names = "dummy_apb";
 			#clock-cells = <0>;
 		};
-
+#if 0 /* intc for csky */
 		intc: interrupt-controller {
 			compatible = "csky,intc-v1";
 			reg = <0xFFF60000 0x1000>;
 			interrupt-controller;
 			#interrupt-cells = <1>;
 		};
-
+#else /* intc for dh */
+		intc: interrupt-controller {
+			compatible = "snps,dw-apb-ictl-dh";
+			reg = <0xFFF60000 0x1000>;
+			interrupt-controller;
+			#interrupt-cells = <1>;
+		};
+#endif
 		/* clockevent */
 		timer0 {
 			compatible = "snps,dw-apb-timer";
