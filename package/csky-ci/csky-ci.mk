@@ -5,7 +5,7 @@
 #
 ################################################################################
 
-CSKY_CI_VERSION = 06186ee7e6c973a3c8fce8bf559903ede6e78c4a
+CSKY_CI_VERSION = 35f1c7be7a95f18c7e1f344c2d61469426642680
 CSKY_CI_SITE = $(call github,c-sky,csky-ci,$(CSKY_CI_VERSION))
 
 define CSKY_CI_CONFIGURE_CMDS
@@ -22,6 +22,7 @@ endef
 define CSKY_CI_INSTALL_TARGET_CMDS
 mkdir -p $(HOST_DIR)/csky-ci/
 mkdir -p $(TARGET_DIR)/usr/lib/csky-ci/
+cp -f $(@D)/out/csky_* $(HOST_DIR)/csky-ci/
 cp -f $(@D)/out/sh/* $(HOST_DIR)/csky-ci/
 cp -f $(@D)/out/configs/* $(TARGET_DIR)/usr/lib/csky-ci/
 cp -f $(@D)/out/S90test $(TARGET_DIR)/etc/init.d/

@@ -1,5 +1,4 @@
-target jtag jtag://127.0.0.1:1025
-reset
+tar jtag jtag://127.0.0.1:1025
 
 # pin mux for serial8250, only for gx6605s
 set *(unsigned int *) 0xa030a14c |= (1 << 22) | (1 << 23)

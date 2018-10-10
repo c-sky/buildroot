@@ -1,5 +1,5 @@
 # Set the JTAG address according to C-SKY debugserver settings
-tar jtag jtag://127.0.1.1:1028
+tar jtag jtag://127.0.1.1:1025
 
 # CPU cache settings
 set $cr18=0x7d

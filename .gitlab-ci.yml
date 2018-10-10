@@ -69,19 +69,8 @@ stages:
     - if [ -f output/images/rootfs.cpio.xz ]; then
           xz -d output/images/rootfs.cpio.xz;
       fi
-    - echo 'Run local test'
-    - csky_switch /dev/ttyUSB1 off
-    - csky_switch /dev/ttyUSB1 on
-    - touch /root/DebugServerConsole/.stamp_gdb
-    - sleep 25
-    - |
-        ./output/host/csky-ci/run_test.sh || {
-            touch /root/DebugServerConsole/.stamp_gdb_exit
-            csky_switch /dev/ttyUSB1 off
-            exit 1
-        }
-    - touch /root/DebugServerConsole/.stamp_gdb_exit
-    - csky_switch /dev/ttyUSB1 off
+    - ./output/host/csky-ci/run_test.sh
+    - ./output/host/csky-ci/generic_analyze.sh || exit 1
 
 .defconfig: &defconfig
     script: *build_buildroot
@@ -98,7 +87,7 @@ stages:
             - build.log.xz
             - build.log
 
-.chip-defconfig: &chip-defconfig
+.chip_build: &chip_build
     script: *build_buildroot
     dependencies: []
     stage: chip-build
@@ -111,7 +100,6 @@ stages:
         paths:
             - output/images/
             - build.log.xz
-            - build.log
 
 # qemu ck810f
 qemu_csky_ck810f_4.16_uclibc_defconfig: *defconfig
@@ -259,15 +247,15 @@ qemu_csky_ck807f_4.9_glibc_defconfig_test:
             - test_sum.log
 
 # chip
-csky_ck860_platform_defconfig: *chip-defconfig
-csky_gx6605s_fbcon_defconfig: *chip-defconfig
-csky_gx6605s_defconfig: *chip-defconfig
+csky_ck860_platform_defconfig: *chip_build
+csky_gx6605s_fbcon_defconfig: *chip_build
+csky_gx6605s_defconfig: *chip_build
 
-csky_ck610_gx6622_4.9_uclibc_bt_defconfig: *chip-defconfig
+csky_ck610_gx6622_4.9_uclibc_bt_defconfig: *chip_build
 csky_ck610_gx6622_4.9_uclibc_bt_defconfig_test:
     stage: chip-test
     tags:
-      - vmh-ck610-gx-0
+      - csky-610-gx6622
     script: *chip_test
     dependencies:
       - csky_ck610_gx6622_4.9_uclibc_bt_defconfig
@@ -275,13 +263,12 @@ csky_ck610_gx6622_4.9_uclibc_bt_defconfig_test:
         when: on_success
         paths:
             - test.log
-            - test_sum.log
 
-csky_ck610_gx6622_4.16_glibc_bt_defconfig: *chip-defconfig
+csky_ck610_gx6622_4.16_glibc_bt_defconfig: *chip_build
 csky_ck610_gx6622_4.16_glibc_bt_defconfig_test:
     stage: chip-test
     tags:
-      - vmh-ck610-gx-0
+      - csky-610-gx6622
     script: *chip_test
     dependencies:
       - csky_ck610_gx6622_4.16_glibc_bt_defconfig
@@ -289,13 +276,12 @@ csky_ck610_gx6622_4.16_glibc_bt_defconfig_test:
         when: on_success
         paths:
             - test.log
-            - test_sum.log
 
-csky_ck807_eragon_4.9_glibc_bt_defconfig: *chip-defconfig
+csky_ck807_eragon_4.9_glibc_bt_defconfig: *chip_build
 csky_ck807_eragon_4.9_glibc_bt_defconfig_test:
     stage: chip-test
     tags:
-      - vmh-ck807-eragon-0
+      - csky-807-eragon
     script: *chip_test
     dependencies:
       - csky_ck807_eragon_4.9_glibc_bt_defconfig
@@ -303,7 +289,6 @@ csky_ck807_eragon_4.9_glibc_bt_defconfig_test:
         when: on_success
         paths:
             - test.log
-            - test_sum.log
 
 # toolchain-multi-libs
 abiv2-uclibc:
