@@ -5,11 +5,14 @@
 #
 ################################################################################
 
-CSKY_CI_VERSION = 2dbee337c26b23d77df24edac71f70daff739ca2
+CSKY_CI_VERSION = 7761a875a1e6d4ac1921ce830215bcad85a184c4
 CSKY_CI_SITE = $(call github,c-sky,csky-ci,$(CSKY_CI_VERSION))
 
 define CSKY_CI_CONFIGURE_CMDS
 echo CONFIG_CPU_CK610=$(BR2_ck610) > $(@D)/config
+echo CONFIG_CPU_CK807=$(BR2_ck807) >> $(@D)/config
+echo CONFIG_CPU_CK810=$(BR2_ck810) >> $(@D)/config
+echo CONFIG_CPU_CK860=$(BR2_ck860) >> $(@D)/config
 echo CONFIG_GLIBC=$(BR2_TOOLCHAIN_USES_GLIBC) >> $(@D)/config
 echo CONFIG_QEMU=$(BR2_PACKAGE_HOST_CSKY_QEMU) >> $(@D)/config
 echo CONFIG_TTY=$(BR2_TARGET_GENERIC_GETTY_PORT) >> $(@D)/config
