@@ -251,40 +251,40 @@ csky_ck860_platform_defconfig: *chip_build
 csky_gx6605s_fbcon_defconfig: *chip_build
 csky_gx6605s_defconfig: *chip_build
 
-csky_ck610_gx6622_4.9_uclibc_bt_defconfig: *chip_build
-csky_ck610_gx6622_4.9_uclibc_bt_defconfig_test:
+csky_610_gx6622_4.9_uclibc_br_defconfig: *chip_build
+csky_610_gx6622_4.9_uclibc_br_defconfig_test:
     stage: chip-test
     tags:
       - csky-610-gx6622
     script: *chip_test
     dependencies:
-      - csky_ck610_gx6622_4.9_uclibc_bt_defconfig
+      - csky_610_gx6622_4.9_uclibc_br_defconfig
     artifacts:
         when: on_success
         paths:
             - test.log
 
-csky_ck610_gx6622_4.16_glibc_bt_defconfig: *chip_build
-csky_ck610_gx6622_4.16_glibc_bt_defconfig_test:
+csky_610_gx6622_4.16_glibc_br_defconfig: *chip_build
+csky_610_gx6622_4.16_glibc_br_defconfig_test:
     stage: chip-test
     tags:
       - csky-610-gx6622
     script: *chip_test
     dependencies:
-      - csky_ck610_gx6622_4.16_glibc_bt_defconfig
+      - csky_610_gx6622_4.16_glibc_br_defconfig
     artifacts:
         when: on_success
         paths:
             - test.log
 
-csky_ck807_eragon_4.9_glibc_bt_defconfig: *chip_build
-csky_ck807_eragon_4.9_glibc_bt_defconfig_test:
+csky_807_eragon_4.9_glibc_br_defconfig: *chip_build
+csky_807_eragon_4.9_glibc_br_defconfig_test:
     stage: chip-test
     tags:
       - csky-807-eragon
     script: *chip_test
     dependencies:
-      - csky_ck807_eragon_4.9_glibc_bt_defconfig
+      - csky_807_eragon_4.9_glibc_br_defconfig
     artifacts:
         when: on_success
         paths:
