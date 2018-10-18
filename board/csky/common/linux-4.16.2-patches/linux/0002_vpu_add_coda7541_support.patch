@@ -12,7 +12,7 @@ index 614fbef..699fa92 100644
  	select SRAM
  	select VIDEOBUF2_DMA_CONTIG
 diff --git a/drivers/media/platform/coda/coda-bit.c b/drivers/media/platform/coda/coda-bit.c
-index 9fe113c..d688d44 100644
+index 9fe113c..db33dc0 100644
 --- a/drivers/media/platform/coda/coda-bit.c
 +++ b/drivers/media/platform/coda/coda-bit.c
 @@ -69,7 +69,8 @@ static void coda_command_async(struct coda_ctx *ctx, int cmd)
@@ -111,7 +111,13 @@ index 9fe113c..d688d44 100644
  			coda_write(dev, ctx->iram_info.search_ram_paddr,
  					CODA7_CMD_ENC_SEQ_SEARCH_BASE);
  			coda_write(dev, ctx->iram_info.search_ram_size,
-@@ -1131,7 +1152,8 @@ static int coda_start_encoding(struct coda_ctx *ctx)
+@@ -1126,12 +1147,13 @@ static int coda_start_encoding(struct coda_ctx *ctx)
+ 	} else {
+ 		ctx->num_internal_frames = 0;
+ 		num_fb = 0;
+-		stride = 0;
++		stride = q_data_src->bytesperline;
+ 	}
  	coda_write(dev, num_fb, CODA_CMD_SET_FRAME_BUF_NUM);
  	coda_write(dev, stride, CODA_CMD_SET_FRAME_BUF_STRIDE);
  

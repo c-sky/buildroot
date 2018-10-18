@@ -7,6 +7,7 @@ config BR2_PACKAGE_CSKY_AI
 	depends on BR2_LINUX_KERNEL
 	depends on (BR2_LINUX_KERNEL_CUSTOM_CONFIG_FILE = "board/csky/dh7200_evb_ai/linux.config") || \
 		   (BR2_LINUX_KERNEL_CUSTOM_CONFIG_FILE = "board/csky/anole_ck810/linux.config")
+	default n
 	help
 	  C-SKY AI (Artificial Intelligence) related package from www.c-sky.com
 
