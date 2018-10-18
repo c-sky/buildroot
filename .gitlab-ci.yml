@@ -11,11 +11,25 @@ stages:
   - chip-test
   - qemu-build
   - qemu-test
+  - sales-build
   - toolchain-multi-libs
+
+variables:
+    PREFIX: ""
+    SUFFIX: ""
+    CHIP_PREFIX: csky_
+    CHIP_SUFFIX: libc_br_defconfig
+    QEMU_PREFIX: qemu_csky_
+    QEMU_SUFFIX: libc_br_defconfig
+    SALES_PREFIX: csky_
+    SALES_SUFFIX: _defconfig
+    CONFIG_NAME: ""
 
 .build_buildroot: &build_buildroot
     - echo 'Configure Buildroot'
-    - make ${CI_BUILD_NAME}
+    - CONFIG_NAME=${PREFIX}${CI_BUILD_NAME}${SUFFIX}
+    - echo ${CONFIG_NAME}
+    - make ${CONFIG_NAME}
     - echo 'Build buildroot'
     - |
         make > >(tee build.log |grep '>>>') 2>&1 || {
@@ -37,26 +51,20 @@ stages:
           xz -z output/images/rootfs.tar;
       fi
 
-.qemu_test: &qemu_test
-    - echo 'Prepare to run'
-    - mkdir -p output/host/
-    - tar -xf output/images/csky_toolchain_*.tar.xz -C output/host
-    - if [ -f output/images/vmlinux.xz ]; then
-          xz -d output/images/vmlinux.xz;
-      fi
-    - if [ -f output/images/rootfs.tar.xz ]; then
-          xz -d output/images/rootfs.tar.xz;
-      fi
-    - if [ -f output/images/rootfs.cpio.xz ]; then
-          xz -d output/images/rootfs.cpio.xz;
-      fi
-    - echo 'Run qemu test'
-    - |
-        ./output/host/csky-ci/run_test.sh || {
-            exit 1
-        }
+.variety_builds: &variety_builds
+    script: *build_buildroot
+    dependencies: []
+    cache:
+      paths:
+        - dl/
+    artifacts:
+        when: always
+        expire_in: 2 weeks
+        paths:
+            - output/images/
+            - build.log.xz
 
-.chip_test: &chip_test
+.variety_tests: &variety_tests
     - echo 'Prepare to run'
     - mkdir -p output/host/
     - tar -xf output/images/csky_toolchain_*.tar.xz -C output/host
@@ -72,224 +80,158 @@ stages:
     - ./output/host/csky-ci/run_test.sh
     - ./output/host/csky-ci/generic_analyze.sh || exit 1
 
-.qemu_build: &qemu_build
-    script: *build_buildroot
-    dependencies: []
-    stage: qemu-build
-    cache:
-      paths:
-        - dl/
-    artifacts:
-        when: always
-        expire_in: 2 weeks
-        paths:
-            - output/images/
-            - build.log.xz
-            - build.log
+################ chip ################
+.chip_build_before: &chip_build_before
+    - PREFIX=${CHIP_PREFIX}
+    - SUFFIX=${CHIP_SUFFIX}
 
 .chip_build: &chip_build
-    script: *build_buildroot
-    dependencies: []
     stage: chip-build
-    cache:
-      paths:
-        - dl/
-    artifacts:
-        when: always
-        expire_in: 2 weeks
-        paths:
-            - output/images/
-            - build.log.xz
+    before_script: *chip_build_before
+    <<: *variety_builds
 
-# qemu ck810f
-qemu_csky_ck810f_4.16_uclibc_defconfig: *qemu_build
-qemu_csky_ck810f_4.16_uclibc_defconfig_test:
-    stage: qemu-test
-    script: *qemu_test
-    dependencies:
-      - qemu_csky_ck810f_4.16_uclibc_defconfig
-    artifacts:
-        when: always
-        expire_in: 2 weeks
-        paths:
-            - test.log
-            - test_sum.log
-
-qemu_csky_ck810f_4.16_glibc_defconfig: *qemu_build
-qemu_csky_ck810f_4.16_glibc_defconfig_test:
-    stage: qemu-test
-    script: *qemu_test
-    dependencies:
-      - qemu_csky_ck810f_4.16_glibc_defconfig
-    artifacts:
-        when: always
-        expire_in: 2 weeks
-        paths:
-            - test.log
-            - test_sum.log
-
-qemu_csky_ck810f_4.9_uclibc_defconfig: *qemu_build
-qemu_csky_ck810f_4.9_uclibc_defconfig_test:
-    stage: qemu-test
-    script: *qemu_test
-    dependencies:
-      - qemu_csky_ck810f_4.9_uclibc_defconfig
-    artifacts:
-        when: always
-        expire_in: 2 weeks
-        paths:
-            - test.log
-            - test_sum.log
-
-qemu_csky_ck810f_4.9_glibc_defconfig: *qemu_build
-qemu_csky_ck810f_4.9_glibc_defconfig_test:
-    stage: qemu-test
-    script: *qemu_test
-    dependencies:
-      - qemu_csky_ck810f_4.9_glibc_defconfig
-    artifacts:
-        when: always
-        expire_in: 2 weeks
-        paths:
-            - test.log
-            - test_sum.log
-
-# qemu ck807f
-qemu_csky_ck807f_4.18_glibc_defconfig: *qemu_build
-qemu_csky_ck807f_4.18_glibc_defconfig_test:
-    stage: qemu-test
-    script: *qemu_test
-    dependencies:
-      - qemu_csky_ck807f_4.18_glibc_defconfig
-    artifacts:
-        when: always
-        expire_in: 2 weeks
-        paths:
-            - test.log
-            - test_sum.log
-
-qemu_csky_ck807f_4.16_uclibc_defconfig: *qemu_build
-qemu_csky_ck807f_4.16_uclibc_defconfig_test:
-    stage: qemu-test
-    script: *qemu_test
-    dependencies:
-      - qemu_csky_ck807f_4.16_uclibc_defconfig
-    artifacts:
-        when: always
-        expire_in: 2 weeks
-        paths:
-            - test.log
-            - test_sum.log
-
-qemu_csky_ck807f_4.16_glibc_defconfig: *qemu_build
-qemu_csky_ck807f_4.16_glibc_defconfig_test:
-    stage: qemu-test
-    script: *qemu_test
-    dependencies:
-      - qemu_csky_ck807f_4.16_glibc_defconfig
-    artifacts:
-        when: always
-        expire_in: 2 weeks
-        paths:
-            - test.log
-            - test_sum.log
-
-qemu_csky_ck807f_4.14_uclibc_defconfig: *qemu_build
-qemu_csky_ck807f_4.14_uclibc_defconfig_test:
-    stage: qemu-test
-    script: *qemu_test
-    dependencies:
-      - qemu_csky_ck807f_4.14_uclibc_defconfig
-    artifacts:
-        when: always
-        expire_in: 2 weeks
-        paths:
-            - test.log
-            - test_sum.log
-
-qemu_csky_ck807f_4.14_glibc_defconfig: *qemu_build
-qemu_csky_ck807f_4.14_glibc_defconfig_test:
-    stage: qemu-test
-    script: *qemu_test
-    dependencies:
-      - qemu_csky_ck807f_4.14_glibc_defconfig
-    artifacts:
-        when: always
-        expire_in: 2 weeks
-        paths:
-            - test.log
-            - test_sum.log
-
-qemu_csky_ck807f_4.9_uclibc_defconfig: *qemu_build
-qemu_csky_ck807f_4.9_uclibc_defconfig_test:
-    stage: qemu-test
-    script: *qemu_test
-    dependencies:
-      - qemu_csky_ck807f_4.9_uclibc_defconfig
-    artifacts:
-        when: always
-        expire_in: 2 weeks
-        paths:
-            - test.log
-            - test_sum.log
-
-qemu_csky_ck807f_4.9_glibc_defconfig: *qemu_build
-qemu_csky_ck807f_4.9_glibc_defconfig_test:
-    stage: qemu-test
-    script: *qemu_test
-    dependencies:
-      - qemu_csky_ck807f_4.9_glibc_defconfig
-    artifacts:
-        when: always
-        expire_in: 2 weeks
-        paths:
-            - test.log
-            - test_sum.log
-
-# chip
-csky_ck860_platform_defconfig: *chip_build
-csky_gx6605s_fbcon_defconfig: *chip_build
-csky_gx6605s_defconfig: *chip_build
-
-csky_610_gx6622_4.9_uclibc_br_defconfig: *chip_build
-csky_610_gx6622_4.9_uclibc_br_defconfig_test:
+.chip_test: &chip_test
     stage: chip-test
-    tags:
-      - csky-610-gx6622
-    script: *chip_test
-    dependencies:
-      - csky_610_gx6622_4.9_uclibc_br_defconfig
+    script: *variety_tests
     artifacts:
         when: on_success
         paths:
             - test.log
 
-csky_610_gx6622_4.16_glibc_br_defconfig: *chip_build
-csky_610_gx6622_4.16_glibc_br_defconfig_test:
-    stage: chip-test
+# chip-build
+610_gx6622_4.9_uc: *chip_build
+610_gx6622_4.16_g: *chip_build
+807_eragon_4.9_g: *chip_build
+
+# chip-test
+610_gx6622_4.9_uc_test:
     tags:
       - csky-610-gx6622
-    script: *chip_test
     dependencies:
-      - csky_610_gx6622_4.16_glibc_br_defconfig
-    artifacts:
-        when: on_success
-        paths:
-            - test.log
+      - 610_gx6622_4.9_uc
+    <<: *chip_test
 
-csky_807_eragon_4.9_glibc_br_defconfig: *chip_build
-csky_807_eragon_4.9_glibc_br_defconfig_test:
-    stage: chip-test
+610_gx6622_4.16_g_test:
+    tags:
+      - csky-610-gx6622
+    dependencies:
+      - 610_gx6622_4.16_g
+    <<: *chip_test
+
+807_eragon_4.9_g_test:
     tags:
       - csky-807-eragon
-    script: *chip_test
     dependencies:
-      - csky_807_eragon_4.9_glibc_br_defconfig
+      - 807_eragon_4.9_g
+    <<: *chip_test
+
+################ qemu ################
+.qemu_build_before: &qemu_build_before
+    - PREFIX=${QEMU_PREFIX}
+    - SUFFIX=${QEMU_SUFFIX}
+
+.qemu_build: &qemu_build
+    stage: qemu-build
+    before_script: *qemu_build_before
+    <<: *variety_builds
+
+.qemu_test: &qemu_test
+    stage: qemu-test
+    script: *variety_tests
     artifacts:
-        when: on_success
+        when: always
+        expire_in: 2 weeks
         paths:
             - test.log
 
+# qemu-build
+810f_4.16_uc: *qemu_build
+810f_4.16_g: *qemu_build
+810f_4.9_uc: *qemu_build
+810f_4.9_g: *qemu_build
+807f_4.18_g: *qemu_build
+807f_4.16_uc: *qemu_build
+807f_4.16_g: *qemu_build
+807f_4.14_uc: *qemu_build
+807f_4.14_g: *qemu_build
+807f_4.9_uc: *qemu_build
+807f_4.9_g: *qemu_build
+
+# qemu-test
+810f_4.16_uc_test:
+    dependencies:
+      - 810f_4.16_uc
+    <<: *qemu_test
+
+810f_4.16_g_test:
+    dependencies:
+      - 810f_4.16_g
+    <<: *qemu_test
+
+810f_4.9_uc_test:
+    dependencies:
+      - 810f_4.9_uc
+    <<: *qemu_test
+
+810f_4.9_g_test:
+    dependencies:
+      - 810f_4.9_g
+    <<: *qemu_test
+
+807f_4.18_g_test:
+    dependencies:
+      - 807f_4.18_g
+    <<: *qemu_test
+
+807f_4.16_uc_test:
+    dependencies:
+      - 807f_4.16_uc
+    <<: *qemu_test
+
+807f_4.16_g_test:
+    dependencies:
+      - 807f_4.16_g
+    <<: *qemu_test
+
+807f_4.14_uc_test:
+    dependencies:
+      - 807f_4.14_uc
+    <<: *qemu_test
+
+807f_4.14_g_test:
+    dependencies:
+      - 807f_4.14_g
+    <<: *qemu_test
+
+807f_4.9_uc_test:
+    dependencies:
+      - 807f_4.9_uc
+    <<: *qemu_test
+
+807f_4.9_g_test:
+    dependencies:
+      - 807f_4.9_g
+    <<: *qemu_test
+
+################ sales ################
+.sales_build_before: &sales_build_before
+    - PREFIX=${SALES_PREFIX}
+    - SUFFIX=${SALES_SUFFIX}
+
+.sales_build: &sales_build
+    stage: sales-build
+    before_script: *sales_build_before
+    <<: *variety_builds
+
+# sales-build
+860_platform: *sales_build
+gx6605s_fbcon: *sales_build
+gx6605s: *sales_build
+
+# sales-test
+# sales has no test
+
+################ toolchain ################
 # toolchain-multi-libs
 abiv2-uclibc:
     stage: toolchain-multi-libs
