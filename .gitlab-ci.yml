@@ -72,7 +72,7 @@ stages:
     - ./output/host/csky-ci/run_test.sh
     - ./output/host/csky-ci/generic_analyze.sh || exit 1
 
-.defconfig: &defconfig
+.qemu_build: &qemu_build
     script: *build_buildroot
     dependencies: []
     stage: qemu-build
@@ -102,7 +102,7 @@ stages:
             - build.log.xz
 
 # qemu ck810f
-qemu_csky_ck810f_4.16_uclibc_defconfig: *defconfig
+qemu_csky_ck810f_4.16_uclibc_defconfig: *qemu_build
 qemu_csky_ck810f_4.16_uclibc_defconfig_test:
     stage: qemu-test
     script: *qemu_test
@@ -115,7 +115,7 @@ qemu_csky_ck810f_4.16_uclibc_defconfig_test:
             - test.log
             - test_sum.log
 
-qemu_csky_ck810f_4.16_glibc_defconfig: *defconfig
+qemu_csky_ck810f_4.16_glibc_defconfig: *qemu_build
 qemu_csky_ck810f_4.16_glibc_defconfig_test:
     stage: qemu-test
     script: *qemu_test
@@ -128,7 +128,7 @@ qemu_csky_ck810f_4.16_glibc_defconfig_test:
             - test.log
             - test_sum.log
 
-qemu_csky_ck810f_4.9_uclibc_defconfig: *defconfig
+qemu_csky_ck810f_4.9_uclibc_defconfig: *qemu_build
 qemu_csky_ck810f_4.9_uclibc_defconfig_test:
     stage: qemu-test
     script: *qemu_test
@@ -141,7 +141,7 @@ qemu_csky_ck810f_4.9_uclibc_defconfig_test:
             - test.log
             - test_sum.log
 
-qemu_csky_ck810f_4.9_glibc_defconfig: *defconfig
+qemu_csky_ck810f_4.9_glibc_defconfig: *qemu_build
 qemu_csky_ck810f_4.9_glibc_defconfig_test:
     stage: qemu-test
     script: *qemu_test
@@ -155,7 +155,7 @@ qemu_csky_ck810f_4.9_glibc_defconfig_test:
             - test_sum.log
 
 # qemu ck807f
-qemu_csky_ck807f_4.18_glibc_defconfig: *defconfig
+qemu_csky_ck807f_4.18_glibc_defconfig: *qemu_build
 qemu_csky_ck807f_4.18_glibc_defconfig_test:
     stage: qemu-test
     script: *qemu_test
@@ -168,7 +168,7 @@ qemu_csky_ck807f_4.18_glibc_defconfig_test:
             - test.log
             - test_sum.log
 
-qemu_csky_ck807f_4.16_uclibc_defconfig: *defconfig
+qemu_csky_ck807f_4.16_uclibc_defconfig: *qemu_build
 qemu_csky_ck807f_4.16_uclibc_defconfig_test:
     stage: qemu-test
     script: *qemu_test
@@ -181,7 +181,7 @@ qemu_csky_ck807f_4.16_uclibc_defconfig_test:
             - test.log
             - test_sum.log
 
-qemu_csky_ck807f_4.16_glibc_defconfig: *defconfig
+qemu_csky_ck807f_4.16_glibc_defconfig: *qemu_build
 qemu_csky_ck807f_4.16_glibc_defconfig_test:
     stage: qemu-test
     script: *qemu_test
@@ -194,7 +194,7 @@ qemu_csky_ck807f_4.16_glibc_defconfig_test:
             - test.log
             - test_sum.log
 
-qemu_csky_ck807f_4.14_uclibc_defconfig: *defconfig
+qemu_csky_ck807f_4.14_uclibc_defconfig: *qemu_build
 qemu_csky_ck807f_4.14_uclibc_defconfig_test:
     stage: qemu-test
     script: *qemu_test
@@ -207,7 +207,7 @@ qemu_csky_ck807f_4.14_uclibc_defconfig_test:
             - test.log
             - test_sum.log
 
-qemu_csky_ck807f_4.14_glibc_defconfig: *defconfig
+qemu_csky_ck807f_4.14_glibc_defconfig: *qemu_build
 qemu_csky_ck807f_4.14_glibc_defconfig_test:
     stage: qemu-test
     script: *qemu_test
@@ -220,7 +220,7 @@ qemu_csky_ck807f_4.14_glibc_defconfig_test:
             - test.log
             - test_sum.log
 
-qemu_csky_ck807f_4.9_uclibc_defconfig: *defconfig
+qemu_csky_ck807f_4.9_uclibc_defconfig: *qemu_build
 qemu_csky_ck807f_4.9_uclibc_defconfig_test:
     stage: qemu-test
     script: *qemu_test
@@ -233,7 +233,7 @@ qemu_csky_ck807f_4.9_uclibc_defconfig_test:
             - test.log
             - test_sum.log
 
-qemu_csky_ck807f_4.9_glibc_defconfig: *defconfig
+qemu_csky_ck807f_4.9_glibc_defconfig: *qemu_build
 qemu_csky_ck807f_4.9_glibc_defconfig_test:
     stage: qemu-test
     script: *qemu_test
