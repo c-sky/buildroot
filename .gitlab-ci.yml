@@ -51,7 +51,7 @@ variables:
           xz -z output/images/rootfs.tar;
       fi
 
-.variety_builds: &variety_builds
+.common_builds: &common_builds
     script: *build_buildroot
     dependencies: []
     cache:
@@ -64,7 +64,7 @@ variables:
             - output/images/
             - build.log.xz
 
-.variety_tests: &variety_tests
+.common_tests: &common_tests
     - echo 'Prepare to run'
     - mkdir -p output/host/
     - tar -xf output/images/csky_toolchain_*.tar.xz -C output/host
@@ -88,11 +88,11 @@ variables:
 .chip_build: &chip_build
     stage: chip-build
     before_script: *chip_build_before
-    <<: *variety_builds
+    <<: *common_builds
 
 .chip_test: &chip_test
     stage: chip-test
-    script: *variety_tests
+    script: *common_tests
     artifacts:
         when: on_success
         paths:
@@ -133,11 +133,11 @@ variables:
 .qemu_build: &qemu_build
     stage: qemu-build
     before_script: *qemu_build_before
-    <<: *variety_builds
+    <<: *common_builds
 
 .qemu_test: &qemu_test
     stage: qemu-test
-    script: *variety_tests
+    script: *common_tests
     artifacts:
         when: always
         expire_in: 2 weeks
@@ -221,7 +221,7 @@ variables:
 .sales_build: &sales_build
     stage: sales-build
     before_script: *sales_build_before
-    <<: *variety_builds
+    <<: *common_builds
 
 # sales-build
 860_platform: *sales_build
