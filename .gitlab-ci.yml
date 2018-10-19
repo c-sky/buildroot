@@ -115,14 +115,14 @@ variables:
     tags:
       - csky-610-gx6622
     dependencies:
-      - 610_gx6622_4.16_g
+      - 610_gx6622_4.16_glibc
     <<: *chip_test
 
 807_eragon_4.9_glibc_test:
     tags:
       - csky-807-eragon
     dependencies:
-      - 807_eragon_4.9_g
+      - 807_eragon_4.9_glibc
     <<: *chip_test
 
 ################ qemu ################
@@ -165,7 +165,7 @@ variables:
 
 810f_4.16_glibc_test:
     dependencies:
-      - 810f_4.16_g
+      - 810f_4.16_glibc
     <<: *qemu_test
 
 810f_4.9_uclibc_test:
@@ -175,12 +175,12 @@ variables:
 
 810f_4.9_glibc_test:
     dependencies:
-      - 810f_4.9_g
+      - 810f_4.9_glibc
     <<: *qemu_test
 
 807f_4.18_glibc_test:
     dependencies:
-      - 807f_4.18_g
+      - 807f_4.18_glibc
     <<: *qemu_test
 
 807f_4.16_uclibc_test:
@@ -190,7 +190,7 @@ variables:
 
 807f_4.16_glibc_test:
     dependencies:
-      - 807f_4.16_g
+      - 807f_4.16_glibc
     <<: *qemu_test
 
 807f_4.14_uclibc_test:
@@ -200,7 +200,7 @@ variables:
 
 807f_4.14_glibc_test:
     dependencies:
-      - 807f_4.14_g
+      - 807f_4.14_glibc
     <<: *qemu_test
 
 807f_4.9_uclibc_test:
@@ -210,7 +210,7 @@ variables:
 
 807f_4.9_glibc_test:
     dependencies:
-      - 807f_4.9_g
+      - 807f_4.9_glibc
     <<: *qemu_test
 
 ################ sales ################
