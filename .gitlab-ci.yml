@@ -21,11 +21,11 @@ stages:
 variables:
     PREFIX: ""
     SUFFIX: ""
-    610_CHIP_PREFIX: csky_610_
-    807_CHIP_PREFIX: csky_610_
+    CHIP_PREFIX_610: csky_610_
+    CHIP_PREFIX_807: csky_807_
     CHIP_SUFFIX: _br_defconfig
-    807_QEMU_PREFIX: qemu_csky_807_
-    810_QEMU_PREFIX: qemu_csky_810_
+    QEMU_PREFIX_807: qemu_csky_807_
+    QEMU_PREFIX_810: qemu_csky_810_
     QEMU_SUFFIX: _br_defconfig
     SALES_PREFIX: csky_
     SALES_SUFFIX: _defconfig
@@ -88,7 +88,7 @@ variables:
 
 ################ chip ################
 .610_chip_build_before: &610_chip_build_before
-    - PREFIX=${610_CHIP_PREFIX}
+    - PREFIX=${CHIP_PREFIX_610}
     - SUFFIX=${CHIP_SUFFIX}
 
 .610_chip_build: &610_chip_build
@@ -105,7 +105,7 @@ variables:
             - test.log
 
 .807_chip_build_before: &807_chip_build_before
-    - PREFIX=${807_CHIP_PREFIX}
+    - PREFIX=${CHIP_PREFIX_807}
     - SUFFIX=${CHIP_SUFFIX}
 
 .807_chip_build: &807_chip_build
@@ -211,7 +211,7 @@ f_eragon_4.9_glibc_test:
 
 ################ qemu ################
 .807_qemu_build_before: &807_qemu_build_before
-    - PREFIX=${807_QEMU_PREFIX}
+    - PREFIX=${QEMU_PREFIX_807}
     - SUFFIX=${QEMU_SUFFIX}
 
 .807_qemu_build: &807_qemu_build
@@ -229,7 +229,7 @@ f_eragon_4.9_glibc_test:
             - test.log
 
 .810_qemu_build_before: &810_qemu_build_before
-    - PREFIX=${810_QEMU_PREFIX}
+    - PREFIX=${QEMU_PREFIX_810}
     - SUFFIX=${QEMU_SUFFIX}
 
 .810_qemu_build: &810_qemu_build
