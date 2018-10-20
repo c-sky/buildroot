@@ -24,8 +24,8 @@ variables:
     CHIP_PREFIX_610: csky_610_
     CHIP_PREFIX_807: csky_807_
     CHIP_SUFFIX: _br_defconfig
-    QEMU_PREFIX_807: qemu_csky_807_
-    QEMU_PREFIX_810: qemu_csky_810_
+    QEMU_PREFIX: qemu_csky_
+    QEMU_PREFIX: qemu_csky_
     QEMU_SUFFIX: _br_defconfig
     SALES_PREFIX: csky_
     SALES_SUFFIX: _defconfig
@@ -96,13 +96,16 @@ variables:
     before_script: *610_chip_build_before
     <<: *common_builds
 
-.610_chip_test: &610_chip_test
-    stage: 610-chip-test
+.common_chip_test: &common_chip_test
     script: *common_tests
     artifacts:
         when: on_success
         paths:
             - test.log
+
+.610_chip_test: &610_chip_test
+    stage: 610-chip-test
+    <<: *common_chip_test
 
 .807_chip_build_before: &807_chip_build_before
     - PREFIX=${CHIP_PREFIX_807}
@@ -115,11 +118,7 @@ variables:
 
 .807_chip_test: &807_chip_test
     stage: 807-chip-test
-    script: *common_tests
-    artifacts:
-        when: on_success
-        paths:
-            - test.log
+    <<: *common_chip_test
 
 # chip-build
 # 610
@@ -210,96 +209,92 @@ f_eragon_4.9_glibc_test:
     <<: *807_chip_test
 
 ################ qemu ################
-.807_qemu_build_before: &807_qemu_build_before
-    - PREFIX=${QEMU_PREFIX_807}
+.qemu_build_before: &qemu_build_before
+    - PREFIX=${QEMU_PREFIX}
     - SUFFIX=${QEMU_SUFFIX}
+
+.common_qemu_build: &common_qemu_build
+    before_script: *qemu_build_before
+    <<: *common_builds
+
+.common_qemu_test:  &common_qemu_test
+    script: *common_tests
+    artifacts:
+        when: always
+        expire_in: 2 weeks
+        paths:
+            - test.log
 
 .807_qemu_build: &807_qemu_build
     stage: 807-qemu-build
-    before_script: *807_qemu_build_before
-    <<: *common_builds
+    <<: *common_qemu_build
 
 .807_qemu_test: &807_qemu_test
     stage: 807-qemu-test
-    script: *common_tests
-    artifacts:
-        when: always
-        expire_in: 2 weeks
-        paths:
-            - test.log
-
-.810_qemu_build_before: &810_qemu_build_before
-    - PREFIX=${QEMU_PREFIX_810}
-    - SUFFIX=${QEMU_SUFFIX}
+    <<: *common_qemu_test
 
 .810_qemu_build: &810_qemu_build
     stage: 810-qemu-build
-    before_script: *810_qemu_build_before
-    <<: *common_builds
+    <<: *common_qemu_build
 
 .810_qemu_test: &810_qemu_test
     stage: 810-qemu-test
-    script: *common_tests
-    artifacts:
-        when: always
-        expire_in: 2 weeks
-        paths:
-            - test.log
+    <<: *common_qemu_test
 
 # qemu-build
 # 807
-f_4.9_uclibc: *807_qemu_build
-f_4.9_glibc: *807_qemu_build
-f_4.14_uclibc: *807_qemu_build
-f_4.14_glibc: *807_qemu_build
+807_f_4.9_uclibc: *807_qemu_build
+807_f_4.9_glibc: *807_qemu_build
+807_f_4.14_uclibc: *807_qemu_build
+807_f_4.14_glibc: *807_qemu_build
 
 # 810
-f_4.9_uclibc: *810_qemu_build
-f_4.9_glibc: *810_qemu_build
-f_4.14_uclibc: *810_qemu_build
-f_4.14_glibc: *810_qemu_build
+810_f_4.9_uclibc: *810_qemu_build
+810_f_4.9_glibc: *810_qemu_build
+810_f_4.14_uclibc: *810_qemu_build
+810_f_4.14_glibc: *810_qemu_build
 
 # qemu-test
 # 807
-f_4.9_uclibc_test:
+807_f_4.9_uclibc_test:
     dependencies:
-      - f_4.9_uclibc
+      - 807_f_4.9_uclibc
     <<: *807_qemu_test
 
-f_4.9_glibc_test:
+807_f_4.9_glibc_test:
     dependencies:
-      - f_4.9_glibc
+      - 807_f_4.9_glibc
     <<: *807_qemu_test
 
-f_4.14_uclibc_test:
+807_f_4.14_uclibc_test:
     dependencies:
-      - f_4.14_uclibc
+      - 807_f_4.14_uclibc
     <<: *807_qemu_test
 
-f_4.14_glibc_test:
+807_f_4.14_glibc_test:
     dependencies:
-      - f_4.14_glibc
+      - 807_f_4.14_glibc
     <<: *807_qemu_test
 
 # 810
-f_4.9_uclibc_test:
+810_f_4.9_uclibc_test:
     dependencies:
-      - f_4.9_uclibc
+      - 810_f_4.9_uclibc
     <<: *810_qemu_test
 
-f_4.9_glibc_test:
+810_f_4.9_glibc_test:
     dependencies:
-      - f_4.9_glibc
+      - 810_f_4.9_glibc
     <<: *810_qemu_test
 
-f_4.14_uclibc_test:
+810_f_4.14_uclibc_test:
     dependencies:
-      - f_4.14_uclibc
+      - 810_f_4.14_uclibc
     <<: *810_qemu_test
 
-f_4.14_glibc_test:
+810_f_4.14_glibc_test:
     dependencies:
-      - f_4.14_glibc
+      - 810_f_4.14_glibc
     <<: *810_qemu_test
 
 ################ sales ################
