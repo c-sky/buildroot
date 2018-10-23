@@ -7,33 +7,30 @@
 image: maohan001/ubuntu-buildroot
 
 stages:
-  - 610-chip-build
-  - 610-chip-test
-  - 807-chip-build
-  - 807-chip-test
-  - 807-qemu-build
-  - 807-qemu-test
-  - 810-qemu-build
-  - 810-qemu-test
+  - 610-build
+  - 610-test
+  - 807-build
+  - 807-test
+  - 810-build
+  - 810-test
   - sales-build
   - toolchain-multi-libs
 
 variables:
     PREFIX: ""
-    SUFFIX: ""
-    CHIP_PREFIX_610: csky_610_
-    CHIP_PREFIX_807: csky_807_
-    CHIP_SUFFIX: _br_defconfig
+    SUFFIX: _br_defconfig
+    CHIP_PREFIX: csky_
     QEMU_PREFIX: qemu_csky_
-    QEMU_PREFIX: qemu_csky_
-    QEMU_SUFFIX: _br_defconfig
     SALES_PREFIX: csky_
-    SALES_SUFFIX: _defconfig
     CONFIG_NAME: ""
 
+    VENDER_ID: ""
+    CPU_ID: ""
+    MAIN: ""
+
 .build_buildroot: &build_buildroot
-    - echo 'Configure Buildroot'
-    - CONFIG_NAME=${PREFIX}${CI_BUILD_NAME}${SUFFIX}
+    - echo 'Configure buildroot'
+    - CONFIG_NAME=${PREFIX}${MAIN}${SUFFIX}
     - echo ${CONFIG_NAME}
     - make ${CONFIG_NAME}
     - echo 'Build buildroot'
@@ -86,136 +83,12 @@ variables:
     - ./output/host/csky-ci/run_test.sh
     - ./output/host/csky-ci/generic_analyze.sh || exit 1
 
-################ chip ################
-.610_chip_build_before: &610_chip_build_before
-    - PREFIX=${CHIP_PREFIX_610}
-    - SUFFIX=${CHIP_SUFFIX}
-
-.610_chip_build: &610_chip_build
-    stage: 610-chip-build
-    before_script: *610_chip_build_before
-    <<: *common_builds
-
 .common_chip_test: &common_chip_test
     script: *common_tests
     artifacts:
         when: on_success
         paths:
             - test.log
-
-.610_chip_test: &610_chip_test
-    stage: 610-chip-test
-    <<: *common_chip_test
-
-.807_chip_build_before: &807_chip_build_before
-    - PREFIX=${CHIP_PREFIX_807}
-    - SUFFIX=${CHIP_SUFFIX}
-
-.807_chip_build: &807_chip_build
-    stage: 807-chip-build
-    before_script: *807_chip_build_before
-    <<: *common_builds
-
-.807_chip_test: &807_chip_test
-    stage: 807-chip-test
-    <<: *common_chip_test
-
-# chip-build
-# 610
-gx6622_4.9_uclibc: *610_chip_build
-gx6622_4.9_glibc: *610_chip_build
-gx6622_4.14_uclibc: *610_chip_build
-gx6622_4.14_glibc: *610_chip_build
-gx6622_4.16_glibc: *610_chip_build
-
-# 807
-eragon_4.9_uclibc: *807_chip_build
-eragon_4.9_glibc: *807_chip_build
-eragon_4.14_uclibc: *807_chip_build
-eragon_4.14_glibc: *807_chip_build
-f_eragon_4.9_glibc: *807_chip_build
-
-# chip-test
-# 610
-gx6622_4.9_uclibc_test:
-    tags:
-      - csky-610-gx6622
-    dependencies:
-      - gx6622_4.9_uclibc
-    <<: *610_chip_test
-
-gx6622_4.9_glibc_test:
-    tags:
-      - csky-610-gx6622
-    dependencies:
-      - gx6622_4.9_glibc
-    <<: *610_chip_test
-
-gx6622_4.14_uclibc_test:
-    tags:
-      - csky-610-gx6622
-    dependencies:
-      - gx6622_4.14_uclibc
-    <<: *610_chip_test
-
-gx6622_4.14_glibc_test:
-    tags:
-      - csky-610-gx6622
-    dependencies:
-      - gx6622_4.14_glibc
-    <<: *610_chip_test
-
-gx6622_4.16_glibc_test:
-    tags:
-      - csky-610-gx6622
-    dependencies:
-      - gx6622_4.16_glibc
-    <<: *610_chip_test
-
-# 807
-eragon_4.9_uclibc_test:
-    tags:
-      - csky-807-eragon
-    dependencies:
-      - eragon_4.9_uclibc
-    <<: *807_chip_test
-
-eragon_4.9_glibc_test:
-    tags:
-      - csky-807-eragon
-    dependencies:
-      - eragon_4.9_glibc
-    <<: *807_chip_test
-
-eragon_4.14_uclibc_test:
-    tags:
-      - csky-807-eragon
-    dependencies:
-      - eragon_4.14_uclibc
-    <<: *807_chip_test
-
-eragon_4.14_glibc_test:
-    tags:
-      - csky-807-eragon
-    dependencies:
-      - eragon_4.14_glibc
-    <<: *807_chip_test
-
-f_eragon_4.9_glibc_test:
-    tags:
-      - csky-807-eragon
-    dependencies:
-      - f_eragon_4.9_glibc
-    <<: *807_chip_test
-
-################ qemu ################
-.qemu_build_before: &qemu_build_before
-    - PREFIX=${QEMU_PREFIX}
-    - SUFFIX=${QEMU_SUFFIX}
-
-.common_qemu_build: &common_qemu_build
-    before_script: *qemu_build_before
-    <<: *common_builds
 
 .common_qemu_test:  &common_qemu_test
     script: *common_tests
@@ -225,82 +98,205 @@ f_eragon_4.9_glibc_test:
         paths:
             - test.log
 
-.807_qemu_build: &807_qemu_build
-    stage: 807-qemu-build
-    <<: *common_qemu_build
+################ 610 ################
+.chip_610_build_before: &chip_610_build_before
+    - VENDER_ID="gx6622_" #fixed
+    - CPU_ID=${CI_BUILD_NAME##*libc_} #in case if it's abc or abcf
+    - PREFIX=${CHIP_PREFIX}${CPU_ID}'_'${VENDER_ID}
+    - MAIN=${CI_BUILD_NAME%_${CPU_ID}}
 
-.807_qemu_test: &807_qemu_test
-    stage: 807-qemu-test
+.chip_610_build: &chip_610_build
+    stage: 610-build
+    before_script: *chip_610_build_before
+    <<: *common_builds
+
+.chip_610_test: &chip_610_test
+    stage: 610-test
+    <<: *common_chip_test
+
+4.9_uclibc_610: *chip_610_build
+4.9_glibc_610: *chip_610_build
+4.14_uclibc_610: *chip_610_build
+4.14_glibc_610: *chip_610_build
+4.16_glibc_610: *chip_610_build
+
+4.9_uclibc_610_test:
+    tags:
+      - csky-610-gx6622
+    dependencies:
+      - 4.9_uclibc_610
+    <<: *chip_610_test
+
+4.9_glibc_610_test:
+    tags:
+      - csky-610-gx6622
+    dependencies:
+      - 4.9_glibc_610
+    <<: *chip_610_test
+
+4.14_uclibc_610_test:
+    tags:
+      - csky-610-gx6622
+    dependencies:
+      - 4.14_uclibc_610
+    <<: *chip_610_test
+
+4.14_glibc_610_test:
+    tags:
+      - csky-610-gx6622
+    dependencies:
+      - 4.14_glibc_610
+    <<: *chip_610_test
+
+4.16_glibc_610_test:
+    tags:
+      - csky-610-gx6622
+    dependencies:
+      - 4.16_glibc_610
+    <<: *chip_610_test
+
+################ 807 ################
+.chip_807_build_before: &chip_807_build_before
+    - VENDER_ID="eragon_" #fixed
+    - CPU_ID=${CI_BUILD_NAME##*libc_} #in case if it's abc or abcf
+    - PREFIX=${CHIP_PREFIX}${CPU_ID}'_'${VENDER_ID}
+    - MAIN=${CI_BUILD_NAME%_${CPU_ID}}
+
+.chip_807_build: &chip_807_build
+    stage: 807-build
+    before_script: *chip_807_build_before
+    <<: *common_builds
+
+.chip_807_test: &chip_807_test
+    stage: 807-test
+    <<: *common_chip_test
+
+4.9_uclibc_807: *chip_807_build
+4.9_glibc_807: *chip_807_build
+4.14_uclibc_807: *chip_807_build
+4.14_glibc_807: *chip_807_build
+4.9_glibc_807f: *chip_807_build
+
+4.9_uclibc_807_test:
+    tags:
+      - csky-807-eragon
+    dependencies:
+      - 4.9_uclibc_807
+    <<: *chip_807_test
+
+4.9_glibc_807_test:
+    tags:
+      - csky-807-eragon
+    dependencies:
+      - 4.9_glibc_807
+    <<: *chip_807_test
+
+4.14_uclibc_807_test:
+    tags:
+      - csky-807-eragon
+    dependencies:
+      - 4.14_uclibc_807
+    <<: *chip_807_test
+
+4.14_glibc_807_test:
+    tags:
+      - csky-807-eragon
+    dependencies:
+      - 4.14_glibc_807
+    <<: *chip_807_test
+
+4.9_glibc_807f_test:
+    tags:
+      - csky-807-eragon
+    dependencies:
+      - 4.9_glibc_807
+    <<: *chip_807_test
+
+.qemu_807_build_before: &qemu_807_build_before
+    - CPU_ID=${CI_BUILD_NAME##*libc_} #in case if it's abc or abcf
+    - PREFIX=${QEMU_PREFIX}${CPU_ID}'_'
+    - HELL=${CI_BUILD_NAME%_${CPU_ID}}
+    - MAIN=${HELL#*'qemu_'}
+
+.qemu_807_build: &qemu_807_build
+    stage: 807-build
+    before_script: *qemu_807_build_before
+    <<: *common_builds
+
+.qemu_807_test: &qemu_807_test
+    stage: 807-test
     <<: *common_qemu_test
 
-.810_qemu_build: &810_qemu_build
-    stage: 810-qemu-build
-    <<: *common_qemu_build
+qemu_4.9_uclibc_807f: *qemu_807_build
+qemu_4.9_glibc_807f: *qemu_807_build
+qemu_4.14_uclibc_807f: *qemu_807_build
+qemu_4.14_glibc_807f: *qemu_807_build
 
-.810_qemu_test: &810_qemu_test
-    stage: 810-qemu-test
+qemu_4.9_uclibc_807f_test:
+    dependencies:
+      - qemu_4.9_uclibc_807f
+    <<: *qemu_807_test
+
+qemu_4.9_glibc_807f_test:
+    dependencies:
+      - qemu_4.9_glibc_807f
+    <<: *qemu_807_test
+
+qemu_4.14_uclibc_807f_test:
+    dependencies:
+      - qemu_4.14_uclibc_807f
+    <<: *qemu_807_test
+
+qemu_4.14_glibc_807f_test:
+    dependencies:
+      - qemu_4.14_glibc_807f
+    <<: *qemu_807_test
+
+################ 810 ################
+.qemu_810_build_before: &qemu_810_build_before
+    - CPU_ID=${CI_BUILD_NAME##*libc_} #in case if it's abc or abcf
+    - PREFIX=${QEMU_PREFIX}${CPU_ID}'_'
+    - HELL=${CI_BUILD_NAME%_${CPU_ID}}
+    - MAIN=${HELL#*'qemu_'}
+
+.qemu_810_build: &qemu_810_build
+    stage: 810-build
+    before_script: *qemu_810_build_before
+    <<: *common_builds
+
+.qemu_810_test: &qemu_810_test
+    stage: 810-test
     <<: *common_qemu_test
 
-# qemu-build
-# 807
-807_f_4.9_uclibc: *807_qemu_build
-807_f_4.9_glibc: *807_qemu_build
-807_f_4.14_uclibc: *807_qemu_build
-807_f_4.14_glibc: *807_qemu_build
+qemu_4.9_uclibc_810f: *qemu_810_build
+qemu_4.9_glibc_810f: *qemu_810_build
+qemu_4.14_uclibc_810f: *qemu_810_build
+qemu_4.14_glibc_810f: *qemu_810_build
 
-# 810
-810_f_4.9_uclibc: *810_qemu_build
-810_f_4.9_glibc: *810_qemu_build
-810_f_4.14_uclibc: *810_qemu_build
-810_f_4.14_glibc: *810_qemu_build
-
-# qemu-test
-# 807
-807_f_4.9_uclibc_test:
+qemu_4.9_uclibc_810f_test:
     dependencies:
-      - 807_f_4.9_uclibc
-    <<: *807_qemu_test
+      - qemu_4.9_uclibc_810f
+    <<: *qemu_810_test
 
-807_f_4.9_glibc_test:
+qemu_4.9_glibc_810f_test:
     dependencies:
-      - 807_f_4.9_glibc
-    <<: *807_qemu_test
+      - qemu_4.9_glibc_810f
+    <<: *qemu_810_test
 
-807_f_4.14_uclibc_test:
+qemu_4.14_uclibc_810f_test:
     dependencies:
-      - 807_f_4.14_uclibc
-    <<: *807_qemu_test
+      - qemu_4.14_uclibc_810f
+    <<: *qemu_810_test
 
-807_f_4.14_glibc_test:
+qemu_4.14_glibc_810f_test:
     dependencies:
-      - 807_f_4.14_glibc
-    <<: *807_qemu_test
-
-# 810
-810_f_4.9_uclibc_test:
-    dependencies:
-      - 810_f_4.9_uclibc
-    <<: *810_qemu_test
-
-810_f_4.9_glibc_test:
-    dependencies:
-      - 810_f_4.9_glibc
-    <<: *810_qemu_test
-
-810_f_4.14_uclibc_test:
-    dependencies:
-      - 810_f_4.14_uclibc
-    <<: *810_qemu_test
-
-810_f_4.14_glibc_test:
-    dependencies:
-      - 810_f_4.14_glibc
-    <<: *810_qemu_test
+      - qemu_4.14_glibc_810f
+    <<: *qemu_810_test
 
 ################ sales ################
 .sales_build_before: &sales_build_before
     - PREFIX=${SALES_PREFIX}
-    - SUFFIX=${SALES_SUFFIX}
+    - MAIN=${CI_BUILD_NAME}
 
 .sales_build: &sales_build
     stage: sales-build
