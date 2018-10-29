@@ -103,7 +103,8 @@ variables:
     - VENDER_ID="gx6622_" #fixed
     - CPU_ID=${CI_BUILD_NAME##*libc_} #in case if it's abc or abcf
     - PREFIX=${CHIP_PREFIX}${CPU_ID}'_'${VENDER_ID}
-    - MAIN=${CI_BUILD_NAME%_${CPU_ID}}
+    - HELL=${CI_BUILD_NAME%_${CPU_ID}}
+    - MAIN=${HELL#*'gx66_'}
 
 .chip_610_build: &chip_610_build
     stage: 610-build
@@ -114,45 +115,45 @@ variables:
     stage: 610-test
     <<: *common_chip_test
 
-4.9_uclibc_610: *chip_610_build
-4.9_glibc_610: *chip_610_build
-4.14_uclibc_610: *chip_610_build
-4.14_glibc_610: *chip_610_build
-4.16_glibc_610: *chip_610_build
+gx66_4.9_uclibc_610: *chip_610_build
+gx66_4.9_glibc_610: *chip_610_build
+gx66_4.14_uclibc_610: *chip_610_build
+gx66_4.14_glibc_610: *chip_610_build
+gx66_4.16_glibc_610: *chip_610_build
 
-4.9_uclibc_610_test:
+gx66_4.9_uclibc_610_test:
     tags:
       - csky-610-gx6622
     dependencies:
-      - 4.9_uclibc_610
+      - gx66_4.9_uclibc_610
     <<: *chip_610_test
 
-4.9_glibc_610_test:
+gx66_4.9_glibc_610_test:
     tags:
       - csky-610-gx6622
     dependencies:
-      - 4.9_glibc_610
+      - gx66_4.9_glibc_610
     <<: *chip_610_test
 
-4.14_uclibc_610_test:
+gx66_4.14_uclibc_610_test:
     tags:
       - csky-610-gx6622
     dependencies:
-      - 4.14_uclibc_610
+      - gx66_4.14_uclibc_610
     <<: *chip_610_test
 
-4.14_glibc_610_test:
+gx66_4.14_glibc_610_test:
     tags:
       - csky-610-gx6622
     dependencies:
-      - 4.14_glibc_610
+      - gx66_4.14_glibc_610
     <<: *chip_610_test
 
-4.16_glibc_610_test:
+gx66_4.16_glibc_610_test:
     tags:
       - csky-610-gx6622
     dependencies:
-      - 4.16_glibc_610
+      - gx66_4.16_glibc_610
     <<: *chip_610_test
 
 ################ 807 ################
@@ -160,7 +161,8 @@ variables:
     - VENDER_ID="eragon_" #fixed
     - CPU_ID=${CI_BUILD_NAME##*libc_} #in case if it's abc or abcf
     - PREFIX=${CHIP_PREFIX}${CPU_ID}'_'${VENDER_ID}
-    - MAIN=${CI_BUILD_NAME%_${CPU_ID}}
+    - HELL=${CI_BUILD_NAME%_${CPU_ID}}
+    - MAIN=${HELL#*'era_'}
 
 .chip_807_build: &chip_807_build
     stage: 807-build
@@ -171,45 +173,45 @@ variables:
     stage: 807-test
     <<: *common_chip_test
 
-4.9_uclibc_807: *chip_807_build
-4.9_glibc_807: *chip_807_build
-4.14_uclibc_807: *chip_807_build
-4.14_glibc_807: *chip_807_build
-4.9_glibc_807f: *chip_807_build
+era_4.9_uclibc_807: *chip_807_build
+era_4.9_glibc_807: *chip_807_build
+era_4.14_uclibc_807: *chip_807_build
+era_4.14_glibc_807: *chip_807_build
+era_4.9_glibc_807f: *chip_807_build
 
-4.9_uclibc_807_test:
+era_4.9_uclibc_807_test:
     tags:
       - csky-807-eragon
     dependencies:
-      - 4.9_uclibc_807
+      - era_4.9_uclibc_807
     <<: *chip_807_test
 
-4.9_glibc_807_test:
+era_4.9_glibc_807_test:
     tags:
       - csky-807-eragon
     dependencies:
-      - 4.9_glibc_807
+      - era_4.9_glibc_807
     <<: *chip_807_test
 
-4.14_uclibc_807_test:
+era_4.14_uclibc_807_test:
     tags:
       - csky-807-eragon
     dependencies:
-      - 4.14_uclibc_807
+      - era_4.14_uclibc_807
     <<: *chip_807_test
 
-4.14_glibc_807_test:
+era_4.14_glibc_807_test:
     tags:
       - csky-807-eragon
     dependencies:
-      - 4.14_glibc_807
+      - era_4.14_glibc_807
     <<: *chip_807_test
 
-4.9_glibc_807f_test:
+era_4.9_glibc_807f_test:
     tags:
       - csky-807-eragon
     dependencies:
-      - 4.9_glibc_807
+      - era_4.9_glibc_807
     <<: *chip_807_test
 
 .qemu_807_build_before: &qemu_807_build_before
@@ -292,35 +294,3 @@ qemu_4.14_glibc_810f_test:
     dependencies:
       - qemu_4.14_glibc_810f
     <<: *qemu_810_test
-
-################ sales ################
-.sales_build_before: &sales_build_before
-    - PREFIX=${SALES_PREFIX}
-    - MAIN=${CI_BUILD_NAME}
-
-.sales_build: &sales_build
-    stage: sales-build
-    before_script: *sales_build_before
-    <<: *common_builds
-
-# sales-build
-860_platform: *sales_build
-gx6605s_fbcon: *sales_build
-gx6605s: *sales_build
-
-# sales-test
-# sales has no test
-
-################ toolchain ################
-# toolchain-multi-libs
-abiv2-uclibc:
-    stage: toolchain-multi-libs
-    dependencies: []
-    script:
-      - echo abiv2-uclibc
-
-abiv2-glibc:
-    stage: toolchain-multi-libs
-    dependencies: []
-    script:
-      - echo abiv2-glibc
