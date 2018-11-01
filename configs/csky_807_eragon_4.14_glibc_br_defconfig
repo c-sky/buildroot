@@ -1,6 +1,5 @@
 BR2_csky=y
 BR2_ck807=y
-BR2_CSKY_FPU=y
 BR2_OPTIMIZE_2=y
 BR2_PACKAGE_OVERRIDE_FILE="board/csky/eragon_evb/local.mk"
 BR2_ROOTFS_OVERLAY="board/csky/eragon_evb/fs-overlay"
