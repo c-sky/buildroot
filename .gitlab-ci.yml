@@ -104,7 +104,7 @@ variables:
     - CPU_ID=${CI_BUILD_NAME##*libc_} #in case if it's abc or abcf
     - PREFIX=${CHIP_PREFIX}${CPU_ID}'_'${VENDER_ID}
     - HELL=${CI_BUILD_NAME%_${CPU_ID}}
-    - MAIN=${HELL#*'gx66_'}
+    - MAIN=${HELL#*'gx6622_'}
 
 .chip_610_build: &chip_610_build
     stage: 610-build
@@ -115,45 +115,45 @@ variables:
     stage: 610-test
     <<: *common_chip_test
 
-gx66_4.9_uclibc_610: *chip_610_build
-gx66_4.9_glibc_610: *chip_610_build
-gx66_4.14_uclibc_610: *chip_610_build
-gx66_4.14_glibc_610: *chip_610_build
-gx66_4.16_glibc_610: *chip_610_build
+gx6622_4.9_uclibc_610: *chip_610_build
+gx6622_4.9_glibc_610: *chip_610_build
+gx6622_4.14_uclibc_610: *chip_610_build
+gx6622_4.14_glibc_610: *chip_610_build
+gx6622_4.16_glibc_610: *chip_610_build
 
-gx66_4.9_uclibc_610_test:
+gx6622_4.9_uclibc_610_test:
     tags:
       - csky-610-gx6622
     dependencies:
-      - gx66_4.9_uclibc_610
+      - gx6622_4.9_uclibc_610
     <<: *chip_610_test
 
-gx66_4.9_glibc_610_test:
+gx6622_4.9_glibc_610_test:
     tags:
       - csky-610-gx6622
     dependencies:
-      - gx66_4.9_glibc_610
+      - gx6622_4.9_glibc_610
     <<: *chip_610_test
 
-gx66_4.14_uclibc_610_test:
+gx6622_4.14_uclibc_610_test:
     tags:
       - csky-610-gx6622
     dependencies:
-      - gx66_4.14_uclibc_610
+      - gx6622_4.14_uclibc_610
     <<: *chip_610_test
 
-gx66_4.14_glibc_610_test:
+gx6622_4.14_glibc_610_test:
     tags:
       - csky-610-gx6622
     dependencies:
-      - gx66_4.14_glibc_610
+      - gx6622_4.14_glibc_610
     <<: *chip_610_test
 
-gx66_4.16_glibc_610_test:
+gx6622_4.16_glibc_610_test:
     tags:
       - csky-610-gx6622
     dependencies:
-      - gx66_4.16_glibc_610
+      - gx6622_4.16_glibc_610
     <<: *chip_610_test
 
 ################ 807 ################
@@ -162,7 +162,7 @@ gx66_4.16_glibc_610_test:
     - CPU_ID=${CI_BUILD_NAME##*libc_} #in case if it's abc or abcf
     - PREFIX=${CHIP_PREFIX}${CPU_ID}'_'${VENDER_ID}
     - HELL=${CI_BUILD_NAME%_${CPU_ID}}
-    - MAIN=${HELL#*'era_'}
+    - MAIN=${HELL#*'eragon_'}
 
 .chip_807_build: &chip_807_build
     stage: 807-build
@@ -173,45 +173,45 @@ gx66_4.16_glibc_610_test:
     stage: 807-test
     <<: *common_chip_test
 
-era_4.9_uclibc_807: *chip_807_build
-era_4.9_glibc_807: *chip_807_build
-era_4.14_uclibc_807: *chip_807_build
-era_4.14_glibc_807: *chip_807_build
-era_4.9_glibc_807f: *chip_807_build
+eragon_4.9_uclibc_807: *chip_807_build
+eragon_4.9_glibc_807: *chip_807_build
+eragon_4.14_uclibc_807: *chip_807_build
+eragon_4.14_glibc_807: *chip_807_build
+eragon_4.9_glibc_807f: *chip_807_build
 
-era_4.9_uclibc_807_test:
+eragon_4.9_uclibc_807_test:
     tags:
       - csky-807-eragon
     dependencies:
-      - era_4.9_uclibc_807
+      - eragon_4.9_uclibc_807
     <<: *chip_807_test
 
-era_4.9_glibc_807_test:
+eragon_4.9_glibc_807_test:
     tags:
       - csky-807-eragon
     dependencies:
-      - era_4.9_glibc_807
+      - eragon_4.9_glibc_807
     <<: *chip_807_test
 
-era_4.14_uclibc_807_test:
+eragon_4.14_uclibc_807_test:
     tags:
       - csky-807-eragon
     dependencies:
-      - era_4.14_uclibc_807
+      - eragon_4.14_uclibc_807
     <<: *chip_807_test
 
-era_4.14_glibc_807_test:
+eragon_4.14_glibc_807_test:
     tags:
       - csky-807-eragon
     dependencies:
-      - era_4.14_glibc_807
+      - eragon_4.14_glibc_807
     <<: *chip_807_test
 
-era_4.9_glibc_807f_test:
+eragon_4.9_glibc_807f_test:
     tags:
       - csky-807-eragon
     dependencies:
-      - era_4.9_glibc_807
+      - eragon_4.9_glibc_807
     <<: *chip_807_test
 
 .qemu_807_build_before: &qemu_807_build_before
