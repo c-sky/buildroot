@@ -1,21 +1,19 @@
-# Set the JTAG address according to C-SKY debugserver settings
-tar jtag jtag://127.0.1.1:1025
-reset
+tar jtag jtag://127.0.0.1:1025
 # Setup MMU MSA0 reg
 set $mcr30 = 0x0000000e
 
 # Setup hint reg
-set $cr31 = 0x1ff
+#set $cr31 = 0x1ff
 
 # Invalid L1-cache include I/Dcache
 set $cr17 = (1<<4) | 0x3
 # Enable L1 cache and MMU and other CPU features
-set $cr18 = 0xc87d
+set $cr18 = 0x7d
 
 # Invalid L2 cache
-set $cr24 = (1<<4)
+#set $cr24 = (1<<4)
 # Enable L2 cache
-set $cr23 = 0x1018
+#set $cr23 = 0x1018
 
 # Pass the devicetree blob(dtb) store address to Linux kernel
 set $r1 = 0x82000000
