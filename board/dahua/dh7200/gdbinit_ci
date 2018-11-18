@@ -16,8 +16,8 @@ set endian little
 # Enable L2 cache
 # set $cr23 = 0x8
 
-set $r1 = 0x82000000
-restore dh7200_ci.dtb binary 0x82000000
+set $r1 = 0x86000000
+restore dh7200_ci.dtb binary 0x86000000
 
 # Sync I/Dcache before run kernel
 set $cr17 = 0x33
