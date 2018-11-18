@@ -4,8 +4,8 @@
 #
 ################################################################################
 
-CKUPS_CSKY_ARCH_VERSION = a89c815dc3ddb8db6e9ad3ef36f914e0faee7292
-CKTST_CSKY_ARCH_VERSION = a89c815dc3ddb8db6e9ad3ef36f914e0faee7292
+CKUPS_CSKY_ARCH_VERSION = a86f69021b08db257a04d44714b30f589db23cba
+CKTST_CSKY_ARCH_VERSION = a86f69021b08db257a04d44714b30f589db23cba
 ifeq ($(BR2_CSKY_UPSTREAM),y)
 CSKY_ARCH_VERSION = $(CKUPS_CSKY_ARCH_VERSION)
 else
@@ -65,6 +65,10 @@ endif
 
 define CSKY_LINUX_PREPARE_SRC_A
 	if [ ! -f $(LINUX_DIR)/.stamp_patched_csky ]; then \
+	cd $(LINUX_DIR)/; \
+	mkdir -p tools/arch/csky/include/uapi/asm/; \
+	cp tools/arch/arm/include/uapi/asm/mman.h tools/arch/csky/include/uapi/asm/mman.h; \
+	cd -; \
 	cd $(LINUX_DIR)/../; \
 	cp -raf linux-$(LINUX_VERSION) a; \
 	cd -; \
