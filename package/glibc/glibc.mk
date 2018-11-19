@@ -8,8 +8,8 @@ ifeq ($(BR2_arc),y)
 GLIBC_VERSION =  arc-2017.09-release
 GLIBC_SITE = $(call github,foss-for-synopsys-dwc-arc-processors,glibc,$(GLIBC_VERSION))
 else ifeq ($(BR2_csky),y)
-CKUPS_GLIBC_VERSION = acbc9c97e479ad87d2feb27f6eada630b57768a0
-CKTST_GLIBC_VERSION = acbc9c97e479ad87d2feb27f6eada630b57768a0
+CKUPS_GLIBC_VERSION = b6a1df5903cdf627215d8730adcd7e478b2e6535
+CKTST_GLIBC_VERSION = b6a1df5903cdf627215d8730adcd7e478b2e6535
 ifeq ($(BR2_CSKY_UPSTREAM),y)
 GLIBC_VERSION = $(CKUPS_GLIBC_VERSION)
 else
