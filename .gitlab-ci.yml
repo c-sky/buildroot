@@ -15,6 +15,8 @@ stages:
   - 807-test
   - 810-build
   - 810-test
+  - 860-build
+  - 860-test
   - sales-build
   - toolchain-multi-libs
 
@@ -282,3 +284,45 @@ qemu_4.14_glibc_810f_test:
     dependencies:
       - qemu_4.14_glibc_810f
     <<: *810_test
+
+################ 860 ################
+.860_build: &860_build
+    stage: 860-build
+    <<: *common_builds
+
+.860_test: &860_test
+    stage: 860-test
+    <<: *common_tests
+
+fpga_4.9_glibc_860: *860_build
+fpga_4.9_uclibc_860: *860_build
+fpga_4.14_glibc_860: *860_build
+fpga_4.14_uclibc_860: *860_build
+
+fpga_4.9_glibc_860_test:
+    tags:
+      - csky-860-fpga
+    dependencies:
+      - fpga_4.9_glibc_860
+    <<: *860_test
+
+fpga_4.9_uclibc_860_test:
+    tags:
+      - csky-860-fpga
+    dependencies:
+      - fpga_4.9_uclibc_860
+    <<: *860_test
+
+fpga_4.14_glibc_860_test:
+    tags:
+      - csky-860-fpga
+    dependencies:
+      - fpga_4.14_glibc_860
+    <<: *860_test
+
+fpga_4.14_uclibc_860_test:
+    tags:
+      - csky-860-fpga
+    dependencies:
+      - fpga_4.14_uclibc_860
+    <<: *860_test
