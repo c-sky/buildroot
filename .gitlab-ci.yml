@@ -19,6 +19,8 @@ stages:
   - 860-test
   - sales-build
   - toolchain-multi-libs
+  - build
+  - test
 
 variables:
     PREFIX: ""
@@ -103,11 +105,11 @@ variables:
 
 ################ 610 ################
 .610_build: &610_build
-    stage: 610-build
+    stage: build
     <<: *common_builds
 
 .610_test: &610_test
-    stage: 610-test
+    stage: test
     <<: *common_tests
 
 gx6622_4.9_uclibc_610: *610_build
@@ -145,11 +147,11 @@ gx6622_4.14_glibc_610_test:
 
 ################ 807 ################
 .807_build: &807_build
-    stage: 807-build
+    stage: build
     <<: *common_builds
 
 .807_test: &807_test
-    stage: 807-test
+    stage: test
     <<: *common_tests
 
 eragon_4.9_uclibc_807: *807_build
@@ -228,11 +230,11 @@ qemu_4.14_glibc_807f_test:
 
 ################ 810 ################
 .810_build: &810_build
-    stage: 810-build
+    stage: build
     <<: *common_builds
 
 .810_test: &810_test
-    stage: 810-test
+    stage: test
     <<: *common_tests
 
 dh7200_4.9_glibc_810f: *810_build
@@ -287,11 +289,11 @@ qemu_4.14_glibc_810f_test:
 
 ################ 860 ################
 .860_build: &860_build
-    stage: 860-build
+    stage: build
     <<: *common_builds
 
 .860_test: &860_test
-    stage: 860-test
+    stage: test
     <<: *common_tests
 
 fpga_4.9_glibc_860: *860_build
