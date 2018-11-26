@@ -234,9 +234,7 @@ qemu_4.14_glibc_807f_test:
     <<: *common_tests
 
 dh7200_4.9_glibc_810f: *810_build
-dh7200_4.9_uclibc_810f: *810_build
 dh7200_4.14_glibc_810f: *810_build
-dh7200_4.14_uclibc_810f: *810_build
 
 dh7200_4.9_glibc_810f_test:
     tags:
@@ -245,25 +243,11 @@ dh7200_4.9_glibc_810f_test:
       - dh7200_4.9_glibc_810f
     <<: *810_test
 
-dh7200_4.9_uclibc_810f_test:
-    tags:
-      - csky-810-dh7200
-    dependencies:
-      - dh7200_4.9_uclibc_810f
-    <<: *810_test
-
 dh7200_4.14_glibc_810f_test:
     tags:
       - csky-810-dh7200
     dependencies:
       - dh7200_4.14_glibc_810f
-    <<: *810_test
-
-dh7200_4.14_uclibc_810f_test:
-    tags:
-      - csky-810-dh7200
-    dependencies:
-      - dh7200_4.14_uclibc_810f
     <<: *810_test
 
 sc8925_4.9_glibc_810f: *810_build
