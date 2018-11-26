@@ -254,14 +254,6 @@ dh7200_4.14_glibc_810f_test:
       - dh7200_4.14_glibc_810f
     <<: *810_test
 
-sc8925_4.9_glibc_810f: *810_build
-sc8925_4.9_glibc_810f_test:
-    tags:
-      - csky-810-sc8925
-    dependencies:
-      - sc8925_4.9_glibc_810f
-    <<: *810_test
-
 qemu_4.9_uclibc_810f: *810_build
 qemu_4.9_glibc_810f: *810_build
 qemu_4.14_uclibc_810f: *810_build
