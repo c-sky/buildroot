@@ -13,6 +13,7 @@ echo CONFIG_CPU_CK610=$(BR2_ck610) > $(@D)/config
 echo CONFIG_CPU_CK807=$(BR2_ck807) >> $(@D)/config
 echo CONFIG_CPU_CK810=$(BR2_ck810) >> $(@D)/config
 echo CONFIG_CPU_CK860=$(BR2_ck860) >> $(@D)/config
+echo CONFIG_FPGA=$(BR2_CSKY_FPGA) >> $(@D)/config
 echo CONFIG_GLIBC=$(BR2_TOOLCHAIN_USES_GLIBC) >> $(@D)/config
 echo CONFIG_QEMU=$(BR2_PACKAGE_HOST_CSKY_QEMU) >> $(@D)/config
 echo CONFIG_TTY=$(BR2_TARGET_GENERIC_GETTY_PORT) >> $(@D)/config

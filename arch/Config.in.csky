@@ -18,6 +18,12 @@ config BR2_ck860
 
 endchoice
 
+config BR2_CSKY_FPGA
+	bool "Using FPGA"
+	help
+	  You can specify a CPU type along with this option
+	  which means you'll use, eg. ck860-fpga board
+
 config BR2_CSKY_FPU
 	bool "Enable FPU coprocessor"
 	depends on BR2_ck807 || BR2_ck810 || BR2_ck860
