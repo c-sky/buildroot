@@ -1,5 +1,5 @@
 # Set the JTAG address according to C-SKY debugserver settings
-tar jtag jtag://192.168.0.88:1025
+tar jtag jtag://127.0.0.1:1025
 
 # Set gdb environment
 set height 0
@@ -12,3 +12,5 @@ set $cr18=0x00
 
 # Load the debugging elf file
 load
+c
+q
