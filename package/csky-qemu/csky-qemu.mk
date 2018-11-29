@@ -15,7 +15,7 @@ endif
 HOST_CSKY_QEMU_DEPENDENCIES = host-pkgconf host-python host-zlib \
 			      host-libglib2 host-pixman host-dtc
 
-HOST_CSKY_QEMU_OPTS += --enable-system --enable-fdt
+HOST_CSKY_QEMU_OPTS += --enable-system --enable-fdt --disable-gcrypt
 
 define HOST_CSKY_QEMU_CONFIGURE_CMDS
 	cd $(@D); $(HOST_CONFIGURE_OPTS) CPP="$(HOSTCC) -E" \

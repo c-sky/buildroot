@@ -35,4 +35,5 @@ load
 
 # Sync I/Dcache before run kernel
 set $cr17 = 0x33
-
+c
+q
