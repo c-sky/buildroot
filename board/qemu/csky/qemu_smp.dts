@@ -1,0 +1,92 @@
+/dts-v1/;
+/ {
+	model = "qemu.csky";
+	compatible = "csky";
+	#address-cells = <1>;
+	#size-cells = <1>;
+
+	cpus {
+		#address-cells = <1>;
+		#size-cells = <0>;
+		cpu@0 {
+			device_type = "cpu";
+			reg = <0>;
+			status = "ok";
+		};
+		cpu@1 {
+			device_type = "cpu";
+			reg = <1>;
+			status = "ok";
+		};
+		cpu@2 {
+			device_type = "cpu";
+			reg = <2>;
+			status = "ok";
+		};
+		cpu@3 {
+			device_type = "cpu";
+			reg = <3>;
+			status = "ok";
+		};
+	};
+
+	memory {
+		device_type = "memory";
+		/*
+		 * 0x00000000 - 0x00200000: Reserved for VPU work buf
+		 * 0x17c00000 - 0x18000000: Reserved for VPU iram
+		 */
+		reg = <0 0x20000000>;
+	};
+
+	aliases {
+		serial0 = &uart0;
+	};
+
+	soc {
+		#address-cells = <1>;
+		#size-cells = <1>;
+		compatible = "simple-bus";
+		ranges;
+
+		dummy_apb: apb-clock {
+			compatible = "fixed-clock";
+			clock-frequency = <50000000>;
+			clock-output-names = "dummy_apb";
+			#clock-cells = <0>;
+		};
+
+		qemu-exit {
+			compatible = "csky,qemu-exit";
+			reg = <0xffffc000 0x1000>;
+		};
+
+		intc: interrupt-controller {
+			compatible = "csky,mpintc";
+			interrupt-controller;
+			#interrupt-cells = <1>;
+		};
+
+		timer0: timer {
+			compatible = "csky,mptimer";
+			clocks = <&dummy_apb>;
+			interrupts = <16>;
+			interrupt-parent = <&intc>;
+		};
+
+		uart0: serial@ffffe000 {
+			compatible = "ns16550a";
+			reg = <0xffffe000 0x1000>;
+			interrupt-parent = <&intc>;
+			interrupts = <43>;
+			clocks = <&dummy_apb>;
+			reg-shift = <2>;
+			reg-io-width = <1>;
+		};
+	};
+
+	chosen {
+		bootargs = "console=ttyS0,115200 rdinit=/sbin/init root=/dev/ram0 clk_ignore_unused loglevel=7";
+	};
+};
+
