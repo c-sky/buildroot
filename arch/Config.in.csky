@@ -30,6 +30,12 @@ config BR2_CSKY_FPGA_BITFILE
 	default "${BR2_CSKY_FPGA_BITFILE}"
 	help
 		Specify fpga bitfile name here
+
+config BR2_CSKY_FPGA_DDRINIT
+	string "csky fpga ddrinit name"
+	default "${BR2_CSKY_FPGA_DDRINIT}"
+	help
+		Specify fpga ddrinit name here
 endif
 
 config BR2_CSKY_FPU
