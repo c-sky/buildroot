@@ -25,7 +25,7 @@ config BR2_CSKY_FPGA
 	  which means you'll use, eg. ck860-fpga board
 
 if BR2_CSKY_FPGA
-config CSKY_FPGA_BITFILE
+config BR2_CSKY_FPGA_BITFILE
 	string "csky fpga bitfile name"
 	default "${BR2_CSKY_FPGA_BITFILE}"
 	help
