@@ -2,6 +2,7 @@
 BR2_csky=y
 BR2_ck860=y
 BR2_CSKY_FPGA=y
+BR2_CSKY_FPGA_BITFILE="ck860mp_eragon_0809.bit"
 
 # Kernel headers
 BR2_PACKAGE_HOST_LINUX_HEADERS_CUSTOM_4_9=y
