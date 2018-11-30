@@ -3,7 +3,7 @@ BR2_csky=y
 BR2_ck860=y
 BR2_CSKY_FPGA=y
 BR2_CSKY_FPGA_BITFILE="CK860SP_181127_BTB2048_L2512.bit"
-BR2_CSKY_FPGA_DDRINIT="ddr_init.elf"
+BR2_CSKY_FPGA_DDRINIT="ddr_init_eragon3_sec_bypass_interrupt_non_secure_0305.elf"
 
 # Kernel headers
 BR2_PACKAGE_HOST_LINUX_HEADERS_CUSTOM_4_9=y
