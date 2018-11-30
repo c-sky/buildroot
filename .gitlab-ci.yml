@@ -262,6 +262,18 @@ variables:
       - 810f_4.14_glibc_dh7200
     <<: *810_test
 
+#For glibc-ci only
+810_4.9_glibc_qemu:
+    stage: build
+    <<: *common_builds
+    only:
+        changes:
+            packages/csky-glibc-ci/*
+810_4.9_glibc_qemu_test:
+    dependencies:
+      - 810_4.9_glibc_qemu
+    <<: *810_test
+
 810f_4.9_uclibc_qemu: *810_build
 810f_4.9_glibc_qemu: *810_build
 810f_4.14_uclibc_qemu: *810_build
