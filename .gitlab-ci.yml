@@ -320,28 +320,3 @@ fpga_4.14_uclibc_860_test:
     dependencies:
       - fpga_4.14_uclibc_860
     <<: *860_test
-
-qemu_4.9_glibc_860: *860_build
-qemu_4.9_uclibc_860: *860_build
-qemu_4.14_glibc_860: *860_build
-qemu_4.14_uclibc_860: *860_build
-
-qemu_4.9_glibc_860_test:
-    dependencies:
-      - qemu_4.9_glibc_860
-    <<: *860_test
-
-qemu_4.9_uclibc_860_test:
-    dependencies:
-      - qemu_4.9_uclibc_860
-    <<: *860_test
-
-qemu_4.14_glibc_860_test:
-    dependencies:
-      - qemu_4.14_glibc_860
-    <<: *860_test
-
-qemu_4.14_uclibc_860_test:
-    dependencies:
-      - qemu_4.14_uclibc_860
-    <<: *860_test
