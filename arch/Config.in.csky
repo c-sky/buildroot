@@ -18,26 +18,6 @@ config BR2_ck860
 
 endchoice
 
-config BR2_CSKY_FPGA
-	bool "Using FPGA"
-	help
-	  You can specify a CPU type along with this option
-	  which means you'll use, eg. ck860-fpga board
-
-if BR2_CSKY_FPGA
-config BR2_CSKY_FPGA_BITFILE
-	string "csky fpga bitfile name"
-	default "${BR2_CSKY_FPGA_BITFILE}"
-	help
-		Specify fpga bitfile name here
-
-config BR2_CSKY_FPGA_DDRINIT
-	string "csky fpga ddrinit name"
-	default "${BR2_CSKY_FPGA_DDRINIT}"
-	help
-		Specify fpga ddrinit name here
-endif
-
 config BR2_CSKY_FPU
 	bool "Enable FPU coprocessor"
 	depends on BR2_ck807 || BR2_ck810 || BR2_ck860
