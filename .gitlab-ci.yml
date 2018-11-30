@@ -289,34 +289,10 @@ qemu_4.14_glibc_810f_test:
     <<: *common_tests
 
 fpga_4.9_glibc_860: *860_build
-fpga_4.9_uclibc_860: *860_build
-fpga_4.14_glibc_860: *860_build
-fpga_4.14_uclibc_860: *860_build
 
 fpga_4.9_glibc_860_test:
     tags:
       - csky-860-fpga
     dependencies:
       - fpga_4.9_glibc_860
-    <<: *860_test
-
-fpga_4.9_uclibc_860_test:
-    tags:
-      - csky-860-fpga
-    dependencies:
-      - fpga_4.9_uclibc_860
-    <<: *860_test
-
-fpga_4.14_glibc_860_test:
-    tags:
-      - csky-860-fpga
-    dependencies:
-      - fpga_4.14_glibc_860
-    <<: *860_test
-
-fpga_4.14_uclibc_860_test:
-    tags:
-      - csky-860-fpga
-    dependencies:
-      - fpga_4.14_uclibc_860
     <<: *860_test
