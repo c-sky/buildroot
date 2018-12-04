@@ -3,8 +3,6 @@ config BR2_PACKAGE_CSKY_CI
         bool "csky-ci"
 	depends on BR2_LINUX_KERNEL
 	depends on BR2_csky
-	select BR2_PACKAGE_GDB
-    select BR2_PACKAGE_GDB_SERVER
 	help
           C-Sky ci test script
 
@@ -17,6 +15,11 @@ config BR2_PACKAGE_CSKY_CI_LMBENCH
 	bool "csky-ci-lmbench"
 	depends on BR2_PACKAGE_CSKY_CI
 	select BR2_PACKAGE_LMBENCH
+
+config BR2_PACKAGE_CSKY_CI_UCLIBC_NG_TEST
+	bool "csky-ci-uclibc-ng-test"
+	depends on BR2_PACKAGE_CSKY_CI
+	select BR2_PACKAGE_UCLIBC_NG_TEST
 
 config BR2_CSKY_FPGA
 	bool "Using FPGA"
