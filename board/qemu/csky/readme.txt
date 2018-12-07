@@ -28,13 +28,13 @@ Download all files above.
   $ cd toolchain
   $ tar -Jxf ../<buildroot-config>_<buildroot-version>.tar.xz
   $ cd ..
-  $ toolchain/csky-qemu/bin/qemu-system-csky -machine virt -kernel vmlinux -dtb qemu.dtb -nographic
+  $ toolchain/csky-qemu/bin/qemu-system-csky2 -kernel vmlinux -dtb qemu_smp.dtb -nographic -M mp860 -smp 4
 
 Run with network
 
   You need setup tap0 in your host PC first, and then execute:
 
-  $ toolchain/csky-qemu/bin/qemu-system-csky -machine virt -kernel vmlinux -dtb qemu.dtb -nographic -net nic -net tap,ifname=tap0
+  $ toolchain/csky-qemu/bin/qemu-system-csky2 -kernel vmlinux -dtb qemu.dtb -nographic -M virt -net nic -net tap,ifname=tap0
 
 Build linux kernel
 ==================
