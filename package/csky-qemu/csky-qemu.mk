@@ -4,7 +4,7 @@
 #
 ################################################################################
 
-CSKY_QEMU_VERSION = 3c8a7416b7bd4b8e0b878637e6aad7694be3409a
+CSKY_QEMU_VERSION = ffa797af0f4b836ded828e8f96d22013629bb113
 ifeq ($(BR2_CSKY_QEMU_GERRIT), y)
 CSKY_QEMU_SITE = "ssh://${GITUSER}@192.168.0.78:29418/tools/qemu"
 CSKY_QEMU_SITE_METHOD = git
