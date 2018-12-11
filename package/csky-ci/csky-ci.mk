@@ -5,7 +5,7 @@
 #
 ################################################################################
 
-CSKY_CI_VERSION = 549475a88b0a5c9077ebaa154f44b78d9cfb4317
+CSKY_CI_VERSION = ae3244408df886ef47ebef7a4bdd6d56f0ba18ec
 CSKY_CI_SITE = $(call github,c-sky,csky-ci,$(CSKY_CI_VERSION))
 
 define CSKY_CI_CONFIGURE_CMDS
@@ -16,7 +16,6 @@ echo CONFIG_CPU_CK860=$(BR2_ck860) >> $(@D)/config
 echo CONFIG_FPGA=$(BR2_CSKY_FPGA) >> $(@D)/config
 echo CONFIG_FPGA_BITFILE=$(BR2_CSKY_FPGA_BITFILE) >> $(@D)/config
 echo CONFIG_FPGA_DDRINIT=$(BR2_CSKY_FPGA_DDRINIT) >> $(@D)/config
-echo CONFIG_GLIBC=$(BR2_TOOLCHAIN_USES_GLIBC) >> $(@D)/config
 echo CONFIG_QEMU=$(BR2_PACKAGE_HOST_CSKY_QEMU) >> $(@D)/config
 echo CONFIG_TTY=$(BR2_TARGET_GENERIC_GETTY_PORT) >> $(@D)/config
 endef
@@ -25,12 +24,14 @@ define CSKY_CI_BUILD_CMDS
 make -C $(@D)
 endef
 
+#cp -f $(@D)/out/sh/* $(HOST_DIR)/csky-ci/
+#cp -f $(@D)/out/configs/* $(TARGET_DIR)/usr/lib/csky-ci/
+
 define CSKY_CI_INSTALL_TARGET_CMDS
 mkdir -p $(HOST_DIR)/csky-ci/
 mkdir -p $(TARGET_DIR)/usr/lib/csky-ci/
+mkdir -p $(TARGET_DIR)/etc/init.ci/
 cp -f $(@D)/out/csky_* $(HOST_DIR)/csky-ci/
-cp -f $(@D)/out/sh/* $(HOST_DIR)/csky-ci/
-cp -f $(@D)/out/configs/* $(TARGET_DIR)/usr/lib/csky-ci/
 cp -f $(@D)/out/S90test $(TARGET_DIR)/etc/init.d/
 cp -f $(@D)/out/test.sh $(TARGET_DIR)/etc/init.d/
 endef

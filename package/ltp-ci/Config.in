@@ -1,0 +1,4 @@
+config BR2_PACKAGE_CSKY_LTP_CI
+	bool "csky-ltp-ci"
+	depends on BR2_PACKAGE_CSKY_CI
+	select BR2_PACKAGE_LTP_TESTSUITE

@@ -1,0 +1,16 @@
+#!/bin/bash
+
+echo "============== ltp log start ==============="
+if [ -d "/usr/lib/ltp-testsuite/" ]; then
+	echo "ltp test start"
+	mkdir /usr/lib/ltp-testsuite/result
+	testlist="syscalls,fs_perms_simple,fsx,mm,ipc,sched,pty,fcntl-locktests,connectors,admin_tools,timers,modules,pipes"
+	/usr/lib/ltp-testsuite/runltp -f $testlist -S /usr/lib/csky-ci/ltp-skiplist -p -l /usr/lib/ltp-testsuite/result/ltp.sum -o /usr/lib/ltp-testsuite/result/ltp.log
+	cat /usr/lib/ltp-testsuite/result/ltp.log
+else
+	echo "ltp testsuite doesn't exist!!!"
+fi
+if [ -f "/usr/lib/ltp-testsuite/result/ltp.sum" ]; then
+	cat /usr/lib/ltp-testsuite/result/ltp.sum
+fi
+echo "============== ltp log end ==============="

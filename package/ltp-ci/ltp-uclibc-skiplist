@@ -1,0 +1,141 @@
+########################################
+# skiplist for glibc test
+# testlist: syscalls,fs,fs_perms_simple,fsx,dio,mm,ipc,sched,math,nptl,pty,fs_bind,fcntl-locktests,connectors,admin_tools,timers,modules,pipes
+# not testlist: dio,controllers,
+########################################
+
+################################
+#  syscalls
+################################
+#4.9 kernel problem
+fanotify07
+fanotify08
+#TODO：cause by toolchain update and pt_reg
+msgctl11
+#M_NLBLKS not support on uclibc
+mallopt01
+#O_TMPFILE not support on uclibc
+open14
+#will trigger oom killer when highmem is enable
+mem01
+#sendfile04 will use content of offset on userspace cause segmentfault
+sendfile04
+#assoc_array_walk return back_pointer = 0
+add_key04
+# fork13 -i 1000000 is bigger
+fork13
+# LC-493 not define F_OFD_SETLKW
+fcntl34
+# allocate 100MB
+getrusage03
+# need dev-net-tun
+ioctl03
+# must be run tmp ,cannot set -d {othertemp}
+open10
+renameat201
+utime02
+# only run manual pass
+renameat202
+# These tests try restart syslogd,which is bad idea ...
+syslog01
+syslog02
+syslog03
+syslog04
+syslog05
+syslog06
+syslog07
+syslog08
+syslog09
+syslog10
+# need sudoers
+utimensat01
+# This run OK but thrashes the machine with lots of processes
+msgctl11
+# Fork failed (may be OK if under stress)
+msgctl10
+# block? 
+setrlimit02
+setrlimit05
+sigwaitinfo01
+# need useradd
+setpriority01
+# tmp No space left on device, other tmp ,Permission denied
+utime06
+utimes01
+# EAFNOSUPPORT
+recvmsg02
+# Hardlinks restriction applies only to non-privileged users
+prot_hsymlinks
+
+################################
+#  mm
+################################
+# run maore than 20 min
+max_map_count
+# allocate memory 64M
+mtest06
+# calloc 64MB memory,malloc 64MB,pass
+#mem02
+# large mmap
+mmapstress06
+#min_free_kbytes min_free_kbytes
+
+################################
+#  sched
+################################
+# some args is too big,so skip
+hackbench01
+hackbench02
+################################
+#  fs
+################################
+# need tools: quotacheck
+quota_remount_test01
+# need mkisofs
+isofs
+rwtest01
+rwtest02
+rwtest03
+rwtest04
+rwtest05
+# need 512000 bytes
+iogen01
+
+################################
+#  admin_tools
+################################
+# need userdel useradd
+su01
+cron02
+cron_deny01
+cron_allow01
+cron_dirs_checks01
+acl_test01
+
+################################
+#  pty
+################################
+pty01
+
+################################
+#  math
+################################
+float_bessel
+
+################################
+# smoke testcase skip
+add_key02
+chdir03
+fchdir03
+madvise09
+madvise08
+leapsec_timer
+clock_settime02
+stime01
+thp01
+utime01
+
+#ksm and cgroup not enable
+ksm03
+ksm03_1
+ksm05
