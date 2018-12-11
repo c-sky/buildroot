@@ -1,5 +1,3 @@
-#!/bin/bash
-
 echo "============== ltp log start ==============="
 if [ -d "/usr/lib/ltp-testsuite/" ]; then
 	echo "ltp test start"
