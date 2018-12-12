@@ -1,0 +1,4 @@
+config BR2_PACKAGE_UCLIBC_CI
+	bool "uclibc-ci"
+	depends on BR2_PACKAGE_CSKY_CI
+	select BR2_PACKAGE_UCLIBC_NG_TEST

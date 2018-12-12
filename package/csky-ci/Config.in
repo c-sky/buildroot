@@ -11,6 +11,7 @@ source package/lmbench-ci/Config.in
 source package/dhrystone-ci/Config.in
 source package/whetstone-ci/Config.in
 source package/greenlet-ci/Config.in
+source package/uclibc-ci/Config.in
 
 config BR2_CSKY_FPGA
 	bool "Using FPGA"
