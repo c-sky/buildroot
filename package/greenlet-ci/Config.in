@@ -1,0 +1,5 @@
+config BR2_PACKAGE_GREENLET_CI
+	bool "greenlet-ci"
+	depends on BR2_PACKAGE_CSKY_CI
+	select BR2_PACKAGE_PYTHON
+	select BR2_PACKAGE_GREENLET

@@ -1,0 +1,23 @@
+echo "============== greenlet test start ==============="
+if [ -f /usr/lib/greenlet_test.py ]; then
+	python /usr/lib/greenlet_test.py 2>&1 | tee /usr/lib/csky-ci/greenlet-ci.log
+else
+	echo "greenlet doesn't exist!!!"
+
+	#This is important. It tells host this test failed
+	echo "greenlet failed: no testsuite" >> /usr/lib/csky-ci/total_result
+fi
+echo "============== greenlet test end ==============="
+
+echo ""
+
+echo "============== greenlet log parse start ==============="
+if grep -q "12" /usr/lib/csky-ci/greenlet-ci.log; then
+	echo "greenlet test passed"
+else
+	echo "greenlet test failed!"
+
+	#This is important. It tells host this test failed
+	echo "greenlet failed: test failed" >> /usr/lib/csky-ci/total_result
+fi
+echo "============== greenlet log parse end ==============="
