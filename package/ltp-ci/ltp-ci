@@ -7,10 +7,9 @@ if [ -d "/usr/lib/ltp-testsuite/" ]; then
 	cat /usr/lib/ltp-testsuite/result/ltp.sum
 else
 	echo "ltp testsuite doesn't exist!!!"
-	echo "ltp failed: no testsuite" >> /usr/lib/csky-ci/total_result
 
 	#This is important. It tells host this test failed
-	echo "csky-ci tests failed at ltp"
+	echo "ltp failed: no testsuite" >> /usr/lib/csky-ci/total_result
 fi
 echo "============== ltp test end ==============="
 
@@ -23,9 +22,8 @@ if [ $F -lt 30 -o $F -gt 200 -a $F -lt 400 ]; then
 	echo
 else
 	echo "ltp test failed!"
-	echo "ltp failed: test failed" >> /usr/lib/csky-ci/total_result
 
 	#This is important. It tells host this test failed
-	echo "csky-ci tests failed at ltp"
+	echo "ltp failed: test failed" >> /usr/lib/csky-ci/total_result
 fi
 echo "============== ltp log parse end ==============="
