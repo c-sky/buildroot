@@ -16,7 +16,6 @@ echo CONFIG_FPGA=$(BR2_CSKY_FPGA) >> $(@D)/config
 echo CONFIG_FPGA_BITFILE=$(BR2_CSKY_FPGA_BITFILE) >> $(@D)/config
 echo CONFIG_FPGA_DDRINIT=$(BR2_CSKY_FPGA_DDRINIT) >> $(@D)/config
 echo CONFIG_QEMU=$(BR2_PACKAGE_HOST_CSKY_QEMU) >> $(@D)/config
-echo CONFIG_TTY=$(BR2_TARGET_GENERIC_GETTY_PORT) >> $(@D)/config
 endef
 
 define CSKY_CI_BUILD_CMDS

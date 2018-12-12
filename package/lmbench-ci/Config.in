@@ -1,0 +1,4 @@
+config BR2_PACKAGE_LMBENCH_CI
+	bool "ltp-ci"
+	depends on BR2_PACKAGE_CSKY_CI
+	select BR2_PACKAGE_LMBENCH

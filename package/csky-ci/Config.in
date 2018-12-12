@@ -7,6 +7,7 @@ config BR2_PACKAGE_CSKY_CI
           C-Sky ci test script
 
 source package/ltp-ci/Config.in
+source package/lmbench-ci/Config.in
 
 config BR2_CSKY_FPGA
 	bool "Using FPGA"

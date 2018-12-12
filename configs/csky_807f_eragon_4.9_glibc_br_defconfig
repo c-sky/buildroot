@@ -54,6 +54,7 @@ BR2_PACKAGE_CSKY_CI=y
 
 # CI Testcases
 BR2_PACKAGE_LTP_CI=y
+BR2_PACKAGE_LMBENCH_CI=y
 
 # Others
 BR2_PACKAGE_OVERRIDE_FILE="board/csky/eragon_evb/local.mk"
