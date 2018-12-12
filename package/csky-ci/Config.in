@@ -9,6 +9,7 @@ config BR2_PACKAGE_CSKY_CI
 source package/ltp-ci/Config.in
 source package/lmbench-ci/Config.in
 source package/dhrystone-ci/Config.in
+source package/whetstone-ci/Config.in
 
 config BR2_CSKY_FPGA
 	bool "Using FPGA"
