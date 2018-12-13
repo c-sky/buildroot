@@ -33,8 +33,8 @@ variables:
     MAIN: ""
 
 .chip_build_before: &chip_build_before
-    - VENDOR_ID=${CI_BUILD_NAME%%_*}
-    - CPU_ID=${CI_BUILD_NAME##*libc_} #in case if it's abc or abcf
+    - CPU_ID=${CI_BUILD_NAME%%_*}
+    - VENDOR_ID=${CI_BUILD_NAME##*libc_} #in case if it's abc or abcf
     - PREFIX=${CHIP_PREFIX}${CPU_ID}'_'${VENDOR_ID}
     - HELL=${CI_BUILD_NAME%_${CPU_ID}}
     - MAIN=${HELL#*${VENDOR_ID}}
