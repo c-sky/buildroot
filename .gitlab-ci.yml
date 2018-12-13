@@ -36,8 +36,8 @@ variables:
     - CPU_ID=${CI_BUILD_NAME%%_*}
     - VENDOR_ID=${CI_BUILD_NAME##*libc_} #in case if it's abc or abcf
     - PREFIX=${CHIP_PREFIX}${CPU_ID}'_'${VENDOR_ID}
-    - HELL=${CI_BUILD_NAME%_${CPU_ID}}
-    - MAIN=${HELL#*${VENDOR_ID}}
+    - HELL=${CI_BUILD_NAME%_${VENDOR_ID}}
+    - MAIN=${HELL#*${CPU_ID}}
 
 .common_build_script: &common_build_script
     - echo 'Configure buildroot'
