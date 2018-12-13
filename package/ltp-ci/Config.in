@@ -1,3 +1,4 @@
+#You should source this file in ../csky-ci/Config.in
 config BR2_PACKAGE_LTP_CI
 	bool "ltp-ci"
 	depends on BR2_PACKAGE_CSKY_CI

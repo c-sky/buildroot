@@ -1,3 +1,4 @@
+#You should source this file in ../csky-ci/Config.in
 config BR2_PACKAGE_DHRYSTONE_CI
 	bool "dhrystone-ci"
 	depends on BR2_PACKAGE_CSKY_CI
