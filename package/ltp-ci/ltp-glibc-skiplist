@@ -29,8 +29,8 @@ profil01
 fcntl34
 fcntl36
 
-#case problem, glibc syscall check update,
-#sendfile04 will use content of offset on userspace cause segmentfault
+#case problem, the case hope glibc syscall-check triger segv, but it panic in
+#kernel.
 sendfile04
 
 #timeout problem, fork13 -i 1000000 is too big
@@ -43,6 +43,16 @@ ioctl03
 add_key04
 
 #env problem, need syslogd
+syslog01
+syslog02
+syslog03
+syslog04
+syslog05
+syslog06
+syslog07
+syslog08
+syslog09
+syslog10
 syslog01
 syslog02
 syslog03
