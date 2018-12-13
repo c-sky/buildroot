@@ -304,3 +304,28 @@ variables:
     dependencies:
       - 860s_4.9_glibc_fpga
     <<: *860_test
+
+860_4.9_glibc_qemu: *860_build
+860_4.9_uclibc_qemu: *860_build
+860_4.14_glibc_qemu: *860_build
+860_4.14_uclibc_qemu: *860_build
+
+860_4.9_glibc_qemu_test:
+    dependencies:
+      - 860_4.9_glibc_qemu
+    <<: *860_test
+
+860_4.9_uclibc_qemu_test:
+    dependencies:
+      - 860_4.9_uclibc_qemu
+    <<: *860_test
+
+860_4.14_glibc_qemu_test:
+    dependencies:
+      - 860_4.14_glibc_qemu
+    <<: *860_test
+
+860_4.14_uclibc_qemu_test:
+    dependencies:
+      - 860_4.14_uclibc_qemu
+    <<: *860_test
