@@ -1,33 +1,48 @@
 ########################################
 # skiplist for glibc test
 # testlist: syscalls,fs,fs_perms_simple,fsx,dio,mm,ipc,sched,math,nptl,pty,fs_bind,fcntl-locktests,connectors,admin_tools,timers,modules,pipes
-# not testlist: dio,controllers,
 ########################################
 
 ################################
 #  syscalls
 ################################
-#4.9 kernel problem
+#env problem, entropy(random) pool doesn't init enough
+getrandom02
+
+#version problem, 4.16 is ok
 fanotify07
 fanotify08
-#need real hardware storage with page operations not ramfs
+keyctl06
+request_key03
+
+#env problem, need real hardware storage with page operations not ramfs
 readahead02
-#case problem see ltp result in yocto
+
+#case problem, see ltp result in yocto
 fanotify06
-#profile not support in linux
+
+#TODO: profile not support in linux now
 profil01
-#flock64 used as glibc will covert arg from flock to flock64
+
+#case problem, fcntl must use flock as arg not flock64.
+#But in these case, they use flock64 as arg to fcntl().
 fcntl34
 fcntl36
+
+#case problem, glibc syscall check update,
 #sendfile04 will use content of offset on userspace cause segmentfault
 sendfile04
-# fork13 -i 1000000 is bigger
+
+#timeout problem, fork13 -i 1000000 is too big
 fork13
-# need dev-net-tun
+
+#env problem, need dev-net-tun
 ioctl03
-#assoc_array_walk return back_pointer = 0 cve-2017-12193
+
+#version problem, cve-2017-12193 linux-4.13+ is ok
 add_key04
-# These tests try restart syslogd,which is bad idea ...
+
+#env problem, need syslogd
 syslog01
 syslog02
 syslog03
@@ -38,29 +53,36 @@ syslog07
 syslog08
 syslog09
 syslog10
-# need sudoers
+
+#env problem, need sudoers
 utimensat01
-# This run OK but thrashes the machine with lots of processes
+
+#timeout problem, This run OK but thrashes the machine with lots of processes
 msgctl11
+
+#TODO: I don't know
 sigwaitinfo01
-# need useradd
+
+#env problem, need useradd
 setpriority01
-# EAFNOSUPPORT
+
+#TODO: EAFNOSUPPORT
 recvmsg02
-# Hardlinks restriction applies only to non-privileged users
+
+#env problem, hardlinks restriction applies only to non-privileged users
 prot_hsymlinks
 
 ################################
 #  sched
 ################################
-# some args is too big,so skip
+#timeout problem, some args is too big,so skip
 hackbench01
 hackbench02
 
 ################################
 #  admin_tools
 ################################
-# need userdel useradd
+#env problem, need userdel useradd
 su01
 cron02
 cron_deny01
@@ -70,7 +92,7 @@ cron_dirs_checks01
 ################################
 #  mm
 ################################
-#ksm and cgroup not enable
+#TODO: need kernel enable ksm and cgroup
 ksm03
 ksm03_1
 ksm05
