@@ -1,4 +1,5 @@
-# ArchitectureBR2_csky=y
+# Architecture
+BR2_csky=y
 BR2_ck860=y
 
 # Kernel headers
