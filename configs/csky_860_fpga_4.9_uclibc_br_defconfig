@@ -51,9 +51,7 @@ BR2_PACKAGE_GDB_SERVER=y
 # Gitlab-CI
 BR2_PACKAGE_CSKY_CI=y
 
-# Testcases
-#BR2_PACKAGE_LMBENCH=y
-#BR2_PACKAGE_LTP_TESTSUITE=y
+# CI Testcases
 
 # Others
 BR2_PACKAGE_BUSYBOX_CONFIG="board/csky/ck860_platform/busybox.config"
