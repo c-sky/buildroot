@@ -1,0 +1,5 @@
+# library path not define correctly for the test
+tst-origin
+# also fail on x86 glibc
+tst-cancel7
+tst-cancelx7

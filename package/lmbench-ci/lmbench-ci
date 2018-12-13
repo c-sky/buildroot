@@ -1,0 +1,23 @@
+echo "============== lmbench test start ==============="
+if [ -f /usr/bin/lmbench ]; then
+	lmbench /usr/lib/csky-ci/CONFIG.lmbench 2>&1 | tee /usr/lib/csky-ci/lmbench-ci.log
+else
+	echo "lmbench doesn't exist!!!"
+
+	#This is important. It tells host this test failed
+	echo "lmbench failed: no testsuite" >> /usr/lib/csky-ci/total_result
+fi
+echo "============== lmbench test end ==============="
+
+echo ""
+
+echo "============== lmbench log parse start ==============="
+if grep -q "Random load latency" /usr/lib/csky-ci/lmbench-ci.log; then
+	echo "lmbench test passed"
+else
+	echo "lmbench test failed!"
+
+	#This is important. It tells host this test failed
+	echo "lmbench failed: test failed" >> /usr/lib/csky-ci/total_result
+fi
+echo "============== lmbench log parse end ==============="

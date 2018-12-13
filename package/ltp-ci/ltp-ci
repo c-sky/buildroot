@@ -1,0 +1,29 @@
+echo "============== ltp test start ==============="
+if [ -d "/usr/lib/ltp-testsuite/" ]; then
+	mkdir /usr/lib/ltp-testsuite/result
+	testlist="syscalls,fs_perms_simple,fsx,mm,ipc,sched,pty,fcntl-locktests,connectors,admin_tools,timers,modules,pipes"
+	/usr/lib/ltp-testsuite/runltp -f $testlist -S /usr/lib/csky-ci/ltp-skiplist -p -l /usr/lib/ltp-testsuite/result/ltp.sum -o /usr/lib/ltp-testsuite/result/ltp.log
+	cat /usr/lib/ltp-testsuite/result/ltp.log
+	cat /usr/lib/ltp-testsuite/result/ltp.sum
+else
+	echo "ltp testsuite doesn't exist!!!"
+
+	#This is important. It tells host this test failed
+	echo "ltp failed: no testsuite" >> /usr/lib/csky-ci/total_result
+fi
+echo "============== ltp test end ==============="
+
+echo ""
+
+echo "============== ltp log parse start ==============="
+F=$(grep "Total Failures:" /usr/lib/ltp-testsuite/result/ltp.sum | awk '{print $3}')
+if [ $F -lt 30 -o $F -gt 200 -a $F -lt 400 ]; then
+	echo "ltp test passed"
+	echo
+else
+	echo "ltp test failed!"
+
+	#This is important. It tells host this test failed
+	echo "ltp failed: test failed" >> /usr/lib/csky-ci/total_result
+fi
+echo "============== ltp log parse end ==============="

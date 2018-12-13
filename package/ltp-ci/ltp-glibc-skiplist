@@ -1,0 +1,76 @@
+########################################
+# skiplist for glibc test
+# testlist: syscalls,fs,fs_perms_simple,fsx,dio,mm,ipc,sched,math,nptl,pty,fs_bind,fcntl-locktests,connectors,admin_tools,timers,modules,pipes
+# not testlist: dio,controllers,
+########################################
+
+################################
+#  syscalls
+################################
+#4.9 kernel problem
+fanotify07
+fanotify08
+#need real hardware storage with page operations not ramfs
+readahead02
+#case problem see ltp result in yocto
+fanotify06
+#profile not support in linux
+profil01
+#flock64 used as glibc will covert arg from flock to flock64
+fcntl34
+fcntl36
+#sendfile04 will use content of offset on userspace cause segmentfault
+sendfile04
+# fork13 -i 1000000 is bigger
+fork13
+# need dev-net-tun
+ioctl03
+#assoc_array_walk return back_pointer = 0 cve-2017-12193
+add_key04
+# These tests try restart syslogd,which is bad idea ...
+syslog01
+syslog02
+syslog03
+syslog04
+syslog05
+syslog06
+syslog07
+syslog08
+syslog09
+syslog10
+# need sudoers
+utimensat01
+# This run OK but thrashes the machine with lots of processes
+msgctl11
+sigwaitinfo01
+# need useradd
+setpriority01
+# EAFNOSUPPORT
+recvmsg02
+# Hardlinks restriction applies only to non-privileged users
+prot_hsymlinks
+
+################################
+#  sched
+################################
+# some args is too big,so skip
+hackbench01
+hackbench02
+
+################################
+#  admin_tools
+################################
+# need userdel useradd
+su01
+cron02
+cron_deny01
+cron_allow01
+cron_dirs_checks01
+
+################################
+#  mm
+################################
+#ksm and cgroup not enable
+ksm03
+ksm03_1
+ksm05

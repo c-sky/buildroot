@@ -1,0 +1,37 @@
+echo "============== uclibc test start ==============="
+if [ -d /usr/lib/uclibc-ng-test ]; then
+	while read -r line
+	do
+		first_char=`echo $line | cut -b 1`
+		if [ "$first_char" = "#" ] ||
+			[ "$first_char" = "" ] ||
+			[ "$first_char" = " " ]; then
+			:
+		else
+			sed -i '/'$line'/d' /usr/lib/uclibc-ng-test/test/uclibcng-testrunner.in
+		fi
+	done < /usr/lib/csky-ci/uclibc-ng-test.skiplist
+	chmod 755 /usr/lib/uclibc-ng-test/test/uclibcng-testrunner.sh
+	cd /usr/lib/uclibc-ng-test/test/
+	./uclibcng-testrunner.sh 2>&1 | tee /usr/lib/csky-ci/uclibc-ci.log
+else
+	echo "uclibc doesn't exist!!!"
+
+	#This is important. It tells host this test failed
+	echo "uclibc failed: no testsuite" >> /usr/lib/csky-ci/total_result
+fi
+echo "============== uclibc test end ==============="
+
+echo ""
+
+echo "============== uclibc log parse start ==============="
+F=$(grep "Total failed:" /usr/lib/csky-ci/uclibc-ci.log | awk '{print $3}')
+if [ $F -lt 100 ]; then
+	echo "uclibc test passed"
+else
+	echo "uclibc test failed!"
+
+	#This is important. It tells host this test failed
+	echo "uclibc failed: test failed" >> /usr/lib/csky-ci/total_result
+fi
+echo "============== uclibc log parse end ==============="

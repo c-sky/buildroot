@@ -1,0 +1,23 @@
+echo "============== whetstone test start ==============="
+if [ -f /usr/bin/whetstone ]; then
+	whetstone -c 10000 2>&1 | tee /usr/lib/csky-ci/whetstone-ci.log
+else
+	echo "whetstone doesn't exist!!!"
+
+	#This is important. It tells host this test failed
+	echo "whetstone failed: no testsuite" >> /usr/lib/csky-ci/total_result
+fi
+echo "============== whetstone test end ==============="
+
+echo ""
+
+echo "============== whetstone log parse start ==============="
+if grep -q "C Converted Double Precision Whetstones" /usr/lib/csky-ci/whetstone-ci.log; then
+	echo "whetstone test passed"
+else
+	echo "whetstone test failed!"
+
+	#This is important. It tells host this test failed
+	echo "whetstone failed: test failed" >> /usr/lib/csky-ci/total_result
+fi
+echo "============== whetstone log parse end ==============="

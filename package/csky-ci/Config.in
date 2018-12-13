@@ -6,20 +6,12 @@ config BR2_PACKAGE_CSKY_CI
 	help
           C-Sky ci test script
 
-config BR2_PACKAGE_CSKY_CI_LTP
-	bool "csky-ci-ltp"
-	depends on BR2_PACKAGE_CSKY_CI
-	select BR2_PACKAGE_LTP_TESTSUITE
-
-config BR2_PACKAGE_CSKY_CI_LMBENCH
-	bool "csky-ci-lmbench"
-	depends on BR2_PACKAGE_CSKY_CI
-	select BR2_PACKAGE_LMBENCH
-
-config BR2_PACKAGE_CSKY_CI_UCLIBC_NG_TEST
-	bool "csky-ci-uclibc-ng-test"
-	depends on BR2_PACKAGE_CSKY_CI
-	select BR2_PACKAGE_UCLIBC_NG_TEST
+source package/ltp-ci/Config.in
+source package/lmbench-ci/Config.in
+source package/dhrystone-ci/Config.in
+source package/whetstone-ci/Config.in
+source package/greenlet-ci/Config.in
+source package/uclibc-ci/Config.in
 
 config BR2_CSKY_FPGA
 	bool "Using FPGA"
