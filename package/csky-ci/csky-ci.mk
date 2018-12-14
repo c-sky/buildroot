@@ -33,6 +33,7 @@ mkdir -p $(TARGET_DIR)/etc/init.ci/
 cp -f $(@D)/out/csky_* $(HOST_DIR)/csky-ci/
 cp -f $(@D)/out/S90test $(TARGET_DIR)/etc/init.d/
 cp -f $(@D)/out/test.sh $(TARGET_DIR)/etc/init.d/
+cp -f $(@D)/out/sh/* $(HOST_DIR)/csky-ci/
 endef
 
 ifeq ($(BR2_TOOLCHAIN_BUILDROOT),y)
