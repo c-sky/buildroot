@@ -1,0 +1,10 @@
+#!/bin/bash
+
+if grep -q "Random load latency" $1; then
+	echo "lmbench test passed"
+else
+	echo "lmbench test failed!"
+
+	#This is important. It tells host this test failed
+	echo "csky-ci tests failed: lmbench failed"
+fi

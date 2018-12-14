@@ -1,0 +1,8 @@
+if [ -f /usr/bin/lmbench ]; then
+	lmbench /usr/lib/csky-ci/CONFIG.lmbench 2>&1 | tee /usr/lib/csky-ci/lmbench-ci.log
+else
+	echo "lmbench doesn't exist!!!"
+
+	#This is important. It tells host this test failed
+	echo "lmbench failed: no testsuite" >> /usr/lib/csky-ci/total_result
+fi

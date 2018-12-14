@@ -4,7 +4,7 @@
 #
 ##############################################################################
 
-CSKY_CI_VERSION = 0da7546a8399fac086099b60fdf187fc9a029079
+CSKY_CI_VERSION = f66e6327166e2a06a03384d4f957c93f08405742
 CSKY_CI_SITE = $(call github,c-sky,csky-ci,$(CSKY_CI_VERSION))
 
 define CSKY_CI_CONFIGURE_CMDS
@@ -27,6 +27,7 @@ endef
 
 define CSKY_CI_INSTALL_TARGET_CMDS
 mkdir -p $(HOST_DIR)/csky-ci/
+mkdir -p $(HOST_DIR)/csky-ci/parse_script/
 mkdir -p $(TARGET_DIR)/usr/lib/csky-ci/
 mkdir -p $(TARGET_DIR)/etc/init.ci/
 cp -f $(@D)/out/csky_* $(HOST_DIR)/csky-ci/
