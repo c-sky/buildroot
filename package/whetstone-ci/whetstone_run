@@ -1,0 +1,8 @@
+if [ -f /usr/bin/whetstone ]; then
+	whetstone -c 10000 2>&1 | tee /usr/lib/csky-ci/whetstone-ci.log
+else
+	echo "whetstone doesn't exist!!!"
+
+	#This is important. It tells host this test failed
+	echo "whetstone failed: no testsuite" >> /usr/lib/csky-ci/total_result
+fi

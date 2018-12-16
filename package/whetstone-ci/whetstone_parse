@@ -1,0 +1,10 @@
+#!/bin/bash
+
+if grep -q "C Converted Double Precision Whetstones" $1; then
+	echo "whetstone test passed"
+else
+	echo "whetstone test failed!"
+
+	#This is important. It tells host this test failed
+	echo "csky-ci tests failed: whetstone failed"
+fi
