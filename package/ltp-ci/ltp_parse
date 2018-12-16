@@ -1,0 +1,12 @@
+#!/bin/bash
+
+F=$(grep "Total Failures:" $1 | awk '{print $3}')
+if [ $F -lt 30 -o $F -gt 200 -a $F -lt 400 ]; then
+	echo "ltp test passed"
+	echo
+else
+	echo "ltp test failed!"
+
+	#This is important. It tells host this test failed
+	echo "csky-ci tests failed: ltp failed"
+fi
