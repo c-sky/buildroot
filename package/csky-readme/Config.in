@@ -1,0 +1,5 @@
+config BR2_PACKAGE_CSKY_README
+	bool "csky-readme"
+	depends on BR2_PACKAGE_CSKY_CI
+	help
+		C-Sky ci test script
