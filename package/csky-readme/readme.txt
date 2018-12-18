@@ -16,7 +16,8 @@ Result of the build
     ├── linux-<kernel-version>.patch.xz
     ├── qemu.dtb
     ├── rootfs.cpio.xz
-    └── vmlinux.xz
+    ├── vmlinux.xz
+    └── readme.txt
 
 How to Run
 ==========
