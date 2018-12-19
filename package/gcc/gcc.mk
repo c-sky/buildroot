@@ -14,7 +14,13 @@ ifeq ($(BR2_GCC_VERSION_ARC),y)
 GCC_SITE = $(call github,foss-for-synopsys-dwc-arc-processors,gcc,$(GCC_VERSION))
 GCC_SOURCE = gcc-$(GCC_VERSION).tar.gz
 else ifeq ($(BR2_csky),y)
-GCC_VERSION = 080eee5e337301372ee587b8e7938629fe5e3fb8
+CKUPS_GCC_VERSION = a139c535617a19b074cea70d2f50d05048c9898e
+CKTST_GCC_VERSION = 080eee5e337301372ee587b8e7938629fe5e3fb8
+ifeq ($(BR2_CSKY_UPSTREAM),y)
+GCC_VERSION = $(CKUPS_GCC_VERSION)
+else
+GCC_VERSION = $(CKTST_GCC_VERSION)
+endif
 ifeq ($(BR2_CSKY_GERRIT_REPO),y)
 GCC_SITE = ssh://${GITUSER}@192.168.0.78:29418/tools/gcc
 GCC_FINAL_SITE_METHOD = git
@@ -79,9 +85,7 @@ define HOST_GCC_APPLY_PATCHES
 	$(HOST_GCC_APPLY_CSKY_PATCH)
 endef
 
-HOST_GCC_EXCLUDES = \
-	libjava/* libgo/* \
-	gcc/testsuite/* libstdc++-v3/testsuite/*
+HOST_GCC_EXCLUDES =
 
 define HOST_GCC_FAKE_TESTSUITE
 	mkdir -p $(@D)/libstdc++-v3/testsuite/

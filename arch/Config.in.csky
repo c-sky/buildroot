@@ -58,6 +58,7 @@ config BR2_GCC_TARGET_CPU
 	default "ck860fv"	if (BR2_ck860 &&  BR2_CSKY_FPU &&  BR2_CSKY_VDSP)
 
 config BR2_READELF_ARCH_NAME
+	default "C-SKY"		if BR2_CSKY_UPSTREAM
 	default "CSKY"
 
 config BR2_CSKY_GERRIT_REPO
