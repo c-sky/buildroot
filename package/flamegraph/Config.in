@@ -1,0 +1,5 @@
+config BR2_PACKAGE_FLAMEGRAPH
+        bool "flamegraph"
+	depends on BR2_LINUX_KERNEL
+	help
+          linux perf flame graph
