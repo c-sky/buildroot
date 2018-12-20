@@ -27,14 +27,14 @@
 		};
 
 		intc: interrupt-controller {
-			compatible = "natchip,gx6605s-intc";
+			compatible = "csky,gx6605s-intc";
 			reg = <0x00500000 0x400>;
 			interrupt-controller;
 			#interrupt-cells = <1>;
 		};
 
 		timer0 {
-			compatible = "natchip,gx6605s-timer";
+			compatible = "csky,gx6605s-timer";
 			reg = <0x0020a000 0x400>;
 			clocks = <&dummy_apb>;
 			interrupts = <10>;
