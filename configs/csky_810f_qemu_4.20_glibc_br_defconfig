@@ -2,6 +2,7 @@
 BR2_csky=y
 BR2_ck810=y
 BR2_CSKY_FPU=y
+BR2_CSKY_UPSTREAM=y
 
 # Kernel headers
 BR2_PACKAGE_HOST_LINUX_HEADERS_CUSTOM_4_9=y
@@ -18,7 +19,6 @@ BR2_LINUX_KERNEL_USE_CUSTOM_DTS=y
 BR2_LINUX_KERNEL_CUSTOM_DTS_PATH="board/qemu/csky/qemu.dts"
 
 # Kernel addons & extentions
-BR2_LINUX_KERNEL_EXT_CSKY_ARCH=y
 
 # Kernel patches
 # None
