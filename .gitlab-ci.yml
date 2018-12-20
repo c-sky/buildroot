@@ -116,6 +116,7 @@ variables:
 610_4.9_glibc_gx6622: *610_build
 610_4.14_uclibc_gx6622: *610_build
 610_4.14_glibc_gx6622: *610_build
+610_4.19_glibc_gx6622: *610_build
 
 610_4.9_uclibc_gx6622_test:
     tags:
@@ -143,6 +144,13 @@ variables:
       - csky-610-gx6622
     dependencies:
       - 610_4.14_glibc_gx6622
+    <<: *610_test
+
+610_4.19_glibc_gx6622_test:
+    tags:
+      - csky-610-gx6622
+    dependencies:
+      - 610_4.19_glibc_gx6622
     <<: *610_test
 
 ################ 807 ################
@@ -258,6 +266,7 @@ variables:
 810f_4.9_glibc_qemu: *810_build
 810f_4.14_uclibc_qemu: *810_build
 810f_4.14_glibc_qemu: *810_build
+810f_4.19_glibc_qemu: *810_build
 810f_4.20_glibc_qemu: *810_build
 
 810f_4.9_uclibc_qemu_test:
@@ -278,6 +287,11 @@ variables:
 810f_4.14_glibc_qemu_test:
     dependencies:
       - 810f_4.14_glibc_qemu
+    <<: *810_test
+
+810f_4.19_glibc_qemu_test:
+    dependencies:
+      - 810f_4.19_glibc_qemu
     <<: *810_test
 
 810f_4.20_glibc_qemu_test:
@@ -323,6 +337,18 @@ variables:
     stage: build
     <<: *common_builds
 
+860_4.19_glibc_qemu:
+    tags:
+      - csky-860-qemu
+    stage: build
+    <<: *common_builds
+
+860_4.19_glibc_fpga:
+    tags:
+      - csky-860-fpga
+    stage: build
+    <<: *common_builds
+
 860_4.9_glibc_qemu_test:
     tags:
       - csky-860-qemu
@@ -335,4 +361,18 @@ variables:
       - csky-860-qemu
     dependencies:
       - 860_4.14_glibc_qemu
+    <<: *860_test
+
+860_4.19_glibc_qemu_test:
+    tags:
+      - csky-860-qemu
+    dependencies:
+      - 860_4.19_glibc_qemu
+    <<: *860_test
+
+860_4.19_glibc_fpga_test:
+    tags:
+      - csky-860-fpga
+    dependencies:
+      - 860_4.19_glibc_fpga
     <<: *860_test
