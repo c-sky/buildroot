@@ -32,8 +32,11 @@ Download all files above.
 Run on physical board:
   $ ./host/csky-ci/run_test.sh
 
-Run on qemu with single core:
+Run on qemu with single core(807, 810):
   $ LD_LIBRARY_PATH=./host/lib ./host/csky-qemu/bin/qemu-system-cskyv2 -machine virt -kernel images/vmlinux -dtb images/qemu.dtb -nographic
+
+Run on qemu with single core(860):
+  $ LD_LIBRARY_PATH=./host/lib ./host/csky-qemu/bin/qemu-system-cskyv2 -M mp860 -smp 1 -kernel images/vmlinux -dtb images/qemu_smp.dtb -nographic
 
 Run on qemu with multi core:
   $ LD_LIBRARY_PATH=./host/lib ./host/csky-qemu/bin/qemu-system-cskyv2 -M mp860 -smp 2 -kernel images/vmlinux -dtb images/qemu_smp.dtb -nographic
