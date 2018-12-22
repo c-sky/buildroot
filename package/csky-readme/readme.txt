@@ -16,25 +16,34 @@ Result of the build
     ├── linux-<kernel-version>.patch.xz
     ├── qemu.dtb
     ├── rootfs.cpio.xz
-    └── vmlinux.xz
+    ├── vmlinux.xz
+    └── readme.txt
 
 How to Run
 ==========
 
 Download all files above.
-
+  $ cd output/images
   $ xz -d vmlinux.xz
-  $ mkdir toolchain
-  $ cd toolchain
-  $ tar -Jxf ../<buildroot-config>_<buildroot-version>.tar.xz
   $ cd ..
-  $ toolchain/csky-qemu/bin/qemu-system-csky2 -kernel vmlinux -dtb qemu_smp.dtb -nographic -M mp860 -smp 4
+  $ mkdir host
+  $ tar -Jxf images/<buildroot-config>_<buildroot-version>.tar.xz -C ./host
 
-Run with network
+Run on physical board:
+  $ ./host/csky-ci/run_test.sh
 
-  You need setup tap0 in your host PC first, and then execute:
+Run on qemu with single core(807, 810):
+  $ LD_LIBRARY_PATH=./host/lib ./host/csky-qemu/bin/qemu-system-cskyv2 -machine virt -kernel images/vmlinux -dtb images/qemu.dtb -nographic
 
-  $ toolchain/csky-qemu/bin/qemu-system-csky2 -kernel vmlinux -dtb qemu.dtb -nographic -M virt -net nic -net tap,ifname=tap0
+Run on qemu with single core(860):
+  $ LD_LIBRARY_PATH=./host/lib ./host/csky-qemu/bin/qemu-system-cskyv2 -M mp860 -smp 1 -kernel images/vmlinux -dtb images/qemu_smp.dtb -nographic
+
+Run on qemu with multi core:
+  $ LD_LIBRARY_PATH=./host/lib ./host/csky-qemu/bin/qemu-system-cskyv2 -M mp860 -smp 2 -kernel images/vmlinux -dtb images/qemu_smp.dtb -nographic
+
+Run on qemu with network:
+  You need setup tap0 in your host PC first, execute the commands above with the suffix below:
+  -net nic -net tap,ifname=tap0
 
 Build linux kernel
 ==================
