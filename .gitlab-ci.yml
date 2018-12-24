@@ -267,7 +267,7 @@ variables:
 810f_4.14_uclibc_qemu: *810_build
 810f_4.14_glibc_qemu: *810_build
 810f_4.19_glibc_qemu: *810_build
-#810f_4.20_glibc_qemu: *810_build
+810f_4.20_glibc_qemu: *810_build
 
 810f_4.9_uclibc_qemu_test:
     dependencies:
@@ -294,10 +294,10 @@ variables:
       - 810f_4.19_glibc_qemu
     <<: *810_test
 
-#810f_4.20_glibc_qemu_test:
-#    dependencies:
-#      - 810f_4.20_glibc_qemu
-#    <<: *810_test
+810f_4.20_glibc_qemu_test:
+    dependencies:
+      - 810f_4.20_glibc_qemu
+    <<: *810_test
 
 ################ 860 ################
 .860_build: &860_build
