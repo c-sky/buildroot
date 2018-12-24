@@ -17,6 +17,8 @@ stages:
   - 810-test
   - 860-build
   - 860-test
+  - glibc-build
+  - glibc-test
   - sales-build
   - toolchain-multi-libs
   - build
@@ -271,7 +273,9 @@ variables:
 
 #For glibc-ci only
 810_4.9_glibc_qemu:
-    stage: build
+    stage: glibc-build
+    tags:
+        - qemu_maohan
     <<: *common_builds
     only:
         changes:
@@ -280,7 +284,9 @@ variables:
 810_4.9_glibc_qemu_test:
     dependencies:
       - 810_4.9_glibc_qemu
-    stage: test
+    stage: glibc-test
+    tags:
+        - qemu_maohan
     script: *common_test_script
     artifacts:
         when: always
