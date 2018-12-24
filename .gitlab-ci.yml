@@ -275,7 +275,8 @@ variables:
     <<: *common_builds
     only:
         changes:
-            - package/csky-glibc-ci/*
+            - package/csky-glibc-ci/csky-glibc-ci.mk
+            - package/csky-glibc-ci/Config.in
 810_4.9_glibc_qemu_test:
     dependencies:
       - 810_4.9_glibc_qemu
@@ -288,6 +289,9 @@ variables:
             - make_check_target.log
             - make_check.log
             - make.log
+    only:
+        changes:
+            - package/csky-glibc-ci/*
 
 810f_4.9_uclibc_qemu: *810_build
 810f_4.9_glibc_qemu: *810_build
