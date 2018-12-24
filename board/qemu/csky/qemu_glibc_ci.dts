@@ -1,0 +1,87 @@
+/dts-v1/;
+
+/ {
+	model = "qemu.csky";
+	compatible = "csky";
+	#address-cells = <1>;
+	#size-cells = <1>;
+
+	memory {
+		device_type = "memory";
+		reg = <0x0 0x80000000>;
+	};
+
+	soc {
+		#address-cells = <1>;
+		#size-cells = <1>;
+		compatible = "simple-bus";
+		ranges;
+
+		intc: interrupt-controller {
+			compatible = "csky,apb-intc";
+			reg = <0xfffff000 0x1000>;
+			interrupt-controller;
+			#interrupt-cells = <1>;
+		};
+
+		/* clockevent */
+		timer0 {
+			compatible = "snps,dw-apb-timer";
+			reg = <0xffffd000 0x1000>;
+			clocks = <&dummy_apb>;
+			clock-names = "timer";
+			interrupts = <1>;
+			interrupt-parent = <&intc>;
+		};
+
+		/* clocksource */
+		timer1 {
+			compatible = "snps,dw-apb-timer";
+			reg = <0xffffd014 0x800>;
+			clocks = <&dummy_apb>;
+			clock-names = "timer";
+			interrupts = <2>;
+			interrupt-parent = <&intc>;
+		};
+
+		serial0 {
+			compatible = "ns16550a";
+			reg = <0xffffe000 0x1000>;
+			interrupt-parent = <&intc>;
+			interrupts = <3>;
+			clocks = <&dummy_apb>;
+			baud = <115200>;
+			reg-shift = <2>;
+			reg-io-width = <1>;
+		};
+
+		dummy_apb: apb-clock {
+			compatible = "fixed-clock";
+			clock-frequency = <40000000>;
+			clock-output-names = "dummy_apb";
+			#clock-cells = <0>;
+		};
+
+		gmac: ethernet {
+			compatible = "snps,dwmac";
+			reg = <0xffffa000 0x2000>;
+			interrupt-parent = <&intc>;
+			interrupts = <4>;
+			interrupt-names = "macirq";
+			clocks = <&dummy_apb>;
+			clock-names = "stmmaceth";
+			phy-mode = "mii";
+			snps,pbl = <32>;
+			snps,fixed-burst;
+		};
+
+		qemu-exit {
+			compatible = "csky,qemu-exit";
+			reg = <0xffffc000 0x1000>;
+		};
+	};
+
+	chosen {
+		bootargs = "console=ttyS0,115200 rdinit=/sbin/init root=/dev/ram0";
+	};
+};
