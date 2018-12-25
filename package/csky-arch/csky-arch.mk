@@ -4,7 +4,7 @@
 #
 ################################################################################
 
-CKTST_CSKY_ARCH_VERSION = 34627989a311c043a76aeace834a7b54b3a0b0f4
+CKTST_CSKY_ARCH_VERSION = 099bac902cfbaa3be5c94028e15c915d2fb912d4
 CKTST_CSKY_ARCH_VERSION_4_19 = 9238eac0eb7154511b6ac3a75289a0493063fefa
 
 ifeq ($(BR2_PACKAGE_HOST_LINUX_HEADERS_CUSTOM_4_19), y)
