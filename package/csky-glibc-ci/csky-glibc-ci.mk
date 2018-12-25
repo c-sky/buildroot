@@ -18,7 +18,6 @@ cp -f ~/.ssh/id_rsa.pub  $(TARGET_DIR)/root/.ssh/authorized_keys
 cp -f $(@D)/S50sshd $(TARGET_DIR)/etc/init.d/
 rm output/build/glibc-*/build -rf
 cd $(BUILD_DIR)/glibc-*/;tar -cJf $(BINARIES_DIR)/glibc.tar.xz ./;cd -
-echo "Test glibc-ci"
 endef
 
 $(eval $(generic-package))

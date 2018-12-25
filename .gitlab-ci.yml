@@ -95,13 +95,13 @@ variables:
           xz -d output/images/rootfs.cpio.xz;
       fi
     - if [ -f output/host/csky-ci/run_test.sh ]; then
-        ./output/host/csky-ci/run_test.sh
+        ./output/host/csky-ci/run_test.sh;
       fi
     - if [ -f output/host/csky-ci/generic_analyze.sh ]; then
-        ./output/host/csky-ci/generic_analyze.sh || exit 1
+        ./output/host/csky-ci/generic_analyze.sh || exit 1;
       fi
-    - if [ -f output/host/csky-ci/csky-glibc-ci.sh ]; then
-        ./output/host/csky-glibc-ci/csky-glibc-ci.sh || exit 1
+    - if [ -f output/host/csky-glibc-ci/csky-glibc-ci.sh ]; then
+        ./output/host/csky-glibc-ci/csky-glibc-ci.sh || exit 1;
       fi
 
 .common_tests: &common_tests
