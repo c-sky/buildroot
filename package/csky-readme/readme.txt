@@ -30,7 +30,11 @@ Download all files above.
   $ tar -Jxf images/<buildroot-config>_<buildroot-version>.tar.xz -C ./host
 
 Run on physical board:
-  $ ./host/csky-ci/run_test.sh
+1. Open a minicom-like serial program in a command window and receive from /dev/ttyUSB0
+2. Open DebugServerConsole in another command window and make sure it connects with the board
+3. Use csky-linux-gdb to download vmlinux as following commands:
+	./csky-linux-gdb -x gdbinit vmlinux
+4. The log will show on your serial program and you can interact with the board
 
 Run on qemu with single core(807, 810):
   $ LD_LIBRARY_PATH=./host/lib ./host/csky-qemu/bin/qemu-system-cskyv2 -machine virt -kernel images/vmlinux -dtb images/qemu.dtb -nographic
