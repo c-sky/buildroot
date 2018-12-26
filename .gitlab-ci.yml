@@ -371,21 +371,33 @@ variables:
       - 860_4.19_glibc_fpga
     <<: *860_test
 
-860_4.9_glibc_qemu: *860_build
-860_4.14_glibc_qemu: *860_build
-860_4.19_glibc_qemu: *860_build
+.860_qemu_build: &860_qemu_build
+    tags:
+      - csky-860-qemu
+    stage: build
+    <<: *common_builds
+
+860_4.9_glibc_qemu: *860_qemu_build
+860_4.14_glibc_qemu: *860_qemu_build
+860_4.19_glibc_qemu: *860_qemu_build
 
 860_4.9_glibc_qemu_test:
+    tags:
+      - csky-860-qemu
     dependencies:
       - 860_4.9_glibc_qemu
     <<: *860_test
 
 860_4.14_glibc_qemu_test:
+    tags:
+      - csky-860-qemu
     dependencies:
       - 860_4.14_glibc_qemu
     <<: *860_test
 
 860_4.19_glibc_qemu_test:
+    tags:
+      - csky-860-qemu
     dependencies:
       - 860_4.19_glibc_qemu
     <<: *860_test
