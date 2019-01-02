@@ -4,7 +4,7 @@
 #
 ################################################################################
 
-CSKY_GLIBC_CI_VERSION = 24681f2f55fa6c2e9ee1c85fc009c1b19b814822
+CSKY_GLIBC_CI_VERSION = 2f5f454ee6535295a37a95fa23f8debe06816689
 CSKY_GLIBC_CI_SITE = $(call github,c-sky,csky-glibc-ci,$(CSKY_GLIBC_CI_VERSION))
 
 CSKY_GLIBC_CI_DEPENDENCIES = openssh
