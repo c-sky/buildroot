@@ -9,18 +9,8 @@ image: maohan001/ubuntu-buildroot
 #tags CANNOT be shrinked into anchor
 
 stages:
-  - 610-build
-  - 610-test
-  - 807-build
-  - 807-test
-  - 810-build
-  - 810-test
-  - 860-build
-  - 860-test
   - glibc-build
   - glibc-test
-  - sales-build
-  - toolchain-multi-libs
   - build
   - test
 
