@@ -7,4 +7,5 @@ else
 
 	#This is important. It tells host this test failed
 	echo "csky-ci tests failed: lmbench failed"
+	return 1
 fi

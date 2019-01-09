@@ -9,4 +9,5 @@ else
 
 	#This is important. It tells host this test failed
 	echo "csky-ci tests failed: ltp failed"
+	return 1
 fi
