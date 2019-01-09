@@ -8,6 +8,7 @@ image: maohan001/ubuntu-buildroot
 
 #tags CANNOT be shrinked into anchor
 
+
 stages:
   - glibc-build
   - glibc-test
