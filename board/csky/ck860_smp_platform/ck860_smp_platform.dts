@@ -87,7 +87,7 @@
 		};
 
 		intc: interrupt-controller {
-			compatible = "csky,intc-v2";
+			compatible = "csky,mpintc";
 			interrupt-controller;
 			#interrupt-cells = <1>;
 		};
@@ -268,7 +268,7 @@
 		};
 
 		timer0: timer {
-			compatible = "csky,timer-v1";
+			compatible = "csky,mptimer";
 			clocks = <&dummy_apb>;
 			interrupts = <16>;
 			interrupt-parent = <&intc>;

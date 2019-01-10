@@ -34,7 +34,7 @@
 		};
 #if 0 /* intc for csky */
 		intc: interrupt-controller {
-			compatible = "csky,intc-v1";
+			compatible = "csky,apb-intc";
 			reg = <0xFFF60000 0x1000>;
 			interrupt-controller;
 			#interrupt-cells = <1>;
