@@ -10,10 +10,10 @@ image: maohan001/ubuntu-buildroot
 
 
 stages:
-  - glibc-build
-  - glibc-test
   - build
   - test
+  - glibc-build
+  - glibc-test
 
 variables:
     PREFIX: ""
