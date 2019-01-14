@@ -363,8 +363,6 @@ variables:
     <<: *860_test
 
 .860_qemu_build: &860_qemu_build
-    tags:
-      - csky-860-qemu
     stage: build
     <<: *common_builds
 
