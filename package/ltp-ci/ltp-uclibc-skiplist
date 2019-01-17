@@ -181,3 +181,11 @@ clock_settime02
 stime01
 thp01
 utime01
+
+################################
+# Time Out, should be OK
+################################
+msgctl09
+msgctl10
+msgctl11
+epoll01
