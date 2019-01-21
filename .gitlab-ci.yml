@@ -10,6 +10,7 @@ image: maohan001/ubuntu-buildroot
 
 
 stages:
+  - wait-for-trigger
   - qemu-build
   - qemu-test
   - chip-build
@@ -26,6 +27,11 @@ variables:
     VENDOR_ID: ""
     CPU_ID: ""
     MAIN: ""
+
+wait_for_trigger:
+    stage: wait-for-trigger
+    script:
+      - sleep 300
 
 .chip_build_before: &chip_build_before
     - CPU_ID=${CI_BUILD_NAME%%_*}
