@@ -7,10 +7,12 @@ Build from buildroot
   $ make <buildroot-config>
   $ make
 
+(Above has been tested on ubuntu 16.04)
+
 Result of the build
 -------------------
 
-    output/images/
+    output/images/ (You can download them from gitlab CI without build)
     ├── csky_buildroot_version.txt (Contain version details)
     ├── <buildroot-config>_<buildroot-version>.tar.xz
     ├── linux-<kernel-version>.patch.xz
@@ -18,6 +20,8 @@ Result of the build
     ├── rootfs.cpio.xz
     ├── vmlinux.xz
     └── readme.txt
+
+(We'll compress "vmlinux rootfs.cpio toolchain linux.patch" into xxx.xz before upload to gitlab)
 
 How to Run
 ==========
