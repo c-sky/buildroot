@@ -123,5 +123,5 @@ wait_for_trigger:
 
 810f_4.9p_glibc_qemu_test:
     dependencies:
-      - 810f_4.9_glibc_qemu
+      - 810f_4.9p_glibc_qemu
     <<: *810_qemu_test
