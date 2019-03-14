@@ -1,0 +1,826 @@
+From 2a0adeb958addf2e1295c301014cb80cff9fff8d Mon Sep 17 00:00:00 2001
+From: Mao Han <han_mao@c-sky.com>
+Date: Tue, 12 Mar 2019 11:09:14 +0800
+Subject: [PATCH] Add backend support for C-SKY
+
+---
+ backends/Makefile.am     |   9 +++-
+ backends/csky_cfi.c      |  59 +++++++++++++++++++++++
+ backends/csky_corenote.c |  60 +++++++++++++++++++++++
+ backends/csky_init.c     |  64 +++++++++++++++++++++++++
+ backends/csky_initreg.c  |  85 +++++++++++++++++++++++++++++++++
+ backends/csky_regs.c     | 121 +++++++++++++++++++++++++++++++++++++++++++++++
+ backends/csky_reloc.def  |  85 +++++++++++++++++++++++++++++++++
+ backends/csky_symbol.c   |  76 +++++++++++++++++++++++++++++
+ libebl/eblopenbackend.c  |   2 +-
+ libelf/elf.h             |  96 ++++++++++++++++++++++++++++++++++++-
+ src/elflint.c            |   2 +-
+ 11 files changed, 653 insertions(+), 6 deletions(-)
+ create mode 100644 backends/csky_cfi.c
+ create mode 100644 backends/csky_corenote.c
+ create mode 100644 backends/csky_init.c
+ create mode 100644 backends/csky_initreg.c
+ create mode 100644 backends/csky_regs.c
+ create mode 100644 backends/csky_reloc.def
+ create mode 100644 backends/csky_symbol.c
+
+diff --git a/backends/Makefile.am b/backends/Makefile.am
+index 2126a2e..155db8a 100644
+--- a/backends/Makefile.am
++++ b/backends/Makefile.am
+@@ -33,12 +33,13 @@ AM_CPPFLAGS += -I$(top_srcdir)/libebl -I$(top_srcdir)/libasm \
+ 
+ 
+ modules = i386 sh x86_64 ia64 alpha arm aarch64 sparc ppc ppc64 s390 \
+-	  tilegx m68k bpf riscv
++	  tilegx m68k bpf riscv csky
+ libebl_pic = libebl_i386_pic.a libebl_sh_pic.a libebl_x86_64_pic.a    \
+ 	     libebl_ia64_pic.a libebl_alpha_pic.a libebl_arm_pic.a    \
+ 	     libebl_aarch64_pic.a libebl_sparc_pic.a libebl_ppc_pic.a \
+ 	     libebl_ppc64_pic.a libebl_s390_pic.a libebl_tilegx_pic.a \
+-	     libebl_m68k_pic.a libebl_bpf_pic.a libebl_riscv_pic.a
++	     libebl_m68k_pic.a libebl_bpf_pic.a libebl_riscv_pic.a    \
++	     libebl_csky_pic.a
+ noinst_LIBRARIES = $(libebl_pic)
+ noinst_DATA = $(libebl_pic:_pic.a=.so)
+ 
+@@ -136,6 +137,10 @@ riscv_SRCS = riscv_init.c riscv_symbol.c riscv_cfi.c riscv_regs.c \
+ libebl_riscv_pic_a_SOURCES = $(riscv_SRCS)
+ am_libebl_riscv_pic_a_OBJECTS = $(riscv_SRCS:.c=.os)
+ 
++csky_SRCS = csky_init.c csky_symbol.c csky_cfi.c csky_regs.c \
++            csky_initreg.c csky_corenote.c
++libebl_csky_pic_a_SOURCES = $(csky_SRCS)
++am_libebl_csky_pic_a_OBJECTS = $(csky_SRCS:.c=.os)
+ 
+ libebl_%.so libebl_%.map: libebl_%_pic.a $(libelf) $(libdw) $(libeu)
+ 	@rm -f $(@:.so=.map)
+diff --git a/backends/csky_cfi.c b/backends/csky_cfi.c
+new file mode 100644
+index 0000000..7da3814
+--- /dev/null
++++ b/backends/csky_cfi.c
+@@ -0,0 +1,59 @@
++/* C-SKY ABI-specified defaults for DWARF CFI.
++   This file is part of elfutils.
++
++   This file is free software; you can redistribute it and/or modify
++   it under the terms of either
++
++     * the GNU Lesser General Public License as published by the Free
++       Software Foundation; either version 3 of the License, or (at
++       your option) any later version
++
++   or
++
++     * the GNU General Public License as published by the Free
++       Software Foundation; either version 2 of the License, or (at
++       your option) any later version
++
++   or both in parallel, as here.
++
++   elfutils is distributed in the hope that it will be useful, but
++   WITHOUT ANY WARRANTY; without even the implied warranty of
++   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
++   General Public License for more details.
++
++   You should have received copies of the GNU General Public License and
++   the GNU Lesser General Public License along with this program.  If
++   not, see <http://www.gnu.org/licenses/>.  */
++
++#ifdef HAVE_CONFIG_H
++# include <config.h>
++#endif
++
++#include <dwarf.h>
++
++#define BACKEND csky_
++#include "libebl_CPU.h"
++
++
++int
++csky_abi_cfi (Ebl *ebl __attribute__ ((unused)), Dwarf_CIE *abi_info)
++{
++  static const uint8_t abi_cfi[] =
++    {
++      DW_CFA_def_cfa, ULEB128_7 (14), ULEB128_7 (0),
++      DW_CFA_val_offset, ULEB128_7 (14), ULEB128_7 (0),
++
++#define SV(n) DW_CFA_same_value, ULEB128_7 (n)
++      SV(4), SV (5), SV (6), SV (7), SV (8), SV (9),
++      SV(10), SV (11), SV (15), SV (16), SV (17)
++#undef SV
++    };
++
++  abi_info->initial_instructions = abi_cfi;
++  abi_info->initial_instructions_end = &abi_cfi[sizeof abi_cfi];
++  abi_info->data_alignment_factor = -4;
++
++  abi_info->return_address_register = 15; /* lr.  */
++
++  return 0;
++}
+diff --git a/backends/csky_corenote.c b/backends/csky_corenote.c
+new file mode 100644
+index 0000000..67af0b1
+--- /dev/null
++++ b/backends/csky_corenote.c
+@@ -0,0 +1,60 @@
++/* C-SKY specific core note handling.
++   This file is part of elfutils.
++
++   This file is free software; you can redistribute it and/or modify
++   it under the terms of either
++
++     * the GNU Lesser General Public License as published by the Free
++       Software Foundation; either version 3 of the License, or (at
++       your option) any later version
++
++   or
++
++     * the GNU General Public License as published by the Free
++       Software Foundation; either version 2 of the License, or (at
++       your option) any later version
++
++   or both in parallel, as here.
++
++   elfutils is distributed in the hope that it will be useful, but
++   WITHOUT ANY WARRANTY; without even the implied warranty of
++   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
++   General Public License for more details.
++
++   You should have received copies of the GNU General Public License and
++   the GNU Lesser General Public License along with this program.  If
++   not, see <http://www.gnu.org/licenses/>.  */
++
++#ifdef HAVE_CONFIG_H
++# include <config.h>
++#endif
++
++#include <elf.h>
++#include <inttypes.h>
++#include <stddef.h>
++#include <stdio.h>
++#include <sys/time.h>
++
++#define BACKEND	csky_
++#include "libebl_CPU.h"
++
++#define	ULONG			uint32_t
++#define PID_T			int32_t
++#define	UID_T			uint32_t
++#define	GID_T			uint32_t
++#define ALIGN_ULONG		4
++#define ALIGN_PID_T		4
++#define ALIGN_UID_T		4
++#define ALIGN_GID_T		4
++#define TYPE_ULONG		ELF_T_WORD
++#define TYPE_PID_T		ELF_T_SWORD
++#define TYPE_UID_T		ELF_T_WORD
++#define TYPE_GID_T		ELF_T_WORD
++
++static const Ebl_Register_Location prstatus_regs[] =
++  {
++    { .offset = 0, .regno = 0, .count = 38, .bits = 32 } /* r0..r31 */
++  };
++#define PRSTATUS_REGS_SIZE	(38 * 4)
++
++#include "linux-core-note.c"
+diff --git a/backends/csky_init.c b/backends/csky_init.c
+new file mode 100644
+index 0000000..fa991d0
+--- /dev/null
++++ b/backends/csky_init.c
+@@ -0,0 +1,64 @@
++/* Initialization of C-SKY specific backend library.
++   This file is part of elfutils.
++
++   This file is free software; you can redistribute it and/or modify
++   it under the terms of either
++
++     * the GNU Lesser General Public License as published by the Free
++       Software Foundation; either version 3 of the License, or (at
++       your option) any later version
++
++   or
++
++     * the GNU General Public License as published by the Free
++       Software Foundation; either version 2 of the License, or (at
++       your option) any later version
++
++   or both in parallel, as here.
++
++   elfutils is distributed in the hope that it will be useful, but
++   WITHOUT ANY WARRANTY; without even the implied warranty of
++   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
++   General Public License for more details.
++
++   You should have received copies of the GNU General Public License and
++   the GNU Lesser General Public License along with this program.  If
++   not, see <http://www.gnu.org/licenses/>.  */
++
++#ifdef HAVE_CONFIG_H
++# include <config.h>
++#endif
++
++#define BACKEND		csky_
++#define RELOC_PREFIX	R_CKCORE_
++#include "libebl_CPU.h"
++
++/* This defines the common reloc hooks based on csky_reloc.def.  */
++#include "common-reloc.c"
++
++const char *
++csky_init (Elf *elf __attribute__ ((unused)),
++	   GElf_Half machine __attribute__ ((unused)),
++	   Ebl *eh,
++	   size_t ehlen)
++{
++  /* Check whether the Elf_BH object has a sufficent size.  */
++  if (ehlen < sizeof (Ebl))
++    return NULL;
++
++  /* We handle it.  */
++  eh->name = "C-SKY";
++  csky_init_reloc (eh);
++  HOOK (eh, reloc_simple_type);
++  HOOK (eh, register_info);
++  HOOK (eh, abi_cfi);
++  HOOK (eh, core_note);
++  HOOK (eh, set_initial_registers_tid);
++  HOOK (eh, machine_flag_check);
++  HOOK (eh, section_type_name);
++
++  /* gcc/config/ #define DWARF_FRAME_REGISTERS.  */
++  eh->frame_nregs = 71;
++
++  return MODVERSION;
++}
+diff --git a/backends/csky_initreg.c b/backends/csky_initreg.c
+new file mode 100644
+index 0000000..be2c252
+--- /dev/null
++++ b/backends/csky_initreg.c
+@@ -0,0 +1,85 @@
++/* Fetch live process registers from TID. C-SKY version.
++   This file is part of elfutils.
++
++   This file is free software; you can redistribute it and/or modify
++   it under the terms of either
++
++     * the GNU Lesser General Public License as published by the Free
++       Software Foundation; either version 3 of the License, or (at
++       your option) any later version
++
++   or
++
++     * the GNU General Public License as published by the Free
++       Software Foundation; either version 2 of the License, or (at
++       your option) any later version
++
++   or both in parallel, as here.
++
++   elfutils is distributed in the hope that it will be useful, but
++   WITHOUT ANY WARRANTY; without even the implied warranty of
++   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
++   General Public License for more details.
++
++   You should have received copies of the GNU General Public License and
++   the GNU Lesser General Public License along with this program.  If
++   not, see <http://www.gnu.org/licenses/>.  */
++
++#ifdef HAVE_CONFIG_H
++# include <config.h>
++#endif
++
++#include "system.h"
++#include <assert.h>
++#if defined __CSKY__ && defined __linux__
++# include <sys/uio.h>
++# include <sys/procfs.h>
++# include <sys/ptrace.h>
++#endif
++
++#define BACKEND csky_
++#include "libebl_CPU.h"
++
++bool
++csky_set_initial_registers_tid (pid_t tid __attribute__ ((unused)),
++                                ebl_tid_registers_t *setfunc __attribute__ ((unused)),
++                                void *arg __attribute__ ((unused)))
++{
++#if !defined __CSKY__ || !defined __linux__
++  return false;
++#else /* __CSKY__ */
++  struct pt_regs user_regs;
++  struct iovec iovec;
++  iovec.iov_base = &user_regs;
++  iovec.iov_len = sizeof (user_regs);
++  if (ptrace (PTRACE_GETREGSET, tid, NT_PRSTATUS, &iovec) != 0)
++    return false;
++
++  Dwarf_Word dwarf_regs[71];
++
++  /* lr.  */
++  dwarf_regs[15] = user_regs.lr;
++  /* sp.  */
++  dwarf_regs[14] = user_regs.usp;
++  /* r0 ~ r13.  */
++  dwarf_regs[0] = user_regs.a0;
++  dwarf_regs[1] = user_regs.a1;
++  dwarf_regs[2] = user_regs.a2;
++  dwarf_regs[3] = user_regs.a3;
++  for (int i = 4; i < 14; i++)
++    dwarf_regs[i] = user_regs.regs[i - 4];
++  /* r ~ r13.  */
++  for (int i = 16; i < 31; i++)
++    dwarf_regs[i] = user_regs.exregs[i - 16];
++  /* tls.  */
++  dwarf_regs[31] = user_regs.tls;
++  /* hi.  */
++  dwarf_regs[34] = user_regs.rhi;
++  /* lo.  */
++  dwarf_regs[35] = user_regs.rlo;
++  /* pc.  */
++  dwarf_regs[70] = user_regs.pc;
++
++  return setfunc (0, 71, dwarf_regs, arg);
++#endif
++}
+diff --git a/backends/csky_regs.c b/backends/csky_regs.c
+new file mode 100644
+index 0000000..0e16392
+--- /dev/null
++++ b/backends/csky_regs.c
+@@ -0,0 +1,121 @@
++/* Register names and numbers for C-SKY DWARF.
++   This file is part of elfutils.
++
++   This file is free software; you can redistribute it and/or modify
++   it under the terms of either
++
++     * the GNU Lesser General Public License as published by the Free
++       Software Foundation; either version 3 of the License, or (at
++       your option) any later version
++
++   or
++
++     * the GNU General Public License as published by the Free
++       Software Foundation; either version 2 of the License, or (at
++       your option) any later version
++
++   or both in parallel, as here.
++
++   elfutils is distributed in the hope that it will be useful, but
++   WITHOUT ANY WARRANTY; without even the implied warranty of
++   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
++   General Public License for more details.
++
++   You should have received copies of the GNU General Public License and
++   the GNU Lesser General Public License along with this program.  If
++   not, see <http://www.gnu.org/licenses/>.  */
++
++#ifdef HAVE_CONFIG_H
++# include <config.h>
++#endif
++
++#include <string.h>
++#include <dwarf.h>
++
++#define BACKEND csky_
++#include "libebl_CPU.h"
++
++ssize_t
++csky_register_info (Ebl *ebl  __attribute__ ((unused)),
++		    int regno, char *name, size_t namelen,
++		    const char **prefix, const char **setname,
++		    int *bits, int *type)
++{
++  if (name == NULL)
++    return 71;
++
++  *prefix = "";
++  *bits = 38;
++  *type = DW_ATE_signed;
++  *setname = "integer";
++
++  switch (regno)
++    {
++    case 0:
++      stpcpy (name, "tls");
++      namelen = 3;
++      break;
++
++    case 1:
++      stpcpy (name, "lr");
++      namelen = 2;
++      break;
++
++    case 2:
++      stpcpy (name, "pc");
++      namelen = 2;
++      break;
++
++    case 3:
++      stpcpy (name, "sr");
++      namelen = 2;
++      break;
++
++    case 4:
++      stpcpy (name, "usp");
++      namelen = 2;
++      break;
++
++    case 5 ... 14:
++      name[0] = 'r';
++      name[1] = regno - 5 + '0';
++      namelen = 2;
++      break;
++
++    case 15 ... 24:
++      name[0] = 'r';
++      name[1] = '1';
++      name[2] = regno - 15 + '0';
++      namelen = 3;
++      break;
++
++    case 25 ... 34:
++      name[0] = 'r';
++      name[1] = '2';
++      name[2] = regno - 25 + '0';
++      namelen = 3;
++      break;
++
++    case 35:
++      stpcpy (name, "r31");
++      namelen = 3;
++      break;
++
++    case 36:
++      stpcpy (name, "hi");
++      namelen = 2;
++      break;
++
++    case 37:
++      stpcpy (name, "lo");
++      namelen = 2;
++      break;
++
++    default:
++      *setname = NULL;
++      return 0;
++    }
++
++  name[namelen++] = '\0';
++  return namelen;
++}
+diff --git a/backends/csky_reloc.def b/backends/csky_reloc.def
+new file mode 100644
+index 0000000..c3e6c14
+--- /dev/null
++++ b/backends/csky_reloc.def
+@@ -0,0 +1,85 @@
++/* List the relocation types for csky.  -*- C -*-
++   This file is part of elfutils.
++
++   This file is free software; you can redistribute it and/or modify
++   it under the terms of either
++
++     * the GNU Lesser General Public License as published by the Free
++       Software Foundation; either version 3 of the License, or (at
++       your option) any later version
++
++   or
++
++     * the GNU General Public License as published by the Free
++       Software Foundation; either version 2 of the License, or (at
++       your option) any later version
++
++   or both in parallel, as here.
++
++   elfutils is distributed in the hope that it will be useful, but
++   WITHOUT ANY WARRANTY; without even the implied warranty of
++   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
++   General Public License for more details.
++
++   You should have received copies of the GNU General Public License and
++   the GNU Lesser General Public License along with this program.  If
++   not, see <http://www.gnu.org/licenses/>.  */
++
++/*	    NAME,		REL|EXEC|DYN	*/
++
++
++RELOC_TYPE (NONE,		REL|EXEC|DYN)
++RELOC_TYPE (ADDR32,		REL|EXEC|DYN)
++RELOC_TYPE (PCRELIMM8BY4,	REL)
++RELOC_TYPE (PCRELIMM11BY2,	REL)
++RELOC_TYPE (PCREL32,		REL|DYN)
++RELOC_TYPE (PCRELJSR_IMM11BY2,	REL)
++RELOC_TYPE (RELATIVE,		EXEC|DYN)
++RELOC_TYPE (COPY,		EXEC|DYN)
++RELOC_TYPE (GLOB_DAT,		EXEC|DYN)
++RELOC_TYPE (JUMP_SLOT,		EXEC|DYN)
++RELOC_TYPE (GOTOFF,		REL)
++RELOC_TYPE (GOTPC,		REL)
++RELOC_TYPE (GOT32,		REL)
++RELOC_TYPE (PLT32,		REL)
++RELOC_TYPE (ADDRGOT,		REL)
++RELOC_TYPE (ADDRPLT,		REL)
++RELOC_TYPE (PCREL_IMM26BY2,	REL)
++RELOC_TYPE (PCREL_IMM16BY2,	REL)
++RELOC_TYPE (PCREL_IMM16BY4,	REL)
++RELOC_TYPE (PCREL_IMM10BY2,	REL)
++RELOC_TYPE (PCREL_IMM10BY4,	REL)
++RELOC_TYPE (ADDR_HI16,		REL|DYN)
++RELOC_TYPE (ADDR_LO16,		REL|DYN)
++RELOC_TYPE (GOTPC_HI16,		REL)
++RELOC_TYPE (GOTPC_LO16,		REL)
++RELOC_TYPE (GOTOFF_HI16,	REL)
++RELOC_TYPE (GOTOFF_LO16,	REL)
++RELOC_TYPE (GOT12,		REL)
++RELOC_TYPE (GOT_HI16,		REL)
++RELOC_TYPE (GOT_LO16,		REL)
++RELOC_TYPE (PLT12,		REL)
++RELOC_TYPE (PLT_HI16,		REL)
++RELOC_TYPE (PLT_LO16,		REL)
++RELOC_TYPE (ADDRGOT_HI16,	REL)
++RELOC_TYPE (ADDRGOT_LO16,	REL)
++RELOC_TYPE (ADDRPLT_HI16,	REL)
++RELOC_TYPE (ADDRPLT_LO16,	REL)
++RELOC_TYPE (PCREL_JSR_IMM26BY2,	REL|DYN)
++RELOC_TYPE (TOFFSET_LO16,	REL)
++RELOC_TYPE (DOFFSET_LO16,	REL)
++RELOC_TYPE (PCREL_IMM18BY2,	REL)
++RELOC_TYPE (DOFFSET_IMM18,	REL)
++RELOC_TYPE (DOFFSET_IMM18BY2,	REL)
++RELOC_TYPE (DOFFSET_IMM18BY4,	REL)
++RELOC_TYPE (GOT_IMM18BY4,	REL)
++RELOC_TYPE (PLT_IMM18BY4,	REL)
++RELOC_TYPE (PCREL_IMM7BY4,	REL)
++RELOC_TYPE (TLS_LE32,		REL)
++RELOC_TYPE (TLS_IE32,		REL)
++RELOC_TYPE (TLS_GD32,		REL)
++RELOC_TYPE (TLS_LDM32,		REL)
++RELOC_TYPE (TLS_LDO32,		REL)
++RELOC_TYPE (TLS_DTPMOD32,	EXEC|DYN)
++RELOC_TYPE (TLS_DTPOFF32,	EXEC|DYN)
++RELOC_TYPE (TLS_TPOFF32,	EXEC|DYN)
+diff --git a/backends/csky_symbol.c b/backends/csky_symbol.c
+new file mode 100644
+index 0000000..ece8131
+--- /dev/null
++++ b/backends/csky_symbol.c
+@@ -0,0 +1,76 @@
++/* C-SKY specific symbolic name handling.
++   This file is part of elfutils.
++
++   This file is free software; you can redistribute it and/or modify
++   it under the terms of either
++
++     * the GNU Lesser General Public License as published by the Free
++       Software Foundation; either version 3 of the License, or (at
++       your option) any later version
++
++   or
++
++     * the GNU General Public License as published by the Free
++       Software Foundation; either version 2 of the License, or (at
++       your option) any later version
++
++   or both in parallel, as here.
++
++   elfutils is distributed in the hope that it will be useful, but
++   WITHOUT ANY WARRANTY; without even the implied warranty of
++   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
++   General Public License for more details.
++
++   You should have received copies of the GNU General Public License and
++   the GNU Lesser General Public License along with this program.  If
++   not, see <http://www.gnu.org/licenses/>.  */
++
++#ifdef HAVE_CONFIG_H
++# include <config.h>
++#endif
++
++#include <assert.h>
++#include <elf.h>
++#include <stddef.h>
++#include <string.h>
++
++#define BACKEND csky_
++#include "libebl_CPU.h"
++
++/* Check for the simple reloc types.  */
++Elf_Type
++csky_reloc_simple_type (Ebl *ebl __attribute__ ((unused)), int type,
++			int *addsub __attribute__ ((unused)))
++{
++  switch (type)
++    {
++    case R_CKCORE_ADDR32:
++      return ELF_T_WORD;
++    default:
++      return ELF_T_NUM;
++    }
++}
++
++bool
++csky_machine_flag_check (GElf_Word flags)
++{
++  switch (flags & EF_CSKY_ABIMASK)
++    {
++    case EF_CSKY_ABIV1:
++    case EF_CSKY_ABIV2:
++      return true;
++    default:
++      return false;
++    }
++}
++
++const char *
++csky_section_type_name (int type,
++                       char *buf __attribute__ ((unused)),
++                       size_t len __attribute__ ((unused)))
++{
++  if (type == SHT_CSKY_ATTRIBUTES)
++    return "CSKY_ATTRIBUTES";
++
++  return NULL;
++}
+diff --git a/libebl/eblopenbackend.c b/libebl/eblopenbackend.c
+index d54b720..586c4a2 100644
+--- a/libebl/eblopenbackend.c
++++ b/libebl/eblopenbackend.c
+@@ -84,7 +84,6 @@ static const struct
+   { "v800", "ebl_v800", "v800", 4, EM_V800, 0, 0 },
+   { "fr20", "ebl_fr20", "fr20", 4, EM_FR20, 0, 0 },
+   { "rh32", "ebl_rh32", "rh32", 4, EM_RH32, 0, 0 },
+-  { "rce", "ebl_rce", "rce", 3, EM_RCE, 0, 0 },
+   { "tricore", "elf_tricore", "tricore", 7, EM_TRICORE, 0, 0 },
+   { "arc", "elf_arc", "arc", 3, EM_ARC, 0, 0 },
+   { "h8", "elf_h8_300", "h8_300", 6, EM_H8_300, 0, 0 },
+@@ -135,6 +134,7 @@ static const struct
+   { "bpf", "elf_bpf", "bpf", 3, EM_BPF, 0, 0 },
+   { "riscv", "elf_riscv", "riscv", 5, EM_RISCV, ELFCLASS64, ELFDATA2LSB },
+   { "riscv", "elf_riscv", "riscv", 5, EM_RISCV, ELFCLASS32, ELFDATA2LSB },
++  { "csky", "elf_csky", "csky", 4, EM_CSKY, ELFCLASS32, ELFDATA2LSB },
+ };
+ #define nmachines (sizeof (machines) / sizeof (machines[0]))
+ 
+diff --git a/libelf/elf.h b/libelf/elf.h
+index 75043bc..01648bd 100644
+--- a/libelf/elf.h
++++ b/libelf/elf.h
+@@ -1,5 +1,5 @@
+ /* This file defines standard ELF types, structures, and macros.
+-   Copyright (C) 1995-2018 Free Software Foundation, Inc.
++   Copyright (C) 1995-2019 Free Software Foundation, Inc.
+    This file is part of the GNU C Library.
+ 
+    The GNU C Library is free software; you can redistribute it and/or
+@@ -360,8 +360,9 @@ typedef struct
+ #define EM_RISCV	243	/* RISC-V */
+ 
+ #define EM_BPF		247	/* Linux BPF -- in-kernel virtual machine */
++#define EM_CSKY		39     /* C-SKY */
+ 
+-#define EM_NUM		248
++#define EM_NUM		253
+ 
+ /* Old spellings/synonyms.  */
+ 
+@@ -808,6 +809,9 @@ typedef struct
+ #define NT_ARM_SYSTEM_CALL	0x404	/* ARM system call number */
+ #define NT_ARM_SVE	0x405		/* ARM Scalable Vector Extension
+ 					   registers */
++#define NT_VMCOREDD	0x700		/* Vmcore Device Dump Note.  */
++#define NT_MIPS_DSP	0x800		/* MIPS DSP ASE registers.  */
++#define NT_MIPS_FP_MODE	0x801		/* MIPS floating-point mode.  */
+ 
+ /* Legal values for the note segment descriptor types for object files.  */
+ 
+@@ -1214,6 +1218,9 @@ typedef struct
+ #define AT_L3_CACHESIZE		46
+ #define AT_L3_CACHEGEOMETRY	47
+ 
++#define AT_MINSIGSTKSZ		51 /* Stack needed for signal delivery
++				      (AArch64).  */
++
+ /* Note section contents.  Each entry in the note section begins with
+    a header of a fixed form.  */
+ 
+@@ -3015,6 +3022,81 @@ enum
+ /* Keep this the last entry.  */
+ #define R_ARM_NUM		256
+ 
++/* C-SKY */
++#define R_CKCORE_NONE               0	/* no reloc */
++#define R_CKCORE_ADDR32             1	/* direct 32 bit (S + A) */
++#define R_CKCORE_PCRELIMM8BY4       2	/* disp ((S + A - P) >> 2) & 0xff   */
++#define R_CKCORE_PCRELIMM11BY2      3	/* disp ((S + A - P) >> 1) & 0x7ff  */
++#define R_CKCORE_PCREL32            5	/* 32-bit rel (S + A - P)           */
++#define R_CKCORE_PCRELJSR_IMM11BY2  6	/* disp ((S + A - P) >>1) & 0x7ff   */
++#define R_CKCORE_RELATIVE           9	/* 32 bit adjust program base(B + A)*/
++#define R_CKCORE_COPY               10	/* 32 bit adjust by program base    */
++#define R_CKCORE_GLOB_DAT           11	/* off between got and sym (S)      */
++#define R_CKCORE_JUMP_SLOT          12	/* PLT entry (S) */
++#define R_CKCORE_GOTOFF             13	/* offset to GOT (S + A - GOT)      */
++#define R_CKCORE_GOTPC              14	/* PC offset to GOT (GOT + A - P)   */
++#define R_CKCORE_GOT32              15	/* 32 bit GOT entry (G) */
++#define R_CKCORE_PLT32              16	/* 32 bit PLT entry (G) */
++#define R_CKCORE_ADDRGOT            17	/* GOT entry in GLOB_DAT (GOT + G)  */
++#define R_CKCORE_ADDRPLT            18	/* PLT entry in GLOB_DAT (GOT + G)  */
++#define R_CKCORE_PCREL_IMM26BY2     19	/* ((S + A - P) >> 1) & 0x3ffffff   */
++#define R_CKCORE_PCREL_IMM16BY2     20	/* disp ((S + A - P) >> 1) & 0xffff */
++#define R_CKCORE_PCREL_IMM16BY4     21	/* disp ((S + A - P) >> 2) & 0xffff */
++#define R_CKCORE_PCREL_IMM10BY2     22	/* disp ((S + A - P) >> 1) & 0x3ff  */
++#define R_CKCORE_PCREL_IMM10BY4     23	/* disp ((S + A - P) >> 2) & 0x3ff  */
++#define R_CKCORE_ADDR_HI16          24	/* high & low 16 bit ADDR */
++                                        /* ((S + A) >> 16) & 0xffff */
++#define R_CKCORE_ADDR_LO16          25	/* (S + A) & 0xffff */
++#define R_CKCORE_GOTPC_HI16         26	/* high & low 16 bit GOTPC */
++                                        /* ((GOT + A - P) >> 16) & 0xffff */
++#define R_CKCORE_GOTPC_LO16         27	/* (GOT + A - P) & 0xffff */
++#define R_CKCORE_GOTOFF_HI16        28	/* high & low 16 bit GOTOFF */
++                                        /* ((S + A - GOT) >> 16) & 0xffff */
++#define R_CKCORE_GOTOFF_LO16        29	/* (S + A - GOT) & 0xffff */
++#define R_CKCORE_GOT12              30	/* 12 bit disp GOT entry (G) */
++#define R_CKCORE_GOT_HI16           31	/* high & low 16 bit GOT */
++                                        /* (G >> 16) & 0xffff */
++#define R_CKCORE_GOT_LO16           32	/* (G & 0xffff) */
++#define R_CKCORE_PLT12              33	/* 12 bit disp PLT entry (G) */
++#define R_CKCORE_PLT_HI16           34	/* high & low 16 bit PLT */
++                                        /* (G >> 16) & 0xffff */
++#define R_CKCORE_PLT_LO16           35	/* G & 0xffff */
++#define R_CKCORE_ADDRGOT_HI16       36	/* high & low 16 bit ADDRGOT */
++                                        /* (GOT + G * 4) & 0xffff */
++#define R_CKCORE_ADDRGOT_LO16       37	/* (GOT + G * 4) & 0xffff */
++#define R_CKCORE_ADDRPLT_HI16       38	/* high & low 16 bit ADDRPLT */
++                                        /* ((GOT + G * 4) >> 16) & 0xFFFF */
++#define R_CKCORE_ADDRPLT_LO16       39	/* (GOT+G*4) & 0xffff */
++#define R_CKCORE_PCREL_JSR_IMM26BY2 40	/* disp ((S+A-P) >>1) & x3ffffff */
++#define R_CKCORE_TOFFSET_LO16       41	/* (S+A-BTEXT) & 0xffff */
++#define R_CKCORE_DOFFSET_LO16       42	/* (S+A-BTEXT) & 0xffff */
++#define R_CKCORE_PCREL_IMM18BY2     43	/* disp ((S+A-P) >>1) & 0x3ffff */
++#define R_CKCORE_DOFFSET_IMM18      44	/* disp (S+A-BDATA) & 0x3ffff */
++#define R_CKCORE_DOFFSET_IMM18BY2   45	/* disp ((S+A-BDATA)>>1) & 0x3ffff */
++#define R_CKCORE_DOFFSET_IMM18BY4   46	/* disp ((S+A-BDATA)>>2) & 0x3ffff */
++#define R_CKCORE_GOT_IMM18BY4       48	/* disp (G >> 2) */
++#define R_CKCORE_PLT_IMM18BY4       49	/* disp (G >> 2) */
++#define R_CKCORE_PCREL_IMM7BY4      50	/* disp ((S+A-P) >>2) & 0x7f */
++#define R_CKCORE_TLS_LE32           51	/* 32 bit offset to TLS block */
++#define R_CKCORE_TLS_IE32           52
++#define R_CKCORE_TLS_GD32           53
++#define R_CKCORE_TLS_LDM32          54
++#define R_CKCORE_TLS_LDO32          55
++#define R_CKCORE_TLS_DTPMOD32       56
++#define R_CKCORE_TLS_DTPOFF32       57
++#define R_CKCORE_TLS_TPOFF32        58
++
++/* C-SKY elf header definition.  */
++#define EF_CSKY_ABIMASK		    0XF0000000
++#define EF_CSKY_OTHER		    0X0FFF0000
++#define EF_CSKY_PROCESSOR	    0X0000FFFF
++
++#define EF_CSKY_ABIV1		    0X10000000
++#define EF_CSKY_ABIV2		    0X20000000
++
++/* C-SKY attributes section.  */
++#define SHT_CSKY_ATTRIBUTES	    (SHT_LOPROC + 1)
++
+ /* IA-64 specific declarations.  */
+ 
+ /* Processor specific flags for the Ehdr e_flags field.  */
+@@ -3915,6 +3997,16 @@ enum
+ #define R_METAG_TLS_LE_HI16	60
+ #define R_METAG_TLS_LE_LO16	61
+ 
++/* NDS32 relocations.  */
++#define R_NDS32_NONE		0
++#define R_NDS32_32_RELA 	20
++#define R_NDS32_COPY		39
++#define R_NDS32_GLOB_DAT	40
++#define R_NDS32_JMP_SLOT	41
++#define R_NDS32_RELATIVE	42
++#define R_NDS32_TLS_TPOFF	102
++#define R_NDS32_TLS_DESC	119
++
+ __END_DECLS
+ 
+ #endif	/* elf.h */
+diff --git a/src/elflint.c b/src/elflint.c
+index 810c8bd..edb466d 100644
+--- a/src/elflint.c
++++ b/src/elflint.c
+@@ -330,7 +330,7 @@ static const int valid_e_machine[] =
+     EM_CRIS, EM_JAVELIN, EM_FIREPATH, EM_ZSP, EM_MMIX, EM_HUANY, EM_PRISM,
+     EM_AVR, EM_FR30, EM_D10V, EM_D30V, EM_V850, EM_M32R, EM_MN10300,
+     EM_MN10200, EM_PJ, EM_OPENRISC, EM_ARC_A5, EM_XTENSA, EM_ALPHA,
+-    EM_TILEGX, EM_TILEPRO, EM_AARCH64, EM_BPF, EM_RISCV
++    EM_TILEGX, EM_TILEPRO, EM_AARCH64, EM_BPF, EM_RISCV, EM_CSKY
+   };
+ #define nvalid_e_machine \
+   (sizeof (valid_e_machine) / sizeof (valid_e_machine[0]))
+-- 
+2.7.4
+

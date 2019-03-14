@@ -4,7 +4,7 @@
 #
 ################################################################################
 
-ELFUTILS_VERSION = 0.169
+ELFUTILS_VERSION = 0.176
 ELFUTILS_SOURCE = elfutils-$(ELFUTILS_VERSION).tar.bz2
 ELFUTILS_SITE = https://sourceware.org/elfutils/ftp/$(ELFUTILS_VERSION)
 ELFUTILS_INSTALL_STAGING = YES
@@ -20,7 +20,8 @@ HOST_ELFUTILS_AUTORECONF = YES
 # Pass a custom program prefix to avoid a naming conflict between
 # elfutils binaries and binutils binaries.
 ELFUTILS_CONF_OPTS += \
-	--program-prefix="eu-"
+	--program-prefix="eu-" \
+	--disable-textrelcheck
 
 HOST_ELFUTILS_CONF_OPTS = \
 	--with-bzlib \
