@@ -324,6 +324,7 @@ wait_for_trigger:
 810f_4.14_glibc_qemu: *810_qemu_build
 810f_4.19_glibc_qemu: *810_qemu_build
 810f_4.20_glibc_qemu: *810_qemu_build
+810f_4.9p_glibc_qemu: *810_qemu_build
 
 810f_4.9_uclibc_qemu_test:
     dependencies:
@@ -353,6 +354,11 @@ wait_for_trigger:
 810f_4.20_glibc_qemu_test:
     dependencies:
       - 810f_4.20_glibc_qemu
+    <<: *810_qemu_test
+
+810f_4.9p_glibc_qemu_test:
+    dependencies:
+      - 810f_4.9p_glibc_qemu
     <<: *810_qemu_test
 
 ################ 860 ################
