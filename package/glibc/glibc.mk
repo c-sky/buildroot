@@ -9,7 +9,7 @@ GLIBC_VERSION =  arc-2017.09-release
 GLIBC_SITE = $(call github,foss-for-synopsys-dwc-arc-processors,glibc,$(GLIBC_VERSION))
 else ifeq ($(BR2_csky),y)
 CKUPS_GLIBC_VERSION = 0d493344af69b195cd6db7bb88b9e4002fe556d8
-CKTST_GLIBC_VERSION = fbe9c86a775c1e83e1737c322539aa88be671b17
+CKTST_GLIBC_VERSION = 7630ed2fa60caea98f500e4a7a51b88f9bf1e176
 ifeq ($(BR2_CSKY_UPSTREAM),y)
 GLIBC_VERSION = $(CKUPS_GLIBC_VERSION)
 else
