@@ -1,0 +1,45 @@
+From 35863128764da22c2d427166d6ecfad14cd4d22b Mon Sep 17 00:00:00 2001
+From: Guo Ren <ren_guo@c-sky.com>
+Date: Tue, 19 Mar 2019 13:49:49 +0800
+Subject: [PATCH 1/2] add csky in configure
+
+---
+ config.h.in | 3 +++
+ configure   | 8 ++++++++
+ 2 files changed, 11 insertions(+)
+
+diff --git a/config.h.in b/config.h.in
+index 77a7335..aab246f 100644
+--- a/config.h.in
++++ b/config.h.in
+@@ -36,6 +36,9 @@
+ /* Define for the CRISv32 architecture. */
+ #undef CRISV32
+ 
++/* Define for the C-SKY architecture. */
++#define CSKY 1
++
+ /* Define to 1 if you want OABI support on ARM EABI. */
+ #undef ENABLE_ARM_OABI
+ 
+diff --git a/configure b/configure
+index c971736..cde3712 100755
+--- a/configure
++++ b/configure
+@@ -9531,5 +9531,13 @@ $as_echo "#define XTENSA 1" >>confdefs.h
+ 
+ 	;;
++csky*)
++	arch=csky
++
++$as_echo "#define CSKY 1" >>confdefs.h
++
++
++	;;
++
+ *)
+ 	{ $as_echo "$as_me:${as_lineno-$LINENO}: result: NO!" >&5
+ $as_echo "NO!" >&6; }
+-- 
+2.7.4
+

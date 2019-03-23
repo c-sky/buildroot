@@ -1,0 +1,305 @@
+From 10e7de55a1fd609568bfbae02c59b01e544f1045 Mon Sep 17 00:00:00 2001
+From: Guo Ren <ren_guo@c-sky.com>
+Date: Fri, 22 Mar 2019 19:09:12 +0800
+Subject: [PATCH V2] Add C-SKY architecture support
+
+This is port of C-SKY architecture for strace. There is a little
+difference between abiv1 and abiv2, we use __CSKYABIV2__ from GCC-csky
+to distinguish.
+
+TODO:
+ - personality, mpers (multi personality support)
+
+Changelog:
+ - Fixup get_syscall_args.c with orig_a0.
+ - Coding convention and remove Copyright line.
+ - Remove arch_defs_.h.
+
+Thx for the reviewers:
+ - Dmitry V. Levin <ldv@altlinux.org>
+
+Signed-off-by: Guo Ren <ren_guo@c-sky.com>
+Cc: Dmitry V. Levin <ldv@altlinux.org>
+---
+ Makefile.am                   | 10 ++++++++++
+ cacheflush.c                  |  4 ++--
+ clone.c                       |  2 +-
+ configure.ac                  |  4 ++++
+ linux/csky/arch_regs.c        | 10 ++++++++++
+ linux/csky/get_error.c        | 15 +++++++++++++++
+ linux/csky/get_scno.c         | 15 +++++++++++++++
+ linux/csky/get_syscall_args.c | 16 ++++++++++++++++
+ linux/csky/ioctls_arch0.h     |  1 +
+ linux/csky/ioctls_inc0.h      |  1 +
+ linux/csky/raw_syscall.h      | 29 +++++++++++++++++++++++++++++
+ linux/csky/set_error.c        | 17 +++++++++++++++++
+ linux/csky/set_scno.c         | 14 ++++++++++++++
+ linux/csky/syscallent.h       |  4 ++++
+ 14 files changed, 139 insertions(+), 3 deletions(-)
+ create mode 100644 linux/csky/arch_regs.c
+ create mode 100644 linux/csky/get_error.c
+ create mode 100644 linux/csky/get_scno.c
+ create mode 100644 linux/csky/get_syscall_args.c
+ create mode 100644 linux/csky/ioctls_arch0.h
+ create mode 100644 linux/csky/ioctls_inc0.h
+ create mode 100644 linux/csky/raw_syscall.h
+ create mode 100644 linux/csky/set_error.c
+ create mode 100644 linux/csky/set_scno.c
+ create mode 100644 linux/csky/syscallent.h
+
+diff --git a/Makefile.am b/Makefile.am
+index 56987ae..b594691 100644
+--- a/Makefile.am
++++ b/Makefile.am
+@@ -510,6 +510,16 @@ EXTRA_DIST =				\
+ 	linux/bfin/set_error.c		\
+ 	linux/bfin/set_scno.c		\
+ 	linux/bfin/syscallent.h		\
++	linux/csky/arch_regs.c		\
++	linux/csky/get_error.c		\
++	linux/csky/get_scno.c		\
++	linux/csky/get_syscall_args.c	\
++	linux/csky/ioctls_arch0.h	\
++	linux/csky/ioctls_inc0.h	\
++	linux/csky/raw_syscall.h	\
++	linux/csky/set_error.c		\
++	linux/csky/set_scno.c		\
++	linux/csky/syscallent.h		\
+ 	linux/bfin/userent.h		\
+ 	linux/check_scno.c		\
+ 	linux/dummy.h			\
+diff --git a/cacheflush.c b/cacheflush.c
+index f38a3f9..401aa8f 100644
+--- a/cacheflush.c
++++ b/cacheflush.c
+@@ -49,7 +49,7 @@ SYS_FUNC(cacheflush)
+ }
+ #endif /* M68K */
+ 
+-#ifdef BFIN
++#if defined(BFIN) || defined(CSKY)
+ static const struct xlat cacheflush_flags[] = {
+ 	XLAT(ICACHE),
+ 	XLAT(DCACHE),
+@@ -68,7 +68,7 @@ SYS_FUNC(cacheflush)
+ 
+ 	return RVAL_DECODED;
+ }
+-#endif /* BFIN */
++#endif /* BFIN || CSKY */
+ 
+ #ifdef SH
+ static const struct xlat cacheflush_flags[] = {
+diff --git a/clone.c b/clone.c
+index 64c7e95..da05f1d 100644
+--- a/clone.c
++++ b/clone.c
+@@ -42,7 +42,7 @@
+ # define ARG_PTID	2
+ # define ARG_CTID	((current_personality != 1) ? 3 : 4)
+ # define ARG_TLS	((current_personality != 1) ? 4 : 3)
+-#elif defined ALPHA || defined TILE || defined OR1K || defined RISCV
++#elif defined ALPHA || defined TILE || defined OR1K || defined RISCV || defined CSKY
+ # define ARG_FLAGS	0
+ # define ARG_STACK	1
+ # define ARG_PTID	2
+diff --git a/configure.ac b/configure.ac
+index c95fd22..86d3626 100644
+--- a/configure.ac
++++ b/configure.ac
+@@ -79,6 +79,10 @@ bfin)
+ 	arch=bfin
+ 	AC_DEFINE([BFIN], 1, [Define for the Blackfin architecture.])
+ 	;;
++csky*)
++	arch=csky
++	AC_DEFINE([CSKY], 1, [Define for the C-SKY architecture])
++	;;
+ hppa*|parisc*)
+ 	arch=hppa
+ 	AC_DEFINE([HPPA], 1, [Define for the HPPA architecture.])
+diff --git a/linux/csky/arch_regs.c b/linux/csky/arch_regs.c
+new file mode 100644
+index 0000000..8cd0f67
+--- /dev/null
++++ b/linux/csky/arch_regs.c
+@@ -0,0 +1,10 @@
++/*
++ * SPDX-License-Identifier: LGPL-2.1-or-later
++ */
++
++static struct pt_regs csky_regs;
++
++unsigned long *const csky_sp_ptr = &csky_regs.usp;
++
++#define ARCH_REGS_FOR_GETREGSET	csky_regs
++#define ARCH_PC_REG		csky_regs.pc
+diff --git a/linux/csky/get_error.c b/linux/csky/get_error.c
+new file mode 100644
+index 0000000..8b26b3a
+--- /dev/null
++++ b/linux/csky/get_error.c
+@@ -0,0 +1,15 @@
++/*
++ * SPDX-License-Identifier: LGPL-2.1-or-later
++ */
++#include "negated_errno.h"
++
++static void
++arch_get_error(struct tcb *tcp, const bool check_errno)
++{
++	if (check_errno && is_negated_errno(csky_regs.a0)) {
++		tcp->u_rval = -1;
++		tcp->u_error = -csky_regs.a0;
++	} else {
++		tcp->u_rval = csky_regs.a0;
++	}
++}
+diff --git a/linux/csky/get_scno.c b/linux/csky/get_scno.c
+new file mode 100644
+index 0000000..53635a8
+--- /dev/null
++++ b/linux/csky/get_scno.c
+@@ -0,0 +1,15 @@
++/*
++ * SPDX-License-Identifier: LGPL-2.1-or-later
++ */
++
++/* Return codes: 1 - ok, 0 - ignore, other - error. */
++static int
++arch_get_scno(struct tcb *tcp)
++{
++#if defined(__CSKYABIV2__)
++	tcp->scno = csky_regs.regs[3];
++#else
++	tcp->scno = csky_regs.r1;
++#endif
++	return 1;
++}
+diff --git a/linux/csky/get_syscall_args.c b/linux/csky/get_syscall_args.c
+new file mode 100644
+index 0000000..e3db419
+--- /dev/null
++++ b/linux/csky/get_syscall_args.c
+@@ -0,0 +1,16 @@
++/*
++ * SPDX-License-Identifier: LGPL-2.1-or-later
++ */
++
++/* Return -1 on error or 1 on success (never 0!). */
++static int
++arch_get_syscall_args(struct tcb *tcp)
++{
++	tcp->u_arg[0] = csky_regs.orig_a0;
++	tcp->u_arg[1] = csky_regs.a1;
++	tcp->u_arg[2] = csky_regs.a2;
++	tcp->u_arg[3] = csky_regs.a3;
++	tcp->u_arg[4] = csky_regs.regs[0];
++	tcp->u_arg[5] = csky_regs.regs[1];
++	return 1;
++}
+diff --git a/linux/csky/ioctls_arch0.h b/linux/csky/ioctls_arch0.h
+new file mode 100644
+index 0000000..8b7ac89
+--- /dev/null
++++ b/linux/csky/ioctls_arch0.h
+@@ -0,0 +1 @@
++/* Generated by ioctls_gen.sh from definitions found in $linux/arch/csky/include/ tree. */
+diff --git a/linux/csky/ioctls_inc0.h b/linux/csky/ioctls_inc0.h
+new file mode 100644
+index 0000000..4aecf98
+--- /dev/null
++++ b/linux/csky/ioctls_inc0.h
+@@ -0,0 +1 @@
++#include "32/ioctls_inc.h"
+diff --git a/linux/csky/raw_syscall.h b/linux/csky/raw_syscall.h
+new file mode 100644
+index 0000000..b77e838
+--- /dev/null
++++ b/linux/csky/raw_syscall.h
+@@ -0,0 +1,29 @@
++/*
++ * SPDX-License-Identifier: LGPL-2.1-or-later
++ */
++
++#ifndef STRACE_RAW_SYSCALL_H
++#define STRACE_RAW_SYSCALL_H
++
++# include "kernel_types.h"
++
++static inline kernel_ulong_t
++raw_syscall_0(const kernel_ulong_t nr, kernel_ulong_t *err)
++{
++#if defined(__CSKYABIV2__)
++	register kernel_ulong_t scno __asm__("r7") = nr;
++#else
++	register kernel_ulong_t scno __asm__("r1") = nr;
++#endif
++	register kernel_ulong_t a0 __asm__("a0");
++	asm volatile("trap 0"
++		: "+r"(scno), "=r"(a0)
++		:
++		: "memory");
++
++	*err = 0;
++	return a0;
++}
++# define raw_syscall_0 raw_syscall_0
++
++#endif /* !STRACE_RAW_SYSCALL_H */
+diff --git a/linux/csky/set_error.c b/linux/csky/set_error.c
+new file mode 100644
+index 0000000..3eddf0f
+--- /dev/null
++++ b/linux/csky/set_error.c
+@@ -0,0 +1,17 @@
++/*
++ * SPDX-License-Identifier: LGPL-2.1-or-later
++ */
++
++static int
++arch_set_error(struct tcb *tcp)
++{
++	csky_regs.a0 = -tcp->u_error;
++	return set_regs(tcp->pid);
++}
++
++static int
++arch_set_success(struct tcb *tcp)
++{
++	csky_regs.a0 = tcp->u_rval;
++	return set_regs(tcp->pid);
++}
+diff --git a/linux/csky/set_scno.c b/linux/csky/set_scno.c
+new file mode 100644
+index 0000000..4aac53f
+--- /dev/null
++++ b/linux/csky/set_scno.c
+@@ -0,0 +1,14 @@
++/*
++ * SPDX-License-Identifier: LGPL-2.1-or-later
++ */
++
++static int
++arch_set_scno(struct tcb *tcp, kernel_ulong_t scno)
++{
++#if defined(__CSKYABIV2__)
++	csky_regs.regs[3] = scno;
++#else
++	csky_regs.r1 = scno;
++#endif
++	return set_regs(tcp->pid);
++}
+diff --git a/linux/csky/syscallent.h b/linux/csky/syscallent.h
+new file mode 100644
+index 0000000..33e3e73
+--- /dev/null
++++ b/linux/csky/syscallent.h
+@@ -0,0 +1,4 @@
++#include "32/syscallent.h"
++/* [244 ... 259] are arch specific */
++[244] = {1,    0,	SEN(set_thread_area), "set_thread_area"},
++[245] = {3,    0,	SEN(cacheflush), "cacheflush"},
+-- 
+2.7.4
+
