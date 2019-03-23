@@ -407,6 +407,7 @@ wait_for_trigger:
 860_4.9_glibc_qemu: *860_qemu_build
 860_4.14_glibc_qemu: *860_qemu_build
 860_4.19_glibc_qemu: *860_qemu_build
+860_next_glibc_qemu: *860_qemu_build
 
 860_4.9_glibc_qemu_test:
     dependencies:
@@ -421,4 +422,9 @@ wait_for_trigger:
 860_4.19_glibc_qemu_test:
     dependencies:
       - 860_4.19_glibc_qemu
+    <<: *860_qemu_test
+
+860_next_glibc_qemu_test:
+    dependencies:
+      - 860_next_glibc_qemu
     <<: *860_qemu_test
