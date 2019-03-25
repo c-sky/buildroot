@@ -281,36 +281,6 @@ wait_for_trigger:
       - 810f_4.14_glibc_dh7200
     <<: *810_test
 
-#For glibc-ci only
-810_4.9_glibc_qemu:
-    stage: glibc-build
-    tags:
-        - qemu_maohan
-    <<: *common_builds
-    only:
-        changes:
-            - package/csky-glibc-ci/csky-glibc-ci.mk
-            - package/glibc/glibc.mk
-
-810_4.9_glibc_qemu_test:
-    dependencies:
-      - 810_4.9_glibc_qemu
-    stage: glibc-test
-    tags:
-        - qemu_maohan
-    script: *common_test_script
-    artifacts:
-        when: always
-        expire_in: 2 weeks
-        paths:
-            - make_check_target.log
-            - make_check.log
-            - make.log
-    only:
-        changes:
-            - package/csky-glibc-ci/csky-glibc-ci.mk
-            - package/glibc/glibc.mk
-
 # qemu
 .810_qemu_build: &810_qemu_build
     stage: qemu-build
