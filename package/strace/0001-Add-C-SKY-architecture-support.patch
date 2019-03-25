@@ -1,7 +1,7 @@
-From 10e7de55a1fd609568bfbae02c59b01e544f1045 Mon Sep 17 00:00:00 2001
+From e38119760444a8db973f1c04e92c3d62b46721a4 Mon Sep 17 00:00:00 2001
 From: Guo Ren <ren_guo@c-sky.com>
 Date: Fri, 22 Mar 2019 19:09:12 +0800
-Subject: [PATCH V2] Add C-SKY architecture support
+Subject: [PATCH V3] Add C-SKY architecture support
 
 This is port of C-SKY architecture for strace. There is a little
 difference between abiv1 and abiv2, we use __CSKYABIV2__ from GCC-csky
@@ -25,7 +25,7 @@ Cc: Dmitry V. Levin <ldv@altlinux.org>
  cacheflush.c                  |  4 ++--
  clone.c                       |  2 +-
  configure.ac                  |  4 ++++
- linux/csky/arch_regs.c        | 10 ++++++++++
+ linux/csky/arch_regs.c        |  8 ++++++++
  linux/csky/get_error.c        | 15 +++++++++++++++
  linux/csky/get_scno.c         | 15 +++++++++++++++
  linux/csky/get_syscall_args.c | 16 ++++++++++++++++
@@ -35,7 +35,7 @@ Cc: Dmitry V. Levin <ldv@altlinux.org>
  linux/csky/set_error.c        | 17 +++++++++++++++++
  linux/csky/set_scno.c         | 14 ++++++++++++++
  linux/csky/syscallent.h       |  4 ++++
- 14 files changed, 139 insertions(+), 3 deletions(-)
+ 14 files changed, 137 insertions(+), 3 deletions(-)
  create mode 100644 linux/csky/arch_regs.c
  create mode 100644 linux/csky/get_error.c
  create mode 100644 linux/csky/get_scno.c
@@ -98,8 +98,8 @@ index 64c7e95..da05f1d 100644
  # define ARG_PTID	2
  # define ARG_CTID	((current_personality != 1) ? 3 : 4)
  # define ARG_TLS	((current_personality != 1) ? 4 : 3)
--#elif defined ALPHA || defined TILE || defined OR1K || defined RISCV
-+#elif defined ALPHA || defined TILE || defined OR1K || defined RISCV || defined CSKY
+-#elif defined ALPHA || defined TILE || defined OR1K
++#elif defined ALPHA || defined TILE || defined OR1K || defined CSKY
  # define ARG_FLAGS	0
  # define ARG_STACK	1
  # define ARG_PTID	2
@@ -120,20 +120,18 @@ index c95fd22..86d3626 100644
  	AC_DEFINE([HPPA], 1, [Define for the HPPA architecture.])
 diff --git a/linux/csky/arch_regs.c b/linux/csky/arch_regs.c
 new file mode 100644
-index 0000000..8cd0f67
+index 0000000..5434f4b
 --- /dev/null
 +++ b/linux/csky/arch_regs.c
-@@ -0,0 +1,10 @@
+@@ -0,0 +1,8 @@
 +/*
 + * SPDX-License-Identifier: LGPL-2.1-or-later
 + */
 +
 +static struct pt_regs csky_regs;
-+
-+unsigned long *const csky_sp_ptr = &csky_regs.usp;
-+
 +#define ARCH_REGS_FOR_GETREGSET	csky_regs
 +#define ARCH_PC_REG		csky_regs.pc
++#define ARCH_SP_REG		csky_regs.usp;
 diff --git a/linux/csky/get_error.c b/linux/csky/get_error.c
 new file mode 100644
 index 0000000..8b26b3a
