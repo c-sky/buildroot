@@ -125,6 +125,8 @@ wait_for_trigger:
 610_4.14_uclibc_gx6622: *610_build
 610_4.14_glibc_gx6622: *610_build
 610_4.19_glibc_gx6622: *610_build
+610_4.9_uclibc_gx6605s: *610_build
+610_4.9_uclibc_gx6605sfb: *610_build
 
 610_4.9_uclibc_gx6622_test:
     tags:
