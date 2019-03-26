@@ -29,6 +29,7 @@ BR2_GLOBAL_PATCH_DIR="board/csky/common/linux-$(BR2_LINUX_KERNEL_CUSTOM_VERSION_
 
 # System configuration
 BR2_OPTIMIZE_2=y
+BR2_TARGET_OPTIMIZATION="-mbacktrace"
 
 # Rootfs
 BR2_TARGET_ROOTFS_INITRAMFS=y

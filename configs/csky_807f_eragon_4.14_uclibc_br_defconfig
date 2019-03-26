@@ -29,6 +29,7 @@ BR2_LINUX_KERNEL_EXT_CSKY_ADDONS_GIT_URL="https://github.com/c-sky/linux-csky-ad
 
 # System configuration
 BR2_OPTIMIZE_2=y
+BR2_TARGET_OPTIMIZATION="-mbacktrace"
 
 # Rootfs
 BR2_TARGET_ROOTFS_INITRAMFS=y
