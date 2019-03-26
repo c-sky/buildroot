@@ -4,8 +4,8 @@
 #
 ################################################################################
 
-CKTST_CSKY_ARCH_VERSION = 0baf1638e5b62ebdd44d20d3a24847ff74b5345a
-CKTST_CSKY_ARCH_VERSION_4_19 = bcecd1538069838776fc6b0fd8df786e1fbaf5b6
+CKTST_CSKY_ARCH_VERSION = 37a58d3b927709d3758fb96293dc8b4b0b497d46
+CKTST_CSKY_ARCH_VERSION_4_19 = be1b04a2d1c8fbf4f49577dc5825e7d53d5beb32
 CKTST_CSKY_ARCH_VERSION_NEXT = 5876e3675788d0e476369650fd537aee9e429ce1
 
 CSKY_LINUX_NEXT_VERSION = $(call qstrip,$(CKTST_CSKY_ARCH_VERSION_NEXT))
@@ -26,6 +26,20 @@ CSKY_ARCH_SITE_METHOD = git
 else
 CSKY_ARCH_SITE = $(call gitlab,c-sky,csky-linux,$(CSKY_ARCH_VERSION))
 endif
+
+define CSKY_ARCH_PREPARE_KERNEL
+	cp -raf $(CSKY_ARCH_DIR)/arch/csky $(LINUX_DIR)/arch/
+	if [ -d $(CSKY_ARCH_DIR)/arch-csky-drivers ]; then \
+		cp -raf $(CSKY_ARCH_DIR)/arch-csky-drivers $(LINUX_DIR)/; \
+	fi
+	if [ -d $(CSKY_ARCH_DIR)/drivers ]; then \
+		cp -raf $(CSKY_ARCH_DIR)/drivers $(LINUX_DIR)/arch-csky-drivers; \
+	fi
+	awk '/:= drivers/{print $$0,"arch-csky-drivers/";next}{print $$0}' \
+		$(LINUX_DIR)/Makefile 1<>$(LINUX_DIR)/Makefile
+	$(APPLY_PATCHES) $(LINUX_DIR) $(CSKY_ARCH_DIR)/patch/ \*.patch || exit 1;
+endef
+LINUX_POST_EXTRACT_HOOKS += CSKY_ARCH_PREPARE_KERNEL
 
 ifeq ($(BR2_PACKAGE_LINUX_HEADERS)$(BR2_PACKAGE_CSKY_ARCH), yy)
 LINUX_HEADERS_DEPENDENCIES += csky-arch
