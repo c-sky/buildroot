@@ -15,8 +15,7 @@ stages:
   - qemu-test
   - chip-build
   - chip-test
-  - glibc-build
-  - glibc-test
+  - misc-build
 
 variables:
     PREFIX: ""
@@ -120,13 +119,18 @@ wait_for_trigger:
     stage: chip-test
     <<: *common_tests
 
+.misc_build: &misc_build
+    stage: misc-build
+    <<: *common_builds
+
 610_4.9_uclibc_gx6622: *610_build
 610_4.9_glibc_gx6622: *610_build
 610_4.14_uclibc_gx6622: *610_build
 610_4.14_glibc_gx6622: *610_build
 610_4.19_glibc_gx6622: *610_build
-610_4.9_uclibc_gx6605s: *610_build
-610_4.9_uclibc_gx6605sfb: *610_build
+
+610_4.9_uclibc_gx6605s: *misc_build
+610_4.9_uclibc_gx6605sfb: *misc_build
 
 610_4.9_uclibc_gx6622_test:
     tags:
