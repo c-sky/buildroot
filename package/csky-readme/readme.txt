@@ -46,7 +46,9 @@ Enable qemu network
 Run with Jtag
 =============
  minicom -D /dev/ttyUSB0
- sudo ./host/csky-debug/DebugServerConsole.elf
+ cd host/csky-debug
+ sudo ./DebugServerConsole.elf
+ cd -
  ./host/bin/csky-linux-gdb -x gdbinit vmlinux
 
 
