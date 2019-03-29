@@ -44,6 +44,7 @@ wait_for_trigger:
     - CONFIG_NAME=${PREFIX}${MAIN}${SUFFIX}
     - echo ${CONFIG_NAME}
     - make ${CONFIG_NAME}
+    - export CSKY_README_JOB_ID=${CI_JOB_ID}
     - echo 'Build buildroot'
     - |
         make > >(tee build.log |grep '>>>') 2>&1 || {

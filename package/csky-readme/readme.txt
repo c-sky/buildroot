@@ -1,24 +1,20 @@
 (All is tested on 64bit-ubuntu 16.04)
 
-Prepare
-=======
-Download these files from gitlab-CI web page (You can download them from gitlab-CI without building)
+Download
+========
+ wget https://gitlab.com/c-sky/buildroot/-/jobs/<buildroot-job_id>/artifacts/raw/output/images/csky_toolchain_<buildroot-config>_<buildroot-version>.tar.xz;
+ wget https://gitlab.com/c-sky/buildroot/-/jobs/<buildroot-job_id>/artifacts/raw/output/images/qemu.dtb;
+ wget https://gitlab.com/c-sky/buildroot/-/jobs/<buildroot-job_id>/artifacts/raw/output/images/vmlinux.xz;
 
-    output/images/
-    ├── csky_buildroot_version.txt (Contain version details)
-    ├── <buildroot-config>_<buildroot-version>.tar.xz
-    ├── linux-<kernel-version>.patch.xz
-    ├── qemu.dtb
-    ├── rootfs.cpio.xz
-    ├── vmlinux.xz
-    └── readme.txt
+ PS. You can also download from the link below:
+ https://gitlab.com/c-sky/buildroot/-/jobs/<buildroot-job_id>/artifacts/file/output/images/
 
 
 Run on Qemu
 ===========
  xz -d vmlinux.xz;
  mkdir host;
- tar -Jxf <buildroot-config>_<buildroot-version>.tar.xz -C host;
+ tar -Jxf csky_toolchain_<buildroot-config>_<buildroot-version>.tar.xz -C host;
  qemu_start_cmd;
 
  PS. If you want the net, you'll have to set tap0 on your PC firstly, and then run the following commands:
@@ -45,8 +41,8 @@ Build linux kernel
  BR_BINARIES_DIR=.. make ARCH=csky CROSS_COMPILE=../host/bin/csky-linux- vmlinux;
 
 
-Build from buildroot
-====================
+Build buildroot
+===============
  git clone https://gitlab.com/c-sky/buildroot.git;
  cd buildroot;
  git checkout <buildroot-version>;

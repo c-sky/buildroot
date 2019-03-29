@@ -11,7 +11,9 @@ CSKY_README_CK860=$(shell grep BR2_ck860=y $(CONFIG_DIR)/.config)
 define CSKY_README_INSTALL_TARGET_CMDS
 	@echo $(CSKY_README_BD_CONFIG)
 	@echo $(CSKY_README_BD_VERSION)
+	@echo $(CSKY_README_JOB_ID)
 	cp package/csky-readme/readme.txt $(BINARIES_DIR)/
+	sed -i 's/<buildroot-job_id>/$(CSKY_README_JOB_ID)/g' $(BINARIES_DIR)/readme.txt
 	sed -i 's/<buildroot-config>/$(CSKY_README_BD_CONFIG)/g' $(BINARIES_DIR)/readme.txt
 	sed -i 's/<buildroot-version>/$(CSKY_README_BD_VERSION)/g' $(BINARIES_DIR)/readme.txt
 	sed -i 's/<kernel-version>/$(LINUX_VERSION)/g' $(BINARIES_DIR)/readme.txt
