@@ -4,7 +4,7 @@
 #
 ##############################################################################
 
-CSKY_CI_VERSION = adb649771c4e7b898099c4f4940a845f7c198dbb
+CSKY_CI_VERSION = e675e08e6325fd479c87ef3c0906fe74d80012a7
 CSKY_CI_SITE = $(call github,c-sky,csky-ci,$(CSKY_CI_VERSION))
 
 define CSKY_CI_CONFIGURE_CMDS
@@ -33,6 +33,7 @@ mkdir -p $(TARGET_DIR)/etc/init.ci/
 cp -f $(@D)/out/csky_* $(HOST_DIR)/csky-ci/
 cp -f $(@D)/out/S90test $(TARGET_DIR)/etc/init.d/
 cp -f $(@D)/out/test.sh $(TARGET_DIR)/etc/init.d/
+echo "killall test.sh" >> $(TARGET_DIR)/etc/profile
 cp -f $(@D)/out/sh/* $(HOST_DIR)/csky-ci/
 endef
 
