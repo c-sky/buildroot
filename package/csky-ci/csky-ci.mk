@@ -33,7 +33,8 @@ mkdir -p $(TARGET_DIR)/etc/init.ci/
 cp -f $(@D)/out/csky_* $(HOST_DIR)/csky-ci/
 cp -f $(@D)/out/S90test $(TARGET_DIR)/etc/init.d/
 cp -f $(@D)/out/test.sh $(TARGET_DIR)/etc/init.d/
-echo "killall test.sh >> /dev/null 2>&1" >> $(TARGET_DIR)/etc/profile
+echo "killall test.sh > /dev/null 2>&1" >> $(TARGET_DIR)/etc/profile
+echo "debugfs		/sys/kernel/debug  debugfs  defaults  0  0" >> $(TARGET_DIR)/etc/fstab
 cp -f $(@D)/out/sh/* $(HOST_DIR)/csky-ci/
 endef
 
