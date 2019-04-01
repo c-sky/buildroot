@@ -20,6 +20,7 @@ Build linux kernel
 ==================
  wget https://cdn.kernel.org/pub/linux/kernel/v4.x/linux-<kernel-version>.tar.xz;
  wget https://gitlab.com/c-sky/buildroot/-/jobs/<buildroot-job_id>/artifacts/raw/output/images/linux-<kernel-version>.patch.xz;
+ wget https://gitlab.com/c-sky/buildroot/-/jobs/<buildroot-job_id>/artifacts/raw/output/images/rootfs.cpio.xz;
  tar -Jxf linux-<kernel-version>.tar.xz;
  xz -d rootfs.cpio.xz;
  xz -d linux-<kernel-version>.patch.xz;
