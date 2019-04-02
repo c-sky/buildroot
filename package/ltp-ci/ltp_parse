@@ -1,6 +1,10 @@
 #!/bin/bash
 
 F=$(grep "Total Failures:" $1 | awk '{print $3}')
+if [ -n $F ]; then
+	echo "ltp test failed!"
+	return 1
+fi
 if [ $F -lt 30 -o $F -gt 200 -a $F -lt 400 ]; then
 	echo "ltp test passed"
 	echo
