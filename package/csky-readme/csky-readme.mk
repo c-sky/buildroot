@@ -18,10 +18,8 @@ define CSKY_README_INSTALL_TARGET_CMDS
 	sed -i 's/<buildroot-version>/$(CSKY_README_BD_VERSION)/g' $(BINARIES_DIR)/readme.txt
 	sed -i 's/<kernel-version>/$(LINUX_VERSION)/g' $(BINARIES_DIR)/readme.txt
 	if [ -n "$(CSKY_README_CK860)" ]; then \
-		sed -i 's/qemu_what/qemu_smp/g' $(BINARIES_DIR)/readme.txt; \
 		sed -i 's/qemu_start_cmd/LD_LIBRARY_PATH=.\/host\/lib .\/host\/csky-qemu\/bin\/qemu-system-cskyv2 -M virt -cpu ck860 -smp 2 -kernel vmlinux -nographic/g' $(BINARIES_DIR)/readme.txt; \
 	else \
-		sed -i 's/qemu_what/qemu/g' $(BINARIES_DIR)/readme.txt; \
 		sed -i 's/qemu_start_cmd/LD_LIBRARY_PATH=.\/host\/lib .\/host\/csky-qemu\/bin\/qemu-system-cskyv2 -M virt -kernel vmlinux -nographic/g' $(BINARIES_DIR)/readme.txt; \
 	fi
 endef

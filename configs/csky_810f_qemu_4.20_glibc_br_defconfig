@@ -14,7 +14,6 @@ BR2_LINUX_KERNEL_CUSTOM_TARBALL=y
 BR2_LINUX_KERNEL_CUSTOM_TARBALL_LOCATION="https://github.com/c-sky/csky-linux/archive/$(CSKY_LINUX_NEXT_VERSION).tar.gz"
 BR2_LINUX_KERNEL_USE_CUSTOM_CONFIG=y
 BR2_LINUX_KERNEL_CUSTOM_CONFIG_FILE="board/qemu/csky/qemu_ck810_ups_defconfig"
-BR2_LINUX_KERNEL_DTS_SUPPORT=y
 
 # Kernel addons & extentions
 

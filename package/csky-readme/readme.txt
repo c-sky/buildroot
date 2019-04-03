@@ -4,7 +4,6 @@ Quick Start
 ===========
  echo "First download the files.";
  wget https://gitlab.com/c-sky/buildroot/-/jobs/<buildroot-job_id>/artifacts/raw/output/images/csky_toolchain_<buildroot-config>_<buildroot-version>.tar.xz;
- wget https://gitlab.com/c-sky/buildroot/-/jobs/<buildroot-job_id>/artifacts/raw/output/images/qemu_what.dtb;
  wget https://gitlab.com/c-sky/buildroot/-/jobs/<buildroot-job_id>/artifacts/raw/output/images/vmlinux.xz;
 
  echo "Now let's run on qemu";
