@@ -14,6 +14,20 @@ Quick Start
 
  (PS. Login with username "root", and no password)
 
+Connect with pc
+===============
+ If you want to put your own files into qemu, you should build a 'disk':
+ dd if=/dev/zero of=/tmp/disk count=20480
+ mke2fs -q /tmp/disk
+ mkdir /tmp/space
+ mount -o loop /tmp/disk /tmp/space
+
+ And then, boot your qemu:
+ qemu_start_cmd -drive file=/tmp/disk-image,format=raw,id=hd0 -device virtio-blk-device,drive=hd0;
+
+ Lastly, mount on the disk you built:
+ mkdir /tmp/space
+ mount -t ext2 /dev/vda /tmp/space
 
 Build linux kernel
 ==================
