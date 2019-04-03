@@ -38,11 +38,42 @@ define CSKY_ARCH_PREPARE_KERNEL
 	fi
 	awk '/:= drivers/{print $$0,"arch-csky-drivers/";next}{print $$0}' \
 		$(LINUX_DIR)/Makefile 1<>$(LINUX_DIR)/Makefile
+	cd $(LINUX_DIR)/; \
+	mkdir -p tools/arch/csky/include/uapi/asm/; \
+	cp tools/arch/arm/include/uapi/asm/mman.h tools/arch/csky/include/uapi/asm/mman.h; \
+	echo "CFLAGS_cpu-probe.o := -DCSKY_ARCH_VERSION=\"\\\"$(CSKY_ARCH_VERSION)\\\"\"" >> arch/csky/kernel/Makefile; \
+	cd -;
 	$(APPLY_PATCHES) $(LINUX_DIR) $(CSKY_ARCH_DIR)/patch/ \*.patch || exit 1;
 endef
+
+define CSKY_LINUX_PREPARE_SRC_A
+	if [ ! -f $(LINUX_DIR)/.stamp_patched_csky ]; then \
+	cd $(LINUX_DIR)/../; \
+	rm -rf a; \
+	cp -raf linux-$(LINUX_VERSION) a; \
+	cd -; \
+	fi
+endef
+LINUX_POST_EXTRACT_HOOKS += CSKY_LINUX_PREPARE_SRC_A
 LINUX_POST_EXTRACT_HOOKS += CSKY_ARCH_PREPARE_KERNEL
+
+define CSKY_LINUX_GENERATE_PATCH
+	if [ ! -f $(LINUX_DIR)/.stamp_patched_csky ]; then \
+	cd $(LINUX_DIR)/../; \
+	rm -rf b; \
+	cp -raf linux-$(LINUX_VERSION) b; \
+	rm $(BINARIES_DIR)/linux-$(LINUX_VERSION).patch.xz; \
+	diff -ruN a b > $(BINARIES_DIR)/linux-$(LINUX_VERSION).patch; \
+	xz -z $(BINARIES_DIR)/linux-$(LINUX_VERSION).patch; \
+	cd -; \
+	touch $(LINUX_DIR)/.stamp_patched_csky; \
+	fi
+endef
+LINUX_POST_CONFIGURE_HOOKS += CSKY_LINUX_GENERATE_PATCH
+
 endif
 
+# Prepare linux headers
 ifeq ($(BR2_PACKAGE_LINUX_HEADERS)$(BR2_PACKAGE_CSKY_ARCH), yy)
 LINUX_HEADERS_DEPENDENCIES += csky-arch
 define LINUX_HEADERS_CSKY_ARCH
@@ -51,26 +82,7 @@ endef
 LINUX_HEADERS_POST_PATCH_HOOKS += LINUX_HEADERS_CSKY_ARCH
 endif
 
-define CSKY_ARCH_VERSION_ADD
-	echo "CFLAGS_cpu-probe.o := -DCSKY_ARCH_VERSION=\"\\\"$(CSKY_ARCH_VERSION)\\\"\"" >> $(CSKY_ARCH_DIR)/arch/csky/kernel/Makefile
-endef
-CSKY_ARCH_POST_EXTRACT_HOOKS += CSKY_ARCH_VERSION_ADD
-
-define CSKY_LINUX_GENERATE_PATCH
-	if [ ! -f $(LINUX_DIR)/.stamp_patched_csky ]; then \
-	cd $(LINUX_DIR)/../; \
-	mv linux-$(LINUX_VERSION) b; \
-	rm $(BINARIES_DIR)/linux-$(LINUX_VERSION).patch.xz; \
-	diff -ruN a b > $(BINARIES_DIR)/linux-$(LINUX_VERSION).patch; \
-	xz -z $(BINARIES_DIR)/linux-$(LINUX_VERSION).patch; \
-	mv b linux-$(LINUX_VERSION); \
-	rm -rf a; \
-	cd -; \
-	touch $(LINUX_DIR)/.stamp_patched_csky; \
-	fi
-endef
-LINUX_POST_CONFIGURE_HOOKS += CSKY_LINUX_GENERATE_PATCH
-
+# Install dts to images
 ifeq ($(BR2_LINUX_KERNEL_USE_INTREE_DTS),y)
 define CSKY_LINUX_COPY_DTS
 	cp -f $(LINUX_DIR)/arch/csky/boot/dts/$(call qstrip,$(BR2_LINUX_KERNEL_INTREE_DTS_NAME)).dts $(BINARIES_DIR)
@@ -82,18 +94,5 @@ define CSKY_LINUX_COPY_DTS
 endef
 LINUX_POST_CONFIGURE_HOOKS += CSKY_LINUX_COPY_DTS
 endif
-
-define CSKY_LINUX_PREPARE_SRC_A
-	if [ ! -f $(LINUX_DIR)/.stamp_patched_csky ]; then \
-	cd $(LINUX_DIR)/; \
-	mkdir -p tools/arch/csky/include/uapi/asm/; \
-	cp tools/arch/arm/include/uapi/asm/mman.h tools/arch/csky/include/uapi/asm/mman.h; \
-	cd -; \
-	cd $(LINUX_DIR)/../; \
-	cp -raf linux-$(LINUX_VERSION) a; \
-	cd -; \
-	fi
-endef
-LINUX_POST_EXTRACT_HOOKS += CSKY_LINUX_PREPARE_SRC_A
 
 $(eval $(generic-package))
