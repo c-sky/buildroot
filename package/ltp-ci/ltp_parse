@@ -1,7 +1,7 @@
 #!/bin/bash
 
 F=$(grep "Total Failures:" $1 | awk '{print $3}')
-if [ -n $F ]; then
+if [ ! -n "$F" ]; then
 	echo "ltp test failed!"
 	return 1
 fi
