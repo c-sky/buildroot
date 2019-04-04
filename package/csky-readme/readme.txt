@@ -52,8 +52,13 @@ Build buildroot
 
 Enable qemu network
 ===================
- If you want the net, you'll have to set tap0 on your PC firstly, and then run the following command:
- qemu_start_cmd -net nic -net tap,ifname=tap0;
+ If you want the net, run the following command:
+ qemu_start_cmd -netdev tap,script=no,id=net0 -device virtio-net-device,netdev=net0;
+
+ And then, set tap0's ip on your pc, set eth0's ip on your qemu and put them in the same segment
+ Like:
+ ifconfig tap0 192.168.1.11
+ ifconfig eth0 192.168.1.12
 
 
 Run with Jtag
