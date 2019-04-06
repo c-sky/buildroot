@@ -9,8 +9,8 @@ set $mcr30 = 0x0000008e
 
 # Setup CPU features regs
 # Enable MMU, Icache, Dcache, Return Stack, BPB, BTB, IBTB ...
-set $cr31 = 0x0
-set $cr18 = 0x3087d
+set $cr31 = 0x650c
+set $cr18 = 0x1586d
 
 # Invalid L2 cache by 'exec l2cache.iall'
 set *0x8f000000=0x9820c100
@@ -18,7 +18,7 @@ set $pc=0x8f000000
 si
 
 # Enable L2 cache
-set $cr23 = 0x0
+set $cr23 = 0x9
 
 #################################
 # Pass dtb to linux and jmp linux
