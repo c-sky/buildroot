@@ -4,7 +4,6 @@ Quick Start
 ===========
  echo "First download the files.";
  wget https://gitlab.com/c-sky/buildroot/-/jobs/<buildroot-job_id>/artifacts/raw/output/images/csky_toolchain_<buildroot-config>_<buildroot-version>.tar.xz;
- wget https://gitlab.com/c-sky/buildroot/-/jobs/<buildroot-job_id>/artifacts/raw/output/images/qemu_what.dtb;
  wget https://gitlab.com/c-sky/buildroot/-/jobs/<buildroot-job_id>/artifacts/raw/output/images/vmlinux.xz;
 
  echo "Now let's run on qemu";
@@ -15,6 +14,20 @@ Quick Start
 
  (PS. Login with username "root", and no password)
 
+Connect with pc
+===============
+ If you want to put your own files into qemu, you should build a 'disk':
+ dd if=/dev/zero of=/tmp/disk count=20480
+ mke2fs -q /tmp/disk
+ mkdir /tmp/space
+ mount -o loop /tmp/disk /tmp/space
+
+ And then, boot your qemu:
+ qemu_start_cmd -drive file=/tmp/disk-image,format=raw,id=hd0 -device virtio-blk-device,drive=hd0;
+
+ Lastly, mount on the disk you built:
+ mkdir /tmp/space
+ mount -t ext2 /dev/vda /tmp/space
 
 Build linux kernel
 ==================
@@ -39,8 +52,13 @@ Build buildroot
 
 Enable qemu network
 ===================
- If you want the net, you'll have to set tap0 on your PC firstly, and then run the following command:
- qemu_start_cmd -net nic -net tap,ifname=tap0;
+ If you want the net, run the following command:
+ qemu_start_cmd -netdev tap,script=no,id=net0 -device virtio-net-device,netdev=net0;
+
+ And then, set tap0's ip on your pc, set eth0's ip on your qemu and put them in the same segment
+ Like:
+ ifconfig tap0 192.168.1.11
+ ifconfig eth0 192.168.1.12
 
 
 Run with Jtag
