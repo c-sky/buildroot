@@ -5,6 +5,7 @@ config BR2_PACKAGE_CSKY_CI
 	depends on BR2_csky
 	select BR2_PACKAGE_STRACE if !BR2_ck610
 	select BR2_PACKAGE_LINUX_TOOLS_PERF if !BR2_ck610
+	select BR2_PACKAGE_HOST_CSKY_QEMU if !BR2_ck610
 	help
           C-Sky ci test script
 
