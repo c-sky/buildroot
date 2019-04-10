@@ -89,6 +89,7 @@
 			reg = <0x1FBA3000 0x1000>;
 			interrupt-controller;
 			#interrupt-cells = <1>;
+			csky,support-vector-irq;
 		};
 
 		dmac_hsp: dmac0@1fb19000 {
