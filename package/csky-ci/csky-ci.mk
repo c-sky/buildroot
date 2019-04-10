@@ -15,7 +15,7 @@ echo CONFIG_CPU_CK860=$(BR2_ck860) >> $(@D)/config
 echo CONFIG_FPGA=$(BR2_CSKY_FPGA) >> $(@D)/config
 echo CONFIG_FPGA_BITFILE=$(BR2_CSKY_FPGA_BITFILE) >> $(@D)/config
 echo CONFIG_FPGA_DDRINIT=$(BR2_CSKY_FPGA_DDRINIT) >> $(@D)/config
-echo CONFIG_QEMU=$(BR2_PACKAGE_HOST_CSKY_QEMU) >> $(@D)/config
+echo CONFIG_QEMU=$(BR2_CSKY_QEMU) >> $(@D)/config
 endef
 
 define CSKY_CI_BUILD_CMDS

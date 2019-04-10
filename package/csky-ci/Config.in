@@ -18,11 +18,21 @@ source package/uclibc-ci/Config.in
 source package/perf-ci/Config.in
 source package/csky-readme/Config.in
 
+choice
+	prompt "Run on qemu or fpga"
+
+config BR2_CSKY_QEMU
+	bool "Using qemu"
+	help
+	  You can specify a CPU type along with this option
+	  which means you'll use, eg. ck860 qemu
+
 config BR2_CSKY_FPGA
 	bool "Using FPGA"
 	help
 	  You can specify a CPU type along with this option
-	  which means you'll use, eg. ck860-fpga board
+	  which means you'll use, eg. ck860 fpga
+endchoice
 
 config BR2_CSKY_FPGA_BITFILE
 	string "csky fpga bitfile name"
