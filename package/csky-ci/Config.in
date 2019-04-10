@@ -21,14 +21,20 @@ source package/csky-readme/Config.in
 choice
 	prompt "Run on qemu or fpga"
 
+config BR2_CSKY_BOARD
+	bool "Run on board"
+	help
+	  You can specify a CPU type along with this option
+	  which means you'll use, eg. ck860 board
+
 config BR2_CSKY_QEMU
-	bool "Using qemu"
+	bool "Run on qemu"
 	help
 	  You can specify a CPU type along with this option
 	  which means you'll use, eg. ck860 qemu
 
 config BR2_CSKY_FPGA
-	bool "Using FPGA"
+	bool "Run on FPGA"
 	help
 	  You can specify a CPU type along with this option
 	  which means you'll use, eg. ck860 fpga
