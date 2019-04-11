@@ -1,7 +1,7 @@
 (All is tested on 64bit-ubuntu 16.04)
 
-Quick Start
-===========
+Quick Start for qemu run
+========================
  echo "First download the files.";
  wget https://gitlab.com/c-sky/buildroot/-/jobs/<buildroot-job_id>/artifacts/raw/output/images/csky_toolchain_<buildroot-config>_<buildroot-version>.tar.xz;
  wget https://gitlab.com/c-sky/buildroot/-/jobs/<buildroot-job_id>/artifacts/raw/output/images/vmlinux.xz;
@@ -14,26 +14,57 @@ Quick Start
 
  (PS. Login with username "root", and no password)
 
-Connect with pc
-===============
- If you want to put your own files into qemu, you should build a 'disk':
- dd if=/dev/zero of=/tmp/disk count=20480
- mke2fs -q /tmp/disk
- mkdir /tmp/space
- mount -o loop /tmp/disk /tmp/space
 
- And then, boot your qemu:
- qemu_start_cmd -drive file=/tmp/disk-image,format=raw,id=hd0 -device virtio-blk-device,drive=hd0;
+Copy files to qemu
+==================
+ echo "Prepare loop disk for qemu mounting";
+ dd if=/dev/zero of=./mydisk.img count=20480;
+ mke2fs -q ./mydisk.img;
+ mkdir ./mydisk;
+ sudo mount -o loop ./mydisk.img ./mydisk;
 
- Lastly, mount on the disk you built:
- mkdir /tmp/space
- mount -t ext2 /dev/vda /tmp/space
+ echo "Boot qemu with mydisk."
+ qemu_start_cmd -drive file=./mydisk.img,format=raw,id=hd0 -device virtio-blk-device,drive=hd0;
+
+
+Get files in qemu, run in qemu shell!
+-------------------------------------
+ mkdir /tmp/space;
+ mount -t ext2 /dev/vda /tmp/space;
+
+
+Enable qemu network
+===================
+ echo "Please use sudo privilege, becasue qemu will setup tap device in your host";
+ sudo qemu_start_cmd -netdev tap,script=no,id=net0 -device virtio-net-device,netdev=net0;
+
+ echo "Configure tap device in your host";
+ sudo ifconfig tap0 192.168.101.200;
+
+Configure eth0 in qemu, run in qemu shell!
+------------------------------------------
+ ifconfig eth0 192.168.101.23;
+ ping 192.168.101.200;
+
+
+Run with Jtag
+=============
+ minicom -D /dev/ttyUSB0
+ cd ./host/csky-debug
+ sudo ./DebugServerConsole.elf
+ cd -
+ ./host/bin/csky-linux-gdb -x ddrinit your_ddr_init.elf
+ ./host/bin/csky-linux-gdb -x gdbinit vmlinux
+
 
 Build linux kernel
 ==================
+ echo "Download kernel source, csky patch and rootfs";
  wget https://cdn.kernel.org/pub/linux/kernel/v4.x/linux-<kernel-version>.tar.xz;
  wget https://gitlab.com/c-sky/buildroot/-/jobs/<buildroot-job_id>/artifacts/raw/output/images/linux-<kernel-version>.patch.xz;
  wget https://gitlab.com/c-sky/buildroot/-/jobs/<buildroot-job_id>/artifacts/raw/output/images/rootfs.cpio.xz;
+
+ echo "Now extra kernel source, patch it and compile";
  tar -Jxf linux-<kernel-version>.tar.xz;
  xz -d rootfs.cpio.xz;
  xz -d linux-<kernel-version>.patch.xz;
@@ -51,26 +82,6 @@ Build buildroot
  make;
 
 
-Enable qemu network
-===================
- If you want the net, run the following command:
- qemu_start_cmd -netdev tap,script=no,id=net0 -device virtio-net-device,netdev=net0;
-
- And then, set tap0's ip on your pc, set eth0's ip on your qemu and put them in the same segment
- Like:
- ifconfig tap0 192.168.1.11
- ifconfig eth0 192.168.1.12
-
-
-Run with Jtag
-=============
- minicom -D /dev/ttyUSB0
- cd host/csky-debug
- sudo ./DebugServerConsole.elf
- cd -
- ./host/bin/csky-linux-gdb -x gdbinit vmlinux
-
-
 Gitlab-CI url
 =============
- https://gitlab.com/c-sky/buildroot/-/jobs/186469541/artifacts/file/output/images/
+ https://gitlab.com/c-sky/buildroot/-/jobs/<buildroot-job_id>/artifacts/file/output/images/
