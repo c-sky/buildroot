@@ -1,5 +1,6 @@
 if [ -d "/usr/lib/perf-test/" ]; then
-	perf record -a -g /usr/lib/perf-test/callchain_test
-	perf report > perf_callchain.log
-	cat perf_callchain.log
+	#perf record -a -g /usr/lib/perf-test/callchain_test
+	#perf report > perf_callchain.log
+	#cat perf_callchain.log
+	/usr/lib/perf-test/perf-kmem.sh
 fi

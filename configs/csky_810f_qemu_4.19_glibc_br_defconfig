@@ -2,6 +2,7 @@
 BR2_csky=y
 BR2_ck810=y
 BR2_CSKY_FPU=y
+BR2_CSKY_QEMU=y
 
 # Kernel headers
 BR2_PACKAGE_HOST_LINUX_HEADERS_CUSTOM_4_19=y

@@ -4,8 +4,10 @@ tar jtag jtag://127.0.0.1:1025
 # Invalid L1-cache include I/Dcache
 set $cr17 = (1<<4) | 3 | (7<<16)
 
-# Setup MMU MSA0 reg
-set $mcr30 = 0x0000008e
+# Setup MMU MSA0 reg, format:
+# 31 - 29 | 28 - 9 | 8 | 7 | 6 | 5 | 4 | 3 | 2 | 1 | 0
+#   BA     Reserved  SH  WA  B   SO SEC  C   D   V
+set $mcr30 = 0xc00001ce
 
 # Setup CPU features regs
 # Enable MMU, Icache, Dcache, Return Stack, BPB, BTB, IBTB ...

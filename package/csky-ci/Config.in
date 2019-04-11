@@ -5,6 +5,8 @@ config BR2_PACKAGE_CSKY_CI
 	depends on BR2_csky
 	select BR2_PACKAGE_STRACE if !BR2_ck610
 	select BR2_PACKAGE_LINUX_TOOLS_PERF if !BR2_ck610
+	select BR2_PACKAGE_HOST_CSKY_QEMU if !BR2_ck610
+	select BR2_PACKAGE_PERF_CI if !BR2_ck610
 	help
           C-Sky ci test script
 
@@ -17,11 +19,27 @@ source package/uclibc-ci/Config.in
 source package/perf-ci/Config.in
 source package/csky-readme/Config.in
 
-config BR2_CSKY_FPGA
-	bool "Using FPGA"
+choice
+	prompt "Run on qemu or fpga"
+
+config BR2_CSKY_BOARD
+	bool "Run on board"
 	help
 	  You can specify a CPU type along with this option
-	  which means you'll use, eg. ck860-fpga board
+	  which means you'll use, eg. ck860 board
+
+config BR2_CSKY_QEMU
+	bool "Run on qemu"
+	help
+	  You can specify a CPU type along with this option
+	  which means you'll use, eg. ck860 qemu
+
+config BR2_CSKY_FPGA
+	bool "Run on FPGA"
+	help
+	  You can specify a CPU type along with this option
+	  which means you'll use, eg. ck860 fpga
+endchoice
 
 config BR2_CSKY_FPGA_BITFILE
 	string "csky fpga bitfile name"
