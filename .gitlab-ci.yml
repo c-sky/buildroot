@@ -65,6 +65,9 @@ wait_for_trigger:
     - if [ -f output/images/rootfs.tar ]; then
           xz -z output/images/rootfs.tar;
       fi
+    - if [ -f output/images/gdbinit ]; then
+          cp output/images/gdbinit output/images/gdbinit.txt;
+      fi
 
 .common_builds: &common_builds
     before_script: *chip_build_before
