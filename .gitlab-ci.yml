@@ -11,10 +11,10 @@ image: maohan001/ubuntu-buildroot
 
 stages:
   - wait-for-trigger
-  - qemu-build
-  - qemu-test
   - chip-build
   - chip-test
+  - qemu-build
+  - qemu-test
   - misc-build
 
 variables:
