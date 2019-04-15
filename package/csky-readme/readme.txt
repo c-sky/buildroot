@@ -15,8 +15,8 @@ Quick Start for qemu run
  (PS. Login with username "root", and no password)
 
 
-Quick Run app on qemu
-=====================
+Quick copy app into qemu
+========================
  echo "Prepare loop disk for qemu mounting";
  dd if=/dev/zero of=./mydisk.img count=20480;
  mke2fs -q ./mydisk.img;
