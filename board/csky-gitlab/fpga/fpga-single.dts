@@ -1,0 +1,80 @@
+/dts-v1/;
+
+/ {
+	model = "csky fpga-single";
+	compatible = "csky,fpga-single";
+	#address-cells = <0x1>;
+	#size-cells = <0x1>;
+
+	memory {
+		device_type = "memory";
+		reg = <0xc0000000 0x40000000>;
+	};
+
+	soc {
+		#address-cells = <0x1>;
+		#size-cells = <0x1>;
+		compatible = "simple-bus";
+		ranges;
+
+		dummy_apb: apb-clock {
+			compatible = "fixed-clock";
+			clock-frequency = <60000000>;
+			clock-output-names = "dummy_apb";
+			#clock-cells = <0>;
+		};
+
+		intc: interrupt-controller {
+			compatible = "csky,apb-intc";
+			reg = <0x1fba3000 0x1000>;
+			interrupt-controller;
+			#interrupt-cells = <1>;
+		};
+
+		timer0 {
+			compatible = "snps,dw-apb-timer";
+			reg = <0x1fba2000 0x1000>;
+			clocks = <&dummy_apb>;
+			clock-names = "timer";
+			interrupts = <4>;
+			interrupt-parent = <&intc>;
+		};
+
+		timer1 {
+			compatible = "snps,dw-apb-timer";
+			reg = <0x1fba2014 0x800>;
+			clocks = <&dummy_apb>;
+			clock-names = "timer";
+			interrupts = <5>;
+			interrupt-parent = <&intc>;
+		};
+
+		serial@1FBA4000 {
+			compatible = "snps,dw-apb-uart";
+			reg = <0x1fba4000 0x1000>;
+			interrupt-parent = <&intc>;
+			interrupts = <11>;
+			clocks = <&dummy_apb>;
+			clock-names = "baudclk";
+			reg-shift = <2>;
+			reg-io-width = <4>;
+		};
+
+		ethernet@1FB10000 {
+			compatible = "snps,dwmac";
+			reg = <0x1fb10000 0x2000>;
+			interrupt-parent = <&intc>;
+			interrupts = <34>;
+			interrupt-names = "macirq";
+			clocks = <&dummy_apb>;
+			clock-names = "stmmaceth";
+			snps,pbl = <32>;
+			snps,fixed-burst;
+			phy-mode = "mii";
+		};
+	};
+
+	chosen {
+		bootargs = "console=ttyS0,115200 rdinit=/sbin/init root=/dev/ram0";
+	};
+};
