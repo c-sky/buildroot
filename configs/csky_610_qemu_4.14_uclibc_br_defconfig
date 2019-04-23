@@ -3,7 +3,7 @@ BR2_csky=y
 BR2_ck610=y
 
 # Kernel headers
-BR2_PACKAGE_HOST_LINUX_HEADERS_CUSTOM_4_9=y
+BR2_PACKAGE_HOST_LINUX_HEADERS_CUSTOM_4_14=y
 
 # Kernel configuration
 BR2_LINUX_KERNEL=y
