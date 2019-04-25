@@ -89,4 +89,4 @@ Build buildroot
 
 Gitlab-CI url
 =============
- https://gitlab.com/c-sky/buildroot/-/jobs/<buildroot-job_id>/artifacts/file/output/images/
+ https://gitlab.com/c-sky/buildroot/-/jobs/<buildroot-job_id>/artifacts/browse/output/images/
