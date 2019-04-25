@@ -22,6 +22,7 @@ define CSKY_README_INSTALL_TARGET_CMDS
 	else \
 		sed -i 's/qemu_start_cmd/LD_LIBRARY_PATH=.\/host\/lib .\/host\/csky-qemu\/bin\/qemu-system-cskyv2 -M virt -kernel vmlinux -nographic/g' $(BINARIES_DIR)/readme.txt; \
 	fi
+	cp board/csky-gitlab/fpga/* $(BINARIES_DIR)/
 endef
 
 $(eval $(generic-package))
