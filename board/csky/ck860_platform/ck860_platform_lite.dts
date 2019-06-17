@@ -30,7 +30,7 @@
 		/*
 		 * shrink for kernel 4.19 bootup, all because of start from 0x0
 		 */
-		reg = <0xc0000000 0x10000000>;
+		reg = <0xc0000000 0x40000000>;
 	};
 
 	aliases {
@@ -61,6 +61,12 @@
 			compatible = "csky,mptimer";
 			clocks = <&dummy_apb>;
 			interrupts = <16>;
+			interrupt-parent = <&intc>;
+		};
+
+		pmu0: pmu {
+			compatible = "csky,csky-pmu";
+			interrupts = <23 1>;
 			interrupt-parent = <&intc>;
 		};
 
