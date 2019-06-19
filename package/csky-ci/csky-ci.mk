@@ -4,7 +4,7 @@
 #
 ##############################################################################
 
-CSKY_CI_VERSION = c2661e0ea615b35a27cfef5a6c387443cf6a1811
+CSKY_CI_VERSION = 68166bc37221914579f60947d39ac79f0c044669
 CSKY_CI_SITE = $(call github,c-sky,csky-ci,$(CSKY_CI_VERSION))
 
 define CSKY_CI_CONFIGURE_CMDS
@@ -58,7 +58,23 @@ define CSKY_CI_TOOLCHAIN_TARBALL
          cd - ;\
         )
 endef
-LINUX_POST_EXTRACT_HOOKS += CSKY_CI_TOOLCHAIN_TARBALL
+HOST_FAKEROOT_POST_EXTRACT_HOOKS += CSKY_CI_TOOLCHAIN_TARBALL
+endif
+
+ifeq ($(BR2_CSKY_CI_SSH),y)
+define OPENSSH_CP_SCRIPT
+	mkdir -p $(HOST_DIR)/csky-ci/
+	cp -f ./package/csky-ci/ssh_parse $(HOST_DIR)/csky-ci/parse_script/
+	chmod 755 $(HOST_DIR)/csky-ci/parse_script/ssh_parse
+	cp -f package/csky-ci/S50sshd $(TARGET_DIR)/etc/init.d/
+	mkdir -p $(TARGET_DIR)/root/.ssh
+	if [ -f ~/.ssh/id_rsa.pub ]; then \
+	  cp -f ~/.ssh/id_rsa.pub $(TARGET_DIR)/root/.ssh/authorized_keys; \
+	else \
+	  cp -f package/csky-ci/authorized_keys $(TARGET_DIR)/root/.ssh/authorized_keys; \
+	fi
+endef
+OPENSSH_POST_INSTALL_TARGET_HOOKS += OPENSSH_CP_SCRIPT
 endif
 
 ifeq ($(BR2_PACKAGE_LMBENCH),y)

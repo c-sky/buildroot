@@ -55,4 +55,11 @@ config BR2_CSKY_FPGA_DDRINIT
 	help
 		Specify fpga ddrinit name here
 
+config BR2_CSKY_CI_SSH
+        bool "csky-ci use ssh"
+	depends on BR2_CSKY_QEMU
+	select BR2_PACKAGE_OPENSSH
+        help
+                csky ci use ssh
+
 endmenu

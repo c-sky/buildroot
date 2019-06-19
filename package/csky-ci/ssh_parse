@@ -1,0 +1,9 @@
+#!/bin/bash
+
+F=$(grep "ssh check pass" $1)
+if [ ! -n "$F" ]; then
+        echo "ssh test failed!"
+        return 1
+else
+	echo "ssh test pass!"
+fi
