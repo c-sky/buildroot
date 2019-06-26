@@ -114,3 +114,6 @@ msgctl09
 msgctl10
 msgctl11
 epoll01
+
+# Cause OOM killer, not bug
+min_free_kbytes
