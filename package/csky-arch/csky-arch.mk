@@ -1,0 +1,81 @@
+###############################################################################
+#
+# csky arch
+#
+################################################################################
+
+CSKY_ARCH_VERSION_4_9  = 95abb5ad34db690f296b46d629d74d3f208fbb91
+CSKY_ARCH_VERSION_4_14 = 223d5da8674e528917aae0213835ab0c2e4d45fb
+CSKY_ARCH_VERSION_4_19 = 5be4051db61e74df2d53974760294a62d3deb2f6
+
+CSKY_ARCH_VERSION = none
+
+ifeq ($(BR2_PACKAGE_HOST_LINUX_HEADERS_CUSTOM_4_9), y)
+CSKY_ARCH_VERSION = $(CSKY_ARCH_VERSION_4_9)
+endif
+
+ifeq ($(BR2_PACKAGE_HOST_LINUX_HEADERS_CUSTOM_4_14), y)
+CSKY_ARCH_VERSION = $(CSKY_ARCH_VERSION_4_14)
+endif
+
+ifeq ($(BR2_PACKAGE_HOST_LINUX_HEADERS_CUSTOM_4_19), y)
+CSKY_ARCH_VERSION = $(CSKY_ARCH_VERSION_4_19)
+endif
+
+ifneq ($(CSKY_ARCH_VERSION), none)
+CSKY_ARCH_SITE = $(call github,c-sky,csky-linux,$(CSKY_ARCH_VERSION))
+
+define CSKY_ARCH_PREPARE_KERNEL
+	cp -raf $(CSKY_ARCH_DIR)/arch/csky $(LINUX_DIR)/arch/
+	if [ -d $(CSKY_ARCH_DIR)/arch-csky-drivers ]; then \
+		cp -raf $(CSKY_ARCH_DIR)/arch-csky-drivers $(LINUX_DIR)/; \
+	fi
+	if [ -d $(CSKY_ARCH_DIR)/drivers ]; then \
+		cp -raf $(CSKY_ARCH_DIR)/drivers $(LINUX_DIR)/arch-csky-drivers; \
+	fi
+	awk '/:= drivers/{print $$0,"arch-csky-drivers/";next}{print $$0}' \
+		$(LINUX_DIR)/Makefile 1<>$(LINUX_DIR)/Makefile
+	cd $(LINUX_DIR)/; \
+	mkdir -p tools/arch/csky/include/uapi/asm/; \
+	cp tools/arch/arm/include/uapi/asm/mman.h tools/arch/csky/include/uapi/asm/mman.h; \
+	echo "CFLAGS_cpu-probe.o := -DCSKY_ARCH_VERSION=\"\\\"$(CSKY_ARCH_VERSION)\\\"\"" >> arch/csky/kernel/Makefile; \
+	cd -;
+	$(APPLY_PATCHES) $(LINUX_DIR) $(CSKY_ARCH_DIR)/patch/ \*.patch || exit 1;
+endef
+
+define CSKY_LINUX_PREPARE_SRC_A
+	if [ ! -f $(LINUX_DIR)/.stamp_patched_csky ]; then \
+	cd $(LINUX_DIR)/../; \
+	rm -rf a; \
+	cp -raf linux-$(LINUX_VERSION) a; \
+	cd -; \
+	fi
+endef
+LINUX_POST_EXTRACT_HOOKS += CSKY_LINUX_PREPARE_SRC_A
+LINUX_POST_EXTRACT_HOOKS += CSKY_ARCH_PREPARE_KERNEL
+
+define CSKY_LINUX_GENERATE_PATCH
+	if [ ! -f $(LINUX_DIR)/.stamp_patched_csky ]; then \
+	cd $(LINUX_DIR)/../; \
+	rm -rf b; \
+	cp -raf linux-$(LINUX_VERSION) b; \
+	rm $(BINARIES_DIR)/linux-$(LINUX_VERSION).patch.xz; \
+	diff -ruN a b > $(BINARIES_DIR)/linux-$(LINUX_VERSION).patch; \
+	xz -z $(BINARIES_DIR)/linux-$(LINUX_VERSION).patch; \
+	cd -; \
+	touch $(LINUX_DIR)/.stamp_patched_csky; \
+	fi
+endef
+LINUX_POST_CONFIGURE_HOOKS += CSKY_LINUX_GENERATE_PATCH
+
+# Prepare linux headers
+ifeq ($(BR2_PACKAGE_LINUX_HEADERS), y)
+LINUX_HEADERS_DEPENDENCIES += csky-arch
+define LINUX_HEADERS_CSKY_ARCH
+	cp $(CSKY_ARCH_DIR)/arch/csky $(LINUX_HEADERS_DIR)/arch -raf
+endef
+LINUX_HEADERS_POST_PATCH_HOOKS += LINUX_HEADERS_CSKY_ARCH
+endif
+
+$(eval $(generic-package))
+endif
