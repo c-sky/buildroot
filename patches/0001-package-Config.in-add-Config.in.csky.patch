@@ -1,0 +1,23 @@
+From 38d80055af5b71c6b272cf9562d6f299f9816068 Mon Sep 17 00:00:00 2001
+From: Guo Ren <ren_guo@c-sky.com>
+Date: Sat, 6 Jul 2019 23:56:25 +0800
+Subject: [PATCH] package/Config.in: add Config.in.csky
+
+Signed-off-by: Guo Ren <ren_guo@c-sky.com>
+---
+ package/Config.in | 2 ++
+ 1 file changed, 2 insertions(+)
+
+diff --git a/package/Config.in b/package/Config.in
+index d501b5a..4ecd7af 100644
+--- a/package/Config.in
++++ b/package/Config.in
+@@ -1,3 +1,5 @@
++	source "package/Config.in.csky"
++
+ menu "Target packages"
+ 
+ 	source "package/busybox/Config.in"
+-- 
+2.7.4
+

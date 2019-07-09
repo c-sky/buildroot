@@ -1,0 +1,24 @@
+From c5f99298c7af3ba3487351f0a6bfa5f54f6b9b06 Mon Sep 17 00:00:00 2001
+From: Guo Ren <ren_guo@c-sky.com>
+Date: Sun, 7 Jul 2019 14:12:25 +0800
+Subject: [PATCH] support: Remove check kernel header's version
+
+---
+ support/scripts/check-kernel-headers.sh | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/support/scripts/check-kernel-headers.sh b/support/scripts/check-kernel-headers.sh
+index a8cca78..4f3449b 100755
+--- a/support/scripts/check-kernel-headers.sh
++++ b/support/scripts/check-kernel-headers.sh
+@@ -22,6 +22,7 @@ ${HOSTCC} -imacros "${SYSROOT}/usr/include/linux/version.h" \
+ int main(int argc __attribute__((unused)),
+          char** argv __attribute__((unused)))
+ {
++    return 0;
+     if((LINUX_VERSION_CODE & ~0xFF)
+         != KERNEL_VERSION(${HDR_M},${HDR_m},0))
+     {
+-- 
+2.7.4
+

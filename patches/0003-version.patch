@@ -1,0 +1,35 @@
+From 75b343d3b4f3dde4cf8283bfc82ce17751e9b4eb Mon Sep 17 00:00:00 2001
+From: Guo Ren <ren_guo@c-sky.com>
+Date: Tue, 9 Jul 2019 13:48:55 +0800
+Subject: [PATCH] version
+
+---
+ package/csky-arch/csky-arch.mk | 1 +
+ package/qemu/qemu.mk           | 2 +-
+ 2 files changed, 2 insertions(+), 1 deletion(-)
+
+diff --git a/package/csky-arch/csky-arch.mk b/package/csky-arch/csky-arch.mk
+index 0158c2c..ef14690 100644
+--- a/package/csky-arch/csky-arch.mk
++++ b/package/csky-arch/csky-arch.mk
+@@ -79,3 +79,4 @@ endif
+ 
+ $(eval $(generic-package))
+ endif
++CSKY_LINUX_NEXT_VERSION	= 9f98b3142d22e0fdb253617373931d364c59a797
+diff --git a/package/qemu/qemu.mk b/package/qemu/qemu.mk
+index 73e0778..74de003 100644
+--- a/package/qemu/qemu.mk
++++ b/package/qemu/qemu.mk
+@@ -5,7 +5,7 @@
+ ################################################################################
+ 
+ ifeq ($(BR2_csky),y)
+-QEMU_VERSION = b517e1dc3125a57555d67a8deed9eac7b42288e2
++QEMU_VERSION = 5c69fe2e15d557a8eb1dcaa012843216bf5a5d8c
+ QEMU_SITE = $(call github,c-sky,qemu,$(QEMU_VERSION))
+ else
+ QEMU_VERSION = 3.1.0
+-- 
+2.7.4
+
