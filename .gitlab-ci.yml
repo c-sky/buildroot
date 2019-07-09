@@ -1,0 +1,274 @@
+# Configuration for Gitlab-CI.
+# Builds appear on https://gitlab.com/buildroot.org/buildroot/pipelines
+# The .gitlab-ci.yml file is generated from .gitlab-ci.yml.in.
+# It needs to be regenerated every time a defconfig is added, using
+# "make .gitlab-ci.yml".
+
+image: maohan001/ubuntu-buildroot
+
+#tags CANNOT be shrinked into anchor
+
+
+stages:
+  - wait-for-trigger
+  - qemu-build
+  - qemu-test
+
+variables:
+    PREFIX: ""
+    SUFFIX: _br_defconfig
+    CHIP_PREFIX: csky_
+    CONFIG_NAME: ""
+
+    VENDOR_ID: ""
+    CPU_ID: ""
+    MAIN: ""
+
+wait_for_trigger:
+    stage: wait-for-trigger
+    script:
+      - sleep 300
+
+.chip_build_before: &chip_build_before
+    - CPU_ID=${CI_BUILD_NAME%%_*}
+    - VENDOR_ID=${CI_BUILD_NAME##*libc_} #in case if it's abc or abcf
+    - PREFIX=${CHIP_PREFIX}${CPU_ID}'_'${VENDOR_ID}
+    - HELL=${CI_BUILD_NAME%_${VENDOR_ID}}
+    - MAIN=${HELL#*${CPU_ID}}
+
+.common_build_script: &common_build_script
+    - echo 'Configure buildroot'
+    - CONFIG_NAME=${PREFIX}${MAIN}${SUFFIX}
+    - export CSKY_README_JOB_ID=${CI_JOB_ID}
+    - echo ${CONFIG_NAME}
+    - echo 'Build buildroot'
+    - |
+        make CONF=${CONFIG_NAME} O=output > >(tee build.log |grep '>>>') 2>&1 || {
+            echo 'Failed build last output'
+            tail -200 build.log
+            xz -z build.log
+            exit 1
+        }
+    - xz -z build.log
+    - if [ -f output/images/vmlinux ]; then
+          output/host/bin/csky-linux-strip -sg output/images/vmlinux;
+          xz -z output/images/vmlinux;
+      fi
+    - if [ -f output/images/rootfs.cpio ]; then
+          rm -f output/images/rootfs.tar;
+          xz -z output/images/rootfs.cpio;
+      fi
+    - if [ -f output/images/rootfs.tar ]; then
+          xz -z output/images/rootfs.tar;
+      fi
+    - if [ -f output/images/gdbinit ]; then
+          cp output/images/gdbinit output/images/gdbinit.txt;
+      fi
+
+.common_builds: &common_builds
+    before_script: *chip_build_before
+    script: *common_build_script
+    dependencies: []
+    cache:
+      paths:
+        - dl/
+    artifacts:
+        when: always
+        expire_in: 2 weeks
+        paths:
+            - output/images/
+            - build.log.xz
+
+.common_test_script: &common_test_script
+    - echo 'Prepare to run'
+    - mkdir -p output/host/
+    - tar -xf output/images/csky_toolchain_*.tar.xz -C output/host
+    - if [ -f output/images/vmlinux.xz ]; then
+          xz -d output/images/vmlinux.xz;
+      fi
+    - if [ -f output/images/rootfs.tar.xz ]; then
+          xz -d output/images/rootfs.tar.xz;
+      fi
+    - if [ -f output/images/rootfs.cpio.xz ]; then
+          xz -d output/images/rootfs.cpio.xz;
+      fi
+    - if [ -f output/host/csky-ci/run_test.sh ]; then
+        ./output/host/csky-ci/run_test.sh;
+      fi
+    - if [ -f output/host/csky-ci/generic_analyze.sh ]; then
+        ./output/host/csky-ci/generic_analyze.sh || exit 1;
+      fi
+    - if [ -f output/host/csky-glibc-ci/csky-glibc-ci.sh ]; then
+        ./output/host/csky-glibc-ci/csky-glibc-ci.sh || exit 1;
+      fi
+
+.common_tests: &common_tests
+    script: *common_test_script
+    artifacts:
+        when: always
+        expire_in: 2 weeks
+        paths:
+            - test.log
+
+################ 610 ################
+# qemu
+.610_qemu_build: &610_qemu_build
+    stage: qemu-build
+    <<: *common_builds
+
+.610_qemu_test: &610_qemu_test
+    stage: qemu-test
+    <<: *common_tests
+
+610_4.9_uclibc_qemu: *610_qemu_build
+610_4.9_glibc_qemu: *610_qemu_build
+610_4.14_uclibc_qemu: *610_qemu_build
+610_4.14_glibc_qemu: *610_qemu_build
+
+610_4.9_uclibc_qemu_test:
+    dependencies:
+      - 610_4.9_uclibc_qemu
+    <<: *610_qemu_test
+
+610_4.9_glibc_qemu_test:
+    dependencies:
+      - 610_4.9_glibc_qemu
+    <<: *610_qemu_test
+
+610_4.14_uclibc_qemu_test:
+    dependencies:
+      - 610_4.14_uclibc_qemu
+    <<: *610_qemu_test
+
+610_4.14_glibc_qemu_test:
+    dependencies:
+      - 610_4.14_glibc_qemu
+    <<: *610_qemu_test
+
+################ 807 ################
+# qemu
+.807_qemu_build: &807_qemu_build
+    stage: qemu-build
+    <<: *common_builds
+
+.807_qemu_test: &807_qemu_test
+    stage: qemu-test
+    <<: *common_tests
+
+807f_4.9_uclibc_qemu: *807_qemu_build
+807f_4.9_glibc_qemu: *807_qemu_build
+807f_4.14_uclibc_qemu: *807_qemu_build
+807f_4.14_glibc_qemu: *807_qemu_build
+
+807f_4.9_uclibc_qemu_test:
+    dependencies:
+      - 807f_4.9_uclibc_qemu
+    <<: *807_qemu_test
+
+807f_4.9_glibc_qemu_test:
+    dependencies:
+      - 807f_4.9_glibc_qemu
+    <<: *807_qemu_test
+
+807f_4.14_uclibc_qemu_test:
+    dependencies:
+      - 807f_4.14_uclibc_qemu
+    <<: *807_qemu_test
+
+807f_4.14_glibc_qemu_test:
+    dependencies:
+      - 807f_4.14_glibc_qemu
+    <<: *807_qemu_test
+
+################ 810 ################
+# qemu
+.810_qemu_build: &810_qemu_build
+    stage: qemu-build
+    <<: *common_builds
+
+.810_qemu_test: &810_qemu_test
+    stage: qemu-test
+    <<: *common_tests
+
+810f_4.9_uclibc_qemu: *810_qemu_build
+810f_4.9_glibc_qemu: *810_qemu_build
+810f_4.14_uclibc_qemu: *810_qemu_build
+810f_4.14_glibc_qemu: *810_qemu_build
+810f_4.19_glibc_qemu: *810_qemu_build
+
+810f_4.9_uclibc_qemu_test:
+    dependencies:
+      - 810f_4.9_uclibc_qemu
+    <<: *810_qemu_test
+
+810f_4.9_glibc_qemu_test:
+    dependencies:
+      - 810f_4.9_glibc_qemu
+    <<: *810_qemu_test
+
+810f_4.14_uclibc_qemu_test:
+    dependencies:
+      - 810f_4.14_uclibc_qemu
+    <<: *810_qemu_test
+
+810f_4.14_glibc_qemu_test:
+    dependencies:
+      - 810f_4.14_glibc_qemu
+    <<: *810_qemu_test
+
+810f_4.19_glibc_qemu_test:
+    dependencies:
+      - 810f_4.19_glibc_qemu
+    <<: *810_qemu_test
+
+################ 860 ################
+# qemu
+.860_qemu_build: &860_qemu_build
+    stage: qemu-build
+    <<: *common_builds
+
+.860_qemu_test: &860_qemu_test
+    stage: qemu-test
+    <<: *common_tests
+
+860_4.9_glibc_qemu: *860_qemu_build
+860_4.14_glibc_qemu: *860_qemu_build
+860_4.19_glibc_qemu: *860_qemu_build
+860_next_glibc_qemu: *860_qemu_build
+
+860_4.9_glibc_qemu_test:
+    dependencies:
+      - 860_4.9_glibc_qemu
+    <<: *860_qemu_test
+
+860_4.14_glibc_qemu_test:
+    dependencies:
+      - 860_4.14_glibc_qemu
+    <<: *860_qemu_test
+
+860_4.19_glibc_qemu_test:
+    dependencies:
+      - 860_4.19_glibc_qemu
+    <<: *860_qemu_test
+
+860_next_glibc_qemu_test:
+    dependencies:
+      - 860_next_glibc_qemu
+    <<: *860_qemu_test
+
+################ 960 ################
+# qemu
+.960_qemu_build: &960_qemu_build
+    stage: qemu-build
+    <<: *common_builds
+
+.960_qemu_test: &960_qemu_test
+    stage: qemu-test
+    <<: *common_tests
+
+960_next_glibc_qemu: *960_qemu_build
+
+960_next_glibc_qemu_test:
+    dependencies:
+      - 960_next_glibc_qemu
+    <<: *960_qemu_test
