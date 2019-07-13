@@ -1,1 +1,2 @@
 	source "package/csky-arch/Config.in"
+	source "package/csky-ci/Config.in"
