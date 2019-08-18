@@ -1,0 +1,20 @@
+diff -Nuar botan-1.10.16-src/src/build-data/arch/csky.txt botan-1.10.16/src/build-data/arch/csky.txt
+--- botan-1.10.16-src/src/build-data/arch/csky.txt	1970-01-01 08:00:00.000000000 +0800
++++ botan-1.10.16/src/build-data/arch/csky.txt	2019-08-12 17:52:23.952762886 +0800
+@@ -0,0 +1,16 @@
++
++endian little
++family csky
++
++<aliases>
++</aliases>
++
++<submodels>
++
++</submodels>
++
++<submodel_aliases>
++</submodel_aliases>
++
++<isa_extn>
++</isa_extn>
