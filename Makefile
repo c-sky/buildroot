@@ -13,6 +13,7 @@ O ?= $(CONF)
 BR2_DL_DIR ?= $(BRW_ROOT)/dl
 
 define DOWNLOAD
+	mkdir -p $(BR2_DL_DIR); \
 	if [ ! -f $(BRW_FILE) ]; then \
 		wget $(BRW_SITE) -O $(BRW_FILE); \
 	fi
@@ -25,6 +26,7 @@ define COPYFILES
 		cp $(BRW_ROOT)/board/* $(BRW_DIR)/board/ -raf; \
 		cp $(BRW_ROOT)/configs/* $(BRW_DIR)/configs/ -raf; \
 		rm -rf package/ncurses/*.patch; \
+		echo "DL_DIR=$(BR2_DL_DIR)" >> $(BRW_DIR)/Makefile; \
 		if [ -f ~/.gitconfig ]; then \
 			cd $(BRW_DIR); \
 			git init .; git add . > /dev/null; \
