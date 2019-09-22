@@ -256,19 +256,19 @@ wait_for_trigger:
       - 860_next_glibc_qemu
     <<: *860_qemu_test
 
-################ 960 ################
+################ 910 ################
 # qemu
-.960_qemu_build: &960_qemu_build
+.910_qemu_build: &910_qemu_build
     stage: qemu-build
     <<: *common_builds
 
-.960_qemu_test: &960_qemu_test
+.910_qemu_test: &910_qemu_test
     stage: qemu-test
     <<: *common_tests
 
-960_next_glibc_qemu: *960_qemu_build
+910_next_glibc_qemu: *910_qemu_build
 
-960_next_glibc_qemu_test:
+910_next_glibc_qemu_test:
     dependencies:
-      - 960_next_glibc_qemu
-    <<: *960_qemu_test
+      - 910_next_glibc_qemu
+    <<: *910_qemu_test
