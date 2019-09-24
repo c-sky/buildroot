@@ -1,0 +1,58 @@
+From 39bc1aa60749f9cd9510a2a792d2191c3503d1a1 Mon Sep 17 00:00:00 2001
+From: Guo Ren <ren_guo@c-sky.com>
+Date: Tue, 24 Sep 2019 18:22:20 +0800
+Subject: [PATCH] target/riscv: Bugfix reserved bits in PTE for RV64
+
+Highest 10 bits of PTE are reserved in riscv-privileged, ref: [1], so we
+need to ignore them. They can not be a part of ppn.
+
+1: The RISC-V Instruction Set Manual, Volume II: Privileged Architecture
+   4.4 Sv39: Page-Based 39-bit Virtual-Memory System
+   4.5 Sv48: Page-Based 48-bit Virtual-Memory System
+
+Changelog V2:
+ - Bugfix pte destroyed cause boot fail
+ - Change to AND with a mask instead of shifting both directions
+
+Signed-off-by: Guo Ren <ren_guo@c-sky.com>
+Reviewed-by: Liu Zhiwei <zhiwei_liu@c-sky.com>
+---
+ target/riscv/cpu_bits.h   | 3 +++
+ target/riscv/cpu_helper.c | 4 +++-
+ 2 files changed, 5 insertions(+), 1 deletion(-)
+
+diff --git a/target/riscv/cpu_bits.h b/target/riscv/cpu_bits.h
+index 5439f47..bd9cfa1 100644
+--- a/target/riscv/cpu_bits.h
++++ b/target/riscv/cpu_bits.h
+@@ -392,6 +392,9 @@
+ #define PTE_D               0x080 /* Dirty */
+ #define PTE_SOFT            0x300 /* Reserved for Software */
+ 
++/* Reserved highest 10 bits in PTE */
++#define PTE_RESERVED        0xFFC0000000000000ULL
++
+ /* Page table PPN shift amount */
+ #define PTE_PPN_SHIFT       10
+ 
+diff --git a/target/riscv/cpu_helper.c b/target/riscv/cpu_helper.c
+index 86f9f47..d1a6dbd 100644
+--- a/target/riscv/cpu_helper.c
++++ b/target/riscv/cpu_helper.c
+@@ -203,10 +203,12 @@ restart:
+         target_ulong pte_addr = base + idx * ptesize;
+ #if defined(TARGET_RISCV32)
+         target_ulong pte = ldl_phys(cs->as, pte_addr);
++        target_ulong ppn = pte;
+ #elif defined(TARGET_RISCV64)
+         target_ulong pte = ldq_phys(cs->as, pte_addr);
++        target_ulong ppn = pte & ~PTE_RESERVED;
+ #endif
+-        target_ulong ppn = pte >> PTE_PPN_SHIFT;
++        ppn = ppn >> PTE_PPN_SHIFT;
+ 
+         if (!(pte & PTE_V)) {
+             /* Invalid PTE */
+-- 
+2.7.4
+

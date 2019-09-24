@@ -1,0 +1,28 @@
+From 6c1dcbc4d3957dada75435766832894d751606cc Mon Sep 17 00:00:00 2001
+From: Guo Ren <ren_guo@c-sky.com>
+Date: Tue, 24 Sep 2019 11:22:29 +0800
+Subject: [PATCH 1/2] target/riscv: Use sv39 as default for T-HEAD c910
+
+Use sv39 as default dts in qemu for our cpu.
+
+Signed-off-by: Guo Ren <ren_guo@c-sky.com>
+---
+ hw/riscv/virt.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/hw/riscv/virt.c b/hw/riscv/virt.c
+index 2b38f89..b3f0327 100644
+--- a/hw/riscv/virt.c
++++ b/hw/riscv/virt.c
+@@ -148,7 +148,7 @@ static void *create_fdt(RISCVVirtState *s, const struct MemmapEntry *memmap,
+         qemu_fdt_add_subnode(fdt, nodename);
+         qemu_fdt_setprop_cell(fdt, nodename, "clock-frequency",
+                               VIRT_CLOCK_FREQ);
+-        qemu_fdt_setprop_string(fdt, nodename, "mmu-type", "riscv,sv48");
++        qemu_fdt_setprop_string(fdt, nodename, "mmu-type", "riscv,sv39");
+         qemu_fdt_setprop_string(fdt, nodename, "riscv,isa", isa);
+         qemu_fdt_setprop_string(fdt, nodename, "compatible", "riscv");
+         qemu_fdt_setprop_string(fdt, nodename, "status", "okay");
+-- 
+2.7.4
+
