@@ -1,0 +1,56 @@
+From 1140414f0c8e64440b10d03629cb9848ea902015 Mon Sep 17 00:00:00 2001
+From: Liu Yibin <yibin_liu@c-sky.com>
+Date: Mon, 22 Jul 2019 17:18:27 +0800
+Subject: [PATCH 3/4] riscv: Bugfix compiler optimization cause a failed bootup
+
+Signed-off-by: Liu Yibin <yibin_liu@c-sky.com>
+---
+ arch/riscv/kernel/setup.c   | 2 +-
+ arch/riscv/kernel/smpboot.c | 4 ++--
+ arch/riscv/mm/init.c        | 2 +-
+ 3 files changed, 4 insertions(+), 4 deletions(-)
+
+diff --git a/arch/riscv/kernel/setup.c b/arch/riscv/kernel/setup.c
+index 540a331..2ff87b0 100644
+--- a/arch/riscv/kernel/setup.c
++++ b/arch/riscv/kernel/setup.c
+@@ -49,7 +49,7 @@ struct screen_info screen_info = {
+ #endif
+ 
+ /* The lucky hart to first increment this variable will boot the other cores */
+-atomic_t hart_lottery;
++__section(.data) atomic_t hart_lottery;
+ unsigned long boot_cpu_hartid;
+ 
+ void __init parse_dtb(unsigned int hartid, void *dtb)
+diff --git a/arch/riscv/kernel/smpboot.c b/arch/riscv/kernel/smpboot.c
+index eb533b5..028d0c7 100644
+--- a/arch/riscv/kernel/smpboot.c
++++ b/arch/riscv/kernel/smpboot.c
+@@ -37,8 +37,8 @@
+ #include <asm/sections.h>
+ #include <asm/sbi.h>
+ 
+-void *__cpu_up_stack_pointer[NR_CPUS];
+-void *__cpu_up_task_pointer[NR_CPUS];
++__section(.data) void *__cpu_up_stack_pointer[NR_CPUS];
++__section(.data) void *__cpu_up_task_pointer[NR_CPUS];
+ static DECLARE_COMPLETION(cpu_running);
+ 
+ void __init smp_prepare_boot_cpu(void)
+diff --git a/arch/riscv/mm/init.c b/arch/riscv/mm/init.c
+index bc7b77e..90bdb65 100644
+--- a/arch/riscv/mm/init.c
++++ b/arch/riscv/mm/init.c
+@@ -208,7 +208,7 @@ void __set_fixmap(enum fixed_addresses idx, phys_addr_t phys, pgprot_t prot)
+ 	"not use absolute addressing."
+ #endif
+ 
+-asmlinkage void __init setup_vm(void)
++__attribute__((optimize("-O0"))) asmlinkage void __init setup_vm(void)
+ {
+ 	extern char _start;
+ 	uintptr_t i;
+-- 
+2.7.4
+

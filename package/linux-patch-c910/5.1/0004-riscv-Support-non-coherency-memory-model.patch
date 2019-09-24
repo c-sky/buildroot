@@ -1,0 +1,402 @@
+From 6d6cfacd187df6aabcd0b2da347236acdfa44736 Mon Sep 17 00:00:00 2001
+From: Guo Ren <ren_guo@c-sky.com>
+Date: Mon, 23 Sep 2019 17:01:53 +0800
+Subject: [PATCH V2] riscv: Support non-coherency memory model
+
+The current riscv linux implementation requires SOC system to support
+memory coherence between all I/O devices and CPUs. But some SOC systems
+cannot maintain the coherence and they need support cache clean/invalid
+operations to synchronize data.
+
+Current implementation is no problem with SiFive FU540, because FU540
+keeps all IO devices and DMA master devices coherence with CPU. But to a
+traditional SOC vendor, it may already have a stable non-coherency SOC
+system, the need is simply to replace the CPU with RV CPU and rebuild
+the whole system with IO-coherency is very expensive.
+
+So we should make riscv linux also support non-coherency memory model.
+Here are the two points that riscv linux needs to be modified:
+
+ - Add _PAGE_SEC, _PAGE_SHARE, _PAGE_BUF, _PAGE_CACHE, _PAGE_SO bit in
+   current page table entry attributes.
+
+   PTE format:
+   | 63 | 62 | 61 | 60 | 59 | 58-8 | 7 | 6 | 5 | 4 | 3 | 2 | 1 | 0
+     SO   C    B    SH   SE    RSW   D   A   G   U   X   W   R   V
+     ^    ^    ^    ^    ^
+   BIT(63): SO - Strong Order
+   BIT(62): C  - Cacheable
+   BIT(61): B  - Bufferable
+   BIT(60): SH - Shareable
+   BIT(59): SE - Security
+
+ - Add SBI_FENCE_DMA 9 in riscv-sbi.
+   sbi_fence_dma(start, size, dir) could synchronize CPU cache data with
+   DMA device in non-coherency memory model. The third param's definition
+   is the same with linux's in include/linux/dma-direction.h:
+
+   enum dma_data_direction {
+        DMA_BIDIRECTIONAL = 0,
+        DMA_TO_DEVICE = 1,
+        DMA_FROM_DEVICE = 2,
+        DMA_NONE = 3,
+   };
+
+   The first param:start must be physical address which could be handled
+   in M-state.
+
+   Here is a pull request to the riscv-sbi-doc: [1]
+
+We have tested the patch on our fpga SOC system which network controller
+connected to a non-cache-coherency interconnect in and it couldn't work
+without the patch.
+
+There is no side effect for FU540 whose CPU don't care _PAGE_COHERENCY
+in PTE, but FU540's bbl also need to implement a simple sbi_fence_dma
+by directly return. In fact, if you give a correct configuration for
+dev_is_dma_coherent(), linux dma framework wouldn't call sbi_fence_dma
+any more.
+
+Changelog:
+V2-V3:
+ - Remove _PAGE_COHERENCY bit
+ - Increase 5 bits for SO, C, B, SH, SE
+V1-V2: [2]
+ - Use coherency instead of consistency for all to maintain term
+   consistency. (Xiang Xiaoyan)
+ - Add riscv-isa-manual modification pull request link.
+ - Correct grammatical errors.
+
+1: https://github.com/riscv/riscv-sbi-doc/pull/15
+2: https://lore.kernel.org/lkml/1555947870-23014-1-git-send-email-guoren@kernel.org/
+
+Signed-off-by: Guo Ren <ren_guo@c-sky.com>
+Reviewed-by: Xiang Xiaoyan <xiaoyan_xiang@c-sky.com>
+Tested-by: Liu Yibin <yibin_liu@c-sky.com>
+---
+ arch/riscv/Kconfig                    |  5 +++
+ arch/riscv/include/asm/cacheflush.h   |  3 ++
+ arch/riscv/include/asm/pgtable-64.h   |  2 +-
+ arch/riscv/include/asm/pgtable-bits.h | 12 +++++-
+ arch/riscv/include/asm/pgtable.h      | 35 +++++++++++++++---
+ arch/riscv/mm/Makefile                |  1 +
+ arch/riscv/mm/cacheflush.c            | 20 ++++++++++
+ arch/riscv/mm/dma-mapping.c           | 69 +++++++++++++++++++++++++++++++++++
+ arch/riscv/mm/ioremap.c               | 16 +++++++-
+ 9 files changed, 154 insertions(+), 9 deletions(-)
+ create mode 100644 arch/riscv/mm/dma-mapping.c
+
+diff --git a/arch/riscv/Kconfig b/arch/riscv/Kconfig
+index eca0657..ee84d02 100644
+--- a/arch/riscv/Kconfig
++++ b/arch/riscv/Kconfig
+@@ -17,8 +17,12 @@ config RISCV
+ 	select OF_EARLY_FLATTREE
+ 	select OF_IRQ
+ 	select ARCH_WANT_FRAME_POINTERS
++	select ARCH_HAS_SYNC_DMA_FOR_CPU
++	select ARCH_HAS_SYNC_DMA_FOR_DEVICE
+ 	select CLONE_BACKWARDS
+ 	select COMMON_CLK
++	select DMA_DIRECT_REMAP
++	select HAVE_DMA_CONTIGUOUS
+ 	select GENERIC_CLOCKEVENTS
+ 	select GENERIC_CPU_DEVICES
+ 	select GENERIC_IRQ_SHOW
+@@ -28,6 +32,7 @@ config RISCV
+ 	select GENERIC_STRNLEN_USER
+ 	select GENERIC_SMP_IDLE_THREAD
+ 	select GENERIC_ATOMIC64 if !64BIT || !RISCV_ISA_A
++	select GENERIC_ALLOCATOR
+ 	select HAVE_ARCH_AUDITSYSCALL
+ 	select HAVE_MEMBLOCK_NODE_MAP
+ 	select HAVE_DMA_CONTIGUOUS
+diff --git a/arch/riscv/include/asm/cacheflush.h b/arch/riscv/include/asm/cacheflush.h
+index 8f13074..cfc1f80 100644
+--- a/arch/riscv/include/asm/cacheflush.h
++++ b/arch/riscv/include/asm/cacheflush.h
+@@ -20,6 +20,9 @@
+ #undef flush_icache_user_range
+ #undef flush_dcache_page
+ 
++void dma_wbinv_range(unsigned long start, unsigned long end);
++void dma_wb_range(unsigned long start, unsigned long end);
++
+ static inline void local_flush_icache_all(void)
+ {
+ 	asm volatile ("fence.i" ::: "memory");
+diff --git a/arch/riscv/include/asm/pgtable-64.h b/arch/riscv/include/asm/pgtable-64.h
+index 7aa0ea9..ed62c5f 100644
+--- a/arch/riscv/include/asm/pgtable-64.h
++++ b/arch/riscv/include/asm/pgtable-64.h
+@@ -63,7 +63,7 @@ static inline void pud_clear(pud_t *pudp)
+ 
+ static inline unsigned long pud_page_vaddr(pud_t pud)
+ {
+-	return (unsigned long)pfn_to_virt(pud_val(pud) >> _PAGE_PFN_SHIFT);
++	return (unsigned long)pfn_to_virt((pud_val(pud) & _PAGE_CHG_MASK) >> _PAGE_PFN_SHIFT);
+ }
+ 
+ #define pmd_index(addr) (((addr) >> PMD_SHIFT) & (PTRS_PER_PMD - 1))
+diff --git a/arch/riscv/include/asm/pgtable-bits.h b/arch/riscv/include/asm/pgtable-bits.h
+index 470755c..4e8ae2a 100644
+--- a/arch/riscv/include/asm/pgtable-bits.h
++++ b/arch/riscv/include/asm/pgtable-bits.h
+@@ -32,6 +32,13 @@
+ #define _PAGE_DIRTY     (1 << 7)    /* Set by hardware on any write */
+ #define _PAGE_SOFT      (1 << 8)    /* Reserved for software */
+ 
++/* C-SKY extend */
++#define _PAGE_SEC	(1UL << 59)   /* Security */
++#define _PAGE_SHARE	(1UL << 60)   /* Shareable */
++#define _PAGE_BUF	(1UL << 61)   /* Bufferable */
++#define _PAGE_CACHE	(1UL << 62)   /* Cacheable */
++#define _PAGE_SO	(1UL << 63)   /* Strong Order */
++
+ #define _PAGE_SPECIAL   _PAGE_SOFT
+ #define _PAGE_TABLE     _PAGE_PRESENT
+ 
+@@ -46,6 +53,9 @@
+ /* Set of bits to preserve across pte_modify() */
+ #define _PAGE_CHG_MASK  (~(unsigned long)(_PAGE_PRESENT | _PAGE_READ |	\
+ 					  _PAGE_WRITE | _PAGE_EXEC |	\
+-					  _PAGE_USER | _PAGE_GLOBAL))
++					  _PAGE_USER | _PAGE_GLOBAL |	\
++					  _PAGE_SEC | _PAGE_SHARE |	\
++					  _PAGE_BUF | _PAGE_CACHE |	\
++					  _PAGE_SO ))
+ 
+ #endif /* _ASM_RISCV_PGTABLE_BITS_H */
+diff --git a/arch/riscv/include/asm/pgtable.h b/arch/riscv/include/asm/pgtable.h
+index 1141364..0087385 100644
+--- a/arch/riscv/include/asm/pgtable.h
++++ b/arch/riscv/include/asm/pgtable.h
+@@ -42,9 +42,11 @@
+ #define FIRST_USER_ADDRESS  0
+ 
+ /* Page protection bits */
+-#define _PAGE_BASE	(_PAGE_PRESENT | _PAGE_ACCESSED | _PAGE_USER)
++#define _PAGE_BASE	(_PAGE_PRESENT | _PAGE_ACCESSED | _PAGE_USER | \
++			 _PAGE_SHARE | _PAGE_CACHE | _PAGE_BUF)
+ 
+-#define PAGE_NONE		__pgprot(_PAGE_PROT_NONE)
++#define PAGE_NONE		__pgprot(_PAGE_PROT_NONE | _PAGE_CACHE | \
++					 _PAGE_BUF | _PAGE_SHARE | _PAGE_SHARE)
+ #define PAGE_READ		__pgprot(_PAGE_BASE | _PAGE_READ)
+ #define PAGE_WRITE		__pgprot(_PAGE_BASE | _PAGE_READ | _PAGE_WRITE)
+ #define PAGE_EXEC		__pgprot(_PAGE_BASE | _PAGE_EXEC)
+@@ -62,10 +64,15 @@
+ 				| _PAGE_WRITE \
+ 				| _PAGE_PRESENT \
+ 				| _PAGE_ACCESSED \
+-				| _PAGE_DIRTY)
++				| _PAGE_DIRTY \
++				| _PAGE_CACHE \
++				| _PAGE_SHARE \
++				| _PAGE_BUF)
+ 
+ #define PAGE_KERNEL		__pgprot(_PAGE_KERNEL)
+ #define PAGE_KERNEL_EXEC	__pgprot(_PAGE_KERNEL | _PAGE_EXEC)
++#define PAGE_KERNEL_SO		__pgprot((_PAGE_KERNEL | _PAGE_SO) & \
++					~(_PAGE_CACHE | _PAGE_BUF))
+ 
+ extern pgd_t swapper_pg_dir[];
+ 
+@@ -139,18 +146,18 @@ static inline pgd_t *pgd_offset(const struct mm_struct *mm, unsigned long addr)
+ 
+ static inline struct page *pmd_page(pmd_t pmd)
+ {
+-	return pfn_to_page(pmd_val(pmd) >> _PAGE_PFN_SHIFT);
++	return pfn_to_page((pmd_val(pmd) & _PAGE_CHG_MASK) >> _PAGE_PFN_SHIFT);
+ }
+ 
+ static inline unsigned long pmd_page_vaddr(pmd_t pmd)
+ {
+-	return (unsigned long)pfn_to_virt(pmd_val(pmd) >> _PAGE_PFN_SHIFT);
++	return (unsigned long)pfn_to_virt((pmd_val(pmd) & _PAGE_CHG_MASK) >> _PAGE_PFN_SHIFT);
+ }
+ 
+ /* Yields the page frame number (PFN) of a page table entry */
+ static inline unsigned long pte_pfn(pte_t pte)
+ {
+-	return (pte_val(pte) >> _PAGE_PFN_SHIFT);
++	return ((pte_val(pte) & _PAGE_CHG_MASK) >> _PAGE_PFN_SHIFT);
+ }
+ 
+ #define pte_page(x)     pfn_to_page(pte_pfn(x))
+@@ -375,6 +382,22 @@ static inline int ptep_clear_flush_young(struct vm_area_struct *vma,
+ 	return ptep_test_and_clear_young(vma, address, ptep);
+ }
+ 
++#define __HAVE_PHYS_MEM_ACCESS_PROT
++struct file;
++extern pgprot_t phys_mem_access_prot(struct file *file, unsigned long pfn,
++				     unsigned long size, pgprot_t vma_prot);
++
++#define pgprot_noncached pgprot_noncached
++static inline pgprot_t pgprot_noncached(pgprot_t _prot)
++{
++	unsigned long prot = pgprot_val(_prot);
++
++	prot &= ~(_PAGE_CACHE | _PAGE_BUF);
++
++	return __pgprot(prot);
++}
++
++
+ /*
+  * Encode and decode a swap entry
+  *
+diff --git a/arch/riscv/mm/Makefile b/arch/riscv/mm/Makefile
+index b68aac7..adc563a 100644
+--- a/arch/riscv/mm/Makefile
++++ b/arch/riscv/mm/Makefile
+@@ -9,3 +9,4 @@ obj-y += fault.o
+ obj-y += extable.o
+ obj-y += ioremap.o
+ obj-y += cacheflush.o
++obj-y += dma-mapping.o
+diff --git a/arch/riscv/mm/cacheflush.c b/arch/riscv/mm/cacheflush.c
+index 498c0a0..eac623d 100644
+--- a/arch/riscv/mm/cacheflush.c
++++ b/arch/riscv/mm/cacheflush.c
+@@ -13,6 +13,10 @@
+ 
+ #include <asm/pgtable.h>
+ #include <asm/cacheflush.h>
++#include <asm/sbi.h>
++
++//#define sync_is()	sbi_remote_sync_is()
++#define sync_is()	asm volatile (".long 0x01b0000b")
+ 
+ void flush_icache_pte(pte_t pte)
+ {
+@@ -21,3 +25,19 @@ void flush_icache_pte(pte_t pte)
+ 	if (!test_and_set_bit(PG_dcache_clean, &page->flags))
+ 		flush_icache_all();
+ }
++
++void dma_wbinv_range(unsigned long start, unsigned long end)
++{
++	register unsigned long i asm("a0") = start & ~(L1_CACHE_BYTES - 1);
++return;
++	for (; i < end; i += L1_CACHE_BYTES)
++		asm volatile (".long 0x0275000b"); /* dcache.civa a0 */
++		//sbi_remote_fence_d(i);
++
++	sync_is();
++}
++
++void dma_wb_range(unsigned long start, unsigned long end)
++{
++	dma_wbinv_range(start, end);
++}
+diff --git a/arch/riscv/mm/dma-mapping.c b/arch/riscv/mm/dma-mapping.c
+new file mode 100644
+index 0000000..7926d4f
+--- /dev/null
++++ b/arch/riscv/mm/dma-mapping.c
+@@ -0,0 +1,69 @@
++// SPDX-License-Identifier: GPL-2.0
++// Copyright (C) 2018 Hangzhou C-SKY Microsystems co.,ltd.
++
++#include <linux/cache.h>
++#include <linux/dma-mapping.h>
++#include <linux/dma-contiguous.h>
++#include <linux/dma-noncoherent.h>
++#include <linux/genalloc.h>
++#include <linux/highmem.h>
++#include <linux/io.h>
++#include <linux/mm.h>
++#include <linux/scatterlist.h>
++#include <linux/types.h>
++#include <linux/version.h>
++#include <asm/cache.h>
++
++static int __init atomic_pool_init(void)
++{
++	return dma_atomic_pool_init(GFP_KERNEL, pgprot_noncached(PAGE_KERNEL));
++}
++postcore_initcall(atomic_pool_init);
++
++void arch_dma_prep_coherent(struct page *page, size_t size)
++{
++	void *ptr = page_address(page);
++
++	memset(ptr, 0, size);
++	dma_wbinv_range((unsigned long)ptr, (unsigned long)ptr + size);
++}
++
++static inline void cache_op(phys_addr_t paddr, size_t size,
++			    void (*fn)(unsigned long start, unsigned long end))
++{
++	unsigned long start = (unsigned long)phys_to_virt(paddr);
++
++	fn(start, start + size);
++}
++
++void arch_sync_dma_for_device(struct device *dev, phys_addr_t paddr,
++			      size_t size, enum dma_data_direction dir)
++{
++	switch (dir) {
++	case DMA_TO_DEVICE:
++		cache_op(paddr, size, dma_wb_range);
++		break;
++	case DMA_FROM_DEVICE:
++	case DMA_BIDIRECTIONAL:
++		cache_op(paddr, size, dma_wbinv_range);
++		break;
++	default:
++		BUG();
++	}
++}
++
++void arch_sync_dma_for_cpu(struct device *dev, phys_addr_t paddr,
++			   size_t size, enum dma_data_direction dir)
++{
++	switch (dir) {
++	case DMA_TO_DEVICE:
++		cache_op(paddr, size, dma_wb_range);
++		break;
++	case DMA_FROM_DEVICE:
++	case DMA_BIDIRECTIONAL:
++		cache_op(paddr, size, dma_wbinv_range);
++		break;
++	default:
++		BUG();
++	}
++}
+diff --git a/arch/riscv/mm/ioremap.c b/arch/riscv/mm/ioremap.c
+index bd2f2db..bfcab8b 100644
+--- a/arch/riscv/mm/ioremap.c
++++ b/arch/riscv/mm/ioremap.c
+@@ -73,7 +73,7 @@ static void __iomem *__ioremap_caller(phys_addr_t addr, size_t size,
+  */
+ void __iomem *ioremap(phys_addr_t offset, unsigned long size)
+ {
+-	return __ioremap_caller(offset, size, PAGE_KERNEL,
++	return __ioremap_caller(offset, size, PAGE_KERNEL_SO,
+ 		__builtin_return_address(0));
+ }
+ EXPORT_SYMBOL(ioremap);
+@@ -90,3 +90,17 @@ void iounmap(volatile void __iomem *addr)
+ 	vunmap((void *)((unsigned long)addr & PAGE_MASK));
+ }
+ EXPORT_SYMBOL(iounmap);
++
++pgprot_t phys_mem_access_prot(struct file *file, unsigned long pfn,
++			      unsigned long size, pgprot_t vma_prot)
++{
++	if (!pfn_valid(pfn)) {
++		vma_prot.pgprot |= _PAGE_SO;
++		return pgprot_noncached(vma_prot);
++	} else if (file->f_flags & O_SYNC) {
++		return pgprot_noncached(vma_prot);
++	}
++
++	return vma_prot;
++}
++EXPORT_SYMBOL(phys_mem_access_prot);
+-- 
+2.7.4
+

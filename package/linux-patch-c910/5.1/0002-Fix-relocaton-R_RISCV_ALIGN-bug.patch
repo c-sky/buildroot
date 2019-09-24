@@ -1,0 +1,31 @@
+From c5f5196682dcd4166ed3b36c15b9477c7dbc5ed2 Mon Sep 17 00:00:00 2001
+From: Lu Chongzhi <chongzhi_lui@c-sky.com>
+Date: Thu, 20 Jun 2019 19:57:45 +0800
+Subject: [PATCH 2/4] Fix relocaton R_RISCV_ALIGN bug
+
+ - Return 0 even relocation type is R_RISCV_ALIGN, the reason is:
+   When call get_user/put_user, compiler will insert ".balign 4" in section fixup,
+   then the ko file contains R_RISCV_ALIGN relocation flag, which can not be handled
+   by insmod process.
+
+Signed-off-by: Lu Chongzhi <chongzhi_lu@c-sky.com>
+---
+ arch/riscv/kernel/module.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/arch/riscv/kernel/module.c b/arch/riscv/kernel/module.c
+index 2872edc..3ea6203 100644
+--- a/arch/riscv/kernel/module.c
++++ b/arch/riscv/kernel/module.c
+@@ -257,7 +257,7 @@ static int apply_r_riscv_align_rela(struct module *me, u32 *location,
+ 	pr_err(
+ 	  "%s: The unexpected relocation type 'R_RISCV_ALIGN' from PC = %p\n",
+ 	  me->name, location);
+-	return -EINVAL;
++	return 0; /* Do not return -EINVAL when relocation type is R_RISCV_ALIGN */
+ }
+ 
+ static int apply_r_riscv_add32_rela(struct module *me, u32 *location,
+-- 
+2.7.4
+
