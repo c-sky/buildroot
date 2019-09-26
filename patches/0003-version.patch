@@ -17,7 +17,7 @@ index 0158c2c..ef14690 100644
  
  $(eval $(generic-package))
  endif
-+CSKY_LINUX_NEXT_VERSION	= 4ad35c1f56386c8e7019c921bba1af109fde9693
++CSKY_LINUX_NEXT_VERSION	= 3d70d91a9b0472642a9f1d416c6c16f8de4fac21
 diff --git a/package/gdb/Config.in.host b/package/gdb/Config.in.host
 index 8257fd4..310045e 100644
 --- a/package/gdb/Config.in.host
