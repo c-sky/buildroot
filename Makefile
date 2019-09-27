@@ -23,6 +23,7 @@ define COPYFILES
 	if [ ! -d $(BRW_DIR) ]; then \
 		tar xf $(BRW_FILE) -C $(BRW_ROOT); \
 		cp $(BRW_ROOT)/package/* $(BRW_DIR)/package/ -raf; \
+		cp $(BRW_ROOT)/boot/* $(BRW_DIR)/boot/ -raf; \
 		cp $(BRW_ROOT)/board/* $(BRW_DIR)/board/ -raf; \
 		cp $(BRW_ROOT)/configs/* $(BRW_DIR)/configs/ -raf; \
 		rm -rf package/ncurses/*.patch; \
