@@ -1,2 +1,3 @@
 	source "package/csky-arch/Config.in"
 	source "package/csky-ci/Config.in"
+	source "package/riscv-pk-c910/Config.in"

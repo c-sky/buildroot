@@ -1,0 +1,89 @@
+From 111236cea44d6ab9d61b7ae55d3740472dfc5480 Mon Sep 17 00:00:00 2001
+From: Guo Ren <ren_guo@c-sky.com>
+Date: Fri, 27 Sep 2019 17:13:27 +0800
+Subject: [PATCH] sbi: Support SBI_FENCE_DMA
+
+Signed-off-by: Guo Ren <ren_guo@c-sky.com>
+---
+ machine/mcall.h |  1 +
+ machine/mtrap.c | 39 ++++++++++++++++++++++++++++++++++++++-
+ 2 files changed, 39 insertions(+), 1 deletion(-)
+
+diff --git a/machine/mcall.h b/machine/mcall.h
+index bfbd525..43072ed 100644
+--- a/machine/mcall.h
++++ b/machine/mcall.h
+@@ -13,5 +13,6 @@
+ #define SBI_REMOTE_SFENCE_VMA_ASID 7
+ #define SBI_SHUTDOWN 8
+ #define SBI_PMU 900
++#define SBI_FENCE_DMA 901
+ 
+ #endif
+diff --git a/machine/mtrap.c b/machine/mtrap.c
+index e1599da..238ff9f 100644
+--- a/machine/mtrap.c
++++ b/machine/mtrap.c
+@@ -124,6 +124,39 @@ static uintptr_t mcall_set_timer(uint64_t when)
+   return 0;
+ }
+ 
++#define L1_CACHE_SHIFT  6
++#define L1_CACHE_BYTES  (1 << L1_CACHE_SHIFT)
++
++enum dma_data_direction {
++  DMA_BIDIRECTIONAL = 0,
++  DMA_TO_DEVICE = 1,
++  DMA_FROM_DEVICE = 2,
++  DMA_NONE = 3,
++};
++
++static void mcall_fence_dma(uintptr_t start, uintptr_t size, uintptr_t dir)
++{
++  register unsigned long i asm("a0") = start & ~(L1_CACHE_BYTES - 1);
++  for (; i < start + size; i += L1_CACHE_BYTES) {
++    switch (dir)
++    {
++      case DMA_BIDIRECTIONAL:
++        asm volatile (".long 0x0275000b"); /* dcache.civa a0 */
++        break;
++      case DMA_TO_DEVICE:
++        asm volatile (".long 0x0255000b"); /* dcache.cva a0 */
++        break;
++      case DMA_FROM_DEVICE:
++        asm volatile (".long 0x0275000b"); /* dcache.iva a0 */
++        break;
++      default:
++	break;
++    }
++  }
++
++  asm volatile (".long 0x01b0000b"); /* sync.is */
++}
++
+ static void mcall_set_pmu(uintptr_t start)
+ {
+   set_csr(mideleg, 1 << 17);
+@@ -208,7 +241,7 @@ void mcall_trap(uintptr_t* regs, uintptr_t mcause, uintptr_t mepc)
+ {
+   write_csr(mepc, mepc + 4);
+ 
+-  uintptr_t n = regs[17], arg0 = regs[10], arg1 = regs[11], retval, ipi_type;
++  uintptr_t n = regs[17], arg0 = regs[10], arg1 = regs[11], arg2 = regs[12], retval, ipi_type;
+ 
+   switch (n)
+   {
+@@ -244,6 +277,10 @@ send_ipi:
+       retval = mcall_set_timer(arg0);
+ #endif
+       break;
++    case SBI_FENCE_DMA:
++      mcall_fence_dma(arg0, arg1, arg2);
++      retval = 0;
++      break;
+     case SBI_PMU:
+       mcall_set_pmu(arg0);
+       retval = 0;
+-- 
+2.7.4
+
