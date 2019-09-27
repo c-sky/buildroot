@@ -1,7 +1,7 @@
-From 6d6cfacd187df6aabcd0b2da347236acdfa44736 Mon Sep 17 00:00:00 2001
+From b2e46a23c0d02d0849ac35d99658eaca83c14f1d Mon Sep 17 00:00:00 2001
 From: Guo Ren <ren_guo@c-sky.com>
 Date: Mon, 23 Sep 2019 17:01:53 +0800
-Subject: [PATCH V2] riscv: Support non-coherency memory model
+Subject: [PATCH] riscv: Support non-coherency memory model
 
 The current riscv linux implementation requires SOC system to support
 memory coherence between all I/O devices and CPUs. But some SOC systems
@@ -30,7 +30,7 @@ Here are the two points that riscv linux needs to be modified:
    BIT(60): SH - Shareable
    BIT(59): SE - Security
 
- - Add SBI_FENCE_DMA 9 in riscv-sbi.
+ - Add SBI_FENCE_DMA in riscv-sbi.
    sbi_fence_dma(start, size, dir) could synchronize CPU cache data with
    DMA device in non-coherency memory model. The third param's definition
    is the same with linux's in include/linux/dma-direction.h:
@@ -76,14 +76,16 @@ Tested-by: Liu Yibin <yibin_liu@c-sky.com>
 ---
  arch/riscv/Kconfig                    |  5 +++
  arch/riscv/include/asm/cacheflush.h   |  3 ++
+ arch/riscv/include/asm/io.h           | 18 +++++-----
  arch/riscv/include/asm/pgtable-64.h   |  2 +-
- arch/riscv/include/asm/pgtable-bits.h | 12 +++++-
- arch/riscv/include/asm/pgtable.h      | 35 +++++++++++++++---
+ arch/riscv/include/asm/pgtable-bits.h | 12 ++++++-
+ arch/riscv/include/asm/pgtable.h      | 45 +++++++++++++++++++----
+ arch/riscv/include/asm/sbi.h          | 10 ++++++
  arch/riscv/mm/Makefile                |  1 +
- arch/riscv/mm/cacheflush.c            | 20 ++++++++++
- arch/riscv/mm/dma-mapping.c           | 69 +++++++++++++++++++++++++++++++++++
- arch/riscv/mm/ioremap.c               | 16 +++++++-
- 9 files changed, 154 insertions(+), 9 deletions(-)
+ arch/riscv/mm/cacheflush.c            |  1 +
+ arch/riscv/mm/dma-mapping.c           | 67 +++++++++++++++++++++++++++++++++++
+ arch/riscv/mm/ioremap.c               | 40 ++++++++++++---------
+ 11 files changed, 170 insertions(+), 34 deletions(-)
  create mode 100644 arch/riscv/mm/dma-mapping.c
 
 diff --git a/arch/riscv/Kconfig b/arch/riscv/Kconfig
@@ -125,6 +127,40 @@ index 8f13074..cfc1f80 100644
  static inline void local_flush_icache_all(void)
  {
  	asm volatile ("fence.i" ::: "memory");
+diff --git a/arch/riscv/include/asm/io.h b/arch/riscv/include/asm/io.h
+index 1d9c137..7982d46 100644
+--- a/arch/riscv/include/asm/io.h
++++ b/arch/riscv/include/asm/io.h
+@@ -20,20 +20,20 @@
+ #define _ASM_RISCV_IO_H
+ 
+ #include <linux/types.h>
+-
+-extern void __iomem *ioremap(phys_addr_t offset, unsigned long size);
++#include <asm/pgtable.h>
+ 
+ /*
+- * The RISC-V ISA doesn't yet specify how to query or modify PMAs, so we can't
+- * change the properties of memory regions.  This should be fixed by the
+- * upcoming platform spec.
++ * I/O memory mapping functions.
+  */
+-#define ioremap_nocache(addr, size) ioremap((addr), (size))
+-#define ioremap_wc(addr, size) ioremap((addr), (size))
+-#define ioremap_wt(addr, size) ioremap((addr), (size))
+-
++extern void __iomem *ioremap_cache(phys_addr_t addr, size_t size);
++extern void __iomem *__ioremap(phys_addr_t addr, size_t size, pgprot_t prot);
+ extern void iounmap(volatile void __iomem *addr);
+ 
++#define ioremap(addr, size)		__ioremap((addr), (size), pgprot_noncached(PAGE_KERNEL))
++#define ioremap_wc(addr, size)		__ioremap((addr), (size), pgprot_writecombine(PAGE_KERNEL))
++#define ioremap_nocache(addr, size)	ioremap((addr), (size))
++#define ioremap_cache			ioremap_cache
++
+ /* Generic IO read/write.  These perform native-endian accesses. */
+ #define __raw_writeb __raw_writeb
+ static inline void __raw_writeb(u8 val, volatile void __iomem *addr)
 diff --git a/arch/riscv/include/asm/pgtable-64.h b/arch/riscv/include/asm/pgtable-64.h
 index 7aa0ea9..ed62c5f 100644
 --- a/arch/riscv/include/asm/pgtable-64.h
@@ -168,7 +204,7 @@ index 470755c..4e8ae2a 100644
  
  #endif /* _ASM_RISCV_PGTABLE_BITS_H */
 diff --git a/arch/riscv/include/asm/pgtable.h b/arch/riscv/include/asm/pgtable.h
-index 1141364..0087385 100644
+index 1141364..8261bd2 100644
 --- a/arch/riscv/include/asm/pgtable.h
 +++ b/arch/riscv/include/asm/pgtable.h
 @@ -42,9 +42,11 @@
@@ -224,7 +260,7 @@ index 1141364..0087385 100644
  }
  
  #define pte_page(x)     pfn_to_page(pte_pfn(x))
-@@ -375,6 +382,22 @@ static inline int ptep_clear_flush_young(struct vm_area_struct *vma,
+@@ -375,6 +382,32 @@ static inline int ptep_clear_flush_young(struct vm_area_struct *vma,
  	return ptep_test_and_clear_young(vma, address, ptep);
  }
  
@@ -239,14 +275,57 @@ index 1141364..0087385 100644
 +	unsigned long prot = pgprot_val(_prot);
 +
 +	prot &= ~(_PAGE_CACHE | _PAGE_BUF);
++	prot |= _PAGE_SO;
 +
 +	return __pgprot(prot);
 +}
 +
++#define pgprot_writecombine pgprot_writecombine
++static inline pgprot_t pgprot_writecombine(pgprot_t _prot)
++{
++	unsigned long prot = pgprot_val(_prot);
++
++	prot &= ~(_PAGE_CACHE | _PAGE_BUF);
++
++	return __pgprot(prot);
++}
 +
  /*
   * Encode and decode a swap entry
   *
+diff --git a/arch/riscv/include/asm/sbi.h b/arch/riscv/include/asm/sbi.h
+index b6bb10b..c5d1f3b 100644
+--- a/arch/riscv/include/asm/sbi.h
++++ b/arch/riscv/include/asm/sbi.h
+@@ -25,6 +25,7 @@
+ #define SBI_REMOTE_SFENCE_VMA 6
+ #define SBI_REMOTE_SFENCE_VMA_ASID 7
+ #define SBI_SHUTDOWN 8
++#define SBI_FENCE_DMA 901
+ 
+ #define SBI_CALL(which, arg0, arg1, arg2) ({			\
+ 	register uintptr_t a0 asm ("a0") = (uintptr_t)(arg0);	\
+@@ -42,6 +43,8 @@
+ #define SBI_CALL_0(which) SBI_CALL(which, 0, 0, 0)
+ #define SBI_CALL_1(which, arg0) SBI_CALL(which, arg0, 0, 0)
+ #define SBI_CALL_2(which, arg0, arg1) SBI_CALL(which, arg0, arg1, 0)
++#define SBI_CALL_3(which, arg0, arg1, arg2) \
++			SBI_CALL(which, arg0, arg1, arg2)
+ 
+ static inline void sbi_console_putchar(int ch)
+ {
+@@ -97,4 +100,11 @@ static inline void sbi_remote_sfence_vma_asid(const unsigned long *hart_mask,
+ 	SBI_CALL_1(SBI_REMOTE_SFENCE_VMA_ASID, hart_mask);
+ }
+ 
++static inline void sbi_fence_dma(unsigned long start,
++				 unsigned long size,
++				 unsigned long dir)
++{
++	SBI_CALL_3(SBI_FENCE_DMA, start, size, dir);
++}
++
+ #endif
 diff --git a/arch/riscv/mm/Makefile b/arch/riscv/mm/Makefile
 index b68aac7..adc563a 100644
 --- a/arch/riscv/mm/Makefile
@@ -257,46 +336,23 @@ index b68aac7..adc563a 100644
  obj-y += cacheflush.o
 +obj-y += dma-mapping.o
 diff --git a/arch/riscv/mm/cacheflush.c b/arch/riscv/mm/cacheflush.c
-index 498c0a0..eac623d 100644
+index 498c0a0..fc86a54 100644
 --- a/arch/riscv/mm/cacheflush.c
 +++ b/arch/riscv/mm/cacheflush.c
-@@ -13,6 +13,10 @@
+@@ -13,6 +13,7 @@
  
  #include <asm/pgtable.h>
  #include <asm/cacheflush.h>
 +#include <asm/sbi.h>
-+
-+//#define sync_is()	sbi_remote_sync_is()
-+#define sync_is()	asm volatile (".long 0x01b0000b")
  
  void flush_icache_pte(pte_t pte)
  {
-@@ -21,3 +25,19 @@ void flush_icache_pte(pte_t pte)
- 	if (!test_and_set_bit(PG_dcache_clean, &page->flags))
- 		flush_icache_all();
- }
-+
-+void dma_wbinv_range(unsigned long start, unsigned long end)
-+{
-+	register unsigned long i asm("a0") = start & ~(L1_CACHE_BYTES - 1);
-+return;
-+	for (; i < end; i += L1_CACHE_BYTES)
-+		asm volatile (".long 0x0275000b"); /* dcache.civa a0 */
-+		//sbi_remote_fence_d(i);
-+
-+	sync_is();
-+}
-+
-+void dma_wb_range(unsigned long start, unsigned long end)
-+{
-+	dma_wbinv_range(start, end);
-+}
 diff --git a/arch/riscv/mm/dma-mapping.c b/arch/riscv/mm/dma-mapping.c
 new file mode 100644
-index 0000000..7926d4f
+index 0000000..949cef6
 --- /dev/null
 +++ b/arch/riscv/mm/dma-mapping.c
-@@ -0,0 +1,69 @@
+@@ -0,0 +1,67 @@
 +// SPDX-License-Identifier: GPL-2.0
 +// Copyright (C) 2018 Hangzhou C-SKY Microsystems co.,ltd.
 +
@@ -321,10 +377,9 @@ index 0000000..7926d4f
 +
 +void arch_dma_prep_coherent(struct page *page, size_t size)
 +{
-+	void *ptr = page_address(page);
++	memset(page_address(page), 0, size);
 +
-+	memset(ptr, 0, size);
-+	dma_wbinv_range((unsigned long)ptr, (unsigned long)ptr + size);
++	sbi_fence_dma(page_to_phys(page), size, DMA_BIDIRECTIONAL);
 +}
 +
 +static inline void cache_op(phys_addr_t paddr, size_t size,
@@ -340,11 +395,11 @@ index 0000000..7926d4f
 +{
 +	switch (dir) {
 +	case DMA_TO_DEVICE:
-+		cache_op(paddr, size, dma_wb_range);
++		sbi_fence_dma(paddr, size, DMA_TO_DEVICE);
 +		break;
 +	case DMA_FROM_DEVICE:
 +	case DMA_BIDIRECTIONAL:
-+		cache_op(paddr, size, dma_wbinv_range);
++		sbi_fence_dma(paddr, size, DMA_BIDIRECTIONAL);
 +		break;
 +	default:
 +		BUG();
@@ -356,30 +411,57 @@ index 0000000..7926d4f
 +{
 +	switch (dir) {
 +	case DMA_TO_DEVICE:
-+		cache_op(paddr, size, dma_wb_range);
-+		break;
++		return;
 +	case DMA_FROM_DEVICE:
 +	case DMA_BIDIRECTIONAL:
-+		cache_op(paddr, size, dma_wbinv_range);
++		sbi_fence_dma(paddr, size, DMA_FROM_DEVICE);
 +		break;
 +	default:
 +		BUG();
 +	}
 +}
 diff --git a/arch/riscv/mm/ioremap.c b/arch/riscv/mm/ioremap.c
-index bd2f2db..bfcab8b 100644
+index bd2f2db..2700da1 100644
 --- a/arch/riscv/mm/ioremap.c
 +++ b/arch/riscv/mm/ioremap.c
-@@ -73,7 +73,7 @@ static void __iomem *__ioremap_caller(phys_addr_t addr, size_t size,
-  */
- void __iomem *ioremap(phys_addr_t offset, unsigned long size)
+@@ -58,26 +58,19 @@ static void __iomem *__ioremap_caller(phys_addr_t addr, size_t size,
+ 	return (void __iomem *)(vaddr + offset);
+ }
+ 
+-/*
+- * ioremap     -   map bus memory into CPU space
+- * @offset:    bus address of the memory
+- * @size:      size of the resource to map
+- *
+- * ioremap performs a platform specific sequence of operations to
+- * make bus memory CPU accessible via the readb/readw/readl/writeb/
+- * writew/writel functions and the other mmio helpers. The returned
+- * address is not guaranteed to be usable directly as a virtual
+- * address.
+- *
+- * Must be freed with iounmap.
+- */
+-void __iomem *ioremap(phys_addr_t offset, unsigned long size)
++void __iomem *__ioremap(phys_addr_t phys_addr, size_t size, pgprot_t prot)
  {
 -	return __ioremap_caller(offset, size, PAGE_KERNEL,
-+	return __ioremap_caller(offset, size, PAGE_KERNEL_SO,
- 		__builtin_return_address(0));
+-		__builtin_return_address(0));
++	return __ioremap_caller(phys_addr, size, prot,
++				__builtin_return_address(0));
  }
- EXPORT_SYMBOL(ioremap);
-@@ -90,3 +90,17 @@ void iounmap(volatile void __iomem *addr)
+-EXPORT_SYMBOL(ioremap);
++EXPORT_SYMBOL(__ioremap);
+ 
++void __iomem *ioremap_cache(phys_addr_t phys_addr, size_t size)
++{
++	return __ioremap_caller(phys_addr, size, PAGE_KERNEL,
++				__builtin_return_address(0));
++}
++EXPORT_SYMBOL(ioremap_cache);
+ 
+ /**
+  * iounmap - Free a IO remapping
+@@ -90,3 +83,16 @@ void iounmap(volatile void __iomem *addr)
  	vunmap((void *)((unsigned long)addr & PAGE_MASK));
  }
  EXPORT_SYMBOL(iounmap);
@@ -388,10 +470,9 @@ index bd2f2db..bfcab8b 100644
 +			      unsigned long size, pgprot_t vma_prot)
 +{
 +	if (!pfn_valid(pfn)) {
-+		vma_prot.pgprot |= _PAGE_SO;
 +		return pgprot_noncached(vma_prot);
 +	} else if (file->f_flags & O_SYNC) {
-+		return pgprot_noncached(vma_prot);
++		return pgprot_writecombine(vma_prot);
 +	}
 +
 +	return vma_prot;
