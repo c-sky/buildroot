@@ -27,7 +27,8 @@ define RISCV_PK_C910_BUILD_CMDS
 endef
 
 define RISCV_PK_C910_INSTALL_IMAGES_CMDS
-	$(INSTALL) -D -m 0755 $(@D)/build/bbl $(BINARIES_DIR)/c910/bbl
+	$(INSTALL) -D -m 0755 $(@D)/build/bbl $(BINARIES_DIR)/hw/bbl.elf
+	$(TARGET_OBJCOPY) -O binary $(@D)/build/bbl $(BINARIES_DIR)/hw/bbl.bin
 endef
 
 $(eval $(generic-package))
