@@ -1,0 +1,75 @@
+# Set the JTAG address according to C-SKY debugserver settings
+tar remote 172.16.150.ip:1025
+
+# Set gdb environment
+set height 0
+
+# FPGA demultiplex
+set *(unsigned int *) 0x1fbad008=0xff
+
+# Invalidate & Clear IBP BTB BHT ICache & DCache
+set $mcor = 0x70013
+
+# Enable Lbuf WAY_PRED DATA_CACHE_PREFETCH AMR
+set $mhint = 0x7e30c
+
+# Enable l2 Cache
+set $mccr2 = 0xe0010009
+
+# Enable ICache DCACHE BHT BTB IBP RAS WA
+set $mhcr = 0x11ff
+
+# Enable user cache maintenance for network
+# Enable csky MMU attribute extension for network
+# Enable csky ISA extension
+# Enable clintee
+# Enable misalign mask
+set $mxstatus = 0x638000
+
+# Refer to riscv-privileged-v1.11.pdf 3.6 Physical Memory Protection
+# 0x00000000 ~ 0x20000000 plic/clint area  NAPOT mode, rw
+set $pmpaddr0 = 0x20000000 >> 2 | ((0x08000000 - 1) >> 3)
+# 0xc0000000 ~ 0xe0000000 ddr area  NAPOT mode, rwx
+set $pmpaddr1 = 0xc0000000 >> 2 | ((0x20000000 - 1) >> 3)
+# 0xe0000000 ~ 0xf0000000 ddr area  NAPOT mode, rwx
+set $pmpaddr2 = 0xe0000000 >> 2 | ((0x10000000 - 1) >> 3)
+# 0xfff40000 ~ 0xfff80000 soc io area  NAPOT mode, rw
+set $pmpaddr3 = 0xfff40000 >> 2 | ((0x40000 - 1) >> 3)
+# 0xfff80000 ~ 0x100000000 soc io area  NAPOT mode, rw
+set $pmpaddr4 = 0xfff80000 >> 2 | ((0x80000 - 1) >> 3)
+set $pmpcfg0 = 0x1b1b1f1f1b
+
+#0x0000 0000 ~ 0xf000 0000  DDR rwx  TOR
+#set $pmpaddr0 = 0xf0000000 >> 2
+#0xf000 0000 ~ 0xf800 0000 plic & clint rw   TOR
+#set $pmpaddr1 = 0xf8000000 >> 2
+#0xfffc 0000 ~ 0xfffc 2000 gmac rw   NAPOT
+#set $pmpaddr2 = 0xfffc0000 >> 2 | ((0x2000 - 1) >> 3)
+#0xfff7 3000 ~ 0xfff7 4000 serial rw   NAPOT
+#set $pmpaddr3 = 0xfff73000 >> 2 | ((0x1000 - 1) >> 3)
+#set $pmpcfg0 = 0x1b1b0b0f
+
+set $bbl_addr = 0xc0000000
+set $vmlinux_addr = $bbl_addr + 0x00200000
+set $dtb_addr = $bbl_addr + 0x17000000
+
+# Load bbl
+restore bbl.bin binary $bbl_addr
+
+# Load the debugging elf file
+restore Image binary $vmlinux_addr
+
+# Store dtb to memory
+restore c960_lite.dtb binary $dtb_addr
+
+# Pass dtb memory addr to reg as the argument to kernel
+set $a1 = $dtb_addr
+
+# Start from bbl
+set $pc = $bbl_addr
+
+disp /i $pc
+
+c
+
+#q

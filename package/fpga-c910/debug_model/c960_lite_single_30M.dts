@@ -1,0 +1,98 @@
+/dts-v1/;
+/ {
+	model = "csky ck960_platform";
+	compatible = "csky,ck960_platform";
+	#address-cells = <2>;
+	#size-cells = <2>;
+
+	memory@0 {
+		device_type = "memory";
+		reg = <0x00000000 0xc0200000 0x00000000 0x3fe00000>;
+	};
+
+	cpus {
+		#address-cells = <0x00000001>;
+		#size-cells = <0x00000000>;
+		timebase-frequency = <30000000>;
+		cpu@0 {
+			device_type = "cpu";
+			reg = <0x00000000>;
+			status = "okay";
+			compatible = "riscv";
+			riscv,isa = "rv64imafdcsu";
+			mmu-type = "riscv,sv39";
+			clock-frequency = <30000000>;
+			interrupt-controller {
+				#interrupt-cells = <0x00000001>;
+				interrupt-controller;
+				compatible = "riscv,cpu-intc";
+				linux,phandle = <0x00000001>;
+				phandle = <0x00000001>;
+			};
+		};
+	};
+
+	soc {
+		#address-cells = <2>;
+		#size-cells = <2>;
+		compatible = "simple-bus";
+		ranges;
+
+		intc: interrupt-controller@20000000 {
+			linux,phandle = <0x00000002>;
+			phandle = <0x00000002>;
+			riscv,ndev = <64>;
+			riscv,max-priority = <0x00000007>;
+			reg-names = "control";
+			reg = <0x00000000 0x20000000 0x00000000 0x04000000>;
+			interrupts-extended = <0x00000001 0xffffffff 0x00000001 0x00000009>;
+			interrupt-controller;
+			compatible = "riscv,plic0";
+			#interrupt-cells = <0x00000001>;
+		};
+
+		dummy_apb: apb-clock {
+			compatible = "fixed-clock";
+			clock-frequency = <30000000>;
+			clock-output-names = "dummy_apb";
+			#clock-cells = <0>;
+		};
+
+		serial@1fba4000 {
+			compatible = "snps,dw-apb-uart";
+			reg = <0x0 0x1fba4000 0x0 0x1000>;
+			interrupt-parent = <&intc>;
+			interrupts = <27>;
+			clocks = <&dummy_apb>;
+			clock-names = "baudclk";
+			reg-shift = <2>;
+			reg-io-width = <4>;
+		};
+
+		timer0: timer {
+			compatible = "riscv,960";
+		};
+
+		pmu: pmu {
+			compatible = "riscv,c910_pmu";
+		};
+
+		gmac: ethernet@1FB10000 {
+		    compatible = "snps,dwmac";
+		    reg = <0x0 0x1FB10000 0x0 0x2000>;
+		    interrupt-parent = <&intc>;
+		    interrupts = <50>;
+		    interrupt-names = "macirq";
+		    clocks = <&dummy_apb>;
+		    clock-names = "stmmaceth";
+		    snps,pbl = <32>;
+		    snps,fixed-burst;
+		    phy-mode = "mii";
+		};
+	};
+
+	chosen {
+		bootargs = "console=ttyS0,115200";
+		stdout-path = "serial@1fba4000";
+	};
+};

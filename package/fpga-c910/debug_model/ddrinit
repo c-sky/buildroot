@@ -1,0 +1,15 @@
+# Set the JTAG address according to C-SKY debugserver settings
+tar remote 172.16.150.ip:1025
+
+# Set gdb environment
+set height 0
+
+# Reset target board
+reset
+
+# Load the debugging elf file
+load
+
+disp /i $pc
+c
+q
