@@ -11,7 +11,7 @@ image: maohan001/ubuntu-buildroot
 
 stages:
   - wait-for-trigger
-  - qemu-build
+  - build
   - qemu-test
 
 variables:
@@ -113,7 +113,7 @@ wait_for_trigger:
 ################ 610 ################
 # qemu
 .610_qemu_build: &610_qemu_build
-    stage: qemu-build
+    stage: build
     <<: *common_builds
 
 .610_qemu_test: &610_qemu_test
@@ -148,7 +148,7 @@ wait_for_trigger:
 ################ 807 ################
 # qemu
 .807_qemu_build: &807_qemu_build
-    stage: qemu-build
+    stage: build
     <<: *common_builds
 
 .807_qemu_test: &807_qemu_test
@@ -183,7 +183,7 @@ wait_for_trigger:
 ################ 810 ################
 # qemu
 .810_qemu_build: &810_qemu_build
-    stage: qemu-build
+    stage: build
     <<: *common_builds
 
 .810_qemu_test: &810_qemu_test
@@ -224,7 +224,7 @@ wait_for_trigger:
 ################ 860 ################
 # qemu
 .860_qemu_build: &860_qemu_build
-    stage: qemu-build
+    stage: build
     <<: *common_builds
 
 .860_qemu_test: &860_qemu_test
@@ -259,7 +259,7 @@ wait_for_trigger:
 ################ 910 ################
 # qemu
 .910_qemu_build: &910_qemu_build
-    stage: qemu-build
+    stage: build
     <<: *common_builds
 
 .910_qemu_test: &910_qemu_test
