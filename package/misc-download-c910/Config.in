@@ -1,0 +1,7 @@
+config BR2_PACKAGE_MISC_DOWNLOAD_C910
+	bool "misc-download-c910"
+	depends on BR2_riscv
+	depends on BR2_LINUX_KERNEL
+	default y if BR2_riscv
+	help
+	  https://github.com/c-sky/910_misc_downloads.git
