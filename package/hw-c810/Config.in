@@ -1,0 +1,4 @@
+config BR2_PACKAGE_HW_C810
+	bool
+	depends on BR2_ck810
+	default y if BR2_ck810

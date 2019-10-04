@@ -1,0 +1,83 @@
+/dts-v1/;
+
+/ {
+	model = "T-HEAD C810 DH7200 Lite Board";
+	compatible = "thead,c810-dh7200";
+	#address-cells = <1>;
+	#size-cells = <1>;
+
+	memory {
+		device_type = "memory";
+		reg = <0xC0000000 0x40000000>;
+	};
+
+	aliases {
+		serial0 = &uart0;
+	};
+
+	soc {
+		#address-cells = <1>;
+		#size-cells = <1>;
+		compatible = "simple-bus";
+		ranges;
+
+		dummy_apb: apb-clock {
+			compatible = "fixed-clock";
+			clock-frequency = <62500000>;
+			clock-output-names = "dummy_apb";
+			#clock-cells = <0>;
+		};
+
+	        dummy_axi: axi-clock {
+			compatible = "fixed-clock";
+			clock-frequency = <932000000>;
+			clock-output-names = "dummy_axi";
+			#clock-cells = <0>;
+		};
+
+		intc: interrupt-controller {
+			compatible = "csky,dh7k-intc";
+			reg = <0x17000000 0x1000>;
+			interrupt-controller;
+			#interrupt-cells = <1>;
+		};
+
+		uart0: serial@14030000 {
+			compatible = "snps,dw-apb-uart";
+			device_type = "serial";
+			reg = <0x14030000 0x1000>;
+			interrupt-parent = <&intc>;
+			interrupts = <12>;
+			clocks = <&dummy_apb>;
+			clock-names = "baudclk";
+			baud = <115200>;
+			reg-shift = <2>;
+			reg-io-width = <4>;
+		};
+
+		/* clockevent */
+		timer0 {
+			compatible = "snps,dw-apb-timer";
+			reg = <0x14000000 0x14>;
+			clocks = <&dummy_apb>;
+			clock-names = "timer";
+			interrupts = <1>;
+			interrupt-parent = <&intc>;
+		};
+
+		/* clocksource */
+		timer1 {
+			compatible = "snps,dw-apb-timer";
+			reg = <0x14000014 0x800>;
+			clocks = <&dummy_apb>;
+			clock-names = "timer";
+			interrupts = <2>;
+			interrupt-parent = <&intc>;
+		};
+	};
+
+	chosen {
+		bootargs = "console=ttyS0,115200 rdinit=/sbin/init root=/dev/ram0";
+	};
+};
+

@@ -1,0 +1,4 @@
+config BR2_PACKAGE_HW_C610
+	bool
+	depends on BR2_ck610
+	default y if BR2_ck610
