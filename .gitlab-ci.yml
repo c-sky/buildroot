@@ -82,7 +82,7 @@ wait_for_trigger:
 .common_test_script: &common_test_script
     - echo 'Prepare to run'
     - mkdir -p output/host/
-    - tar -xf output/images/csky_toolchain_*.tar.xz -C output/host
+    - tar -xf output/images/toolchain_*.tar.xz -C output/host
     - if [ -f output/images/vmlinux.xz ]; then
           xz -d output/images/vmlinux.xz;
       fi

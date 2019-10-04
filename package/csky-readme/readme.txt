@@ -3,13 +3,13 @@
 Quick Start for qemu run
 ========================
  echo "First download the files.";
- wget https://gitlab.com/c-sky/buildroot/-/jobs/<buildroot-job_id>/artifacts/raw/output/images/csky_toolchain_<buildroot-config>_<buildroot-version>.tar.xz;
+ wget https://gitlab.com/c-sky/buildroot/-/jobs/<buildroot-job_id>/artifacts/raw/output/images/toolchain_<buildroot-config>_<buildroot-version>.tar.xz;
  wget https://gitlab.com/c-sky/buildroot/-/jobs/<buildroot-job_id>/artifacts/raw/output/images/vmlinux.xz;
 
  echo "Now let's run on qemu";
  xz -d vmlinux.xz;
  mkdir host;
- tar -Jxf csky_toolchain_<buildroot-config>_<buildroot-version>.tar.xz -C host;
+ tar -Jxf toolchain_<buildroot-config>_<buildroot-version>.tar.xz -C host;
  qemu_start_cmd;
 
  (PS. Login with username "root", and no password)

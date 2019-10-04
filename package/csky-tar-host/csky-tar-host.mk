@@ -12,7 +12,7 @@ define CSKY_TAR_HOST_TARBALL
 	if [ -f ./bin/qemu-img ]; then \
 		mkdir ./csky-qemu/bin -p; cp ./bin/qemu-system-* ./csky-qemu/bin/; \
 	fi; \
-	tar -cJf $(BINARIES_DIR)/csky_toolchain_$${BUILDROOT_CONFIG}_$${BUILDROOT_VERSION}.tar.xz ./; \
+	tar -cJf $(BINARIES_DIR)/toolchain_$${BUILDROOT_CONFIG}_$${BUILDROOT_VERSION}.tar.xz ./; \
 	cd - ; \
 	)
 endef
