@@ -1,11 +1,8 @@
 # Set the JTAG address according to C-SKY debugserver settings
-tar remote 172.16.150.ip:1025
+#tar remote 172.16.150.ip:1025
 
 # Set gdb environment
 set height 0
-
-# Don't confirm when offing
-set confirm off
 
 # FPGA demultiplex
 set *(unsigned int *) 0x1fbad008=0xff
@@ -15,9 +12,6 @@ set $mcor = 0x70013
 
 # Enable Lbuf WAY_PRED DATA_CACHE_PREFETCH AMR
 set $mhint = 0x7e30c
-
-# Enable L2 Cache
-set $mccr2 = 0xe0010009
 
 # Enable ICache DCACHE BHT BTB IBP RAS WA
 set $mhcr = 0x11ff
@@ -30,15 +24,16 @@ set $mhcr = 0x11ff
 set $mxstatus = 0x638000
 
 # Refer to riscv-privileged-v1.11.pdf 3.6 Physical Memory Protection
-# 0x1fba4000 ~ 0x1fba5000 serial rw   NAPOT
-set $pmpaddr0 = 0x1fba4000 >> 2 | ((0x1000 - 1) >> 3)
-# 0x1fb10000 ~ 0x1fb12000 gmac rw   NAPOT
-set $pmpaddr1 = 0x1fb10000 >> 2 | ((0x2000 - 1) >> 3)
-# 0x20000000 ~ 0x28000000 plic & clint rw  NAPOT
-set $pmpaddr2 = 0x20000000 >> 2 | ((0x08000000 - 1) >> 3)
-# 0xc0000000 ~ 0x100000000 DDR rwx  NAPOT
-set $pmpaddr3 = 0xc0000000 >> 2 | ((0x40000000 - 1) >> 3)
-set $pmpcfg0 = 0x1f1b1b1b
+# area1: 0x00000000 ~ 0x20000000 soc io area
+set $pmpaddr0 = 0x0 >> 2 | ((0x20000000 - 1) >> 3)
+# area2: 0x20000000 ~ 0x28000000 plic/clint area
+set $pmpaddr1 = 0x20000000 >> 2 | ((0x08000000 - 1) >> 3)
+# area3: 0xc0000000 ~ 0x100000000 ddr area
+set $pmpaddr2 = 0xc0000000 >> 2 | ((0x40000000 - 1) >> 3)
+# area1: NAPOT mode, r/w
+# area2: NAPOT mode, r/w
+# area3: NAPOT mode, r/w/x
+set $pmpcfg0 = 0x1f1b1b
 
 set $bbl_addr = 0xc0000000
 set $vmlinux_addr = $bbl_addr + 0x00200000
@@ -48,7 +43,15 @@ set $dtb_addr = $bbl_addr + 0x17000000
 restore bbl.bin binary $bbl_addr
 
 # Load the debugging elf file
-restore ../Image binary $vmlinux_addr
+restore Image binary $vmlinux_addr
+
+# For 0508 bit cleaning L2 cache
+set *0xd7000000=0x0160000b
+set $pc=0xd7000000
+si
+
+# Enable L2 Cache
+set $mccr2 = 0xe0010009
 
 # Store dtb to memory
 restore c960_lite.dtb binary $dtb_addr

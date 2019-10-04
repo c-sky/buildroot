@@ -1,11 +1,14 @@
 ##############################################################################
 #
-# fpga-c910
+# hw-c910
 #
 ##############################################################################
 
-define BR2_FPGA_C910_COPY
+HW_C910_INSTALL_IMAGES = YES
+
+define HW_C910_INSTALL_IMAGES_CMDS
 	mkdir -p $(BINARIES_DIR)/hw/
-	cp package/fpga-c910/debug_model/* $(BINARIES_DIR)/hw/ -raf
+	cp package/hw-c910/hw/* $(BINARIES_DIR)/hw/ -raf
 endef
-LINUX_POST_INSTALL_IMAGES_HOOKS += BR2_FPGA_C910_COPY
+
+$(eval $(generic-package))
