@@ -4,11 +4,13 @@
 #
 ##############################################################################
 
+CSKY_README_INSTALL_IMAGES = YES
+
 CSKY_README_BD_VERSION=$(shell git log --pretty=oneline | head -1 | awk '{print $$1}')
 CSKY_README_BD_CONFIG=$(shell grep BR2_DEFCONFIG $(CONFIG_DIR)/.config | awk -F/ '{print $$NF}'| sed 's/\"//g')
 CSKY_README_CK860=$(shell grep BR2_ck860=y $(CONFIG_DIR)/.config)
 
-define CSKY_README_SETUP 
+define CSKY_README_INSTALL_IMAGES_CMDS
 	@echo $(CSKY_README_BD_CONFIG)
 	@echo $(CSKY_README_BD_VERSION)
 	@echo $(CSKY_README_JOB_ID)
@@ -34,4 +36,5 @@ define CSKY_README_SETUP
 	echo Jtag:$(CSKY_DEBUG_VERSION) >> $(BINARIES_DIR)/readme.txt; \
 	cp $(BINARIES_DIR)/readme.txt $(HOST_DIR)/;
 endef
-LINUX_POST_INSTALL_IMAGES_HOOKS += CSKY_README_SETUP
+
+$(eval $(generic-package))

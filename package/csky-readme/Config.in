@@ -1,0 +1,4 @@
+config BR2_PACKAGE_CSKY_README
+	bool
+	depends on BR2_csky
+	default y if BR2_csky

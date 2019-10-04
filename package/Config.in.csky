@@ -7,4 +7,5 @@ menu "T-HEAD extension"
 	source "package/hw-c860/Config.in"
 	source "package/hw-c810/Config.in"
 	source "package/hw-c610/Config.in"
+	source "package/csky-readme/Config.in"
 endmenu

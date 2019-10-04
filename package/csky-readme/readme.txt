@@ -83,8 +83,7 @@ Build buildroot
  git clone https://gitlab.com/c-sky/buildroot.git;
  cd buildroot;
  git checkout <buildroot-version>;
- make <buildroot-config>;
- make;
+ make CONF=<buildroot-config>;
 
 
 Gitlab-CI url
@@ -93,5 +92,3 @@ Gitlab-CI url
 
 
 Versions:
-=========
-
