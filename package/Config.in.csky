@@ -4,4 +4,5 @@ menu "T-HEAD extension"
 	source "package/riscv-pk-c910/Config.in"
 	source "package/misc-download-c910/Config.in"
 	source "package/hw-c910/Config.in"
+	source "package/hw-c860/Config.in"
 endmenu

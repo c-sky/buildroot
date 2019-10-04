@@ -1,0 +1,95 @@
+/dts-v1/;
+/ {
+	model = "T-HEAD C860 Lite Platform";
+	compatible = "thead,c860-lite-platform";
+	#address-cells = <1>;
+	#size-cells = <1>;
+
+	cpus {
+		#address-cells = <1>;
+		#size-cells = <0>;
+		cpu@0 {
+			device_type = "cpu";
+			reg = <0>;
+			status = "ok";
+		};
+
+		cpu@1 {
+			device_type = "cpu";
+			reg = <1>;
+			status = "ok";
+		};
+	};
+
+	memory {
+		device_type = "memory";
+		reg = <0xc0000000 0x40000000>;
+	};
+
+	aliases {
+		ethernet0 = &gmac;
+		serial0 = &uart0;
+	};
+
+	soc {
+		#address-cells = <1>;
+		#size-cells = <1>;
+		compatible = "simple-bus";
+		ranges;
+
+		dummy_apb: apb-clock {
+			compatible = "fixed-clock";
+			clock-frequency = <60000000>;
+			clock-output-names = "dummy_apb";
+			#clock-cells = <0>;
+		};
+
+		intc: interrupt-controller {
+			compatible = "csky,mpintc";
+			interrupt-controller;
+			#interrupt-cells = <1>;
+		};
+
+		timer0: timer {
+			compatible = "csky,mptimer";
+			clocks = <&dummy_apb>;
+			interrupts = <16>;
+			interrupt-parent = <&intc>;
+		};
+
+		pmu0: pmu {
+			compatible = "csky,csky-pmu";
+			interrupts = <23 1>;
+			interrupt-parent = <&intc>;
+		};
+
+		uart0: serial@1FBA4000 {
+			compatible = "snps,dw-apb-uart";
+			reg = <0x1FBA4000 0x1000>;
+			interrupt-parent = <&intc>;
+			interrupts = <43>;
+			clocks = <&dummy_apb>;
+			clock-names = "baudclk";
+			reg-shift = <2>;
+			reg-io-width = <4>;
+		};
+
+		gmac: ethernet@1FB10000 {
+			compatible = "snps,dwmac";
+			reg = <0x1FB10000 0x2000>;
+			interrupt-parent = <&intc>;
+			interrupts = <66>;
+			interrupt-names = "macirq";
+			clocks = <&dummy_apb>;
+			clock-names = "stmmaceth";
+			snps,pbl = <32>;
+			snps,fixed-burst;
+			phy-mode = "mii";
+		};
+	};
+
+	chosen {
+		// bootargs = "console=ttyS0,115200 init=/sbin/init root=/dev/nfs rw nfsroot=172.16.28.184:/home/xxx/nfs_rootfs,v3,tcp,nolock ip=172.16.150.100::172.16.150.254:255.255.255.0";
+		bootargs = "console=ttyS0,115200 rdinit=/sbin/init root=/dev/ram0";
+	};
+};

@@ -1,0 +1,4 @@
+config BR2_PACKAGE_HW_C860
+	bool
+	depends on BR2_ck860
+	default y if BR2_ck860
