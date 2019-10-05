@@ -39,7 +39,7 @@ wait_for_trigger:
 .common_build_script: &common_build_script
     - echo 'Configure buildroot'
     - CONFIG_NAME=${PREFIX}${MAIN}${SUFFIX}
-    - export CSKY_README_JOB_ID=${CI_JOB_ID}
+    - export GITLAB_CI_JOB_ID=${CI_JOB_ID}
     - echo ${CONFIG_NAME}
     - echo 'Build buildroot'
     - |

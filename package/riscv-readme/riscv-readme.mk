@@ -12,9 +12,8 @@ RISCV_README_BD_CONFIG=$(shell grep BR2_DEFCONFIG $(CONFIG_DIR)/.config | awk -F
 define RISCV_README_INSTALL_IMAGES_CMDS
 	@echo $(RISCV_README_BD_CONFIG)
 	@echo $(RISCV_README_BD_VERSION)
-	@echo $(RISCV_README_JOB_ID)
 	cp package/riscv-readme/readme.txt $(BINARIES_DIR)/
-	sed -i 's/<buildroot-job_id>/$(RISCV_README_JOB_ID)/g' $(BINARIES_DIR)/readme.txt
+	sed -i 's/<buildroot-job_id>/$(GITLAB_CI_JOB_ID)/g' $(BINARIES_DIR)/readme.txt
 	sed -i 's/<buildroot-config>/$(RISCV_README_BD_CONFIG)/g' $(BINARIES_DIR)/readme.txt
 	sed -i 's/<buildroot-version>/$(RISCV_README_BD_VERSION)/g' $(BINARIES_DIR)/readme.txt
 	sed -i 's/<kernel-version>/$(LINUX_VERSION)/g' $(BINARIES_DIR)/readme.txt
