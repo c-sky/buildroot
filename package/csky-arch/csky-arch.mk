@@ -42,31 +42,7 @@ define CSKY_ARCH_PREPARE_KERNEL
 	cd -;
 	$(APPLY_PATCHES) $(LINUX_DIR) $(CSKY_ARCH_DIR)/patch/ \*.patch || exit 1;
 endef
-
-define CSKY_LINUX_PREPARE_SRC_A
-	if [ ! -f $(LINUX_DIR)/.stamp_patched_csky ]; then \
-	cd $(LINUX_DIR)/../; \
-	rm -rf a; \
-	cp -raf linux-$(LINUX_VERSION) a; \
-	cd -; \
-	fi
-endef
-LINUX_POST_EXTRACT_HOOKS += CSKY_LINUX_PREPARE_SRC_A
 LINUX_POST_EXTRACT_HOOKS += CSKY_ARCH_PREPARE_KERNEL
-
-define CSKY_LINUX_GENERATE_PATCH
-	if [ ! -f $(LINUX_DIR)/.stamp_patched_csky ]; then \
-	cd $(LINUX_DIR)/../; \
-	rm -rf b; \
-	cp -raf linux-$(LINUX_VERSION) b; \
-	rm $(BINARIES_DIR)/linux-$(LINUX_VERSION).patch.xz; \
-	diff -ruN a b > $(BINARIES_DIR)/linux-$(LINUX_VERSION).patch; \
-	xz -z $(BINARIES_DIR)/linux-$(LINUX_VERSION).patch; \
-	cd -; \
-	touch $(LINUX_DIR)/.stamp_patched_csky; \
-	fi
-endef
-LINUX_POST_CONFIGURE_HOOKS += CSKY_LINUX_GENERATE_PATCH
 
 # Prepare linux headers
 ifeq ($(BR2_PACKAGE_LINUX_HEADERS), y)
