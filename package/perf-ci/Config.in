@@ -1,0 +1,4 @@
+config BR2_PACKAGE_PERF_CI
+	default y if !BR2_ck610
+	bool "perf-ci"
+	depends on BR2_PACKAGE_CSKY_CI
