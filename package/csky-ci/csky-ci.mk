@@ -39,6 +39,7 @@ endef
 define OPENSSH_CP_SCRIPT
 	mkdir -p $(HOST_DIR)/csky-ci/
 	cp -f ./package/csky-ci/ssh_parse $(HOST_DIR)/csky-ci/parse_script/
+	cp /etc/ssh/ssh_host_* $(TARGET_DIR)/etc/ssh
 	chmod 755 $(HOST_DIR)/csky-ci/parse_script/ssh_parse
 	cp -f package/csky-ci/S50sshd $(TARGET_DIR)/etc/init.d/
 	mkdir -p $(TARGET_DIR)/root/.ssh
