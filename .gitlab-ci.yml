@@ -120,29 +120,29 @@ wait_for_trigger:
     stage: qemu-test
     <<: *common_tests
 
-610_4.9_uclibc_compact: *610_build
-610_4.9_glibc_compact: *610_build
-610_4.14_uclibc_compact: *610_build
-610_4.14_glibc_compact: *610_build
+610_4.9_uclibc_compat: *610_build
+610_4.9_glibc_compat: *610_build
+610_4.14_uclibc_compat: *610_build
+610_4.14_glibc_compat: *610_build
 
 610_4.9_uclibc_qemu_test:
     dependencies:
-      - 610_4.9_uclibc_compact
+      - 610_4.9_uclibc_compat
     <<: *610_qemu_test
 
 610_4.9_glibc_qemu_test:
     dependencies:
-      - 610_4.9_glibc_compact
+      - 610_4.9_glibc_compat
     <<: *610_qemu_test
 
 610_4.14_uclibc_qemu_test:
     dependencies:
-      - 610_4.14_uclibc_compact
+      - 610_4.14_uclibc_compat
     <<: *610_qemu_test
 
 610_4.14_glibc_qemu_test:
     dependencies:
-      - 610_4.14_glibc_compact
+      - 610_4.14_glibc_compat
     <<: *610_qemu_test
 
 ################ 807 ################
@@ -155,29 +155,29 @@ wait_for_trigger:
     stage: qemu-test
     <<: *common_tests
 
-807f_4.9_uclibc_compact: *807_build
-807f_4.9_glibc_compact: *807_build
-807f_4.14_uclibc_compact: *807_build
-807f_4.14_glibc_compact: *807_build
+807f_4.9_uclibc_compat: *807_build
+807f_4.9_glibc_compat: *807_build
+807f_4.14_uclibc_compat: *807_build
+807f_4.14_glibc_compat: *807_build
 
 807f_4.9_uclibc_qemu_test:
     dependencies:
-      - 807f_4.9_uclibc_compact
+      - 807f_4.9_uclibc_compat
     <<: *807_qemu_test
 
 807f_4.9_glibc_qemu_test:
     dependencies:
-      - 807f_4.9_glibc_compact
+      - 807f_4.9_glibc_compat
     <<: *807_qemu_test
 
 807f_4.14_uclibc_qemu_test:
     dependencies:
-      - 807f_4.14_uclibc_compact
+      - 807f_4.14_uclibc_compat
     <<: *807_qemu_test
 
 807f_4.14_glibc_qemu_test:
     dependencies:
-      - 807f_4.14_glibc_compact
+      - 807f_4.14_glibc_compat
     <<: *807_qemu_test
 
 ################ 810 ################
@@ -190,35 +190,35 @@ wait_for_trigger:
     stage: qemu-test
     <<: *common_tests
 
-810f_4.9_uclibc_compact: *810_build
-810f_4.9_glibc_compact: *810_build
-810f_4.14_uclibc_compact: *810_build
-810f_4.14_glibc_compact: *810_build
-810f_4.19_glibc_compact: *810_build
+810f_4.9_uclibc_compat: *810_build
+810f_4.9_glibc_compat: *810_build
+810f_4.14_uclibc_compat: *810_build
+810f_4.14_glibc_compat: *810_build
+810f_4.19_glibc_compat: *810_build
 
 810f_4.9_uclibc_qemu_test:
     dependencies:
-      - 810f_4.9_uclibc_compact
+      - 810f_4.9_uclibc_compat
     <<: *810_qemu_test
 
 810f_4.9_glibc_qemu_test:
     dependencies:
-      - 810f_4.9_glibc_compact
+      - 810f_4.9_glibc_compat
     <<: *810_qemu_test
 
 810f_4.14_uclibc_qemu_test:
     dependencies:
-      - 810f_4.14_uclibc_compact
+      - 810f_4.14_uclibc_compat
     <<: *810_qemu_test
 
 810f_4.14_glibc_qemu_test:
     dependencies:
-      - 810f_4.14_glibc_compact
+      - 810f_4.14_glibc_compat
     <<: *810_qemu_test
 
 810f_4.19_glibc_qemu_test:
     dependencies:
-      - 810f_4.19_glibc_compact
+      - 810f_4.19_glibc_compat
     <<: *810_qemu_test
 
 ################ 860 ################
@@ -231,29 +231,29 @@ wait_for_trigger:
     stage: qemu-test
     <<: *common_tests
 
-860_4.9_glibc_compact: *860_build
-860_4.14_glibc_compact: *860_build
-860_4.19_glibc_compact: *860_build
-860_next_glibc_compact: *860_build
+860_4.9_glibc_compat: *860_build
+860_4.14_glibc_compat: *860_build
+860_4.19_glibc_compat: *860_build
+860_next_glibc_compat: *860_build
 
 860_4.9_glibc_qemu_test:
     dependencies:
-      - 860_4.9_glibc_compact
+      - 860_4.9_glibc_compat
     <<: *860_qemu_test
 
 860_4.14_glibc_qemu_test:
     dependencies:
-      - 860_4.14_glibc_compact
+      - 860_4.14_glibc_compat
     <<: *860_qemu_test
 
 860_4.19_glibc_qemu_test:
     dependencies:
-      - 860_4.19_glibc_compact
+      - 860_4.19_glibc_compat
     <<: *860_qemu_test
 
 860_next_glibc_qemu_test:
     dependencies:
-      - 860_next_glibc_compact
+      - 860_next_glibc_compat
     <<: *860_qemu_test
 
 ################ 910 ################
@@ -266,9 +266,9 @@ wait_for_trigger:
     stage: qemu-test
     <<: *common_tests
 
-910_next_glibc_compact: *910_build
+910_next_glibc_compat: *910_build
 
 910_next_glibc_qemu_test:
     dependencies:
-      - 910_next_glibc_compact
+      - 910_next_glibc_compat
     <<: *910_qemu_test
