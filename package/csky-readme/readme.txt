@@ -75,7 +75,7 @@ Build linux kernel
  xz -d linux-<kernel-version>.patch.xz;
  cd linux-<kernel-version>;
  patch -p1 < ../linux-<kernel-version>.patch;
- BR_BINARIES_DIR=.. make ARCH=csky CROSS_COMPILE=../host/bin/csky-linux- vmlinux;
+ LD_LIBRARY_PATH=../host/lib  BR_BINARIES_DIR=.. make ARCH=csky CROSS_COMPILE=../host/bin/csky-linux- vmlinux;
 
 
 Build buildroot
