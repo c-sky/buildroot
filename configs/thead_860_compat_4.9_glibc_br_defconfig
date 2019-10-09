@@ -1,7 +1,6 @@
 # Architecture
 BR2_csky=y
 BR2_ck860=y
-BR2_PACKAGE_HOST_QEMU_SYSTEM_MODE=y
 
 # Kernel headers
 BR2_PACKAGE_HOST_LINUX_HEADERS_CUSTOM_4_9=y
@@ -13,12 +12,6 @@ BR2_LINUX_KERNEL_CUSTOM_VERSION=y
 BR2_LINUX_KERNEL_CUSTOM_VERSION_VALUE="4.9.56"
 BR2_LINUX_KERNEL_USE_CUSTOM_CONFIG=y
 BR2_LINUX_KERNEL_CUSTOM_CONFIG_FILE="board/csky-ci/defconfigs/qemu_ck860_defconfig"
-
-# Kernel addons & extentions
-BR2_LINUX_KERNEL_EXT_CSKY_ARCH=y
-
-# Kernel patches
-# None
 
 # System configuration
 BR2_OPTIMIZE_2=y
@@ -37,6 +30,7 @@ BR2_TOOLCHAIN_BUILDROOT_CXX=y
 
 # Packages on host
 BR2_PACKAGE_HOST_QEMU=y
+BR2_PACKAGE_HOST_QEMU_SYSTEM_MODE=y
 BR2_PACKAGE_HOST_GDB=y
 
 # Packages on board
