@@ -4,9 +4,9 @@
 #
 ################################################################################
 
-CSKY_ARCH_VERSION_4_9  = 75cb52055d5ddf108d452844d875fcf1fb12cfa5
-CSKY_ARCH_VERSION_4_14 = aea868fa9d8d5026936bffc07f363a3e59944f89
-CSKY_ARCH_VERSION_4_19 = 92a9a6c6a53c2af3482574eeafea0b2d8cc973b1
+CSKY_ARCH_VERSION_4_9  = 6bd46102c9bb8a75878a59bb3a73a25aad4acb90
+CSKY_ARCH_VERSION_4_14 = 247962b58f664bf03a9ceda11b4cda130f407411
+CSKY_ARCH_VERSION_4_19 = 0d051420572338c04fc730b39ea4146e46cfe05a
 
 CSKY_ARCH_VERSION = none
 
@@ -26,21 +26,8 @@ ifneq ($(CSKY_ARCH_VERSION), none)
 CSKY_ARCH_SITE = $(call github,c-sky,csky-linux,$(CSKY_ARCH_VERSION))
 
 define CSKY_ARCH_PREPARE_KERNEL
-	cp -raf $(CSKY_ARCH_DIR)/arch/csky $(LINUX_DIR)/arch/
-	if [ -d $(CSKY_ARCH_DIR)/arch-csky-drivers ]; then \
-		cp -raf $(CSKY_ARCH_DIR)/arch-csky-drivers $(LINUX_DIR)/; \
-	fi
-	if [ -d $(CSKY_ARCH_DIR)/drivers ]; then \
-		cp -raf $(CSKY_ARCH_DIR)/drivers $(LINUX_DIR)/arch-csky-drivers; \
-	fi
-	awk '/:= drivers/{print $$0,"arch-csky-drivers/";next}{print $$0}' \
-		$(LINUX_DIR)/Makefile 1<>$(LINUX_DIR)/Makefile
-	cd $(LINUX_DIR)/; \
-	mkdir -p tools/arch/csky/include/uapi/asm/; \
-	cp tools/arch/arm/include/uapi/asm/mman.h tools/arch/csky/include/uapi/asm/mman.h; \
-	echo "CFLAGS_cpu-probe.o := -DCSKY_ARCH_VERSION=\"\\\"$(CSKY_ARCH_VERSION)\\\"\"" >> arch/csky/kernel/Makefile; \
-	cd -;
-	$(APPLY_PATCHES) $(LINUX_DIR) $(CSKY_ARCH_DIR)/patch/ \*.patch || exit 1;
+	cd $(CSKY_ARCH_DIR)/; bash merge.sh $(LINUX_DIR); cd -;
+	echo "CFLAGS_cpu-probe.o := -DCSKY_ARCH_VERSION=\"\\\"$(CSKY_ARCH_VERSION)\\\"\"" >> $(LINUX_DIR)/arch/csky/kernel/Makefile;
 endef
 LINUX_POST_PATCH_HOOKS += CSKY_ARCH_PREPARE_KERNEL
 
