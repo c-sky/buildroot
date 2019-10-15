@@ -55,6 +55,9 @@ wait_for_trigger:
           output/host/bin/csky-linux-strip -sg output/images/vmlinux;
           xz -z output/images/vmlinux;
       fi
+    - if [ -f output/images/Image ]; then
+          xz -z output/images/Image;
+      fi
     - if [ -f output/images/rootfs.cpio ]; then
           rm -f output/images/rootfs.tar;
           xz -z output/images/rootfs.cpio;
@@ -86,6 +89,9 @@ wait_for_trigger:
     - tar -xf output/images/toolchain_*.tar.xz -C output/host
     - if [ -f output/images/vmlinux.xz ]; then
           xz -d output/images/vmlinux.xz;
+      fi
+    - if [ -f output/images/Image.xz ]; then
+          xz -d output/images/Image.xz;
       fi
     - if [ -f output/images/rootfs.tar.xz ]; then
           xz -d output/images/rootfs.tar.xz;
