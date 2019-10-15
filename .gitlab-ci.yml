@@ -13,6 +13,7 @@ stages:
   - wait-for-trigger
   - build
   - qemu-test
+  - chip-test
 
 variables:
     PREFIX: ""
@@ -92,8 +93,8 @@ wait_for_trigger:
     - if [ -f output/images/rootfs.cpio.xz ]; then
           xz -d output/images/rootfs.cpio.xz;
       fi
-    - if [ -f output/host/csky-ci/run_test.sh ]; then
-        ./output/host/csky-ci/run_test.sh;
+    - if [ -f output/host/csky-ci/${RUN} ]; then
+        ./output/host/csky-ci/${RUN};
       fi
     - if [ -f output/host/csky-ci/generic_analyze.sh ]; then
         ./output/host/csky-ci/generic_analyze.sh || exit 1;
@@ -116,8 +117,12 @@ wait_for_trigger:
     stage: build
     <<: *common_builds
 
+.610_qemu_before_test: &610_qemu_before_test
+    - RUN="run_test_qemuv1.sh"
+
 .610_qemu_test: &610_qemu_test
     stage: qemu-test
+    before_script: *610_qemu_before_test
     <<: *common_tests
 
 610_4.9_uclibc_compat: *610_build
@@ -151,8 +156,12 @@ wait_for_trigger:
     stage: build
     <<: *common_builds
 
+.807_qemu_before_test: &807_qemu_before_test
+    - RUN="run_test_qemuv2.sh"
+
 .807_qemu_test: &807_qemu_test
     stage: qemu-test
+    before_script: *807_qemu_before_test
     <<: *common_tests
 
 807f_4.9_uclibc_compat: *807_build
@@ -186,8 +195,12 @@ wait_for_trigger:
     stage: build
     <<: *common_builds
 
+.810_qemu_before_test: &810_qemu_before_test
+    - RUN="run_test_qemuv2.sh"
+
 .810_qemu_test: &810_qemu_test
     stage: qemu-test
+    before_script: *810_qemu_before_test
     <<: *common_tests
 
 810f_4.9_uclibc_compat: *810_build
@@ -221,14 +234,27 @@ wait_for_trigger:
       - 810f_4.19_glibc_compat
     <<: *810_qemu_test
 
+# chip
+.810_chip_before_test: &810_chip_before_test
+    - RUN="run_test_chip.sh"
+
+.810_chip_test: &810_chip_test
+    stage: chip-test
+    before_script: *810_chip_before_test
+    <<: *common_tests
+
 ################ 860 ################
 # qemu
 .860_build: &860_build
     stage: build
     <<: *common_builds
 
+.860_qemu_before_test: &860_qemu_before_test
+    - RUN="run_test_qemuv2_smp.sh"
+
 .860_qemu_test: &860_qemu_test
     stage: qemu-test
+    before_script: *860_qemu_before_test
     <<: *common_tests
 
 860_4.9_glibc_compat: *860_build
@@ -262,8 +288,12 @@ wait_for_trigger:
     stage: build
     <<: *common_builds
 
+.910_qemu_before_test: &910_qemu_before_test
+    - RUN="run_test_qemu_riscv64.sh"
+
 .910_qemu_test: &910_qemu_test
     stage: qemu-test
+    before_script: *910_qemu_before_test
     <<: *common_tests
 
 910_next_glibc_compat: *910_build
