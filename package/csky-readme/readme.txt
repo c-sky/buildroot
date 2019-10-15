@@ -17,25 +17,19 @@ Quick Start for qemu run
 
 Quick copy app into qemu
 ========================
- echo "Prepare loop disk for qemu mounting";
- dd if=/dev/zero of=./mydisk.img count=20480;
- mke2fs -q ./mydisk.img;
-
  mkdir ./mydisk;
- sudo mount -o loop ./mydisk.img ./mydisk;
- ./host/bin/csky-linux-gcc hello.c -o ./mydisk/hello.elf;
+ sudo mount -t ext2 /dev/vda ./mydisk;
+ -o loop ./mydisk.img ./mydisk;
+ ./host/bin/csky-linux-gcc hello.c -o ./mydisk/root/hello.elf;
  sudo umount ./mydisk;
 
- echo "Boot qemu with mydisk."
- qemu_start_cmd -drive file=./mydisk.img,format=raw,id=hd0 -device virtio-blk-device,drive=hd0;
+ echo "Boot qemu normally."
+ qemu_start_cmd;
 
 
-Get files in qemu, run in qemu shell!
+The rootfs is automatically mounted in qemu, run in qemu shell!
 -------------------------------------
- mkdir ./mydisk;
- mount -t ext2 /dev/vda ./mydisk;
- chmod +x ./mydisk/hello.elf;
- ./mydisk/hello.elf;
+ ./hello.elf;
 
 
 Enable qemu network
