@@ -17,7 +17,7 @@ define RISCV_README_INSTALL_IMAGES_CMDS
 	sed -i 's/<buildroot-config>/$(RISCV_README_BD_CONFIG)/g' $(BINARIES_DIR)/readme.txt
 	sed -i 's/<buildroot-version>/$(RISCV_README_BD_VERSION)/g' $(BINARIES_DIR)/readme.txt
 	sed -i 's/<kernel-version>/$(LINUX_VERSION)/g' $(BINARIES_DIR)/readme.txt
-	sed -i 's/qemu_start_cmd/LD_LIBRARY_PATH=.\/host\/lib .\/host\/bin\/qemu-system-riscv64 -M virt -kernel fw_jump.elf -device loader,file=Image,addr=0x80200000 -append "rootwait root=\/dev\/ram0" -nographic -smp 4/g' $(BINARIES_DIR)/readme.txt; \
+	sed -i 's/qemu_start_cmd/LD_LIBRARY_PATH=.\/host\/lib .\/host\/bin\/qemu-system-riscv64 -M virt -kernel fw_jump.elf -device loader,file=Image,addr=0x80200000 -append "rootwait root=\/dev\/vda ro" -drive file=rootfs.ext2,format=raw,id=hd0 -device virtio-blk-device,drive=hd0 -nographic -smp 4/g' $(BINARIES_DIR)/readme.txt; \
 	echo buildroot:$(RISCV_README_BD_CONFIG) $(RISCV_README_BD_VERSION) >> $(BINARIES_DIR)/readme.txt; \
 	echo linux-$(LINUX_VERSION) >> $(BINARIES_DIR)/readme.txt; \
 	echo gcc:$(GCC_VERSION) >> $(BINARIES_DIR)/readme.txt; \
