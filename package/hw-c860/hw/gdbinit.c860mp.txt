@@ -1,5 +1,4 @@
-# Set the JTAG address according to C-SKY debugserver settings
-# tar jtag jtag://127.0.0.1:1025
+set endian little
 
 # Invalid L1-cache include I/Dcache
 set $cr17 = (1<<4) | 3 | (7<<16)
@@ -7,7 +6,7 @@ set $cr17 = (1<<4) | 3 | (7<<16)
 # Setup MMU MSA0 reg, format:
 # 31 - 29 | 28 - 9 | 8 | 7 | 6 | 5 | 4 | 3 | 2 | 1 | 0
 #   BA     Reserved  SH  WA  B   SO SEC  C   D   V
-set $mcr30 = 0xc00001ce
+set $mcr30 = 0x000001ce
 
 # Setup CPU features regs
 # Enable MMU, Icache, Dcache, Return Stack, BPB, BTB, IBTB ...
@@ -33,9 +32,10 @@ restore hw.dtb binary 0x8F000000
 set $r1 = 0x8F000000
 
 # load vmlinux to memory by elf format
-load
+restore ../Image binary 0x80000000
+
+# Setup PC to run
+set $pc = 0x80000000
 
 # Sync I/Dcache before run kernel
 set $cr17 = 0x33
-c
-q

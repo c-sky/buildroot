@@ -1,6 +1,3 @@
-# Set the JTAG address according to C-SKY debugserver settings
-# tar jtag jtag://127.0.0.1:1025
-
 # Set gdb environment
 set height 0
 
