@@ -1,0 +1,26 @@
+From d7eb0ee5ee53313a5c28476cda0ec73c81ceda9f Mon Sep 17 00:00:00 2001
+From: Guo Ren <ren_guo@c-sky.com>
+Date: Thu, 17 Oct 2019 21:48:40 +0800
+Subject: [PATCH] riscv: Disable asid
+
+Signed-off-by: Guo Ren <ren_guo@c-sky.com>
+---
+ arch/riscv/include/asm/mmu_context.h | 2 ++
+ 1 file changed, 2 insertions(+)
+
+diff --git a/arch/riscv/include/asm/mmu_context.h b/arch/riscv/include/asm/mmu_context.h
+index c79b088..7a0e0a3 100644
+--- a/arch/riscv/include/asm/mmu_context.h
++++ b/arch/riscv/include/asm/mmu_context.h
+@@ -94,6 +94,8 @@ static inline void switch_mm(struct mm_struct *prev,
+ 		 * privileged ISA 1.10 yet.
+ 		 */
+ 		csr_write(sptbr, virt_to_pfn(next->pgd) | SATP_MODE | asid);
++		csr_write(sptbr, virt_to_pfn(next->pgd) | SATP_MODE);
++		local_flush_tlb_all();
+ 
+ 		flush_icache_deferred(next);
+ 	}
+-- 
+2.7.4
+
