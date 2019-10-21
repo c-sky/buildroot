@@ -20,5 +20,5 @@ if [ $2 == 'fpga' ]; then
 fi
 
 # Run linux
-../../host/bin/csky-linux-gdb -ex "tar remote $1" -x gdbinit
+../../host/bin/csky-linux-gdb -ex "tar remote $1" -x gdbinit -ex "c"
 

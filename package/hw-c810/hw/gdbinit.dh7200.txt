@@ -1,4 +1,3 @@
-# tar jtag jtag://127.0.0.1:1025
 set endian little
 
 # Setup MMU MSA0 reg
@@ -16,12 +15,11 @@ set endian little
 # Enable L2 cache
 # set $cr23 = 0x8
 
-set $r1 = 0x86000000
 restore hw.dtb binary 0x86000000
+set $r1 = 0x86000000
+
+restore ../Image binary 0x80000000
+set $pc = 0x80000000
 
 # Sync I/Dcache before run kernel
 set $cr17 = 0x33
-
-load
-c
-quit

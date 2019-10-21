@@ -1,6 +1,5 @@
-# Set the JTAG address according to C-SKY debugserver settings
-# target jtag jtag://127.0.0.1:1025
 set height 0
+set endian little
 
 set $mcr30 = 0xc000000e
 
@@ -21,10 +20,9 @@ set $r1 = 0x8F000000
 # Store the devicetree blob(dtb) file to the store address above
 restore hw.dtb binary 0x8F000000
 
-# Load the debugging elf file
-load
+# Load the linux Image
+restore ../Image binary 0x80000000
+set $pc = 0x80000000
 
 # Sync I/Dcache before run kernel
 set $cr17 = 0x33
-c
-q
