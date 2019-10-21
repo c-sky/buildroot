@@ -25,7 +25,6 @@ define COPYFILES
 		cp $(BRW_ROOT)/package/* $(BRW_DIR)/package/ -raf; \
 		cp $(BRW_ROOT)/boot/* $(BRW_DIR)/boot/ -raf; \
 		cp $(BRW_ROOT)/board/* $(BRW_DIR)/board/ -raf; \
-		cp $(BRW_ROOT)/configs/* $(BRW_DIR)/configs/ -raf; \
 		rm -rf package/ncurses/*.patch; \
 		echo "DL_DIR=$(BR2_DL_DIR)" >> $(BRW_DIR)/Makefile; \
 		if [ -f ~/.gitconfig ]; then \
@@ -36,7 +35,8 @@ define COPYFILES
 		else \
 			$(BRW_DIR)/support/scripts/apply-patches.sh $(BRW_DIR) $(BRW_PATCH_DIR); \
 		fi; \
-	fi
+	fi; \
+	cp $(BRW_ROOT)/configs/$(CONF) $(BRW_DIR)/configs/$(CONF) -f;
 endef
 
 .PHONY: prepare
