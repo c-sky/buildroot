@@ -1,0 +1,231 @@
+From 516941485b7748cfe1cf68b302975b73f3580834 Mon Sep 17 00:00:00 2001
+From: Liu Yibin <yibin_liu@c-sky.com>
+Date: Mon, 21 Oct 2019 18:03:25 +0800
+Subject: [PATCH] Add private regs in generic perf code
+
+Add private perf related reg names in generic perf code
+Both in linux & tools
+
+Signed-off-by: Liu Yibin <yibin_liu@c-sky.com>
+---
+ include/uapi/linux/perf_event.h       | 13 ++++++
+ tools/include/uapi/linux/perf_event.h | 13 ++++++
+ tools/perf/util/evsel.c               | 23 ++++++----
+ tools/perf/util/parse-events.c        | 62 ++++++++++++++++++++++-----
+ tools/perf/util/parse-events.l        | 26 +++++++----
+ 5 files changed, 110 insertions(+), 27 deletions(-)
+
+diff --git a/include/uapi/linux/perf_event.h b/include/uapi/linux/perf_event.h
+index 7198ddd0c..64a257222 100644
+--- a/include/uapi/linux/perf_event.h
++++ b/include/uapi/linux/perf_event.h
+@@ -57,6 +57,19 @@ enum perf_hw_id {
+ 	PERF_COUNT_HW_STALLED_CYCLES_BACKEND	= 8,
+ 	PERF_COUNT_HW_REF_CPU_CYCLES		= 9,
+ 
++	PERF_COUNT_HW_IUTLB_MISSES		= 10,
++	PERF_COUNT_HW_DUTLB_MISSES		= 11,
++	PERF_COUNT_HW_JTLB_MISSES		= 12,
++
++	PERF_COUNT_HW_RFLFC				= 13,
++	PERF_COUNT_HW_RFRLFC			= 14,
++	PERF_COUNT_HW_RFIC				= 15,
++
++	PERF_COUNT_HW_LSUC4SC			= 16,
++	PERF_COUNT_HW_LSUOSC			= 17,
++	PERF_COUNT_HW_LSUSQDC			= 18,
++	PERF_COUNT_HW_LSUSQDDC			= 19,
++
+ 	PERF_COUNT_HW_MAX,			/* non-ABI */
+ };
+ 
+diff --git a/tools/include/uapi/linux/perf_event.h b/tools/include/uapi/linux/perf_event.h
+index 7198ddd0c..64a257222 100644
+--- a/tools/include/uapi/linux/perf_event.h
++++ b/tools/include/uapi/linux/perf_event.h
+@@ -57,6 +57,19 @@ enum perf_hw_id {
+ 	PERF_COUNT_HW_STALLED_CYCLES_BACKEND	= 8,
+ 	PERF_COUNT_HW_REF_CPU_CYCLES		= 9,
+ 
++	PERF_COUNT_HW_IUTLB_MISSES		= 10,
++	PERF_COUNT_HW_DUTLB_MISSES		= 11,
++	PERF_COUNT_HW_JTLB_MISSES		= 12,
++
++	PERF_COUNT_HW_RFLFC				= 13,
++	PERF_COUNT_HW_RFRLFC			= 14,
++	PERF_COUNT_HW_RFIC				= 15,
++
++	PERF_COUNT_HW_LSUC4SC			= 16,
++	PERF_COUNT_HW_LSUOSC			= 17,
++	PERF_COUNT_HW_LSUSQDC			= 18,
++	PERF_COUNT_HW_LSUSQDDC			= 19,
++
+ 	PERF_COUNT_HW_MAX,			/* non-ABI */
+ };
+ 
+diff --git a/tools/perf/util/evsel.c b/tools/perf/util/evsel.c
+index 966360844..9d7d00abd 100644
+--- a/tools/perf/util/evsel.c
++++ b/tools/perf/util/evsel.c
+@@ -364,14 +364,21 @@ struct perf_evsel *perf_evsel__newtp_idx(const char *sys, const char *name, int
+ const char *perf_evsel__hw_names[PERF_COUNT_HW_MAX] = {
+ 	"cycles",
+ 	"instructions",
+-	"cache-references",
+-	"cache-misses",
+-	"branches",
+-	"branch-misses",
+-	"bus-cycles",
+-	"stalled-cycles-frontend",
+-	"stalled-cycles-backend",
+-	"ref-cycles",
++	"L1-icache-access",
++	"L1-icache-misses",
++	"conditionl-branch-instructions",
++	"conditional-branch-misspredict",
++	"indirect-branch-mispredict",
++	"indirect-branch-instructions",
++	"lsu-speculation-fail",
++	"store-instructions",
++	"rf-launch-fail-counter",
++	"rf-reg-launch-fail-counter",
++	"rf-instruction-counter",
++	"lsu-cross-4k-stall-counter",
++	"lsu-other-stall-counter",
++	"lsu-sq-discard-counter",
++	"lsu-sq-data-discard-counter",
+ };
+ 
+ static const char *__perf_evsel__hw_name(u64 config)
+diff --git a/tools/perf/util/parse-events.c b/tools/perf/util/parse-events.c
+index 5ef493940..165ac6016 100644
+--- a/tools/perf/util/parse-events.c
++++ b/tools/perf/util/parse-events.c
+@@ -62,35 +62,75 @@ struct event_symbol event_symbols_hw[PERF_COUNT_HW_MAX] = {
+ 		.alias  = "",
+ 	},
+ 	[PERF_COUNT_HW_CACHE_REFERENCES] = {
+-		.symbol = "cache-references",
++		.symbol = "L1-icache-access",
+ 		.alias  = "",
+ 	},
+ 	[PERF_COUNT_HW_CACHE_MISSES] = {
+-		.symbol = "cache-misses",
++		.symbol = "L1-icache-misses",
+ 		.alias  = "",
+ 	},
+ 	[PERF_COUNT_HW_BRANCH_INSTRUCTIONS] = {
+-		.symbol = "branch-instructions",
+-		.alias  = "branches",
++		.symbol = "conditional-branch-instructions",
++		.alias  = "",
+ 	},
+ 	[PERF_COUNT_HW_BRANCH_MISSES] = {
+-		.symbol = "branch-misses",
++		.symbol = "conditional-branch-misspredict",
+ 		.alias  = "",
+ 	},
+ 	[PERF_COUNT_HW_BUS_CYCLES] = {
+-		.symbol = "bus-cycles",
++		.symbol = "indirect-branch-mispredict",
+ 		.alias  = "",
+ 	},
+ 	[PERF_COUNT_HW_STALLED_CYCLES_FRONTEND] = {
+-		.symbol = "stalled-cycles-frontend",
+-		.alias  = "idle-cycles-frontend",
++		.symbol = "indirect-branch-instructions",
++		.alias  = "",
+ 	},
+ 	[PERF_COUNT_HW_STALLED_CYCLES_BACKEND] = {
+-		.symbol = "stalled-cycles-backend",
+-		.alias  = "idle-cycles-backend",
++		.symbol = "lsu-speculation-fail",
++		.alias  = "",
+ 	},
+ 	[PERF_COUNT_HW_REF_CPU_CYCLES] = {
+-		.symbol = "ref-cycles",
++		.symbol = "store-instructions",
++		.alias  = "",
++	},
++	[PERF_COUNT_HW_IUTLB_MISSES] = {
++		.symbol = "i-utlb-misses",
++		.alias  = "",
++	},
++	[PERF_COUNT_HW_DUTLB_MISSES] = {
++		.symbol = "d-utlb-misses",
++		.alias  = "",
++	},
++	[PERF_COUNT_HW_JTLB_MISSES] = {
++		.symbol = "jtlb-misses",
++		.alias  = "",
++	},
++	[PERF_COUNT_HW_RFLFC] = {
++		.symbol = "rf-launch-fail-counter",
++		.alias  = "",
++	},
++	[PERF_COUNT_HW_RFRLFC] = {
++		.symbol = "rf-reg-launch-fail-counter",
++		.alias  = "",
++	},
++	[PERF_COUNT_HW_RFIC] = {
++		.symbol = "rf-instruction-counter",
++		.alias  = "",
++	},
++	[PERF_COUNT_HW_LSUC4SC] = {
++		.symbol = "lsu-cross-4k-stall-counter",
++		.alias  = "",
++	},
++	[PERF_COUNT_HW_LSUOSC] = {
++		.symbol = "lsu-other-stall-counter",
++		.alias  = "",
++	},
++	[PERF_COUNT_HW_LSUSQDC] = {
++		.symbol = "lsu-sq-discard-counter",
++		.alias  = "",
++	},
++	[PERF_COUNT_HW_LSUSQDDC] = {
++		.symbol = "lsu-sq-data-discard-counter",
+ 		.alias  = "",
+ 	},
+ };
+diff --git a/tools/perf/util/parse-events.l b/tools/perf/util/parse-events.l
+index 7805c71aa..530e61d35 100644
+--- a/tools/perf/util/parse-events.l
++++ b/tools/perf/util/parse-events.l
+@@ -303,15 +303,25 @@ no-overwrite		{ return term(yyscanner, PARSE_EVENTS__TERM_TYPE_NOOVERWRITE); }
+ }
+ 
+ cpu-cycles|cycles				{ return sym(yyscanner, PERF_TYPE_HARDWARE, PERF_COUNT_HW_CPU_CYCLES); }
+-stalled-cycles-frontend|idle-cycles-frontend	{ return sym(yyscanner, PERF_TYPE_HARDWARE, PERF_COUNT_HW_STALLED_CYCLES_FRONTEND); }
+-stalled-cycles-backend|idle-cycles-backend	{ return sym(yyscanner, PERF_TYPE_HARDWARE, PERF_COUNT_HW_STALLED_CYCLES_BACKEND); }
++indirect-branch-instructions	{ return sym(yyscanner, PERF_TYPE_HARDWARE, PERF_COUNT_HW_STALLED_CYCLES_FRONTEND); }
++lsu-speculation-fail	{ return sym(yyscanner, PERF_TYPE_HARDWARE, PERF_COUNT_HW_STALLED_CYCLES_BACKEND); }
+ instructions					{ return sym(yyscanner, PERF_TYPE_HARDWARE, PERF_COUNT_HW_INSTRUCTIONS); }
+-cache-references				{ return sym(yyscanner, PERF_TYPE_HARDWARE, PERF_COUNT_HW_CACHE_REFERENCES); }
+-cache-misses					{ return sym(yyscanner, PERF_TYPE_HARDWARE, PERF_COUNT_HW_CACHE_MISSES); }
+-branch-instructions|branches			{ return sym(yyscanner, PERF_TYPE_HARDWARE, PERF_COUNT_HW_BRANCH_INSTRUCTIONS); }
+-branch-misses					{ return sym(yyscanner, PERF_TYPE_HARDWARE, PERF_COUNT_HW_BRANCH_MISSES); }
+-bus-cycles					{ return sym(yyscanner, PERF_TYPE_HARDWARE, PERF_COUNT_HW_BUS_CYCLES); }
+-ref-cycles					{ return sym(yyscanner, PERF_TYPE_HARDWARE, PERF_COUNT_HW_REF_CPU_CYCLES); }
++L1-icache-access				{ return sym(yyscanner, PERF_TYPE_HARDWARE, PERF_COUNT_HW_CACHE_REFERENCES); }
++L1-icache-misses					{ return sym(yyscanner, PERF_TYPE_HARDWARE, PERF_COUNT_HW_CACHE_MISSES); }
++conditional-branch-instructions			{ return sym(yyscanner, PERF_TYPE_HARDWARE, PERF_COUNT_HW_BRANCH_INSTRUCTIONS); }
++conditional-branch-misspredict					{ return sym(yyscanner, PERF_TYPE_HARDWARE, PERF_COUNT_HW_BRANCH_MISSES); }
++indirect-branch-mispredict					{ return sym(yyscanner, PERF_TYPE_HARDWARE, PERF_COUNT_HW_BUS_CYCLES); }
++store-instructions					{ return sym(yyscanner, PERF_TYPE_HARDWARE, PERF_COUNT_HW_REF_CPU_CYCLES); }
++i-utlb-misses					{ return sym(yyscanner, PERF_TYPE_HARDWARE, PERF_COUNT_HW_IUTLB_MISSES); }
++d-utlb-misses					{ return sym(yyscanner, PERF_TYPE_HARDWARE, PERF_COUNT_HW_DUTLB_MISSES); }
++jtlb-misses					{ return sym(yyscanner, PERF_TYPE_HARDWARE, PERF_COUNT_HW_JTLB_MISSES); }
++rf-launch-fail-counter					{ return sym(yyscanner, PERF_TYPE_HARDWARE, PERF_COUNT_HW_RFLFC); }
++rf-reg-launch-fail-counter					{ return sym(yyscanner, PERF_TYPE_HARDWARE, PERF_COUNT_HW_RFRLFC); }
++rf-instruction-counter					{ return sym(yyscanner, PERF_TYPE_HARDWARE, PERF_COUNT_HW_RFIC); }
++lsu-cross-4k-stall-counter					{ return sym(yyscanner, PERF_TYPE_HARDWARE, PERF_COUNT_HW_LSUC4SC); }
++lsu-other-stall-counter					{ return sym(yyscanner, PERF_TYPE_HARDWARE, PERF_COUNT_HW_LSUOSC); }
++lsu-sq-discard-counter					{ return sym(yyscanner, PERF_TYPE_HARDWARE, PERF_COUNT_HW_LSUSQDC); }
++lsu-sq-data-discard-counter					{ return sym(yyscanner, PERF_TYPE_HARDWARE, PERF_COUNT_HW_LSUSQDDC); }
+ cpu-clock					{ return sym(yyscanner, PERF_TYPE_SOFTWARE, PERF_COUNT_SW_CPU_CLOCK); }
+ task-clock					{ return sym(yyscanner, PERF_TYPE_SOFTWARE, PERF_COUNT_SW_TASK_CLOCK); }
+ page-faults|faults				{ return sym(yyscanner, PERF_TYPE_SOFTWARE, PERF_COUNT_SW_PAGE_FAULTS); }
+-- 
+2.17.1
+
