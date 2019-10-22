@@ -15,7 +15,7 @@ endef
 LINUX_POST_EXTRACT_HOOKS += THEAD_LINUX_PATCH_PREPARE_SRC_A
 
 define THEAD_LINUX_PATCH_GENERATE_PATCH
-	if [ ! -f $(LINUX_DIR)/.stamp_configured ]; then \
+	if [ ! -f $(LINUX_DIR)/.stamp_patched_csky ]; then \
 	cd $(LINUX_DIR)/../; \
 	rm -rf b; \
 	cp -raf linux-$(LINUX_VERSION) b; \
