@@ -14,7 +14,7 @@ set *(unsigned int *) 0x1fbad008=0xff
 set $mcor = 0x70013
 
 # Enable Lbuf WAY_PRED DATA_CACHE_PREFETCH AMR
-set $mhint = 0x7e30c
+set $mhint = 0x16e30c
 
 # Enable L2 Cache
 set $mccr2 = 0xe0010009
