@@ -1,4 +1,4 @@
-# tar jtag jtag://127.0.0.1:1025
+set endian little
 
 # pin mux for serial8250, only for gx66xx
 set *(unsigned int *) 0xa030a14c |= (1 << 22) | (1 << 23)
@@ -20,11 +20,8 @@ set $r3 = 0x92000000
 # Store the devicetree blob(dtb) file to the store address above
 restore hw.dtb binary 0x92000000
 
-# Load the debugging elf file
-load
+restore ../Image binary 0x90000000
+set $pc = 0x90000000
 
 # Sync I/Dcache before run kernel
 set $cr17 = 0x33
-
-c
-quit

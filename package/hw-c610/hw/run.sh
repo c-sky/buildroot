@@ -13,5 +13,4 @@ else
 fi
 
 # Run linux
-../../host/bin/csky-linux-gdb -ex "tar remote $1" -x gdbinit.txt
-
+../../host/bin/csky-linux-gdb -ex "tar remote $1" -x gdbinit.txt -ex "c" -ex "q"
