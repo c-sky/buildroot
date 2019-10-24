@@ -58,6 +58,9 @@ wait_for_trigger:
     - if [ -f output/images/Image ]; then
           xz -z output/images/Image;
       fi
+    - if [ -f output/images/rootfs.ext2 ]; then
+          xz -z output/images/rootfs.ext2;
+      fi
     - if [ -f output/images/rootfs.cpio ]; then
           rm -f output/images/rootfs.tar;
           xz -z output/images/rootfs.cpio;
@@ -93,6 +96,9 @@ wait_for_trigger:
     - if [ -f output/images/Image.xz ]; then
           xz -d output/images/Image.xz;
       fi
+    - if [ -f output/images/rootfs.ext2.xz ]; then
+          xz -d output/images/rootfs.ext2.xz;
+      fi
     - if [ -f output/images/rootfs.tar.xz ]; then
           xz -d output/images/rootfs.tar.xz;
       fi
@@ -100,7 +106,7 @@ wait_for_trigger:
           xz -d output/images/rootfs.cpio.xz;
       fi
     - if [ -f output/host/csky-ci/${RUN} ]; then
-        ./output/host/csky-ci/${RUN};
+        ./output/host/csky-ci/${RUN} $BOARD;
       fi
     - if [ -f output/host/csky-ci/generic_analyze.sh ]; then
         ./output/host/csky-ci/generic_analyze.sh || exit 1;
@@ -241,13 +247,28 @@ wait_for_trigger:
     <<: *810_qemu_test
 
 # chip
-.810_chip_before_test: &810_chip_before_test
+.dh7200_chip_before_test: &dh7200_chip_before_test
     - RUN="run_test_chip.sh"
+    - BOARD="dh7200"
 
-.810_chip_test: &810_chip_test
+.dh7200_chip_test: &dh7200_chip_test
     stage: chip-test
-    before_script: *810_chip_before_test
+    before_script: *dh7200_chip_before_test
     <<: *common_tests
+
+810f_4.9_glibc_dh7200_test:
+    tags:
+      - csky-810-dh7200
+    dependencies:
+      - 810f_4.9_glibc_compat
+    <<: *dh7200_chip_test
+
+810f_4.14_glibc_dh7200_test:
+    tags:
+      - csky-810-dh7200
+    dependencies:
+      - 810f_4.14_glibc_compat
+    <<: *dh7200_chip_test
 
 ################ 860 ################
 # qemu

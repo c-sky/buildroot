@@ -15,8 +15,12 @@ set endian little
 # Enable L2 cache
 # set $cr23 = 0x8
 
-restore hw.dtb binary 0x86000000
-set $r1 = 0x86000000
+restore hw.dtb binary 0x89000000
+set $r1 = 0x89000000
+
+#The restore address of rootfs should correspond to
+#the initrd-start in chosen section(dh7200.dts.txt).
+restore ../rootfs.cpio.gz binary 0x81000000
 
 restore ../Image binary 0x80000000
 set $pc = 0x80000000
