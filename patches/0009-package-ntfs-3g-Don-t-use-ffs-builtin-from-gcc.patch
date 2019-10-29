@@ -1,0 +1,27 @@
+From 67b8bfff328b3419e885d20e44c8d059a4455fa3 Mon Sep 17 00:00:00 2001
+From: Mao Han <han_mao@c-sky.com>
+Date: Fri, 25 Oct 2019 17:10:17 +0800
+Subject: [PATCH] package/ntfs-3g: Don't use ffs builtin from gcc
+
+Signed-off-by: Mao Han <han_mao@c-sky.com>
+Signed-off-by: Chen Zhixing <zhixing_chen@c-sky.com>
+---
+ package/ntfs-3g/ntfs-3g.mk | 2 ++
+ 1 file changed, 2 insertions(+)
+
+diff --git a/package/ntfs-3g/ntfs-3g.mk b/package/ntfs-3g/ntfs-3g.mk
+index 5f23eae..bae57ac 100644
+--- a/package/ntfs-3g/ntfs-3g.mk
++++ b/package/ntfs-3g/ntfs-3g.mk
+@@ -13,6 +13,8 @@ NTFS_3G_DEPENDENCIES = host-pkgconf
+ NTFS_3G_LICENSE = GPL-2.0+, LGPL-2.0+
+ NTFS_3G_LICENSE_FILES = COPYING COPYING.LIB
+ 
++NTFS_3G_CONF_ENV += CFLAGS="-fno-builtin-ffs"
++
+ ifeq ($(BR2_PACKAGE_LIBFUSE),y)
+ NTFS_3G_CONF_OPTS += --with-fuse=external
+ NTFS_3G_DEPENDENCIES += libfuse
+-- 
+2.7.4
+
