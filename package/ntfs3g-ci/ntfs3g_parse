@@ -1,0 +1,6 @@
+#!/bin/bash
+grep "ntfs-3g test pass" $1 > /dev/null
+if [ $? -ne 0 ]; then
+       echo "ntfs-3g test fail"
+        return 1
+fi

@@ -1,0 +1,6 @@
+config BR2_PACKAGE_NTFS3G_CI
+	default y
+	bool "ntfs3g-ci"
+	depends on BR2_PACKAGE_CSKY_CI
+	select BR2_PACKAGE_NTFS_3G
+	select BR2_PACKAGE_NTFS_3G_NTFSPROGS
