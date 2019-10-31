@@ -1,12 +1,15 @@
 set endian little
 
+# Don't confirm when quit
+set confirm off
+
 # Invalid L1-cache include I/Dcache
 set $cr17 = (1<<4) | 3 | (7<<16)
 
 # Setup MMU MSA0 reg, format:
 # 31 - 29 | 28 - 9 | 8 | 7 | 6 | 5 | 4 | 3 | 2 | 1 | 0
 #   BA     Reserved  SH  WA  B   SO SEC  C   D   V
-set $mcr30 = 0x000001ce
+set $msa0 = 0xc00001ce
 
 # Setup CPU features regs
 # Enable MMU, Icache, Dcache, Return Stack, BPB, BTB, IBTB ...
@@ -21,21 +24,26 @@ si
 # Enable L2 cache
 set $cr23 = 0x9
 
-#################################
-# Pass dtb to linux and jmp linux
-#################################
+set $vmlinux_addr = 0x80000000
+set $dtb_addr = $vmlinux_addr + 0x0f000000
+set $rootfs_addr = $vmlinux_addr + 0x01000000
+
+# Load linux kernel
+restore ../Image binary $vmlinux_addr
+
+# Load rootfs
+restore ../rootfs.cpio.gz binary $rootfs_addr
 
 # Store dtb to memory
-restore hw.dtb binary 0x8F000000
+restore hw.dtb binary $dtb_addr
 
 # Pass dtb memory addr to reg as the argument to kernel
-set $r1 = 0x8F000000
-
-# load vmlinux to memory by elf format
-restore ../Image binary 0x80000000
+set $r1 = $dtb_addr
 
 # Setup PC to run
-set $pc = 0x80000000
+set $pc = $vmlinux_addr
 
 # Sync I/Dcache before run kernel
 set $cr17 = 0x33
+
+disp /i $pc

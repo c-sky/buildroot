@@ -4,10 +4,11 @@ set height 0
 # Reset target board
 reset
 
+# Don't confirm when quit
+set confirm off
+
 # Disable CPU cache
 set $cr18=0x00
 
 # Load the debugging elf file
 load
-c
-q

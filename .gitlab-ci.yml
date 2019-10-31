@@ -333,6 +333,22 @@ wait_for_trigger:
       - 860_next_glibc_compat
     <<: *860_qemu_test
 
+# fpga
+.860_fpga_before_test: &860_fpga_before_test
+    - RUN="run_test_fpga.sh"
+
+.860_fpga_test: &860_fpga_test
+    stage: chip-test
+    before_script: *860_fpga_before_test
+    <<: *common_tests
+
+860_4.9_glibc_fpga_test:
+    tags:
+      - csky-860-fpga
+    dependencies:
+      - 860_4.9_glibc_compat
+    <<: *860_fpga_test
+
 ################ 910 ################
 # qemu
 .910_build: &910_build
@@ -353,3 +369,19 @@ wait_for_trigger:
     dependencies:
       - 910_5.1_glibc_compat
     <<: *910_qemu_test
+
+# fpga
+.910_fpga_before_test: &910_fpga_before_test
+    - RUN="run_test_fpga.sh"
+
+.910_fpga_test: &910_fpga_test
+    stage: chip-test
+    before_script: *910_fpga_before_test
+    <<: *common_tests
+
+910_5.1_glibc_fpga_test:
+    tags:
+      - csky-860-fpga #Use name 860 for now
+    dependencies:
+      - 910_5.1_glibc_compat
+    <<: *910_fpga_test

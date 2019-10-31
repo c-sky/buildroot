@@ -108,7 +108,9 @@
 	};
 
 	chosen {
-		bootargs = "console=ttyS0,115200";
+		bootargs = "console=ttyS0,115200 rdinit=/sbin/init root=/dev/ram";
+		linux,initrd-start = <0xc1000000>;
+		linux,initrd-end = <0xc9000000>;
 		stdout-path = "serial@1fba4000";
 	};
 };

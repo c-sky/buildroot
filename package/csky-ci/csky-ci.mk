@@ -4,8 +4,18 @@
 #
 ##############################################################################
 
-CSKY_CI_VERSION = 958d049a13f9b97d4fa4a62369584917cbf7cb2e
+CSKY_CI_VERSION = 0762b51f54b56e5845e74cbaff4c6721aa332bdc
 CSKY_CI_SITE = $(call github,c-sky,csky-ci,$(CSKY_CI_VERSION))
+
+ifeq ($(BR2_ck860),y)
+BR2_CSKY_CI_FPGA=y
+BR2_CSKY_CI_FPGA_BITFILE="e3_DH_860_no_vdsp_60M_190814.bit"
+endif
+
+ifeq ($(BR2_RISCV_64),y)
+BR2_CSKY_CI_FPGA=y
+BR2_CSKY_CI_FPGA_BITFILE="C960M_191025_debug_label1017_60MHz.bit"
+endif
 
 define CSKY_CI_CONFIGURE_CMDS
 echo CONFIG_CPU_CK610=$(BR2_ck610) > $(@D)/config
@@ -13,9 +23,8 @@ echo CONFIG_CPU_CK807=$(BR2_ck807) >> $(@D)/config
 echo CONFIG_CPU_CK810=$(BR2_ck810) >> $(@D)/config
 echo CONFIG_CPU_CK860=$(BR2_ck860) >> $(@D)/config
 echo CONFIG_CPU_CK960=$(BR2_RISCV_64) >> $(@D)/config
-echo CONFIG_FPGA=$(BR2_CSKY_FPGA) >> $(@D)/config
-echo CONFIG_FPGA_BITFILE=$(BR2_CSKY_FPGA_BITFILE) >> $(@D)/config
-echo CONFIG_FPGA_DDRINIT=$(BR2_CSKY_FPGA_DDRINIT) >> $(@D)/config
+echo CONFIG_FPGA=$(BR2_CSKY_CI_FPGA) >> $(@D)/config
+echo CONFIG_FPGA_BITFILE=$(BR2_CSKY_CI_FPGA_BITFILE) >> $(@D)/config
 echo CONFIG_QEMU=$(BR2_PACKAGE_HOST_QEMU) >> $(@D)/config
 endef
 
