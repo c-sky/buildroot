@@ -4,7 +4,7 @@
 #
 ##############################################################################
 
-CSKY_CI_VERSION = 0762b51f54b56e5845e74cbaff4c6721aa332bdc
+CSKY_CI_VERSION = b8bfb644f566f1d8ef132005eb2b2922f78d68f2
 CSKY_CI_SITE = $(call github,c-sky,csky-ci,$(CSKY_CI_VERSION))
 
 ifeq ($(BR2_ck860),y)
