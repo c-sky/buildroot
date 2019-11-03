@@ -6,6 +6,9 @@
 # Make sure the ssh-keygen progam exists
 [ -f /usr/bin/ssh-keygen ] || exit 0
 
+cat /proc/cmdline | grep qemuci
+[ $? -ne 0 ] && exit 0
+
 umask 077
 
 start() {
