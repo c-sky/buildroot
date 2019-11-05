@@ -1,7 +1,7 @@
-From b2e46a23c0d02d0849ac35d99658eaca83c14f1d Mon Sep 17 00:00:00 2001
+From 7a77187eefb9bc8770b18e90e157779b91c8b038 Mon Sep 17 00:00:00 2001
 From: Guo Ren <ren_guo@c-sky.com>
 Date: Mon, 23 Sep 2019 17:01:53 +0800
-Subject: [PATCH] riscv: Support non-coherency memory model
+Subject: [PATCH 2/8] riscv: Support non-coherency memory model
 
 The current riscv linux implementation requires SOC system to support
 memory coherence between all I/O devices and CPUs. But some SOC systems
@@ -73,19 +73,20 @@ V1-V2: [2]
 Signed-off-by: Guo Ren <ren_guo@c-sky.com>
 Reviewed-by: Xiang Xiaoyan <xiaoyan_xiang@c-sky.com>
 Tested-by: Liu Yibin <yibin_liu@c-sky.com>
+Tested-by: Mao Han <han_Mao@c-sky.com>
 ---
- arch/riscv/Kconfig                    |  5 +++
+ arch/riscv/Kconfig                    |  5 ++
  arch/riscv/include/asm/cacheflush.h   |  3 ++
- arch/riscv/include/asm/io.h           | 18 +++++-----
+ arch/riscv/include/asm/io.h           | 18 ++++----
  arch/riscv/include/asm/pgtable-64.h   |  2 +-
- arch/riscv/include/asm/pgtable-bits.h | 12 ++++++-
- arch/riscv/include/asm/pgtable.h      | 45 +++++++++++++++++++----
- arch/riscv/include/asm/sbi.h          | 10 ++++++
+ arch/riscv/include/asm/pgtable-bits.h | 12 ++++-
+ arch/riscv/include/asm/pgtable.h      | 45 +++++++++++++++---
+ arch/riscv/include/asm/sbi.h          | 10 ++++
  arch/riscv/mm/Makefile                |  1 +
- arch/riscv/mm/cacheflush.c            |  1 +
- arch/riscv/mm/dma-mapping.c           | 67 +++++++++++++++++++++++++++++++++++
- arch/riscv/mm/ioremap.c               | 40 ++++++++++++---------
- 11 files changed, 170 insertions(+), 34 deletions(-)
+ arch/riscv/mm/cacheflush.c            | 22 +++++++++
+ arch/riscv/mm/dma-mapping.c           | 86 +++++++++++++++++++++++++++++++++++
+ arch/riscv/mm/ioremap.c               | 40 +++++++++-------
+ 11 files changed, 210 insertions(+), 34 deletions(-)
  create mode 100644 arch/riscv/mm/dma-mapping.c
 
 diff --git a/arch/riscv/Kconfig b/arch/riscv/Kconfig
@@ -336,7 +337,7 @@ index b68aac7..adc563a 100644
  obj-y += cacheflush.o
 +obj-y += dma-mapping.o
 diff --git a/arch/riscv/mm/cacheflush.c b/arch/riscv/mm/cacheflush.c
-index 498c0a0..fc86a54 100644
+index 498c0a0..4b3d83d 100644
 --- a/arch/riscv/mm/cacheflush.c
 +++ b/arch/riscv/mm/cacheflush.c
 @@ -13,6 +13,7 @@
@@ -347,12 +348,37 @@ index 498c0a0..fc86a54 100644
  
  void flush_icache_pte(pte_t pte)
  {
+@@ -21,3 +22,24 @@ void flush_icache_pte(pte_t pte)
+ 	if (!test_and_set_bit(PG_dcache_clean, &page->flags))
+ 		flush_icache_all();
+ }
++
++#define sync_is()	asm volatile (".long 0x01b0000b")
++void dma_wbinv_range(unsigned long start, unsigned long end)
++{
++	register unsigned long i asm("a0") = start & ~(L1_CACHE_BYTES - 1);
++
++	for (; i < end; i += L1_CACHE_BYTES)
++		asm volatile (".long 0x0275000b"); /* dcache.civa a0 */
++
++	sync_is();
++}
++
++void dma_wb_range(unsigned long start, unsigned long end)
++{
++	register unsigned long i asm("a0") = start & ~(L1_CACHE_BYTES - 1);
++
++	for (; i < end; i += L1_CACHE_BYTES)
++		asm volatile (".long 0x0255000b"); /* dcache.cva a0 */
++
++	sync_is();
++}
 diff --git a/arch/riscv/mm/dma-mapping.c b/arch/riscv/mm/dma-mapping.c
 new file mode 100644
-index 0000000..949cef6
+index 0000000..59bd2f7
 --- /dev/null
 +++ b/arch/riscv/mm/dma-mapping.c
-@@ -0,0 +1,67 @@
+@@ -0,0 +1,86 @@
 +// SPDX-License-Identifier: GPL-2.0
 +// Copyright (C) 2018 Hangzhou C-SKY Microsystems co.,ltd.
 +
@@ -369,6 +395,8 @@ index 0000000..949cef6
 +#include <linux/version.h>
 +#include <asm/cache.h>
 +
++#define NO_SBI_FENCE_DMA
++
 +static int __init atomic_pool_init(void)
 +{
 +	return dma_atomic_pool_init(GFP_KERNEL, pgprot_noncached(PAGE_KERNEL));
@@ -377,9 +405,14 @@ index 0000000..949cef6
 +
 +void arch_dma_prep_coherent(struct page *page, size_t size)
 +{
-+	memset(page_address(page), 0, size);
++	void *ptr = page_address(page);
 +
++	memset(ptr, 0, size);
++#ifdef NO_SBI_FENCE_DMA
++	dma_wbinv_range((unsigned long)ptr, (unsigned long)ptr + size);
++#else
 +	sbi_fence_dma(page_to_phys(page), size, DMA_BIDIRECTIONAL);
++#endif
 +}
 +
 +static inline void cache_op(phys_addr_t paddr, size_t size,
@@ -395,11 +428,19 @@ index 0000000..949cef6
 +{
 +	switch (dir) {
 +	case DMA_TO_DEVICE:
++#ifdef NO_SBI_FENCE_DMA
++		cache_op(paddr, size, dma_wb_range);
++#else
 +		sbi_fence_dma(paddr, size, DMA_TO_DEVICE);
++#endif
 +		break;
 +	case DMA_FROM_DEVICE:
 +	case DMA_BIDIRECTIONAL:
++#ifdef NO_SBI_FENCE_DMA
++		cache_op(paddr, size, dma_wbinv_range);
++#else
 +		sbi_fence_dma(paddr, size, DMA_BIDIRECTIONAL);
++#endif
 +		break;
 +	default:
 +		BUG();
@@ -414,7 +455,11 @@ index 0000000..949cef6
 +		return;
 +	case DMA_FROM_DEVICE:
 +	case DMA_BIDIRECTIONAL:
++#ifdef NO_SBI_FENCE_DMA
++		cache_op(paddr, size, dma_wbinv_range);
++#else
 +		sbi_fence_dma(paddr, size, DMA_FROM_DEVICE);
++#endif
 +		break;
 +	default:
 +		BUG();

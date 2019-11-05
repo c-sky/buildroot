@@ -1,0 +1,28 @@
+From 8d4ac454bac1cf2118ebf76d470e6a207fce4c03 Mon Sep 17 00:00:00 2001
+From: Guo Ren <ren_guo@c-sky.com>
+Date: Wed, 6 Nov 2019 10:45:45 +0800
+Subject: [PATCH] Skip 0xb op_code instructions for test.
+
+Signed-off-by: Guo Ren <ren_guo@c-sky.com>
+---
+ target/riscv/translate.c | 4 ++++
+ 1 file changed, 4 insertions(+)
+
+diff --git a/target/riscv/translate.c b/target/riscv/translate.c
+index 312bf298..95a1f1cc 100644
+--- a/target/riscv/translate.c
++++ b/target/riscv/translate.c
+@@ -1791,6 +1791,10 @@ static void decode_RV32_64G(CPURISCVState *env, DisasContext *ctx)
+         gen_system(env, ctx, MASK_OP_SYSTEM(ctx->opcode), rd, rs1,
+                    (ctx->opcode & 0xFFF00000) >> 20);
+         break;
++    case 0xb:
++        tcg_gen_movi_tl(cpu_pc, ctx->pc_succ_insn);
++        tcg_gen_exit_tb(NULL, 0); /* no chaining */
++        break;
+     default:
+         gen_exception_illegal(ctx);
+         break;
+-- 
+2.17.1
+
