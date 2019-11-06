@@ -183,45 +183,6 @@ wait_for_trigger:
       - 610_4.14_glibc_compat
     <<: *gx6622_chip_test
 
-################ 807 ################
-# qemu
-.807_build: &807_build
-    stage: build
-    <<: *common_builds
-
-.807_qemu_before_test: &807_qemu_before_test
-    - RUN="run_test_qemuv2.sh"
-
-.807_qemu_test: &807_qemu_test
-    stage: qemu-test
-    before_script: *807_qemu_before_test
-    <<: *common_tests
-
-807f_4.9_uclibc_compat: *807_build
-807f_4.9_glibc_compat: *807_build
-807f_4.14_uclibc_compat: *807_build
-807f_4.14_glibc_compat: *807_build
-
-807f_4.9_uclibc_qemu_test:
-    dependencies:
-      - 807f_4.9_uclibc_compat
-    <<: *807_qemu_test
-
-807f_4.9_glibc_qemu_test:
-    dependencies:
-      - 807f_4.9_glibc_compat
-    <<: *807_qemu_test
-
-807f_4.14_uclibc_qemu_test:
-    dependencies:
-      - 807f_4.14_uclibc_compat
-    <<: *807_qemu_test
-
-807f_4.14_glibc_qemu_test:
-    dependencies:
-      - 807f_4.14_glibc_compat
-    <<: *807_qemu_test
-
 ################ 810 ################
 # qemu
 .810_build: &810_build
