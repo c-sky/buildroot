@@ -18,7 +18,7 @@ define CSKY_README_INSTALL_IMAGES_CMDS
 	sed -i 's/<buildroot-version>/$(CSKY_README_BD_VERSION)/g' $(BINARIES_DIR)/readme.txt
 	sed -i 's/<kernel-version>/$(LINUX_VERSION)/g' $(BINARIES_DIR)/readme.txt
 	if [ -n "$(CSKY_README_CK860)" ]; then \
-		sed -i 's/qemu_start_cmd/LD_LIBRARY_PATH=.\/host\/lib .\/host\/csky-qemu\/bin\/qemu-system-cskyv2 -M virt -kernel Image -nographic -smp 2 -append "console=ttyS0,115200 rdinit=\/sbin\/init rootwait root=\/dev\/vda ro" -drive file=rootfs.ext2,format=raw,id=hd0 -device virtio-blk-device,drive=hd0/g' $(BINARIES_DIR)/readme.txt; \
+		sed -i 's/qemu_start_cmd/LD_LIBRARY_PATH=.\/host\/lib .\/host\/csky-qemu\/bin\/qemu-system-cskyv2 -M virt -kernel Image -nographic -append "console=ttyS0,115200 rdinit=\/sbin\/init rootwait root=\/dev\/vda ro" -drive file=rootfs.ext2,format=raw,id=hd0 -device virtio-blk-device,drive=hd0 -smp 4/g' $(BINARIES_DIR)/readme.txt; \
 	elif [ -n "$(CSKY_README_CK610)" ]; then \
 		sed -i 's/qemu_start_cmd/LD_LIBRARY_PATH=.\/host\/lib .\/host\/csky-qemu\/bin\/qemu-system-cskyv1 -M virt -kernel Image -nographic -append "console=ttyS0,115200 rdinit=\/sbin\/init rootwait root=\/dev\/vda ro" -drive file=rootfs.ext2,format=raw,id=hd0 -device virtio-blk-device,drive=hd0/g' $(BINARIES_DIR)/readme.txt; \
 	else \
