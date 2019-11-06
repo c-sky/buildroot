@@ -138,6 +138,8 @@ wait_for_trigger:
 610_4.9_glibc_compat: *610_build
 610_4.14_uclibc_compat: *610_build
 610_4.14_glibc_compat: *610_build
+610_4.19_glibc_compat: *610_build
+610_next_glibc_compat: *610_build
 
 610_4.9_uclibc_qemu_test:
     dependencies:
@@ -157,6 +159,16 @@ wait_for_trigger:
 610_4.14_glibc_qemu_test:
     dependencies:
       - 610_4.14_glibc_compat
+    <<: *610_qemu_test
+
+610_4.19_glibc_qemu_test:
+    dependencies:
+      - 610_4.19_glibc_compat
+    <<: *610_qemu_test
+
+610_next_glibc_qemu_test:
+    dependencies:
+      - 610_next_glibc_compat
     <<: *610_qemu_test
 
 # chip
@@ -202,6 +214,7 @@ wait_for_trigger:
 810f_4.14_uclibc_compat: *810_build
 810f_4.14_glibc_compat: *810_build
 810f_4.19_glibc_compat: *810_build
+810f_next_glibc_compat: *810_build
 
 810f_4.9_uclibc_qemu_test:
     dependencies:
@@ -226,6 +239,11 @@ wait_for_trigger:
 810f_4.19_glibc_qemu_test:
     dependencies:
       - 810f_4.19_glibc_compat
+    <<: *810_qemu_test
+
+810f_next_glibc_qemu_test:
+    dependencies:
+      - 810f_next_glibc_compat
     <<: *810_qemu_test
 
 # chip
@@ -267,7 +285,9 @@ wait_for_trigger:
     <<: *common_tests
 
 860_4.9_glibc_compat: *860_build
+860_4.9_uclibc_compat: *860_build
 860_4.14_glibc_compat: *860_build
+860_4.14_uclibc_compat: *860_build
 860_4.19_glibc_compat: *860_build
 860_next_glibc_compat: *860_build
 
@@ -276,9 +296,19 @@ wait_for_trigger:
       - 860_4.9_glibc_compat
     <<: *860_qemu_test
 
+860_4.9_uclibc_qemu_test:
+    dependencies:
+      - 860_4.9_uclibc_compat
+    <<: *860_qemu_test
+
 860_4.14_glibc_qemu_test:
     dependencies:
       - 860_4.14_glibc_compat
+    <<: *860_qemu_test
+
+860_4.14_uclibc_qemu_test:
+    dependencies:
+      - 860_4.14_uclibc_compat
     <<: *860_qemu_test
 
 860_4.19_glibc_qemu_test:
