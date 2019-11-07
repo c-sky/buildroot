@@ -50,7 +50,7 @@ Build linux kernel
  patch -p1 < ../linux-<kernel-version>.patch
 
  echo "Compile"
- LD_LIBRARY_PATH=../host/lib make ARCH=csky CROSS_COMPILE=../host/bin/csky-linux- Image
+ linux_compile_cmd
 
 
 Build buildroot
