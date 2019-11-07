@@ -395,7 +395,7 @@ index 0000000..59bd2f7
 +#include <linux/version.h>
 +#include <asm/cache.h>
 +
-+#define NO_SBI_FENCE_DMA
++//#define NO_SBI_FENCE_DMA
 +
 +static int __init atomic_pool_init(void)
 +{

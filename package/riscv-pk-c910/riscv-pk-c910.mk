@@ -24,11 +24,17 @@ endef
 
 define RISCV_PK_C910_BUILD_CMDS
 	$(TARGET_MAKE_ENV) $(MAKE) -C $(@D)/build bbl
+	mv $(@D)/build/bbl $(@D)/build/bbl_3G
+	sed -i 's/0xc0000000/0x00000000/g' $(@D)/bbl/bbl.lds
+	$(TARGET_MAKE_ENV) $(MAKE) -C $(@D)/build bbl
+	mv $(@D)/build/bbl $(@D)/build/bbl_0G
 endef
 
 define RISCV_PK_C910_INSTALL_IMAGES_CMDS
-	$(INSTALL) -D -m 0755 $(@D)/build/bbl $(BINARIES_DIR)/hw/bbl.elf
-	$(TARGET_OBJCOPY) -O binary $(@D)/build/bbl $(BINARIES_DIR)/hw/bbl.bin
+	$(INSTALL) -D -m 0755 $(@D)/build/bbl_3G $(BINARIES_DIR)/hw/bbl_3G.elf
+	$(INSTALL) -D -m 0755 $(@D)/build/bbl_0G $(BINARIES_DIR)/hw/bbl_0G.elf
+	$(TARGET_OBJCOPY) -O binary $(@D)/build/bbl_3G $(BINARIES_DIR)/hw/bbl_3G.bin
+	$(TARGET_OBJCOPY) -O binary $(@D)/build/bbl_0G $(BINARIES_DIR)/hw/bbl_0G.bin
 endef
 
 $(eval $(generic-package))

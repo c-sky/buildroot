@@ -1,0 +1,13 @@
+# Set gdb environment
+set height 0
+
+# Reset target board
+reset
+
+set *0xfff78040 = 0xffff
+shell $(sleep 3)
+
+# Load the debugging elf file
+load
+
+disp /i $pc
