@@ -44,7 +44,7 @@ ROOTFS_SIZE=`ls -lt ../rootfs.cpio.gz | awk '{print $5}'`
 ROOTFS_END=`printf "0x%x" $ROOTFS_END`
 sed -i "s/linux,initrd-end.*/linux,initrd-end = <$ROOTFS_END>;/g" .c960_lite.dts
 
-dtc -I dts -O dtb .c960_lite.dts > c960_lite.dtb
+dtc -I dts -O dtb .c960_lite.dts > hw.dtb
 
 # Init DDR
 ./riscv64-linux-gdb -ex "tar remote $1" -x $DDRINIT ddr_init_$BOARD\_elf -ex "c" -ex "q"

@@ -1,5 +1,4 @@
-# Set gdb environment
-set height 0
+set confirm off
 
 # FPGA demultiplex
 set *(unsigned int *) 0x1fbad008=0xff
@@ -38,25 +37,21 @@ set $pmpcfg0 = 0x1b1b1f1f1b
 
 set $bbl_addr = 0xc0000000
 set $vmlinux_addr = $bbl_addr + 0x00200000
-set $dtb_addr = $bbl_addr + 0x17000000
+set $rootfs_addr  = $bbl_addr + 0x01000000
+set $dtb_addr  = $rootfs_addr - 0x00100000
 
-# Load bbl
-restore bbl.bin binary $bbl_addr
+# veloce use host to restore binary into memory!
 
-# Load the debugging elf file
-restore Image binary $vmlinux_addr
+# Load rootfs
+# restore ../rootfs.cpio.gz binary $rootfs_addr
 
-# Store dtb to memory
-restore c960_lite.dtb binary $dtb_addr
-
-# Pass dtb memory addr to reg as the argument to kernel
+# Load dtb
+# restore hw.dtb binary $dtb_addr
 set $a1 = $dtb_addr
 
-# Start from bbl
+# Load kernel
+# restore ../Image binary $vmlinux_addr
+
+# Load bbl
+# restore bbl_3G.bin binary $bbl_addr
 set $pc = $bbl_addr
-
-disp /i $pc
-
-c
-
-#q

@@ -1,12 +1,17 @@
-set height 0
 set endian little
-
-set $mcr30 = 0xc000000e
+set confirm off
 
 # Invalid L1-cache include I/Dcache
-set $cr31 = 0xfff
 set $cr17 = (1<<4) | 0x3
-# Enable L1 cache and MMU and other CPU features
+
+# Setup MMU MSA0 reg, format:
+# 31 - 29 | 28 - 9 | 8 | 7 | 6 | 5 | 4 | 3 | 2 | 1 | 0
+#   BA     Reserved  SH  WA  B   SO SEC  C   D   V
+set $mcr30 = 0xc000000e
+
+# Setup CPU features regs
+# Enable MMU, Icache, Dcache, Return Stack, BPB, BTB, IBTB ...
+set $cr31 = 0xfff
 set $cr18 = 0x187d
 
 # Invalid L2 cache
@@ -14,15 +19,20 @@ set $cr24 = (1<<4)
 # Enable L2 cache
 set $cr23 = 0x1018
 
-# Pass the devicetree blob(dtb) store address to Linux kernel
-set $r1 = 0x8F000000
+set $vmlinux_addr = 0x80000000
+set $rootfs_addr = $vmlinux_addr + 0x01000000
+set $dtb_addr    =  $rootfs_addr - 0x00100000
 
-# Store the devicetree blob(dtb) file to the store address above
-restore hw.dtb binary 0x8F000000
+# Load rootfs
+restore ../rootfs.cpio.gz binary $rootfs_addr
 
-# Load the linux Image
-restore ../Image binary 0x80000000
-set $pc = 0x80000000
+# Load dtb
+restore hw.dtb binary $dtb_addr
+set $r1 = $dtb_addr
+
+# Load kernel
+restore ../Image binary $vmlinux_addr
+set $pc = $vmlinux_addr
 
 # Sync I/Dcache before run kernel
 set $cr17 = 0x33

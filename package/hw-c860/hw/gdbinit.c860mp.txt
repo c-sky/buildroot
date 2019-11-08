@@ -1,6 +1,4 @@
 set endian little
-
-# Don't confirm when quit
 set confirm off
 
 # Invalid L1-cache include I/Dcache
@@ -25,25 +23,19 @@ si
 set $cr23 = 0x9
 
 set $vmlinux_addr = 0x80000000
-set $dtb_addr = $vmlinux_addr + 0x0f000000
 set $rootfs_addr = $vmlinux_addr + 0x01000000
-
-# Load linux kernel
-restore ../Image binary $vmlinux_addr
+set $dtb_addr    =  $rootfs_addr - 0x00100000
 
 # Load rootfs
 restore ../rootfs.cpio.gz binary $rootfs_addr
 
-# Store dtb to memory
+# Load dtb
 restore hw.dtb binary $dtb_addr
-
-# Pass dtb memory addr to reg as the argument to kernel
 set $r1 = $dtb_addr
 
-# Setup PC to run
+# Load kernel
+restore ../Image binary $vmlinux_addr
 set $pc = $vmlinux_addr
 
 # Sync I/Dcache before run kernel
 set $cr17 = 0x33
-
-disp /i $pc

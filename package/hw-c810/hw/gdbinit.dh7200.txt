@@ -1,29 +1,20 @@
 set endian little
+set confirm off
 
-# Setup MMU MSA0 reg
-#set $mcr30 = 0x0e
+set $vmlinux_addr = 0x80000000
+set $rootfs_addr  = $vmlinux_addr + 0x01000000
+set $dtb_addr     =  $rootfs_addr - 0x00100000
 
-# Setup hint reg
-#set $cr31 = 0x0
+# Load rootfs
+restore ../rootfs.cpio.gz binary $rootfs_addr
 
-# Invalid L1-cache include I/Dcache
-#set $cr17 = (1<<4) | 3
+# Load dtb
+restore hw.dtb binary $dtb_addr
+set $r1 = $dtb_addr
 
-# Enable L1 cache and MMU and other CPU features
-#set $cr18 = 0x087d
-
-# Enable L2 cache
-# set $cr23 = 0x8
-
-restore hw.dtb binary 0x89000000
-set $r1 = 0x89000000
-
-#The restore address of rootfs should correspond to
-#the initrd-start in chosen section(dh7200.dts.txt).
-restore ../rootfs.cpio.gz binary 0x81000000
-
-restore ../Image binary 0x80000000
-set $pc = 0x80000000
+# Load kernel
+restore ../Image binary $vmlinux_addr
+set $pc = $vmlinux_addr
 
 # Sync I/Dcache before run kernel
 set $cr17 = 0x33

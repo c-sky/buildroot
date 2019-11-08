@@ -1,7 +1,3 @@
-# Set gdb environment
-set height 0
-
-# Don't confirm when quit
 set confirm off
 
 # FPGA demultiplex
@@ -38,25 +34,19 @@ set $pmpcfg0 = 0x1b1b0b0f
 
 set $bbl_addr = 0x00000000
 set $vmlinux_addr = $bbl_addr + 0x00200000
-set $dtb_addr = $bbl_addr + 0x17000000
-set $rootfs_addr = $bbl_addr + 0x01000000
-
-# Load bbl
-restore bbl_0G.bin binary $bbl_addr
-
-# Load linux kernel
-restore ../Image binary $vmlinux_addr
+set $rootfs_addr  = $bbl_addr + 0x01000000
+set $dtb_addr  = $rootfs_addr - 0x00100000
 
 # Load rootfs
 restore ../rootfs.cpio.gz binary $rootfs_addr
 
-# Load dtb to memory
-restore c960_lite.dtb binary $dtb_addr
-
-# Pass dtb memory addr to reg as the argument to kernel
+# Load dtb
+restore hw.dtb binary $dtb_addr
 set $a1 = $dtb_addr
 
-# Start from bbl
-set $pc = $bbl_addr
+# Load kernel
+restore ../Image binary $vmlinux_addr
 
-disp /i $pc
+# Load bbl
+restore bbl_0G.bin binary $bbl_addr
+set $pc = $bbl_addr
