@@ -1,0 +1,25 @@
+From b1b6101be42fe8b2214e40440faf941f424db4eb Mon Sep 17 00:00:00 2001
+From: Guo Ren <ren_guo@c-sky.com>
+Date: Sat, 9 Nov 2019 22:45:19 +0800
+Subject: [PATCH] irqchip: Change the name with RISC-V as the spec.
+
+---
+ drivers/irqchip/irq-sifive-plic.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/drivers/irqchip/irq-sifive-plic.c b/drivers/irqchip/irq-sifive-plic.c
+index cf755964f..552ddecf3 100644
+--- a/drivers/irqchip/irq-sifive-plic.c
++++ b/drivers/irqchip/irq-sifive-plic.c
+@@ -137,7 +137,7 @@ static int plic_set_affinity(struct irq_data *d,
+ #endif
+ 
+ static struct irq_chip plic_chip = {
+-	.name		= "SiFive PLIC",
++	.name		= "RISC-V PLIC",
+ 	/*
+ 	 * There is no need to mask/unmask PLIC interrupts.  They are "masked"
+ 	 * by reading claim and "unmasked" when writing it back.
+-- 
+2.17.1
+
