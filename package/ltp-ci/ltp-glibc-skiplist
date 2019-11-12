@@ -1,0 +1,125 @@
+########################################
+# skiplist for glibc test
+# testlist: syscalls,fs,fs_perms_simple,fsx,dio,mm,ipc,sched,math,nptl,pty,fs_bind,fcntl-locktests,connectors,admin_tools,timers,modules,pipes
+########################################
+
+################################
+#  syscalls
+################################
+#env problem, entropy(random) pool doesn't init enough
+getrandom02
+
+#version problem, 4.16 is ok
+fanotify07
+fanotify08
+keyctl06
+request_key03
+
+#env problem, need real hardware storage with page operations not ramfs
+readahead02
+
+#case problem, see ltp result in yocto
+fanotify06
+
+#TODO: profile not support in linux now
+profil01
+
+#case problem, fcntl must use flock as arg not flock64.
+#But in these case, they use flock64 as arg to fcntl().
+fcntl34
+fcntl36
+
+#case problem, the case hope glibc syscall-check triger segv, but it panic in
+#kernel.
+sendfile04
+
+#timeout problem, fork13 -i 1000000 is too big
+fork13
+msgstress03
+msgstress04
+keyctl02
+mtest06
+sched_cli_serv
+sched_stress
+
+#env problem, need dev-net-tun
+ioctl03
+
+#version problem, cve-2017-12193 linux-4.13+ is ok
+add_key04
+
+#env problem, need syslogd
+syslog01
+syslog02
+syslog03
+syslog04
+syslog05
+syslog06
+syslog07
+syslog08
+syslog09
+syslog10
+syslog01
+syslog02
+syslog03
+syslog04
+syslog05
+syslog06
+syslog07
+syslog08
+syslog09
+syslog10
+
+#env problem, need sudoers
+utimensat01
+
+#timeout problem, This run OK but thrashes the machine with lots of processes
+msgctl11
+
+#TODO: I don't know
+sigwaitinfo01
+
+#env problem, need useradd
+setpriority01
+
+#TODO: EAFNOSUPPORT
+recvmsg02
+
+#env problem, hardlinks restriction applies only to non-privileged users
+prot_hsymlinks
+
+################################
+#  sched
+################################
+#timeout problem, some args is too big,so skip
+hackbench01
+hackbench02
+
+################################
+#  admin_tools
+################################
+#env problem, need userdel useradd
+su01
+cron02
+cron_deny01
+cron_allow01
+cron_dirs_checks01
+
+################################
+#  mm
+################################
+#TODO: need kernel enable ksm and cgroup
+ksm03
+ksm03_1
+ksm05
+
+################################
+# Time Out, should be OK
+################################
+msgctl09
+msgctl10
+msgctl11
+epoll01
+
+# Cause OOM killer, not bug
+min_free_kbytes
