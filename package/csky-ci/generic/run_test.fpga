@@ -1,0 +1,78 @@
+ROOT_PATH=$(dirname "$0")/../../../
+OUT_PATH=$(dirname "$0")/../../
+
+count=`lsmod | grep tailm_drv | grep -v "grep" | wc -l`
+
+if [ $count != 0 ]; then
+rmmod tailm_drv2
+rmmod tailm_drv
+fi
+
+FPGA_PATH=/mnt/fpga
+
+if [[ ! -f $FPGA_PATH/fpga_download_default.xml ]]; then
+	echo "No $FPGA_PATH NFS mounted ?"
+	exit 1
+fi
+
+cp $FPGA_PATH/fpga_download_default.xml $FPGA_PATH/fpga_download.xml
+sed -i "s/default.bit/NEW_S2C_BIT_NAME/g" $FPGA_PATH/fpga_download.xml
+echo "bitfile name: NEW_S2C_BIT_NAME"
+
+bash $FPGA_PATH/clock_60M.sh
+
+sleep 3
+
+function start_dbg_server()
+{
+	#Must enter /root/DebugServerConsole to execute since we need the configs
+	cd /root/DebugServerConsole
+	killall DebugServerConsole.elf > /dev/null 2>&1
+	echo 'DebugServer starts...'
+	# -ddc -port 1025 as default
+	./DebugServerConsole.elf &
+	cd -
+	sleep 1
+}
+
+function timeout()
+{
+	local time=10
+
+	while true;
+	do
+		DE_PID=`ps -e | grep DebugServer | awk '{print $1}'`
+		if [ ! $DE_PID ];
+		then
+			return 1
+		fi
+
+		sleep 1
+		let time-=1
+
+		if [ $time = '0' ];
+		then
+			return 0
+		fi
+		echo "DebugServer survives... time = $time, $DE_PID"
+	done
+}
+
+while true;
+do
+	start_dbg_server
+	timeout
+	if [ $? = '0' ];
+	then
+		echo 'DebugSever is working now'
+		break
+	fi
+done
+
+killall csky_serial > /dev/null 2>&1
+./$OUT_PATH/host/csky-ci/csky_serial > >(tee $ROOT_PATH/test.log) &
+
+#Must enter /output/images/hw to execute since we need the configs
+cd $OUT_PATH/images/hw
+. run.sh 127.0.0.1:1025 m 60
+cd -

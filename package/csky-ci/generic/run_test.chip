@@ -1,0 +1,72 @@
+ROOT_PATH=$(dirname "$0")/../../../
+OUT_PATH=$(dirname "$0")/../../
+
+function start_serial_and_dbg_server()
+{
+	killall csky_serial > /dev/null 2>&1
+	./$OUT_PATH/host/csky-ci/csky_serial > >(tee $ROOT_PATH/test.log) &
+	sleep 3
+
+	./$OUT_PATH/host/csky-ci/csky_switch /dev/csky_switch off
+	sleep 3
+	./$OUT_PATH/host/csky-ci/csky_switch /dev/csky_switch on
+	sleep 3
+
+	#Must enter /root/DebugServerConsole to execute since we need the configs
+	cd /root/DebugServerConsole
+	killall DebugServerConsole.elf > /dev/null 2>&1
+	echo 'DebugServer starts...'
+	# -ddc -port 1025 as default
+	./DebugServerConsole.elf &
+	cd -
+	sleep 1
+}
+
+function timeout()
+{
+	local time=10
+
+	while true;
+	do
+		DE_PID=`ps -e | grep DebugServer | awk '{print $1}'`
+		if [ ! $DE_PID ];
+		then
+			return 1
+		fi
+
+		sleep 1
+		let time-=1
+
+		if [ $time = '0' ];
+		then
+			return 0
+		fi
+		echo "DebugServer survives... time = $time, $DE_PID"
+	done
+}
+
+while true;
+do
+	start_serial_and_dbg_server
+	timeout
+	if [ $? = '0' ];
+	then
+		echo 'DebugSever is working now'
+		break
+	fi
+done
+
+if [ -d /tmp/rootfs_nfs ]; then
+	rm -rf /tmp/rootfs_nfs
+fi
+mkdir -p /tmp/rootfs_nfs
+if [ -f $OUT_PATH/images/rootfs.tar ]; then
+	tar -xf $OUT_PATH/images/rootfs.tar -C /tmp/rootfs_nfs
+	rm -f /tmp/rootfs_nfs/etc/init.d/S50sshd
+fi
+
+#Must enter /output/images to execute since we need the configs
+cd $OUT_PATH/images/hw
+chmod 755 ./run.sh
+LD_LIBRARY_PATH=../../host/lib ./run.sh 127.0.0.1:1025 $1
+cd -
