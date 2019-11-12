@@ -352,6 +352,7 @@ wait_for_trigger:
     <<: *common_tests
 
 910_5.1_glibc_compat: *910_build
+910_5.1_glibc_enhanced: *910_build
 910_next_glibc_compat: *910_build
 
 910_5.1_glibc_qemu_test:

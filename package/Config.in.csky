@@ -12,4 +12,5 @@ menu "T-HEAD extension"
 	source "package/hw-c810/Config.in"
 	source "package/hw-c610/Config.in"
 	source "package/csky-readme/Config.in"
+	source "package/qemu-c910-enhanced/Config.in"
 endmenu

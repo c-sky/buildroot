@@ -1,0 +1,2 @@
+config BR2_PACKAGE_QEMU_C910_ENHANCED
+	bool "qemu_c910_enhanced"
