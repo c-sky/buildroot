@@ -4,12 +4,20 @@
 #
 ##############################################################################
 
+ifeq ($(BR2_ck807),y)
+BR2_CSKY_CI_FPGA_BITFILE="807.bit"
+endif
+
+ifeq ($(BR2_ck810),y)
+BR2_CSKY_CI_FPGA_BITFILE="810.bit"
+endif
+
 ifeq ($(BR2_ck860),y)
-BR2_CSKY_CI_FPGA_BITFILE="e3_DH_860_no_vdsp_60M_190814.bit"
+BR2_CSKY_CI_FPGA_BITFILE="860.bit"
 endif
 
 ifeq ($(BR2_RISCV_64),y)
-BR2_CSKY_CI_FPGA_BITFILE="C960M_191025_debug_label1017_60MHz.bit"
+BR2_CSKY_CI_FPGA_BITFILE="910.bit"
 endif
 
 define CSKY_CI_INSTALL_TARGET_CMDS
@@ -23,9 +31,9 @@ cp -f ./package/csky-ci/generic/run_test.qemuv2 $(HOST_DIR)/csky-ci/run_test_qem
 cp -f ./package/csky-ci/generic/run_test.qemuv2_smp $(HOST_DIR)/csky-ci/run_test_qemuv2_smp.sh
 cp -f ./package/csky-ci/generic/run_test.qemu_riscv64 $(HOST_DIR)/csky-ci/run_test_qemu_riscv64.sh
 cp -f ./package/csky-ci/generic/run_test.fpga $(HOST_DIR)/csky-ci/run_test_fpga.sh
+sed -i "s/NEW_S2C_BIT_NAME/$(BR2_CSKY_CI_FPGA_BITFILE)/" $(HOST_DIR)/csky-ci/run_test_fpga.sh
 cp -f ./package/csky-ci/generic/run_test.chip $(HOST_DIR)/csky-ci/run_test_chip.sh
 cp -f ./package/csky-ci/generic/test.sh $(TARGET_DIR)/etc/init.d/
-sed -i "s/NEW_S2C_BIT_NAME/$(BR2_CSKY_CI_FPGA_BITFILE)/" $(HOST_DIR)/csky-ci/run_test_fpga.sh
 cp -f ./package/csky-ci/generic/generic_analyze.sh $(HOST_DIR)/csky-ci/
 cp -f ./package/csky-ci/generic/check_ssh_bg.sh $(HOST_DIR)/csky-ci/
 chmod 755 $(HOST_DIR)/csky-ci/*.sh
