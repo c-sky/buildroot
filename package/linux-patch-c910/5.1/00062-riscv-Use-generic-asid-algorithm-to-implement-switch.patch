@@ -1,7 +1,7 @@
-From f47ce3caf157760c28e5056f1d73aaea22f95cb5 Mon Sep 17 00:00:00 2001
+From 17d18623b176368c7f0968e55d1965d32ec87d7b Mon Sep 17 00:00:00 2001
 From: Guo Ren <ren_guo@c-sky.com>
 Date: Wed, 9 Oct 2019 15:20:26 +0800
-Subject: [PATCH 2/2] riscv: Use generic asid algorithm to implement switch_mm
+Subject: [PATCH] riscv: Use generic asid algorithm to implement switch_mm
 
 Use linux generic asid/vmid algorithm to implement csky
 switch_mm function. The algorithm is from arm and it could
@@ -10,16 +10,16 @@ switch_mm in task/vm switch.
 
 Signed-off-by: Guo Ren <ren_guo@c-sky.com>
 ---
- arch/riscv/include/asm/csr.h         |  6 +++++
+ arch/riscv/include/asm/csr.h         |  6 ++++
  arch/riscv/include/asm/mmu.h         |  1 +
- arch/riscv/include/asm/mmu_context.h | 22 ++++++++++-------
+ arch/riscv/include/asm/mmu_context.h | 22 +++++++------
  arch/riscv/mm/Makefile               |  1 +
- arch/riscv/mm/context.c              | 46 ++++++++++++++++++++++++++++++++++++
- 5 files changed, 67 insertions(+), 9 deletions(-)
+ arch/riscv/mm/context.c              | 47 ++++++++++++++++++++++++++++
+ 5 files changed, 68 insertions(+), 9 deletions(-)
  create mode 100644 arch/riscv/mm/context.c
 
 diff --git a/arch/riscv/include/asm/csr.h b/arch/riscv/include/asm/csr.h
-index 28a0d1c..b02ee93 100644
+index 28a0d1cb3..b02ee9312 100644
 --- a/arch/riscv/include/asm/csr.h
 +++ b/arch/riscv/include/asm/csr.h
 @@ -45,10 +45,16 @@
@@ -40,7 +40,7 @@ index 28a0d1c..b02ee93 100644
  
  /* Interrupt Enable and Interrupt Pending flags */
 diff --git a/arch/riscv/include/asm/mmu.h b/arch/riscv/include/asm/mmu.h
-index 5df2dcc..1f25b81 100644
+index 5df2dccdb..1f25b81a9 100644
 --- a/arch/riscv/include/asm/mmu.h
 +++ b/arch/riscv/include/asm/mmu.h
 @@ -18,6 +18,7 @@
@@ -52,7 +52,7 @@ index 5df2dcc..1f25b81 100644
  #ifdef CONFIG_SMP
  	/* A local icache flush is needed before user execution can resume. */
 diff --git a/arch/riscv/include/asm/mmu_context.h b/arch/riscv/include/asm/mmu_context.h
-index 336d60e..c79b088 100644
+index 336d60ec5..c79b08884 100644
 --- a/arch/riscv/include/asm/mmu_context.h
 +++ b/arch/riscv/include/asm/mmu_context.h
 @@ -23,18 +23,16 @@
@@ -111,7 +111,7 @@ index 336d60e..c79b088 100644
  		flush_icache_deferred(next);
  	}
 diff --git a/arch/riscv/mm/Makefile b/arch/riscv/mm/Makefile
-index 5b58ada..1d1d9d3 100644
+index 5b58adaec..1d1d9d3a6 100644
 --- a/arch/riscv/mm/Makefile
 +++ b/arch/riscv/mm/Makefile
 @@ -11,3 +11,4 @@ obj-y += ioremap.o
@@ -121,10 +121,10 @@ index 5b58ada..1d1d9d3 100644
 +obj-y += context.o
 diff --git a/arch/riscv/mm/context.c b/arch/riscv/mm/context.c
 new file mode 100644
-index 0000000..4111a8e
+index 000000000..4b1eb0942
 --- /dev/null
 +++ b/arch/riscv/mm/context.c
-@@ -0,0 +1,46 @@
+@@ -0,0 +1,47 @@
 +// SPDX-License-Identifier: GPL-2.0
 +// Copyright (C) 2018 Hangzhou C-SKY Microsystems co.,ltd.
 +
@@ -168,9 +168,10 @@ index 0000000..4111a8e
 +	pr_info("ASID allocator initialised with %lu entries\n",
 +		NUM_CTXT_ASIDS(&asid_info));
 +
++	local_flush_tlb_all();
 +	return 0;
 +}
 +early_initcall(asids_init);
 -- 
-2.7.4
+2.17.0
 
