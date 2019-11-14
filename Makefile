@@ -36,7 +36,7 @@ define COPYFILES
 			$(BRW_DIR)/support/scripts/apply-patches.sh $(BRW_DIR) $(BRW_PATCH_DIR); \
 		fi; \
 	fi; \
-	cp $(BRW_ROOT)/configs/$(CONF) $(BRW_DIR)/configs/$(CONF) -f;
+	cp $(BRW_ROOT)/configs/* $(BRW_DIR)/configs/ -f;
 endef
 
 .PHONY: prepare
