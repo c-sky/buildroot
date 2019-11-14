@@ -41,7 +41,7 @@ index 73e0778..53213bf 100644
  
  ifeq ($(BR2_csky),y)
 -QEMU_VERSION = b517e1dc3125a57555d67a8deed9eac7b42288e2
-+QEMU_VERSION = 3fb716af346ab41c66e9c21a90275bcedd0badbd
++QEMU_VERSION = 16313147f5c930342a13ec75734134c03b3adc93
  QEMU_SITE = $(call github,c-sky,qemu,$(QEMU_VERSION))
  else
  QEMU_VERSION = 3.1.0
