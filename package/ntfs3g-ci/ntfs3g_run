@@ -1,16 +1,24 @@
+LOOP_NUM=20
+
+if [ $# -ge 1 ];then
+	LOOP_NUM=$1
+fi
+
 if [ -f "/usr/lib/csky-ci/ntfs3g_gz" ]; then
+	umount /mnt
+	rm -f ntfs.img
 	set -e
-	dd if=/dev/zero of=ntfs.img bs=5242880 count=1
+	dd if=/dev/zero of=ntfs.img bs=5242880 count=2
 	mkfs.ntfs ntfs.img -F
 	ntfs-3g ntfs.img /mnt/
 	dd if=/bin/busybox of=/mnt/test.bin bs=256000 count=1
 	MD5SUM=`md5sum /mnt/test.bin|awk '{print $1}'`
 	cd /mnt
 	echo "Testing ntfs-3g"
-	for j in $(seq 1 20)
+	for j in $(seq 1 $LOOP_NUM)
 	do
 		echo $j "th run"
-		for i in $(seq 1 5)
+		for i in $(seq 1 6)
 		do
 		/usr/lib/csky-ci/ntfs3g_gz /mnt/test.bin $i $MD5SUM &
 		done
@@ -19,7 +27,7 @@ if [ -f "/usr/lib/csky-ci/ntfs3g_gz" ]; then
 		while [ `ls /tmp/md5_*|wc -w` -lt "4" ]; do
 			sleep 1
 			let "WAIT= WAIT + 1"
-			if [ "$WAIT" -gt 10 ]; then
+			if [ "$WAIT" -gt 100 ]; then
         	        	exit 1
         		fi
 		done

@@ -1,0 +1,91 @@
+/dts-v1/;
+/ {
+	model = "T-HEAD c910 simple soc";
+	compatible = "thead,c910_simple_soc";
+	#address-cells = <2>;
+	#size-cells = <2>;
+
+	memory@0 {
+		device_type = "memory";
+		reg = <0x0 0xc0200000 0x0 0x3fe00000>;
+	};
+
+	cpus {
+		#address-cells = <1>;
+		#size-cells = <0>;
+		timebase-frequency = <30000000>;
+		cpu@0 {
+			device_type = "cpu";
+			reg = <0>;
+			status = "okay";
+			compatible = "riscv";
+			riscv,isa = "rv64imafdcsu";
+			mmu-type = "riscv,sv39";
+			cpu0_intc: interrupt-controller {
+				#interrupt-cells = <1>;
+				compatible = "riscv,cpu-intc";
+				interrupt-controller;
+			};
+		};
+	};
+
+	soc {
+		#address-cells = <2>;
+		#size-cells = <2>;
+		compatible = "simple-bus";
+		ranges;
+
+		intc: interrupt-controller@20000000 {
+			#interrupt-cells = <1>;
+			compatible = "riscv,plic0";
+			interrupt-controller;
+			interrupts-extended = <&cpu0_intc 0xffffffff &cpu0_intc 9>;
+			reg = <0x0 0x20000000 0x0 0x04000000>;
+			reg-names = "control";
+			riscv,max-priority = <7>;
+			riscv,ndev = <64>;
+		};
+
+		dummy_apb: apb-clock {
+			compatible = "fixed-clock";
+			clock-frequency = <30000000>;
+			clock-output-names = "dummy_apb";
+			#clock-cells = <0>;
+		};
+
+		serial@1fba4000 {
+			compatible = "snps,dw-apb-uart";
+			reg = <0x0 0x1fba4000 0x0 0x1000>;
+			interrupt-parent = <&intc>;
+			interrupts = <27>;
+			clocks = <&dummy_apb>;
+			clock-names = "baudclk";
+			reg-shift = <2>;
+			reg-io-width = <4>;
+		};
+
+		pmu: pmu {
+			compatible = "riscv,c910_pmu";
+		};
+
+		gmac: ethernet@1FB10000 {
+			compatible = "snps,dwmac";
+			reg = <0x0 0x1FB10000 0x0 0x2000>;
+			interrupt-parent = <&intc>;
+			interrupts = <50>;
+			interrupt-names = "macirq";
+			clocks = <&dummy_apb>;
+			clock-names = "stmmaceth";
+			snps,pbl = <32>;
+			snps,fixed-burst;
+			phy-mode = "mii";
+		};
+	};
+
+	chosen {
+		bootargs = "console=ttyS0,115200";
+		linux,initrd-start = <0xc1000000>;
+		linux,initrd-end = <0xc9000000>;
+		stdout-path = "serial@1fba4000";
+	};
+};

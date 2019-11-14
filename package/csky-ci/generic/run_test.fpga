@@ -25,7 +25,7 @@ function start_dbg_server()
 	sleep 3
 	echo 'DebugServer starts...'
 	# -ddc -port 1025 as default
-	./DebugServerConsole.elf &
+	./DebugServerConsole.elf -setclk 6&
 	cd -
 	sleep 3
 }
@@ -70,5 +70,5 @@ sleep 10
 ./$OUT_PATH/host/csky-ci/csky_serial > >(tee $ROOT_PATH/test.log) &
 
 cd $OUT_PATH/images/hw
-. run.sh 127.0.0.1:1025 m 60
+. run.sh 127.0.0.1:1025
 cd -
