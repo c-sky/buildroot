@@ -6,11 +6,11 @@
 
 ifeq ($(BR2_csky),y)
 define PERF_CI_COMPILE_CASE
-	$(HOST_DIR)/bin/csky-buildroot-*-gcc -O0 -g -fexceptions -mbacktrace package/perf-ci/callchain_test.c -o callchain_test
+	$(TARGET_CC) -O0 -g -fexceptions -mbacktrace package/perf-ci/callchain_test.c -o callchain_test
 endef
 else
 define PERF_CI_COMPILE_CASE
-        $(HOST_DIR)/bin/*-buildroot-*-gcc -O0 -g -fexceptions -fno-omit-frame-pointer package/perf-ci/callchain_test.c -o callchain_test
+	$(TARGET_CC) -O0 -g -fexceptions -fno-omit-frame-pointer package/perf-ci/callchain_test.c -o callchain_test
 endef
 endif
 
