@@ -25,6 +25,7 @@ define COPYFILES
 		cp $(BRW_ROOT)/package/* $(BRW_DIR)/package/ -raf; \
 		cp $(BRW_ROOT)/boot/* $(BRW_DIR)/boot/ -raf; \
 		cp $(BRW_ROOT)/board/* $(BRW_DIR)/board/ -raf; \
+		cp $(BRW_ROOT)/fs/* $(BRW_DIR)/fs/ -raf; \
 		rm -rf package/ncurses/*.patch; \
 		echo "DL_DIR=$(BR2_DL_DIR)" >> $(BRW_DIR)/Makefile; \
 		if [ -f ~/.gitconfig ]; then \

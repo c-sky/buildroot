@@ -1,0 +1,8 @@
+define ROOTFS_CPIO_MINIMIZE_THEAD
+	rm -rf $(TARGET_DIR)/usr/lib/ltp*
+	rm -rf $(TARGET_DIR)/etc/init.d/S50sshd
+	rm -rf $(TARGET_DIR)/etc/init.ci/ltp_run
+endef
+
+ROOTFS_CPIO_PRE_GEN_HOOKS += ROOTFS_CPIO_MINIMIZE_THEAD
+ROOTFS_TAR_PRE_GEN_HOOKS  += ROOTFS_CPIO_MINIMIZE_THEAD
