@@ -195,6 +195,20 @@ wait_for_trigger:
       - 610_4.14_glibc_compat
     <<: *gx6622_chip_test
 
+610_4.19_glibc_gx6622_test:
+    tags:
+      - csky-610-gx6622
+    dependencies:
+      - 610_4.19_glibc_compat
+    <<: *gx6622_chip_test
+
+610_next_glibc_gx6622_test:
+    tags:
+      - csky-610-gx6622
+    dependencies:
+      - 610_next_glibc_compat
+    <<: *gx6622_chip_test
+
 ################ 810 ################
 # qemu
 .810_build: &810_build
