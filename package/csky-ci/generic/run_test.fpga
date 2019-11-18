@@ -13,8 +13,8 @@ if [[ ! -f /mnt/fpga/fpga_download_default.xml ]]; then
 	exit 1
 fi
 
-echo "bitfile name: NEW_S2C_BIT_NAME"
-bash /mnt/fpga/fpga_download.sh 60 NEW_S2C_BIT_NAME
+echo "bitfile mhz: NEW_S2C_BIT_MHZ name: NEW_S2C_BIT_NAME"
+bash /mnt/fpga/fpga_download.sh NEW_S2C_BIT_MHZ NEW_S2C_BIT_NAME
 
 sleep 3
 
