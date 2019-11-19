@@ -14,6 +14,7 @@ stages:
   - build
   - qemu-test
   - chip-test
+  - build-enhanced
 
 variables:
     PREFIX: ""
@@ -86,6 +87,14 @@ wait_for_trigger:
             - output/images/
             - build.log.xz
 
+.common_build: &common_build
+    stage: build
+    <<: *common_builds
+
+.enhanced_build: &enhanced_build
+    stage: build-enhanced
+    <<: *common_builds
+
 .common_test_script: &common_test_script
     - echo 'Prepare to run'
     - mkdir -p output/host/
@@ -122,10 +131,6 @@ wait_for_trigger:
 
 ################ 610 ################
 # qemu
-.610_build: &610_build
-    stage: build
-    <<: *common_builds
-
 .610_qemu_before_test: &610_qemu_before_test
     - RUN="run_test_qemuv1.sh"
 
@@ -134,12 +139,12 @@ wait_for_trigger:
     before_script: *610_qemu_before_test
     <<: *common_tests
 
-610_4.9_uclibc_compat: *610_build
-610_4.9_glibc_compat: *610_build
-610_4.14_uclibc_compat: *610_build
-610_4.14_glibc_compat: *610_build
-610_4.19_glibc_compat: *610_build
-610_next_glibc_compat: *610_build
+610_4.9_uclibc_compat: *common_build
+610_4.9_glibc_compat: *common_build
+610_4.14_uclibc_compat: *common_build
+610_4.14_glibc_compat: *common_build
+610_4.19_glibc_compat: *common_build
+610_next_glibc_compat: *common_build
 
 610_4.9_uclibc_qemu_test:
     dependencies:
@@ -211,10 +216,6 @@ wait_for_trigger:
 
 ################ 810 ################
 # qemu
-.810_build: &810_build
-    stage: build
-    <<: *common_builds
-
 .810_qemu_before_test: &810_qemu_before_test
     - RUN="run_test_qemuv2.sh"
 
@@ -223,12 +224,12 @@ wait_for_trigger:
     before_script: *810_qemu_before_test
     <<: *common_tests
 
-810f_4.9_uclibc_compat: *810_build
-810f_4.9_glibc_compat: *810_build
-810f_4.14_uclibc_compat: *810_build
-810f_4.14_glibc_compat: *810_build
-810f_4.19_glibc_compat: *810_build
-810f_next_glibc_compat: *810_build
+810f_4.9_uclibc_compat: *common_build
+810f_4.9_glibc_compat: *common_build
+810f_4.14_uclibc_compat: *common_build
+810f_4.14_glibc_compat: *common_build
+810f_4.19_glibc_compat: *common_build
+810f_next_glibc_compat: *common_build
 
 810f_4.9_uclibc_qemu_test:
     dependencies:
@@ -286,10 +287,6 @@ wait_for_trigger:
 
 ################ 860 ################
 # qemu
-.860_build: &860_build
-    stage: build
-    <<: *common_builds
-
 .860_qemu_before_test: &860_qemu_before_test
     - RUN="run_test_qemuv2_smp.sh"
 
@@ -298,12 +295,12 @@ wait_for_trigger:
     before_script: *860_qemu_before_test
     <<: *common_tests
 
-860_4.9_glibc_compat: *860_build
-860_4.9_uclibc_compat: *860_build
-860_4.14_glibc_compat: *860_build
-860_4.14_uclibc_compat: *860_build
-860_4.19_glibc_compat: *860_build
-860_next_glibc_compat: *860_build
+860_4.9_glibc_compat: *common_build
+860_4.9_uclibc_compat: *common_build
+860_4.14_glibc_compat: *common_build
+860_4.14_uclibc_compat: *common_build
+860_4.19_glibc_compat: *common_build
+860_next_glibc_compat: *common_build
 
 860_4.9_glibc_qemu_test:
     dependencies:
@@ -353,10 +350,6 @@ wait_for_trigger:
 
 ################ 910 ################
 # qemu
-.910_build: &910_build
-    stage: build
-    <<: *common_builds
-
 .910_qemu_before_test: &910_qemu_before_test
     - RUN="run_test_qemu_riscv64.sh"
 
@@ -365,9 +358,9 @@ wait_for_trigger:
     before_script: *910_qemu_before_test
     <<: *common_tests
 
-910_5.1_glibc_compat: *910_build
-910_5.1_glibc_enhanced: *910_build
-910_next_glibc_compat: *910_build
+910_5.1_glibc_compat: *common_build
+910_5.1_glibc_enhanced: *enhanced_build
+910_next_glibc_compat: *common_build
 
 910_5.1_glibc_qemu_test:
     dependencies:
