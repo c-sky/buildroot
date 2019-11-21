@@ -92,11 +92,11 @@ index 336d60ec5..c79b08884 100644
  		 * routines in order to determine who should
  		 */
  		unsigned int cpu = smp_processor_id();
-+		unsigned long asid =
-+			(next->context.asid.counter & SATP_ASID_MASK)
-+			<< SATP_ASID_SHIFT;
++		unsigned long asid;
 +
 +		check_and_switch_context(next, cpu);
++		asid = (next->context.asid.counter & SATP_ASID_MASK)
++			<< SATP_ASID_SHIFT;
  
  		cpumask_clear_cpu(cpu, mm_cpumask(prev));
  		cpumask_set_cpu(cpu, mm_cpumask(next));
