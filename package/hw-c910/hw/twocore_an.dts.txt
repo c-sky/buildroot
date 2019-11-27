@@ -27,6 +27,19 @@
 				interrupt-controller;
 			};
 		};
+		cpu@1 {
+			device_type = "cpu";
+			reg = <1>;
+			status = "okay";
+			compatible = "riscv";
+			riscv,isa = "rv64imafdcsu";
+			mmu-type = "riscv,sv39";
+			cpu1_intc: interrupt-controller {
+				#interrupt-cells = <1>;
+				compatible = "riscv,cpu-intc";
+				interrupt-controller;
+			};
+		};
 	};
 
 	soc {
@@ -39,7 +52,7 @@
 			#interrupt-cells = <1>;
 			compatible = "riscv,plic0";
 			interrupt-controller;
-			interrupts-extended = <&cpu0_intc 0xffffffff &cpu0_intc 9>;
+			interrupts-extended = <&cpu0_intc 0xffffffff &cpu0_intc 9 &cpu1_intc 0xffffffff &cpu1_intc 9>;
 			reg = <0x0 0xf0000000 0x0 0x04000000>;
 			reg-names = "control";
 			riscv,max-priority = <7>;
