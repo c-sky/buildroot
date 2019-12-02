@@ -44,8 +44,12 @@ sed -i "s/linux,initrd-end.*/linux,initrd-end = <$ROOTFS_END>;/g" .hw.dts
 dtc -I dts -O dtb .hw.dts > hw.dtb
 
 # Init DDR
-if [ $BOARD != "ve" ]; then
+if [ $BOARD == "ve" ]; then
+	echo "No need ddr_init for veloce"
+elif [ $BOARD == "eg" ]; then
 ./riscv64-linux-gdb -ex "tar remote $1" -x $DDRINIT ddr_init_$BOARD\_elf -ex "c" -ex "q"
+elif [ $BOARD == "an" ]; then
+./riscv64-linux-gdb -ex "tar remote $1" -x $DDRINIT -ex "q"
 fi
 
 # Run linux
