@@ -14,6 +14,8 @@ else
 	return 0
 fi
 
+set -ex
+
 ROOTFS_BASE=`cat .hw.dts | grep initrd-start | awk -F "<" '{print $2}' | awk -F ">" '{print $1}'`
 ROOTFS_SIZE=`ls -lt ../rootfs.cpio.gz | awk '{print $5}'`
 ((ROOTFS_END= $ROOTFS_BASE + $ROOTFS_SIZE))
@@ -24,7 +26,7 @@ dtc -I dts -O dtb .hw.dts > hw.dtb
 
 if [ $2 == 'fpga' ]; then
 # Init DDR
-../../host/bin/csky-linux-gdb -ex "tar remote $1" -x ddrinit.txt ddr_init_elf
+../../host/bin/csky-linux-gdb -ex "tar remote $1" -x ddrinit.txt ddr_init_elf > /dev/null
 fi
 
 # Run linux

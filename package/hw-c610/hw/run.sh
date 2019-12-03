@@ -12,5 +12,7 @@ else
 	return 0
 fi
 
+set -ex
+
 # Run linux
 ../../host/bin/csky-linux-gdb -ex "tar remote $1" -x gdbinit.txt -ex "c" -ex "q"

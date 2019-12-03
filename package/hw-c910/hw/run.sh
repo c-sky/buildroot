@@ -23,6 +23,8 @@ elif [ $idx == "m" ]; then
 fi
 done
 
+set -ex
+
 DDRINIT=ddrinit.$BOARD.txt
 GDBINIT=gdbinit.$BOARD.txt
 DTS=$NRCORE\_$BOARD.dts.txt
@@ -47,7 +49,7 @@ dtc -I dts -O dtb .hw.dts > hw.dtb
 if [ $BOARD == "ve" ]; then
 	echo "No need ddr_init for veloce"
 elif [ $BOARD == "eg" ]; then
-./riscv64-linux-gdb -ex "tar remote $1" -x $DDRINIT ddr_init_$BOARD\_elf -ex "c" -ex "q"
+./riscv64-linux-gdb -ex "tar remote $1" -x $DDRINIT ddr_init_$BOARD\_elf -ex "c" -ex "q" > /dev/null
 elif [ $BOARD == "an" ]; then
 ./riscv64-linux-gdb -ex "tar remote $1" -x $DDRINIT -ex "q"
 fi
