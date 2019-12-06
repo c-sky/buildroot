@@ -4,7 +4,7 @@
 #
 ################################################################################
 
-RISCV_PK_C910_VERSION = d07f5d0d978faa6f60d3256fdf901e19c5036f75
+RISCV_PK_C910_VERSION = 0c29c7db3457cadeb85b289858659e522d7b1eb6
 RISCV_PK_C910_SOURCE = riscv-pk-c910-$(RISCV_PK_C910_VERSION).tar.gz
 RISCV_PK_C910_SITE = $(call github,c-sky,riscv-pk,$(RISCV_PK_C910_VERSION))
 
