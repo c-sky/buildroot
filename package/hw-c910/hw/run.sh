@@ -6,7 +6,7 @@ if [ $# -lt 1 -o $# -gt 3 ] ; then
 fi
 
 BOARD="eg"
-NRCORE="onecore"
+NRCORE="twocore"
 
 for idx in "$@"
 do
