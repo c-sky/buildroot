@@ -302,7 +302,7 @@ index b6bb10b..c5d1f3b 100644
  #define SBI_REMOTE_SFENCE_VMA 6
  #define SBI_REMOTE_SFENCE_VMA_ASID 7
  #define SBI_SHUTDOWN 8
-+#define SBI_FENCE_DMA 901
++#define SBI_FENCE_DMA 0x09000002
  
  #define SBI_CALL(which, arg0, arg1, arg2) ({			\
  	register uintptr_t a0 asm ("a0") = (uintptr_t)(arg0);	\
@@ -395,7 +395,7 @@ index 0000000..59bd2f7
 +#include <linux/version.h>
 +#include <asm/cache.h>
 +
-+//#define NO_SBI_FENCE_DMA
++#define NO_SBI_FENCE_DMA
 +
 +static int __init atomic_pool_init(void)
 +{

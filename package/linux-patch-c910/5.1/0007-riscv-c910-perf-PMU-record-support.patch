@@ -139,8 +139,8 @@ index c5d1f3b33..bc0fa23d4 100644
  #define SBI_REMOTE_SFENCE_VMA 6
  #define SBI_REMOTE_SFENCE_VMA_ASID 7
  #define SBI_SHUTDOWN 8
-+#define SBI_PMU 900
- #define SBI_FENCE_DMA 901
++#define SBI_PMU 0x09000001
+ #define SBI_FENCE_DMA 0x09000002
  
  #define SBI_CALL(which, arg0, arg1, arg2) ({			\
 @@ -107,4 +108,8 @@ static inline void sbi_fence_dma(unsigned long start,
