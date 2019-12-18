@@ -1,7 +1,9 @@
 BR2_VERSION		= ded3f9954f158b5d9cd08ae76749eade72fcca3a
 
 .PHONY: all
-all: compile
+all .DEFAULT: prepare
+	make -C $(BRW_DIR) $(CONF) O=$(BRW_ROOT)/$(O)
+	make -C $(BRW_ROOT)/$(O) $@
 
 BRW_ROOT	= $(PWD)
 BRW_PRIMARY_SITE	= ftp://192.168.0.117/QA/Test/buildroot2-dl/
@@ -55,11 +57,3 @@ endef
 prepare:
 	@$(call DOWNLOAD)
 	@$(call COPYFILES)
-
-.PHONY: configure
-configure: prepare
-	make -C $(BRW_DIR) $(CONF) O=$(BRW_ROOT)/$(O)
-
-.PHONY: compile
-compile: configure
-	make -C $(BRW_ROOT)/$(O)
