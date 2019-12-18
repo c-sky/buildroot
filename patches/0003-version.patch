@@ -1,24 +1,38 @@
-From ece0d6687c83ca1d0a5f8c5230a351325c172172 Mon Sep 17 00:00:00 2001
+From 5d789a87a10ed3a627e50604fc5485e413ec5392 Mon Sep 17 00:00:00 2001
 From: Guo Ren <ren_guo@c-sky.com>
 Date: Tue, 9 Jul 2019 13:48:55 +0800
 Subject: [PATCH] version
 
 ---
- package/csky-arch/csky-arch.mk | 1 +
+ package/csky-arch/csky-arch.mk | 2 ++
+ package/gcc/Config.in.host     | 2 +-
  package/gdb/Config.in.host     | 2 +-
  package/qemu/qemu.mk           | 2 +-
- 3 files changed, 3 insertions(+), 2 deletions(-)
+ 4 files changed, 5 insertions(+), 3 deletions(-)
 
 diff --git a/package/csky-arch/csky-arch.mk b/package/csky-arch/csky-arch.mk
-index 0158c2c..ef14690 100644
+index b0c6dae..43c806e 100644
 --- a/package/csky-arch/csky-arch.mk
 +++ b/package/csky-arch/csky-arch.mk
-@@ -79,3 +79,5 @@ endif
+@@ -43,3 +43,5 @@ endif
  
  $(eval $(generic-package))
  endif
 +CSKY_LINUX_NEXT_VERSION	= 044cf5e153578583ef570b0a502ccdd74bdaf295
 +CSKY_LINUX_NEXT_RISCV_VERSION	= d0e0b865a462a37560b53751e9fcff63cc958d19
+diff --git a/package/gcc/Config.in.host b/package/gcc/Config.in.host
+index 239353d..ab89b7e 100644
+--- a/package/gcc/Config.in.host
++++ b/package/gcc/Config.in.host
+@@ -111,7 +111,7 @@ config BR2_GCC_VERSION
+ 	default "9.1.0"     if BR2_GCC_VERSION_9_X
+ 	default "arc-2019.03-release" if BR2_GCC_VERSION_ARC
+ 	default "or1k-musl-5.4.0-20170218" if BR2_GCC_VERSION_OR1K
+-	default "48152afb96c59733d5bc79e3399bb7b3d4b44266" if BR2_GCC_VERSION_CSKY
++	default "254d794e1821058b21384cd5b53c85a530a067dc" if BR2_GCC_VERSION_CSKY
+ 
+ config BR2_EXTRA_GCC_CONFIG_OPTIONS
+ 	string "Additional gcc options"
 diff --git a/package/gdb/Config.in.host b/package/gdb/Config.in.host
 index 8257fd4..310045e 100644
 --- a/package/gdb/Config.in.host
@@ -33,7 +47,7 @@ index 8257fd4..310045e 100644
  	default "8.1.1"    if BR2_GDB_VERSION_8_1
  	default "8.2.1"    if BR2_GDB_VERSION_8_2 || !BR2_PACKAGE_HOST_GDB
 diff --git a/package/qemu/qemu.mk b/package/qemu/qemu.mk
-index 73e0778..53213bf 100644
+index 73e0778..154c4e4 100644
 --- a/package/qemu/qemu.mk
 +++ b/package/qemu/qemu.mk
 @@ -5,7 +5,7 @@
@@ -46,5 +60,5 @@ index 73e0778..53213bf 100644
  else
  QEMU_VERSION = 3.1.0
 -- 
-2.17.1
+2.17.0
 
