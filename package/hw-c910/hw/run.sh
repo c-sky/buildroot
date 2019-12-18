@@ -6,7 +6,7 @@ if [ $# -lt 1 -o $# -gt 3 ] ; then
 fi
 
 BOARD="eg"
-NRCORE="twocore"
+NRCORE=2
 
 for idx in "$@"
 do
@@ -17,17 +17,21 @@ elif [ $idx == "eg" ]; then
 elif [ $idx == "ve" ]; then
 	BOARD="ve"
 elif [ $idx == "s" ]; then
-	NRCORE="onecore"
+	NRCORE=1
 elif [ $idx == "m" ]; then
-	NRCORE="twocore"
+	NRCORE=2
 fi
+case "$idx" in
+    [1-9] | [1-1][0-6])
+		NRCORE=$idx
+esac
 done
 
 set -ex
 
 DDRINIT=ddrinit.$BOARD.txt
 GDBINIT=gdbinit.$BOARD.txt
-DTS=$NRCORE\_$BOARD.dts.txt
+DTS=$BOARD.dts.txt
 
 echo "Use config" $NRCORE $BOARD
 if [ ! -f $GDBINIT -o ! -f $DTS ]; then
@@ -35,7 +39,17 @@ if [ ! -f $GDBINIT -o ! -f $DTS ]; then
 	exit 1
 fi
 
+enable_dts_cores() {
+	let x=$1-1
+	for ((i=1;i<=$x;i++)); do
+		y=`awk '/cpu@'$i' \{/{getline a;print NR}' .hw.dts`
+		let y=$y+2
+		sed -i ''$y','$y's/fail/okay/g' .hw.dts
+	done
+}
+
 cp $DTS .hw.dts
+enable_dts_cores $NRCORE
 
 ROOTFS_BASE=`cat .hw.dts | grep initrd-start | awk -F "<" '{print $2}' | awk -F ">" '{print $1}'`
 ROOTFS_SIZE=`ls -lt ../rootfs.cpio.gz | awk '{print $5}'`
