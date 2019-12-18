@@ -6,8 +6,6 @@ all .DEFAULT: prepare
 	make -C $(BRW_ROOT)/$(O) $@
 
 BRW_ROOT	= $(PWD)
-BRW_PRIMARY_SITE	= ftp://192.168.0.117/QA/Test/buildroot2-dl/
-BRW_PRI_SITE	= $(BRW_PRIMARY_SITE)/buildroot-$(BR2_VERSION).tar.gz
 BRW_SITE	= https://github.com/buildroot/buildroot/archive/$(BR2_VERSION).tar.gz
 BRW_FILE	= $(BR2_DL_DIR)/buildroot-$(BR2_VERSION).tar.gz
 BRW_DIR		= $(BRW_ROOT)/buildroot-$(BR2_VERSION)
@@ -19,13 +17,7 @@ BR2_DL_DIR ?= $(BRW_ROOT)/dl
 define DOWNLOAD
 	mkdir -p $(BR2_DL_DIR); \
 	if [ ! -f $(BRW_FILE) ]; then \
-		wget -c -T 10 $(BRW_PRI_SITE) ; \
-		if [ -f buildroot-$(BR2_VERSION).tar.gz ]; then \
-			mv buildroot-$(BR2_VERSION).tar.gz $(BRW_FILE) ;\
-		fi; \
-		if [ ! -f $(BRW_FILE) ]; then \
-			wget -c $(BRW_SITE) -O $(BRW_FILE); \
-		fi; \
+		wget -c $(BRW_SITE) -O $(BRW_FILE); \
 	fi
 endef
 
@@ -48,9 +40,7 @@ define COPYFILES
 		fi; \
 	fi; \
 	cp $(BRW_ROOT)/configs/* $(BRW_DIR)/configs/ -f; \
-	cp $(BRW_ROOT)/configs_enhanced/* $(BRW_DIR)/configs/ -f; \
-	sed -i '/^BR2_PRIMARY_SITE.*/d' $(BRW_DIR)/configs/* ;\
-	echo "BR2_PRIMARY_SITE=\"ftp://192.168.0.117/QA/Test/buildroot2-dl/\"" | tee -a $(BRW_DIR)/configs/* ;
+	cp $(BRW_ROOT)/configs_enhanced/* $(BRW_DIR)/configs/ -f;
 endef
 
 .PHONY: prepare
