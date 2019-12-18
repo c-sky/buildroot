@@ -359,7 +359,6 @@ wait_for_trigger:
     <<: *common_tests
 
 910_5.1_glibc_compat: *common_build
-910_5.1_glibc_enhanced: *enhanced_build
 910_next_glibc_compat: *common_build
 
 910_5.1_glibc_qemu_test:
@@ -394,3 +393,27 @@ wait_for_trigger:
     dependencies:
       - 910_next_glibc_compat
     <<: *910_fpga_test
+
+################ enhanced ################
+807_4.9_glibc_enhanced: *enhanced_build
+807_4.9_uclibc_enhanced: *enhanced_build
+807_4.19_glibc_enhanced: *enhanced_build
+807f_4.9_glibc_enhanced: *enhanced_build
+807f_4.9_uclibc_enhanced: *enhanced_build
+807f_4.19_glibc_enhanced: *enhanced_build
+
+810f_4.9_glibc_enhanced: *enhanced_build
+810f_4.9_uclibc_enhanced: *enhanced_build
+810f_4.19_glibc_enhanced: *enhanced_build
+810v_4.9_glibc_enhanced: *enhanced_build
+810v_4.9_uclibc_enhanced: *enhanced_build
+810v_4.19_glibc_enhanced: *enhanced_build
+
+860f_4.9_glibc_enhanced: *enhanced_build
+860f_4.9_uclibc_enhanced: *enhanced_build
+860f_4.19_glibc_enhanced: *enhanced_build
+860v_4.9_glibc_enhanced: *enhanced_build
+860v_4.9_uclibc_enhanced: *enhanced_build
+860v_4.19_glibc_enhanced: *enhanced_build
+
+910_5.1_glibc_enhanced: *enhanced_build
