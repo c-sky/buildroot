@@ -13,11 +13,20 @@
 			reg = <0>;
 			status = "ok";
 		};
-
 		cpu@1 {
 			device_type = "cpu";
 			reg = <1>;
-			status = "ok";
+			status = "fail";
+		};
+		cpu@2 {
+			device_type = "cpu";
+			reg = <2>;
+			status = "fail";
+		};
+		cpu@3 {
+			device_type = "cpu";
+			reg = <3>;
+			status = "fail";
 		};
 	};
 
