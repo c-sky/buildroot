@@ -10,6 +10,9 @@ BRW_SITE	= https://github.com/buildroot/buildroot/archive/$(BR2_VERSION).tar.gz
 BRW_FILE	= $(BR2_DL_DIR)/buildroot-$(BR2_VERSION).tar.gz
 BRW_DIR		= $(BRW_ROOT)/buildroot-$(BR2_VERSION)
 BRW_PATCH_DIR	= $(BRW_ROOT)/patches
+ifneq ($(INSIDE_SITE),)
+BRW_SITE	= $(INSIDE_SITE)/buildroot-$(BR2_VERSION).tar.gz
+endif
 
 O ?= $(CONF)
 BR2_DL_DIR ?= $(BRW_ROOT)/dl
@@ -38,6 +41,10 @@ define COPYFILES
 		else \
 			$(BRW_DIR)/support/scripts/apply-patches.sh $(BRW_DIR) $(BRW_PATCH_DIR); \
 		fi; \
+	fi; \
+	if [ "$(INSIDE_SITE)" != "" ];then \
+		sed -i '/^BR2_PRIMARY_SITE.*/d' $(BRW_ROOT)/configs_enhanced/* ;\
+		echo "BR2_PRIMARY_SITE=\"$(INSIDE_SITE)/\"" | tee -a $(BRW_ROOT)/configs_enhanced/* ; \
 	fi; \
 	cp $(BRW_ROOT)/configs/* $(BRW_DIR)/configs/ -f; \
 	cp $(BRW_ROOT)/configs_enhanced/* $(BRW_DIR)/configs/ -f;
