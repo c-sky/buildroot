@@ -42,7 +42,7 @@ index 8257fd4..310045e 100644
  	string
  	default "arc-2019.03-release-gdb" if BR2_arc
 -	default "4ecb98fbc2f94dbe01b69384afbc515107de73df" if BR2_csky
-+	default "2246ea0744ad4de301fe094d4749e9fed326c16b" if BR2_csky
++	default "84c72e3caad8e93830fe94e67d7e53a0a3112119" if BR2_csky
  	default "7.12.1"   if BR2_GDB_VERSION_7_12
  	default "8.1.1"    if BR2_GDB_VERSION_8_1
  	default "8.2.1"    if BR2_GDB_VERSION_8_2 || !BR2_PACKAGE_HOST_GDB
