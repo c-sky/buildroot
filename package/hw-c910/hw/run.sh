@@ -12,6 +12,8 @@ for idx in "$@"
 do
 if [ $idx == "an" ]; then
 	BOARD="an"
+elif [ $idx == "ban" ]; then
+	BOARD="ban"
 elif [ $idx == "eg" ]; then
 	BOARD="eg"
 elif [ $idx == "ve" ]; then

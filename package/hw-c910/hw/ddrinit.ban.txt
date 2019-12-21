@@ -1,0 +1,11 @@
+# Set gdb environment
+set height 0
+
+# Don't confirm when quit
+set confirm off
+
+# Reset target board
+reset
+
+set *0x3fff78040 = 0xffff
+shell $(sleep 3)
