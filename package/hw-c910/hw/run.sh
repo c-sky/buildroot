@@ -49,7 +49,9 @@ enable_dts_cores() {
 }
 
 cp $DTS .hw.dts
+if [ $NRCORE -gt 1 ] ; then
 enable_dts_cores $NRCORE
+fi
 
 ROOTFS_BASE=`cat .hw.dts | grep initrd-start | awk -F "<" '{print $2}' | awk -F ">" '{print $1}'`
 ROOTFS_SIZE=`ls -lt ../rootfs.cpio.gz | awk '{print $5}'`

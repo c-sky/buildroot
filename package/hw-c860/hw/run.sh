@@ -49,7 +49,9 @@ enable_dts_cores() {
 }
 
 cp $DTS .hw.dts
+if [ $NRCORE -gt 1 ] ; then
 enable_dts_cores $NRCORE
+fi
 
 set -ex
 
