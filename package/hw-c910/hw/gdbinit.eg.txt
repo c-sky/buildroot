@@ -52,5 +52,5 @@ set $a1 = $dtb_addr
 restore ../Image binary $vmlinux_addr
 
 # Load bbl
-restore bbl_3G.bin binary $bbl_addr
+restore fw_jump_3G.bin binary $bbl_addr
 set $pc = $bbl_addr
