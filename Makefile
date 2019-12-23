@@ -1,9 +1,5 @@
 BR2_VERSION		= ded3f9954f158b5d9cd08ae76749eade72fcca3a
 
-.PHONY: all
-all .DEFAULT: prepare
-	make -C $(BRW_DIR) $(CONF) O=$(BRW_ROOT)/$(O)
-	make -C $(BRW_ROOT)/$(O) $@
 
 BRW_ROOT	= $(PWD)
 BRW_SITE	= https://github.com/buildroot/buildroot/archive/$(BR2_VERSION).tar.gz
@@ -50,7 +46,9 @@ define COPYFILES
 	cp $(BRW_ROOT)/configs_enhanced/* $(BRW_DIR)/configs/ -f;
 endef
 
-.PHONY: prepare
-prepare:
+.PHONY: all
+all .DEFAULT:
 	@$(call DOWNLOAD)
 	@$(call COPYFILES)
+	make -C $(BRW_DIR) $(CONF) O=$(BRW_ROOT)/$(O)
+	make -C $(BRW_ROOT)/$(O) $@
