@@ -230,7 +230,7 @@
 		compatible = "simple-bus";
 		ranges;
 
-		intc: interrupt-controller@f0000000 {
+		intc: interrupt-controller@F0000000 {
 			#interrupt-cells = <1>;
 			compatible = "riscv,plic0";
 			interrupt-controller;
@@ -265,7 +265,7 @@
 			#clock-cells = <0>;
 		};
 
-		serial@fff73000 {
+		serial@FFF73000 {
 			compatible = "snps,dw-apb-uart";
 			reg = <0x0 0xfff73000 0x0 0x400>;
 			interrupt-parent = <&intc>;
@@ -280,18 +280,18 @@
 			compatible = "riscv,c910_pmu";
 		};
 
-		gmac: ethernet@fffc0000 {
+		gmac: ethernet@FFFC0000 {
 			compatible = "snps,dwmac";
 			reg = <0x0 0xfffc0000 0x0 0x2000>;
 			interrupt-parent = <&intc>;
-			interrupts = <41>;
+			interrupts = <40>;
 			interrupt-names = "macirq";
 			clocks = <&dummy_apb>;
 			clock-names = "stmmaceth";
 			snps,pbl = <32>;
 			snps,fixed-burst;
 
-			phy-mode = "gmii";
+			phy-mode = "mii";
 			phy-handle = <&phy_88E1111>;
 			mdio0 {
 				#address-cells = <1>;
