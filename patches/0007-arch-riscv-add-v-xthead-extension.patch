@@ -1,7 +1,7 @@
-From 93e35ad87354b2bee554b7e7fded1e449bbc5d9d Mon Sep 17 00:00:00 2001
+From 888abbc9f661c33fd66ccdf3710c4fb729b4b779 Mon Sep 17 00:00:00 2001
 From: Guo Ren <ren_guo@c-sky.com>
 Date: Wed, 9 Oct 2019 15:08:35 +0800
-Subject: [PATCH] arch/riscv: Add RISCV_ISA_CUSTOM
+Subject: [PATCH] arch/riscv: add v & xthead extension
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -18,48 +18,47 @@ extensions by a single un- derscore. For example, an ISA with
 non-standard extensions Argle and Bargle may be named “RV64GXargle
 Xbargle”.
 
+Changelog v2:
+    - remove ISA_CUSTOM_STR support
+
 Signed-off-by: Guo Ren <ren_guo@c-sky.com>
 Signed-off-by: Mao Han <han_mao@c-sky.com>
 ---
- arch/Config.in.riscv | 22 ++++++++++++++++++++++
+ arch/Config.in.riscv | 14 ++++++++++++++
  arch/arch.mk.riscv   |  6 ++++++
- 2 files changed, 28 insertions(+)
+ 2 files changed, 20 insertions(+)
 
 diff --git a/arch/Config.in.riscv b/arch/Config.in.riscv
-index bdd2672..eaa8f58 100644
+index bdd2672..8e7d9f7 100644
 --- a/arch/Config.in.riscv
 +++ b/arch/Config.in.riscv
 @@ -18,6 +18,12 @@ config BR2_RISCV_ISA_RVD
  config BR2_RISCV_ISA_RVC
- 	bool
- 
+	bool
+
 +config BR2_RISCV_ISA_RVV
 +	bool
 +
-+config BR2_RISCV_ISA_CUSTOM
++config BR2_RISCV_ISA_THEAD
 +	bool
 +
  choice
- 	prompt "Target Architecture Variant"
- 	default BR2_riscv_g
-@@ -63,6 +69,18 @@ config BR2_RISCV_ISA_CUSTOM_RVD
+	prompt "Target Architecture Variant"
+	default BR2_riscv_g
+@@ -63,6 +69,14 @@ config BR2_RISCV_ISA_CUSTOM_RVD
  config BR2_RISCV_ISA_CUSTOM_RVC
- 	bool "Compressed Instructions (C)"
- 	select BR2_RISCV_ISA_RVC
+	bool "Compressed Instructions (C)"
+	select BR2_RISCV_ISA_RVC
 +
 +config BR2_RISCV_ISA_CUSTOM_RVV
 +	bool "VDSP Instructions (V)"
 +	select BR2_RISCV_ISA_RVV
 +
-+config BR2_RISCV_ISA_CUSTOM_CUSTOM
-+	bool "Custom Instructions"
-+	select BR2_RISCV_ISA_CUSTOM
-+
-+config BR2_RISCV_ISA_CUSTOM_STR
-+	string "Custom Instructions String"
-+	depends on BR2_RISCV_ISA_CUSTOM
++config BR2_RISCV_ISA_CUSTOM_THEAD
++	bool "T-HEAD Extensions"
++	select BR2_RISCV_ISA_THEAD
  endif
- 
+
  choice
 @@ -106,6 +124,10 @@ config BR2_RISCV_ABI_LP64F
  config BR2_RISCV_ABI_LP64D
@@ -73,7 +72,7 @@ index bdd2672..eaa8f58 100644
  
  config BR2_ARCH
 diff --git a/arch/arch.mk.riscv b/arch/arch.mk.riscv
-index f3bf2b3..0063de2 100644
+index f3bf2b3..85c76c0 100644
 --- a/arch/arch.mk.riscv
 +++ b/arch/arch.mk.riscv
 @@ -26,5 +26,11 @@ endif
@@ -83,11 +82,10 @@ index f3bf2b3..0063de2 100644
 +ifeq ($(BR2_RISCV_ISA_RVV),y)
 +GCC_TARGET_ARCH := $(GCC_TARGET_ARCH)v
 +endif
-+ifeq ($(BR2_RISCV_ISA_CUSTOM),y)
-+GCC_TARGET_ARCH := '$(GCC_TARGET_ARCH)$(BR2_RISCV_ISA_CUSTOM_STR)'
++ifeq ($(BR2_RISCV_ISA_THEAD),y)
++GCC_TARGET_ARCH := $(GCC_TARGET_ARCH)xthead
 +endif
- 
- endif
--- 
-2.7.4
 
+ endif
+--
+2.7.4
