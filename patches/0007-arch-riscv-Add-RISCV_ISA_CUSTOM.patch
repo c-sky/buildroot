@@ -1,4 +1,4 @@
-From 30c13aacce95bd971595a1dfe172ad077963fe5e Mon Sep 17 00:00:00 2001
+From 93e35ad87354b2bee554b7e7fded1e449bbc5d9d Mon Sep 17 00:00:00 2001
 From: Guo Ren <ren_guo@c-sky.com>
 Date: Wed, 9 Oct 2019 15:08:35 +0800
 Subject: [PATCH] arch/riscv: Add RISCV_ISA_CUSTOM
@@ -19,29 +19,37 @@ non-standard extensions Argle and Bargle may be named “RV64GXargle
 Xbargle”.
 
 Signed-off-by: Guo Ren <ren_guo@c-sky.com>
+Signed-off-by: Mao Han <han_mao@c-sky.com>
 ---
- arch/Config.in.riscv | 11 +++++++++++
- arch/arch.mk.riscv   |  3 +++
- 2 files changed, 14 insertions(+)
+ arch/Config.in.riscv | 22 ++++++++++++++++++++++
+ arch/arch.mk.riscv   |  6 ++++++
+ 2 files changed, 28 insertions(+)
 
 diff --git a/arch/Config.in.riscv b/arch/Config.in.riscv
-index bdd2672..3579b5d 100644
+index bdd2672..eaa8f58 100644
 --- a/arch/Config.in.riscv
 +++ b/arch/Config.in.riscv
-@@ -18,6 +18,9 @@ config BR2_RISCV_ISA_RVD
+@@ -18,6 +18,12 @@ config BR2_RISCV_ISA_RVD
  config BR2_RISCV_ISA_RVC
  	bool
  
++config BR2_RISCV_ISA_RVV
++	bool
++
 +config BR2_RISCV_ISA_CUSTOM
 +	bool
 +
  choice
  	prompt "Target Architecture Variant"
  	default BR2_riscv_g
-@@ -63,6 +66,14 @@ config BR2_RISCV_ISA_CUSTOM_RVD
+@@ -63,6 +69,18 @@ config BR2_RISCV_ISA_CUSTOM_RVD
  config BR2_RISCV_ISA_CUSTOM_RVC
  	bool "Compressed Instructions (C)"
  	select BR2_RISCV_ISA_RVC
++
++config BR2_RISCV_ISA_CUSTOM_RVV
++	bool "VDSP Instructions (V)"
++	select BR2_RISCV_ISA_RVV
 +
 +config BR2_RISCV_ISA_CUSTOM_CUSTOM
 +	bool "Custom Instructions"
@@ -53,14 +61,28 @@ index bdd2672..3579b5d 100644
  endif
  
  choice
+@@ -106,6 +124,10 @@ config BR2_RISCV_ABI_LP64F
+ config BR2_RISCV_ABI_LP64D
+ 	bool "lp64d"
+ 	depends on BR2_ARCH_IS_64 && BR2_RISCV_ISA_RVD
++
++config BR2_RISCV_ABI_LP64V
++	bool "lp64v"
++	depends on BR2_ARCH_IS_64 && BR2_RISCV_ISA_RVV
+ endchoice
+ 
+ config BR2_ARCH
 diff --git a/arch/arch.mk.riscv b/arch/arch.mk.riscv
-index f3bf2b3..ec1ae98 100644
+index f3bf2b3..0063de2 100644
 --- a/arch/arch.mk.riscv
 +++ b/arch/arch.mk.riscv
-@@ -26,5 +26,8 @@ endif
+@@ -26,5 +26,11 @@ endif
  ifeq ($(BR2_RISCV_ISA_RVC),y)
  GCC_TARGET_ARCH := $(GCC_TARGET_ARCH)c
  endif
++ifeq ($(BR2_RISCV_ISA_RVV),y)
++GCC_TARGET_ARCH := $(GCC_TARGET_ARCH)v
++endif
 +ifeq ($(BR2_RISCV_ISA_CUSTOM),y)
 +GCC_TARGET_ARCH := '$(GCC_TARGET_ARCH)$(BR2_RISCV_ISA_CUSTOM_STR)'
 +endif
