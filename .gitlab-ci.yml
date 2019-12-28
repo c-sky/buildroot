@@ -177,42 +177,42 @@ wait_for_trigger:
     <<: *610_qemu_test
 
 # chip
-.gx6622_chip_before_test: &gx6622_chip_before_test
+.gx6605s_chip_before_test: &gx6605s_chip_before_test
     - RUN="run_test_chip.sh"
-    - BOARD="gx6622"
+    - BOARD="gx6605s"
 
-.gx6622_chip_test: &gx6622_chip_test
+.gx6605s_chip_test: &gx6605s_chip_test
     stage: chip-test
-    before_script: *gx6622_chip_before_test
+    before_script: *gx6605s_chip_before_test
     <<: *common_tests
 
-610_4.9_glibc_gx6622_test:
+610_4.9_glibc_gx6605s_test:
     tags:
       - csky-610-gx6622
     dependencies:
       - 610_4.9_glibc_compat
-    <<: *gx6622_chip_test
+    <<: *gx6605s_chip_test
 
-610_4.14_glibc_gx6622_test:
+610_4.14_glibc_gx6605s_test:
     tags:
       - csky-610-gx6622
     dependencies:
       - 610_4.14_glibc_compat
-    <<: *gx6622_chip_test
+    <<: *gx6605s_chip_test
 
-610_4.19_glibc_gx6622_test:
+610_4.19_glibc_gx6605s_test:
     tags:
       - csky-610-gx6622
     dependencies:
       - 610_4.19_glibc_compat
-    <<: *gx6622_chip_test
+    <<: *gx6605s_chip_test
 
-610_next_glibc_gx6622_test:
+610_next_glibc_gx6605s_test:
     tags:
       - csky-610-gx6622
     dependencies:
       - 610_next_glibc_compat
-    <<: *gx6622_chip_test
+    <<: *gx6605s_chip_test
 
 ################ 810 ################
 # qemu
