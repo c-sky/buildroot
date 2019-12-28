@@ -1,6 +1,6 @@
 if [ $# -lt 1 -o $# -gt 3 ] ; then
-	echo "Usage: . run.sh <ip:port> [an/eg/ve] [s/m]"
-	echo "Usage: [an/eg/ve] is for board name"
+	echo "Usage: . run.sh <ip:port> [an/eg/ve/ban] [s/m]"
+	echo "Usage: [an/eg/ve/ban] is for board name"
 	echo "Usage: [s/m] is for onecore/twocore"
 	exit 1
 fi
@@ -68,7 +68,7 @@ if [ $BOARD == "ve" ]; then
 	echo "No need ddr_init for veloce"
 elif [ $BOARD == "eg" ]; then
 ./riscv64-linux-gdb -ex "tar remote $1" -x $DDRINIT ddr_init_$BOARD\_elf -ex "c" -ex "q" > /dev/null
-else
+else #Both an and ban don't need ddr_init_elf
 ./riscv64-linux-gdb -ex "tar remote $1" -x $DDRINIT -ex "q"
 fi
 
