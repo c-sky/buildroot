@@ -1,8 +1,0 @@
-gzip -c -9 $1 > test_$2.gz
-RETURN=`gzip -d -c /mnt/test_$2.gz|md5sum|awk '{print $1}'`
-if [ ! $RETURN == $3 ]; then
-	touch /tmp/md5_fail
-        echo "md5sum" $2 "check fail!"
-        exit 1
-fi
-touch /tmp/md5_$2
