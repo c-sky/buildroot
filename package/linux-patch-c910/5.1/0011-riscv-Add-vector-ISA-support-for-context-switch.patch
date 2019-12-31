@@ -1,0 +1,831 @@
+From b11248edb1da6ab166a71735badf3002750f6100 Mon Sep 17 00:00:00 2001
+From: Guo Ren <ren_guo@c-sky.com>
+Date: Tue, 31 Dec 2019 20:20:27 +0800
+Subject: [PATCH] riscv: Add vector ISA support
+
+The implementation follow the RISC-V "V" Vector Extension with 128bit-vlen.
+In this patch, we implement basic context switch, singal and ptrace interface
+with a new regset NT_RISCV_VECTOR. This patch is only implemented with fixed
+128bit-vlen and may we could give a union type as fp's, but we must determine
+the maximum size of vlen for libc signal context structure.
+
+This patch has been tested on T-HEAD XuanTie 910 CPU fpga platform.
+
+Signed-off-by: Guo Ren <ren_guo@c-sky.com>
+---
+ arch/riscv/Kconfig                       |   9 ++
+ arch/riscv/Makefile                      |  25 +--
+ arch/riscv/include/asm/csr.h             |  17 +-
+ arch/riscv/include/asm/processor.h       |   1 +
+ arch/riscv/include/asm/switch_to.h       |  52 ++++++-
+ arch/riscv/include/uapi/asm/elf.h        |   2 +
+ arch/riscv/include/uapi/asm/hwcap.h      |   1 +
+ arch/riscv/include/uapi/asm/ptrace.h     |   9 ++
+ arch/riscv/include/uapi/asm/sigcontext.h |   1 +
+ arch/riscv/kernel/Makefile               |   1 +
+ arch/riscv/kernel/asm-offsets.c          | 190 +++++++++++++++++++++++
+ arch/riscv/kernel/cpufeature.c           |  13 +-
+ arch/riscv/kernel/entry.S                |   2 +-
+ arch/riscv/kernel/head.S                 |   4 +-
+ arch/riscv/kernel/process.c              |   2 +
+ arch/riscv/kernel/ptrace.c               |  41 +++++
+ arch/riscv/kernel/signal.c               |  41 +++++
+ arch/riscv/kernel/vector.S               |  84 ++++++++++
+ include/uapi/linux/elf.h                 |   1 +
+ 19 files changed, 479 insertions(+), 17 deletions(-)
+ create mode 100644 arch/riscv/kernel/vector.S
+
+diff --git a/arch/riscv/Kconfig b/arch/riscv/Kconfig
+index 3d3b84311..62cc54a69 100644
+--- a/arch/riscv/Kconfig
++++ b/arch/riscv/Kconfig
+@@ -238,6 +238,15 @@ config FPU
+ 
+ 	  If you don't know what to do here, say Y.
+ 
++config VECTOR
++	bool "VECTOR support"
++	default n
++	help
++	  Say N here if you want to disable all vecotr related procedure
++	  in the kernel.
++
++	  If you don't know what to do here, say Y.
++
+ endmenu
+ 
+ menu "Kernel features"
+diff --git a/arch/riscv/Makefile b/arch/riscv/Makefile
+index 55e6c5846..c25937415 100644
+--- a/arch/riscv/Makefile
++++ b/arch/riscv/Makefile
+@@ -39,15 +39,22 @@ endif
+ KBUILD_CFLAGS += -Wall
+ 
+ # ISA string setting
+-riscv-march-$(CONFIG_ARCH_RV32I)	:= rv32im
+-riscv-march-$(CONFIG_ARCH_RV64I)	:= rv64im
+-riscv-march-$(CONFIG_RISCV_ISA_A)	:= $(riscv-march-y)a
+-riscv-march-$(CONFIG_FPU)		:= $(riscv-march-y)fd
+-riscv-march-$(CONFIG_RISCV_ISA_C)	:= $(riscv-march-y)c
+-riscv-march-$(CONFIG_RISCV_ISA_CUSTOM)	:= $(riscv-march-y)$(CONFIG_RISCV_ISA_CUSTOM_STR)
+-KBUILD_CFLAGS += -march=$(subst fd,,$(riscv-march-y))
+-KBUILD_AFLAGS += -march=$(riscv-march-y)
+-
++riscv-march-cflags-$(CONFIG_ARCH_RV32I)		:= rv32im
++riscv-march-cflags-$(CONFIG_ARCH_RV64I)		:= rv64im
++riscv-march-cflags-$(CONFIG_RISCV_ISA_A)	:= $(riscv-march-cflags-y)a
++riscv-march-cflags-$(CONFIG_RISCV_ISA_C)	:= $(riscv-march-cflags-y)c
++riscv-march-cflags-$(CONFIG_RISCV_ISA_CUSTOM)	:= $(riscv-march-cflags-y)$(CONFIG_RISCV_ISA_CUSTOM_STR)
++
++riscv-march-aflags-$(CONFIG_ARCH_RV32I)		:= rv32im
++riscv-march-aflags-$(CONFIG_ARCH_RV64I)		:= rv64im
++riscv-march-aflags-$(CONFIG_RISCV_ISA_A)	:= $(riscv-march-aflags-y)a
++riscv-march-aflags-$(CONFIG_FPU)		:= $(riscv-march-aflags-y)fd
++riscv-march-aflags-$(CONFIG_RISCV_ISA_C)	:= $(riscv-march-aflags-y)c
++riscv-march-aflags-$(CONFIG_VECTOR)		:= $(riscv-march-aflags-y)v
++riscv-march-aflags-$(CONFIG_RISCV_ISA_CUSTOM)	:= $(riscv-march-aflags-y)$(CONFIG_RISCV_ISA_CUSTOM_STR)
++
++KBUILD_CFLAGS += -march=$(riscv-march-cflags-y)
++KBUILD_AFLAGS += -march=$(riscv-march-aflags-y)
+ KBUILD_CFLAGS += -mno-save-restore
+ KBUILD_CFLAGS += -DCONFIG_PAGE_OFFSET=$(CONFIG_PAGE_OFFSET)
+ 
+diff --git a/arch/riscv/include/asm/csr.h b/arch/riscv/include/asm/csr.h
+index 1e528a117..b95628de5 100644
+--- a/arch/riscv/include/asm/csr.h
++++ b/arch/riscv/include/asm/csr.h
+@@ -29,6 +29,12 @@
+ #define SR_FS_CLEAN     _AC(0x00004000, UL)
+ #define SR_FS_DIRTY     _AC(0x00006000, UL)
+ 
++#define SR_VS           _AC(0x01800000, UL) /* Vector Status */
++#define SR_VS_OFF       _AC(0x00000000, UL)
++#define SR_VS_INITIAL   _AC(0x00800000, UL)
++#define SR_VS_CLEAN     _AC(0x01000000, UL)
++#define SR_VS_DIRTY     _AC(0x01800000, UL)
++
+ #define SR_XS           _AC(0x00018000, UL) /* Extension Status */
+ #define SR_XS_OFF       _AC(0x00000000, UL)
+ #define SR_XS_INITIAL   _AC(0x00008000, UL)
+@@ -36,9 +42,9 @@
+ #define SR_XS_DIRTY     _AC(0x00018000, UL)
+ 
+ #ifndef CONFIG_64BIT
+-#define SR_SD   _AC(0x80000000, UL) /* FS/XS dirty */
++#define SR_SD   _AC(0x80000000, UL) /* VS/FS/XS dirty */
+ #else
+-#define SR_SD   _AC(0x8000000000000000, UL) /* FS/XS dirty */
++#define SR_SD   _AC(0x8000000000000000, UL) /* VS/FS/XS dirty */
+ #endif
+ 
+ /* SATP flags */
+@@ -74,6 +80,13 @@
+ #define EXC_LOAD_PAGE_FAULT     13
+ #define EXC_STORE_PAGE_FAULT    15
+ 
++#define CSR_VSTART	0x8
++#define CSR_VXSAT	0x9
++#define CSR_VXRM	0xa
++#define CSR_VL		0xc20
++#define CSR_VTYPE	0xc21
++#define CSR_VLENB	0xc22
++
+ #ifndef __ASSEMBLY__
+ 
+ #define csr_swap(csr, val)					\
+diff --git a/arch/riscv/include/asm/processor.h b/arch/riscv/include/asm/processor.h
+index ce70bceb8..525f0372b 100644
+--- a/arch/riscv/include/asm/processor.h
++++ b/arch/riscv/include/asm/processor.h
+@@ -40,6 +40,7 @@ struct thread_struct {
+ 	unsigned long sp;	/* Kernel mode stack */
+ 	unsigned long s[12];	/* s[0]: frame pointer */
+ 	struct __riscv_d_ext_state fstate;
++	struct __riscv_v_state vstate;
+ };
+ 
+ #define INIT_THREAD {					\
+diff --git a/arch/riscv/include/asm/switch_to.h b/arch/riscv/include/asm/switch_to.h
+index 733559083..cc83f7dd4 100644
+--- a/arch/riscv/include/asm/switch_to.h
++++ b/arch/riscv/include/asm/switch_to.h
+@@ -45,7 +45,7 @@ static inline void fstate_restore(struct task_struct *task,
+ 	}
+ }
+ 
+-static inline void __switch_to_aux(struct task_struct *prev,
++static inline void __switch_to_fpu(struct task_struct *prev,
+ 				   struct task_struct *next)
+ {
+ 	struct pt_regs *regs;
+@@ -64,6 +64,52 @@ extern bool has_fpu;
+ #define __switch_to_aux(__prev, __next) do { } while (0)
+ #endif
+ 
++#ifdef CONFIG_VECTOR
++extern void __vstate_save(struct task_struct *save_to);
++extern void __vstate_restore(struct task_struct *restore_from);
++
++static inline void __vstate_clean(struct pt_regs *regs)
++{
++	regs->sstatus |= (regs->sstatus & ~(SR_VS)) | SR_VS_CLEAN;
++}
++
++static inline void vstate_save(struct task_struct *task,
++			       struct pt_regs *regs)
++{
++	if ((regs->sstatus & SR_VS) == SR_VS_DIRTY) {
++		__vstate_save(task);
++		__vstate_clean(regs);
++	}
++}
++
++static inline void vstate_restore(struct task_struct *task,
++				  struct pt_regs *regs)
++{
++	if ((regs->sstatus & SR_VS) != SR_VS_OFF) {
++		__vstate_restore(task);
++		__vstate_clean(regs);
++	}
++}
++
++static inline void __switch_to_vector(struct task_struct *prev,
++				   struct task_struct *next)
++{
++	struct pt_regs *regs;
++
++	regs = task_pt_regs(prev);
++	if (unlikely(regs->sstatus & SR_SD))
++		vstate_save(prev, regs);
++	vstate_restore(next, task_pt_regs(next));
++}
++
++extern bool has_vector;
++#else
++#define has_vector false
++#define vstate_save(task, regs) do { } while (0)
++#define vstate_restore(task, regs) do { } while (0)
++#define __switch_to_vector(__prev, __next) do { } while (0)
++#endif
++
+ extern struct task_struct *__switch_to(struct task_struct *,
+ 				       struct task_struct *);
+ 
+@@ -72,7 +118,9 @@ do {							\
+ 	struct task_struct *__prev = (prev);		\
+ 	struct task_struct *__next = (next);		\
+ 	if (has_fpu)					\
+-		__switch_to_aux(__prev, __next);	\
++		__switch_to_fpu(__prev, __next);	\
++	if (has_vector)					\
++		__switch_to_vector(__prev, __next);	\
+ 	((last) = __switch_to(__prev, __next));		\
+ } while (0)
+ 
+diff --git a/arch/riscv/include/uapi/asm/elf.h b/arch/riscv/include/uapi/asm/elf.h
+index 644a00ce6..6a9c20e9e 100644
+--- a/arch/riscv/include/uapi/asm/elf.h
++++ b/arch/riscv/include/uapi/asm/elf.h
+@@ -24,6 +24,8 @@ typedef __u64 elf_fpreg_t;
+ typedef union __riscv_fp_state elf_fpregset_t;
+ #define ELF_NFPREG (sizeof(struct __riscv_d_ext_state) / sizeof(elf_fpreg_t))
+ 
++#define ELF_NVREG  (sizeof(struct __riscv_v_state) / sizeof(elf_greg_t))
++
+ #if __riscv_xlen == 64
+ #define ELF_RISCV_R_SYM(r_info)		ELF64_R_SYM(r_info)
+ #define ELF_RISCV_R_TYPE(r_info)	ELF64_R_TYPE(r_info)
+diff --git a/arch/riscv/include/uapi/asm/hwcap.h b/arch/riscv/include/uapi/asm/hwcap.h
+index f333221c9..6a68c4381 100644
+--- a/arch/riscv/include/uapi/asm/hwcap.h
++++ b/arch/riscv/include/uapi/asm/hwcap.h
+@@ -32,5 +32,6 @@
+ #define COMPAT_HWCAP_ISA_F	(1 << ('F' - 'A'))
+ #define COMPAT_HWCAP_ISA_D	(1 << ('D' - 'A'))
+ #define COMPAT_HWCAP_ISA_C	(1 << ('C' - 'A'))
++#define COMPAT_HWCAP_ISA_V	(1 << ('V' - 'A'))
+ 
+ #endif
+diff --git a/arch/riscv/include/uapi/asm/ptrace.h b/arch/riscv/include/uapi/asm/ptrace.h
+index 1a9e4cdd3..77ff9df3d 100644
+--- a/arch/riscv/include/uapi/asm/ptrace.h
++++ b/arch/riscv/include/uapi/asm/ptrace.h
+@@ -85,6 +85,15 @@ union __riscv_fp_state {
+ 	struct __riscv_q_ext_state q;
+ };
+ 
++struct __riscv_v_state {
++	__uint128_t v[32];
++	unsigned long vstart;
++	unsigned long vxsat;
++	unsigned long vxrm;
++	unsigned long vl;
++	unsigned long vtype;
++};
++
+ #endif /* __ASSEMBLY__ */
+ 
+ #endif /* _UAPI_ASM_RISCV_PTRACE_H */
+diff --git a/arch/riscv/include/uapi/asm/sigcontext.h b/arch/riscv/include/uapi/asm/sigcontext.h
+index ed7372b27..b63c117a9 100644
+--- a/arch/riscv/include/uapi/asm/sigcontext.h
++++ b/arch/riscv/include/uapi/asm/sigcontext.h
+@@ -25,6 +25,7 @@
+ struct sigcontext {
+ 	struct user_regs_struct sc_regs;
+ 	union __riscv_fp_state sc_fpregs;
++	struct __riscv_v_state sc_vregs;
+ };
+ 
+ #endif /* _UAPI_ASM_RISCV_SIGCONTEXT_H */
+diff --git a/arch/riscv/kernel/Makefile b/arch/riscv/kernel/Makefile
+index 598568168..91f505dad 100644
+--- a/arch/riscv/kernel/Makefile
++++ b/arch/riscv/kernel/Makefile
+@@ -29,6 +29,7 @@ obj-y	+= cacheinfo.o
+ obj-y	+= vdso/
+ 
+ obj-$(CONFIG_FPU)		+= fpu.o
++obj-$(CONFIG_VECTOR)		+= vector.o
+ obj-$(CONFIG_SMP)		+= smpboot.o
+ obj-$(CONFIG_SMP)		+= smp.o
+ obj-$(CONFIG_MODULES)		+= module.o
+diff --git a/arch/riscv/kernel/asm-offsets.c b/arch/riscv/kernel/asm-offsets.c
+index dac98348c..5cb94adee 100644
+--- a/arch/riscv/kernel/asm-offsets.c
++++ b/arch/riscv/kernel/asm-offsets.c
+@@ -78,6 +78,45 @@ void asm_offsets(void)
+ 	OFFSET(TASK_THREAD_F31, task_struct, thread.fstate.f[31]);
+ 	OFFSET(TASK_THREAD_FCSR, task_struct, thread.fstate.fcsr);
+ 
++	OFFSET(TASK_THREAD_V0,  task_struct, thread.vstate.v[0]);
++	OFFSET(TASK_THREAD_V1,  task_struct, thread.vstate.v[1]);
++	OFFSET(TASK_THREAD_V2,  task_struct, thread.vstate.v[2]);
++	OFFSET(TASK_THREAD_V3,  task_struct, thread.vstate.v[3]);
++	OFFSET(TASK_THREAD_V4,  task_struct, thread.vstate.v[4]);
++	OFFSET(TASK_THREAD_V5,  task_struct, thread.vstate.v[5]);
++	OFFSET(TASK_THREAD_V6,  task_struct, thread.vstate.v[6]);
++	OFFSET(TASK_THREAD_V7,  task_struct, thread.vstate.v[7]);
++	OFFSET(TASK_THREAD_V8,  task_struct, thread.vstate.v[8]);
++	OFFSET(TASK_THREAD_V9,  task_struct, thread.vstate.v[9]);
++	OFFSET(TASK_THREAD_V10, task_struct, thread.vstate.v[10]);
++	OFFSET(TASK_THREAD_V11, task_struct, thread.vstate.v[11]);
++	OFFSET(TASK_THREAD_V12, task_struct, thread.vstate.v[12]);
++	OFFSET(TASK_THREAD_V13, task_struct, thread.vstate.v[13]);
++	OFFSET(TASK_THREAD_V14, task_struct, thread.vstate.v[14]);
++	OFFSET(TASK_THREAD_V15, task_struct, thread.vstate.v[15]);
++	OFFSET(TASK_THREAD_V16, task_struct, thread.vstate.v[16]);
++	OFFSET(TASK_THREAD_V17, task_struct, thread.vstate.v[17]);
++	OFFSET(TASK_THREAD_V18, task_struct, thread.vstate.v[18]);
++	OFFSET(TASK_THREAD_V19, task_struct, thread.vstate.v[19]);
++	OFFSET(TASK_THREAD_V20, task_struct, thread.vstate.v[20]);
++	OFFSET(TASK_THREAD_V21, task_struct, thread.vstate.v[21]);
++	OFFSET(TASK_THREAD_V22, task_struct, thread.vstate.v[22]);
++	OFFSET(TASK_THREAD_V23, task_struct, thread.vstate.v[23]);
++	OFFSET(TASK_THREAD_V24, task_struct, thread.vstate.v[24]);
++	OFFSET(TASK_THREAD_V25, task_struct, thread.vstate.v[25]);
++	OFFSET(TASK_THREAD_V26, task_struct, thread.vstate.v[26]);
++	OFFSET(TASK_THREAD_V27, task_struct, thread.vstate.v[27]);
++	OFFSET(TASK_THREAD_V28, task_struct, thread.vstate.v[28]);
++	OFFSET(TASK_THREAD_V29, task_struct, thread.vstate.v[29]);
++	OFFSET(TASK_THREAD_V30, task_struct, thread.vstate.v[30]);
++	OFFSET(TASK_THREAD_V31, task_struct, thread.vstate.v[31]);
++	OFFSET(TASK_THREAD_VSTART, task_struct, thread.vstate.vstart);
++	OFFSET(TASK_THREAD_VXSAT, task_struct, thread.vstate.vxsat);
++	OFFSET(TASK_THREAD_VXRM, task_struct, thread.vstate.vxrm);
++	OFFSET(TASK_THREAD_VL, task_struct, thread.vstate.vl);
++	OFFSET(TASK_THREAD_VTYPE, task_struct, thread.vstate.vtype);
++	DEFINE(RISCV_VECTOR_VLENB, sizeof(__uint128_t));
++
+ 	DEFINE(PT_SIZE, sizeof(struct pt_regs));
+ 	OFFSET(PT_SEPC, pt_regs, sepc);
+ 	OFFSET(PT_RA, pt_regs, ra);
+@@ -179,6 +218,7 @@ void asm_offsets(void)
+ 		- offsetof(struct task_struct, thread.ra)
+ 	);
+ 
++	/* Float Point */
+ 	DEFINE(TASK_THREAD_F0_F0,
+ 		  offsetof(struct task_struct, thread.fstate.f[0])
+ 		- offsetof(struct task_struct, thread.fstate.f[0])
+@@ -312,6 +352,156 @@ void asm_offsets(void)
+ 		- offsetof(struct task_struct, thread.fstate.f[0])
+ 	);
+ 
++	/* Vector */
++	DEFINE(TASK_THREAD_V0_V0,
++		  offsetof(struct task_struct, thread.vstate.v[0])
++		- offsetof(struct task_struct, thread.vstate.v[0])
++	);
++	DEFINE(TASK_THREAD_V1_V0,
++		  offsetof(struct task_struct, thread.vstate.v[1])
++		- offsetof(struct task_struct, thread.vstate.v[0])
++	);
++	DEFINE(TASK_THREAD_V2_V0,
++		  offsetof(struct task_struct, thread.vstate.v[2])
++		- offsetof(struct task_struct, thread.vstate.v[0])
++	);
++	DEFINE(TASK_THREAD_V3_V0,
++		  offsetof(struct task_struct, thread.vstate.v[3])
++		- offsetof(struct task_struct, thread.vstate.v[0])
++	);
++	DEFINE(TASK_THREAD_V4_V0,
++		  offsetof(struct task_struct, thread.vstate.v[4])
++		- offsetof(struct task_struct, thread.vstate.v[0])
++	);
++	DEFINE(TASK_THREAD_V5_V0,
++		  offsetof(struct task_struct, thread.vstate.v[5])
++		- offsetof(struct task_struct, thread.vstate.v[0])
++	);
++	DEFINE(TASK_THREAD_V6_V0,
++		  offsetof(struct task_struct, thread.vstate.v[6])
++		- offsetof(struct task_struct, thread.vstate.v[0])
++	);
++	DEFINE(TASK_THREAD_V7_V0,
++		  offsetof(struct task_struct, thread.vstate.v[7])
++		- offsetof(struct task_struct, thread.vstate.v[0])
++	);
++	DEFINE(TASK_THREAD_V8_V0,
++		  offsetof(struct task_struct, thread.vstate.v[8])
++		- offsetof(struct task_struct, thread.vstate.v[0])
++	);
++	DEFINE(TASK_THREAD_V9_V0,
++		  offsetof(struct task_struct, thread.vstate.v[9])
++		- offsetof(struct task_struct, thread.vstate.v[0])
++	);
++	DEFINE(TASK_THREAD_V10_V0,
++		  offsetof(struct task_struct, thread.vstate.v[10])
++		- offsetof(struct task_struct, thread.vstate.v[0])
++	);
++	DEFINE(TASK_THREAD_V11_V0,
++		  offsetof(struct task_struct, thread.vstate.v[11])
++		- offsetof(struct task_struct, thread.vstate.v[0])
++	);
++	DEFINE(TASK_THREAD_V12_V0,
++		  offsetof(struct task_struct, thread.vstate.v[12])
++		- offsetof(struct task_struct, thread.vstate.v[0])
++	);
++	DEFINE(TASK_THREAD_V13_V0,
++		  offsetof(struct task_struct, thread.vstate.v[13])
++		- offsetof(struct task_struct, thread.vstate.v[0])
++	);
++	DEFINE(TASK_THREAD_V14_V0,
++		  offsetof(struct task_struct, thread.vstate.v[14])
++		- offsetof(struct task_struct, thread.vstate.v[0])
++	);
++	DEFINE(TASK_THREAD_V15_V0,
++		  offsetof(struct task_struct, thread.vstate.v[15])
++		- offsetof(struct task_struct, thread.vstate.v[0])
++	);
++	DEFINE(TASK_THREAD_V16_V0,
++		  offsetof(struct task_struct, thread.vstate.v[16])
++		- offsetof(struct task_struct, thread.vstate.v[0])
++	);
++	DEFINE(TASK_THREAD_V17_V0,
++		  offsetof(struct task_struct, thread.vstate.v[17])
++		- offsetof(struct task_struct, thread.vstate.v[0])
++	);
++	DEFINE(TASK_THREAD_V18_V0,
++		  offsetof(struct task_struct, thread.vstate.v[18])
++		- offsetof(struct task_struct, thread.vstate.v[0])
++	);
++	DEFINE(TASK_THREAD_V19_V0,
++		  offsetof(struct task_struct, thread.vstate.v[19])
++		- offsetof(struct task_struct, thread.vstate.v[0])
++	);
++	DEFINE(TASK_THREAD_V20_V0,
++		  offsetof(struct task_struct, thread.vstate.v[20])
++		- offsetof(struct task_struct, thread.vstate.v[0])
++	);
++	DEFINE(TASK_THREAD_V21_V0,
++		  offsetof(struct task_struct, thread.vstate.v[21])
++		- offsetof(struct task_struct, thread.vstate.v[0])
++	);
++	DEFINE(TASK_THREAD_V22_V0,
++		  offsetof(struct task_struct, thread.vstate.v[22])
++		- offsetof(struct task_struct, thread.vstate.v[0])
++	);
++	DEFINE(TASK_THREAD_V23_V0,
++		  offsetof(struct task_struct, thread.vstate.v[23])
++		- offsetof(struct task_struct, thread.vstate.v[0])
++	);
++	DEFINE(TASK_THREAD_V24_V0,
++		  offsetof(struct task_struct, thread.vstate.v[24])
++		- offsetof(struct task_struct, thread.vstate.v[0])
++	);
++	DEFINE(TASK_THREAD_V25_V0,
++		  offsetof(struct task_struct, thread.vstate.v[25])
++		- offsetof(struct task_struct, thread.vstate.v[0])
++	);
++	DEFINE(TASK_THREAD_V26_V0,
++		  offsetof(struct task_struct, thread.vstate.v[26])
++		- offsetof(struct task_struct, thread.vstate.v[0])
++	);
++	DEFINE(TASK_THREAD_V27_V0,
++		  offsetof(struct task_struct, thread.vstate.v[27])
++		- offsetof(struct task_struct, thread.vstate.v[0])
++	);
++	DEFINE(TASK_THREAD_V28_V0,
++		  offsetof(struct task_struct, thread.vstate.v[28])
++		- offsetof(struct task_struct, thread.vstate.v[0])
++	);
++	DEFINE(TASK_THREAD_V29_V0,
++		  offsetof(struct task_struct, thread.vstate.v[29])
++		- offsetof(struct task_struct, thread.vstate.v[0])
++	);
++	DEFINE(TASK_THREAD_V30_V0,
++		  offsetof(struct task_struct, thread.vstate.v[30])
++		- offsetof(struct task_struct, thread.vstate.v[0])
++	);
++	DEFINE(TASK_THREAD_V31_V0,
++		  offsetof(struct task_struct, thread.vstate.v[31])
++		- offsetof(struct task_struct, thread.vstate.v[0])
++	);
++	DEFINE(TASK_THREAD_VSTART_V0,
++		  offsetof(struct task_struct, thread.vstate.vstart)
++		- offsetof(struct task_struct, thread.vstate.v[0])
++	);
++	DEFINE(TASK_THREAD_VXSAT_V0,
++		  offsetof(struct task_struct, thread.vstate.vxsat)
++		- offsetof(struct task_struct, thread.vstate.v[0])
++	);
++	DEFINE(TASK_THREAD_VXRM_V0,
++		  offsetof(struct task_struct, thread.vstate.vxrm)
++		- offsetof(struct task_struct, thread.vstate.v[0])
++	);
++	DEFINE(TASK_THREAD_VL_V0,
++		  offsetof(struct task_struct, thread.vstate.vl)
++		- offsetof(struct task_struct, thread.vstate.v[0])
++	);
++	DEFINE(TASK_THREAD_VTYPE_V0,
++		  offsetof(struct task_struct, thread.vstate.vtype)
++		- offsetof(struct task_struct, thread.vstate.v[0])
++	);
++
+ 	/* The assembler needs access to THREAD_SIZE as well. */
+ 	DEFINE(ASM_THREAD_SIZE, THREAD_SIZE);
+ 
+diff --git a/arch/riscv/kernel/cpufeature.c b/arch/riscv/kernel/cpufeature.c
+index bc29b010b..39217232c 100644
+--- a/arch/riscv/kernel/cpufeature.c
++++ b/arch/riscv/kernel/cpufeature.c
+@@ -27,6 +27,10 @@ unsigned long elf_hwcap __read_mostly;
+ bool has_fpu __read_mostly;
+ #endif
+ 
++#ifdef CONFIG_VECTOR
++bool has_vector __read_mostly;
++#endif
++
+ void riscv_fill_hwcap(void)
+ {
+ 	struct device_node *node;
+@@ -40,6 +44,7 @@ void riscv_fill_hwcap(void)
+ 	isa2hwcap['f'] = isa2hwcap['F'] = COMPAT_HWCAP_ISA_F;
+ 	isa2hwcap['d'] = isa2hwcap['D'] = COMPAT_HWCAP_ISA_D;
+ 	isa2hwcap['c'] = isa2hwcap['C'] = COMPAT_HWCAP_ISA_C;
++	isa2hwcap['v'] = isa2hwcap['V'] = COMPAT_HWCAP_ISA_V;
+ 
+ 	elf_hwcap = 0;
+ 
+@@ -54,7 +59,8 @@ void riscv_fill_hwcap(void)
+ 			continue;
+ 		}
+ 
+-		for (i = 0; i < strlen(isa); ++i)
++		/* skip "rv64" */
++		for (i = 4; i < strlen(isa); ++i)
+ 			this_hwcap |= isa2hwcap[(unsigned char)(isa[i])];
+ 
+ 		/*
+@@ -81,4 +87,9 @@ void riscv_fill_hwcap(void)
+ 	if (elf_hwcap & (COMPAT_HWCAP_ISA_F | COMPAT_HWCAP_ISA_D))
+ 		has_fpu = true;
+ #endif
++
++#ifdef CONFIG_VECTOR
++	if (elf_hwcap & COMPAT_HWCAP_ISA_V)
++		has_vector = true;
++#endif
+ }
+diff --git a/arch/riscv/kernel/entry.S b/arch/riscv/kernel/entry.S
+index fd9b57c8b..c39417743 100644
+--- a/arch/riscv/kernel/entry.S
++++ b/arch/riscv/kernel/entry.S
+@@ -84,7 +84,7 @@ _save_context:
+ 	 * Disable the FPU to detect illegal usage of floating point in kernel
+ 	 * space.
+ 	 */
+-	li t0, SR_SUM | SR_FS
++	li t0, SR_SUM | SR_FS | SR_VS
+ 
+ 	REG_L s0, TASK_TI_USER_SP(tp)
+ 	csrrc s1, sstatus, t0
+diff --git a/arch/riscv/kernel/head.S b/arch/riscv/kernel/head.S
+index fe884cd69..1154a9363 100644
+--- a/arch/riscv/kernel/head.S
++++ b/arch/riscv/kernel/head.S
+@@ -32,10 +32,10 @@ ENTRY(_start)
+ .option pop
+ 
+ 	/*
+-	 * Disable FPU to detect illegal usage of
++	 * Disable FPU & VECTOR to detect illegal usage of
+ 	 * floating point in kernel space
+ 	 */
+-	li t0, SR_FS
++	li t0, SR_FS | SR_VS
+ 	csrc sstatus, t0
+ 
+ 	/* Pick one hart to run the main boot sequence */
+diff --git a/arch/riscv/kernel/process.c b/arch/riscv/kernel/process.c
+index bef19993e..45c5bb693 100644
+--- a/arch/riscv/kernel/process.c
++++ b/arch/riscv/kernel/process.c
+@@ -79,6 +79,8 @@ void start_thread(struct pt_regs *regs, unsigned long pc,
+ 	regs->sstatus = SR_SPIE;
+ 	if (has_fpu)
+ 		regs->sstatus |= SR_FS_INITIAL;
++	if (has_vector)
++		regs->sstatus |= SR_VS_INITIAL;
+ 	regs->sepc = pc;
+ 	regs->sp = sp;
+ 	set_fs(USER_DS);
+diff --git a/arch/riscv/kernel/ptrace.c b/arch/riscv/kernel/ptrace.c
+index 2ae5e0284..e17343ea9 100644
+--- a/arch/riscv/kernel/ptrace.c
++++ b/arch/riscv/kernel/ptrace.c
+@@ -34,6 +34,9 @@ enum riscv_regset {
+ #ifdef CONFIG_FPU
+ 	REGSET_F,
+ #endif
++#ifdef CONFIG_VECTOR
++	REGSET_V,
++#endif
+ };
+ 
+ static int riscv_gpr_get(struct task_struct *target,
+@@ -100,6 +103,34 @@ static int riscv_fpr_set(struct task_struct *target,
+ }
+ #endif
+ 
++#ifdef CONFIG_VECTOR
++static int riscv_vr_get(struct task_struct *target,
++			 const struct user_regset *regset,
++			 unsigned int pos, unsigned int count,
++			 void *kbuf, void __user *ubuf)
++{
++	int ret;
++	struct __riscv_v_state *vstate = &target->thread.vstate;
++
++	ret = user_regset_copyout(&pos, &count, &kbuf, &ubuf, vstate, 0,
++				  offsetof(struct __riscv_v_state, vtype));
++	return ret;
++}
++
++static int riscv_vr_set(struct task_struct *target,
++			 const struct user_regset *regset,
++			 unsigned int pos, unsigned int count,
++			 const void *kbuf, const void __user *ubuf)
++{
++	int ret;
++	struct __riscv_v_state *vstate = &target->thread.vstate;
++
++	ret = user_regset_copyin(&pos, &count, &kbuf, &ubuf, vstate, 0,
++				 offsetof(struct __riscv_v_state, vtype));
++	return ret;
++}
++#endif
++
+ static const struct user_regset riscv_user_regset[] = {
+ 	[REGSET_X] = {
+ 		.core_note_type = NT_PRSTATUS,
+@@ -119,6 +150,16 @@ static const struct user_regset riscv_user_regset[] = {
+ 		.set = &riscv_fpr_set,
+ 	},
+ #endif
++#ifdef CONFIG_VECTOR
++	[REGSET_V] = {
++		.core_note_type = NT_RISCV_VECTOR,
++		.n = ELF_NVREG,
++		.size = sizeof(elf_greg_t),
++		.align = sizeof(elf_greg_t),
++		.get = &riscv_vr_get,
++		.set = &riscv_vr_set,
++	},
++#endif
+ };
+ 
+ static const struct user_regset_view riscv_user_native_view = {
+diff --git a/arch/riscv/kernel/signal.c b/arch/riscv/kernel/signal.c
+index 837e16460..d34eec100 100644
+--- a/arch/riscv/kernel/signal.c
++++ b/arch/riscv/kernel/signal.c
+@@ -91,6 +91,41 @@ static long save_fp_state(struct pt_regs *regs,
+ #define restore_fp_state(task, regs) (0)
+ #endif
+ 
++#ifdef CONFIG_VECTOR
++static long restore_v_state(struct pt_regs *regs,
++			    struct __riscv_v_state *sc_vregs)
++{
++	long err;
++	struct __riscv_v_state __user *state = sc_vregs;
++
++	err = __copy_from_user(&current->thread.vstate, state, sizeof(*state));
++	if (unlikely(err))
++		return err;
++
++	vstate_restore(current, regs);
++
++	return err;
++}
++
++static long save_v_state(struct pt_regs *regs,
++			 struct __riscv_v_state *sc_vregs)
++{
++	long err;
++	struct __riscv_v_state __user *state = sc_vregs;
++
++	fstate_save(current, regs);
++	err = __copy_to_user(state, &current->thread.vstate, sizeof(*state));
++	if (unlikely(err))
++		return err;
++
++	return err;
++}
++#else
++#define save_v_state(task, regs) (0)
++#define restore_v_state(task, regs) (0)
++#endif
++
++
+ static long restore_sigcontext(struct pt_regs *regs,
+ 	struct sigcontext __user *sc)
+ {
+@@ -100,6 +135,9 @@ static long restore_sigcontext(struct pt_regs *regs,
+ 	/* Restore the floating-point state. */
+ 	if (has_fpu)
+ 		err |= restore_fp_state(regs, &sc->sc_fpregs);
++	/* Restore the vector state. */
++	if (has_vector)
++		err |= restore_v_state(regs, &sc->sc_vregs);
+ 	return err;
+ }
+ 
+@@ -153,6 +191,9 @@ static long setup_sigcontext(struct rt_sigframe __user *frame,
+ 	/* Save the floating-point state. */
+ 	if (has_fpu)
+ 		err |= save_fp_state(regs, &sc->sc_fpregs);
++	/* Save the vector state. */
++	if (has_vector)
++		err |= save_v_state(regs, &sc->sc_vregs);
+ 	return err;
+ }
+ 
+diff --git a/arch/riscv/kernel/vector.S b/arch/riscv/kernel/vector.S
+new file mode 100644
+index 000000000..7e698e6c5
+--- /dev/null
++++ b/arch/riscv/kernel/vector.S
+@@ -0,0 +1,84 @@
++/* SPDX-License-Identifier: GPL-2.0 */
++/*
++ * Copyright (C) 2012 Regents of the University of California
++ * Copyright (C) 2017 SiFive
++ * Copyright (C) 2019 T-HEAD
++ *
++ *   This program is free software; you can redistribute it and/or
++ *   modify it under the terms of the GNU General Public License
++ *   as published by the Free Software Foundation, version 2.
++ *
++ *   This program is distributed in the hope that it will be useful,
++ *   but WITHOUT ANY WARRANTY; without even the implied warranty of
++ *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ *   GNU General Public License for more details.
++ */
++
++#include <linux/linkage.h>
++
++#include <asm/asm.h>
++#include <asm/csr.h>
++#include <asm/asm-offsets.h>
++
++ENTRY(__vstate_save)
++	li	a2,  TASK_THREAD_V0
++	add	a0,  a0, a2
++
++	li	t1, (SR_VS | SR_FS)
++	csrs	sstatus, t1
++
++	csrr	t0,  CSR_VSTART
++	sd	t0,  TASK_THREAD_VSTART_V0(a0)
++	csrr	t0,  CSR_VXSAT
++	sd	t0,  TASK_THREAD_VXSAT_V0(a0)
++	csrr	t0,  CSR_VXRM
++	sd	t0,  TASK_THREAD_VXRM_V0(a0)
++	csrr	t0,  CSR_VL
++	sd	t0,  TASK_THREAD_VL_V0(a0)
++	csrr	t0,  CSR_VTYPE
++	sd	t0,  TASK_THREAD_VTYPE_V0(a0)
++
++	vsetvli	t0, x0, e8,m8
++	vsb.v	v0,  (a0)
++	addi	a0, a0, RISCV_VECTOR_VLENB
++	vsb.v	v8,  (a0)
++	addi	a0, a0, RISCV_VECTOR_VLENB
++	vsb.v	v16, (a0)
++	addi	a0, a0, RISCV_VECTOR_VLENB
++	vsb.v	v24, (a0)
++
++	csrc	sstatus, t1
++	ret
++ENDPROC(__vstate_save)
++
++ENTRY(__vstate_restore)
++	li	a2,  TASK_THREAD_V0
++	add	a0,  a0, a2
++	mv	t2,  a0
++
++	li	t1, (SR_VS | SR_FS)
++	csrs	sstatus, t1
++
++	vsetvli	t0, x0, e8,m8
++	vlb.v	v0,  (a0)
++	addi	a0, a0, RISCV_VECTOR_VLENB
++	vlb.v	v8,  (a0)
++	addi	a0, a0, RISCV_VECTOR_VLENB
++	vlb.v	v16, (a0)
++	addi	a0, a0, RISCV_VECTOR_VLENB
++	vlb.v	v24, (a0)
++
++	mv	a0,  t2
++	ld	t0,  TASK_THREAD_VSTART_V0(a0)
++	csrw	CSR_VSTART, t0
++	ld	t0,  TASK_THREAD_VXSAT_V0(a0)
++	csrw	CSR_VXSAT, t0
++	ld	t0,  TASK_THREAD_VXRM_V0(a0)
++	csrw	CSR_VXRM, t0
++	ld	t0,  TASK_THREAD_VL_V0(a0)
++	ld	t2,  TASK_THREAD_VTYPE_V0(a0)
++	vsetvl	t0, t0, t2
++
++	csrc	sstatus, t1
++	ret
++ENDPROC(__vstate_restore)
+diff --git a/include/uapi/linux/elf.h b/include/uapi/linux/elf.h
+index 34c02e429..e428f9e87 100644
+--- a/include/uapi/linux/elf.h
++++ b/include/uapi/linux/elf.h
+@@ -428,6 +428,7 @@ typedef struct elf64_shdr {
+ #define NT_MIPS_DSP	0x800		/* MIPS DSP ASE registers */
+ #define NT_MIPS_FP_MODE	0x801		/* MIPS floating-point mode */
+ #define NT_MIPS_MSA	0x802		/* MIPS SIMD registers */
++#define NT_RISCV_VECTOR	0x900		/* RISC-V vector registers */
+ 
+ /* Note header in a PT_NOTE section */
+ typedef struct elf32_note {
+-- 
+2.17.0
+
