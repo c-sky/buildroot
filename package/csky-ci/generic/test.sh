@@ -15,6 +15,9 @@ else
 		j=${i%_*}
 		echo ================== $j test start ==================
 		./$i
+		if [ "$?" -ne "0" ]; then
+			break;
+		fi
 		echo ================== $j test end ==================
 	done
 	cd - #This will echo a "/", so, don't bother
