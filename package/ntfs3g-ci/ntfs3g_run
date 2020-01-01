@@ -77,4 +77,6 @@ do
 	done
 done
 cd -
+
+sleep 120
 echo "ntfs-3g test pass."
