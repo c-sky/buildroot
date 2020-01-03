@@ -4,7 +4,7 @@
 # It needs to be regenerated every time a defconfig is added, using
 # "make .gitlab-ci.yml".
 
-image: maohan001/ubuntu-buildroot
+image: guoren83/ubuntu-16.04-buildroot:v1
 
 #tags CANNOT be shrinked into anchor
 
