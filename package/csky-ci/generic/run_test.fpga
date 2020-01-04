@@ -20,7 +20,7 @@ sleep 3
 
 function start_dbg_server()
 {
-	cd /root/DebugServerConsole
+	cd $OUT_PATH/host/csky-jtag/C-Sky_DebugServer
 	killall DebugServerConsole.elf > /dev/null 2>&1
 	sleep 3
 	echo 'DebugServer starts...'

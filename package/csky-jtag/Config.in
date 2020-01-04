@@ -1,0 +1,5 @@
+config BR2_PACKAGE_CSKY_JTAG
+	bool "csky debug server console"
+	default y
+	help
+		Insall the jtag software Debugserverconsole

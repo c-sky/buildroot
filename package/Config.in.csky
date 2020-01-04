@@ -14,4 +14,5 @@ menu "T-HEAD extension"
 	source "package/hw-c610/Config.in"
 	source "package/csky-readme/Config.in"
 	source "package/qemu-enhanced/Config.in"
+	source "package/csky-jtag/Config.in"
 endmenu

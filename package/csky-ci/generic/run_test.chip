@@ -12,8 +12,7 @@ function start_serial_and_dbg_server()
 	./$OUT_PATH/host/csky-ci/csky_switch /dev/csky_switch on
 	sleep 3
 
-	#Must enter /root/DebugServerConsole to execute since we need the configs
-	cd /root/DebugServerConsole
+	cd $OUT_PATH/host/csky-jtag/C-Sky_DebugServer
 	killall DebugServerConsole.elf > /dev/null 2>&1
 	echo 'DebugServer starts...'
 	# -ddc -port 1025 as default
