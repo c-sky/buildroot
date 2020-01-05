@@ -69,8 +69,10 @@ wait_for_trigger:
     - if [ -f output/images/rootfs.tar ]; then
           xz -z output/images/rootfs.tar;
       fi
-    - if [ -f output/images/gdbinit ]; then
-          cp output/images/gdbinit output/images/gdbinit.txt;
+    - if [ -d output/images/hw ]; then
+          cd output/images/;
+          tar czf hw.tar.gz hw;
+          cd -;
       fi
 
 .common_builds: &common_builds
