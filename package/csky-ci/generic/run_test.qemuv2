@@ -8,5 +8,5 @@ chmod 600 ~/.ssh/id_rsa
 fi
 IP=`ifconfig eth0|grep "inet addr"|awk -F ':' '{print $2}'|awk '{print $1}'`
 output/host/csky-ci/check_ssh_bg.sh $IP&
-$OUT_PATH/host/csky-qemu/bin/qemu-system-cskyv2 -M virt -cpu c810v -kernel $OUT_PATH/images/uImage -nographic -append "console=ttyS0,115200 rdinit=/sbin/init rootwait root=/dev/vda ro qemuci" -drive file=$OUT_PATH/images/rootfs.ext2,format=raw,id=hd0 -device virtio-blk-device,drive=hd0 -netdev user,hostfwd=tcp:$IP:5022-10.0.2.15:22,id=net0 -device virtio-net-device,netdev=net0 -object rng-random,filename=/dev/urandom,id=rng0 -device virtio-rng-device,rng=rng0> >(tee $ROOT_PATH/test.log)
+$OUT_PATH/host/csky-qemu/bin/qemu-system-cskyv2 -M virt -cpu c810v -kernel $OUT_PATH/images/Image -nographic -append "console=ttyS0,115200 rdinit=/sbin/init rootwait root=/dev/vda ro qemuci" -drive file=$OUT_PATH/images/rootfs.ext2,format=raw,id=hd0 -device virtio-blk-device,drive=hd0 -netdev user,hostfwd=tcp:$IP:5022-10.0.2.15:22,id=net0 -device virtio-net-device,netdev=net0 -object rng-random,filename=/dev/urandom,id=rng0 -device virtio-rng-device,rng=rng0> >(tee $ROOT_PATH/test.log)
 cat ssh.log >> $ROOT_PATH/test.log
