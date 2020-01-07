@@ -1,0 +1,4 @@
+config BR2_PACKAGE_HACKBENCH
+	bool "hackbench"
+	depends on BR2_LINUX_KERNEL
+	default y
