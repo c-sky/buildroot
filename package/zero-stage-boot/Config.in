@@ -1,0 +1,4 @@
+config BR2_PACKAGE_ZERO_STAGE_BOOT
+	bool "zero-stage-boot"
+	depends on BR2_LINUX_KERNEL
+	default y if BR2_riscv
