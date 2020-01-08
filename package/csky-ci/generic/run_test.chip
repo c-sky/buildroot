@@ -1,6 +1,7 @@
 ROOT_PATH=$(dirname "$0")/../../../
 OUT_PATH=$(dirname "$0")/../../
 
+
 function start_serial_and_dbg_server()
 {
 	killall csky_serial > /dev/null 2>&1
@@ -58,15 +59,37 @@ function timeout()
 	done
 }
 
+function clear_test_setting()
+{
+        killall csky_serial > /dev/null 2>&1
+        sleep 3
+
+        ./$OUT_PATH/host/csky-ci/csky_switch /dev/csky_switch off
+        sleep 3
+
+        cd $OUT_PATH/host/csky-jtag/C-Sky_DebugServer
+        killall DebugServerConsole.elf > /dev/null 2>&1
+}
+
+retry_count=5
+
 while true;
 do
-	start_serial_and_dbg_server $1
-	timeout
-	if [ $? = '0' ];
-	then
-		echo 'DebugSever is working now'
-		break
-	fi
+        start_serial_and_dbg_server $1
+        timeout
+        if [ $? = '0' ]
+        then
+                echo 'DebugSever is working now'
+                break
+        elif [ $retry_count -gt 0 ]
+        then
+                retry_count=$(($retry_count-1))
+                echo "debugserver start fail, lets try agin $retry_count"
+        else
+                echo "debugserver failed...test abort"
+                clear_test_setting
+                exit 1;
+        fi
 done
 
 if [ -d /tmp/rootfs_nfs ]; then
