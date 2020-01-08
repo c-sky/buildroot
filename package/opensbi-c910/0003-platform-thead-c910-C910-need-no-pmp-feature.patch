@@ -1,0 +1,27 @@
+From edbc9509a040859dfdd89009ec64a0191761074d Mon Sep 17 00:00:00 2001
+From: Liu Yibin <yibin_liu@c-sky.com>
+Date: Wed, 8 Jan 2020 10:43:59 +0800
+Subject: [PATCH] platform/thead/c910: C910 need no pmp feature
+
+Signed-off-by: Liu Yibin <yibin_liu@c-sky.com>
+---
+ platform/thead/c910/platform.h | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
+
+diff --git a/platform/thead/c910/platform.h b/platform/thead/c910/platform.h
+index 12cfe20..96e5622 100644
+--- a/platform/thead/c910/platform.h
++++ b/platform/thead/c910/platform.h
+@@ -9,8 +9,7 @@
+ #define C910_HART_STACK_SIZE   8192
+ 
+ #define SBI_THEAD_FEATURES	\
+-	(SBI_PLATFORM_HAS_PMP | \
+-	 SBI_PLATFORM_HAS_SCOUNTEREN | \
++	(SBI_PLATFORM_HAS_SCOUNTEREN | \
+ 	 SBI_PLATFORM_HAS_MCOUNTEREN | \
+ 	 SBI_PLATFORM_HAS_MFAULTS_DELEGATION)
+ 
+-- 
+2.7.4
+
