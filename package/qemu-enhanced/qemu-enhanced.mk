@@ -11,6 +11,9 @@ QEMU_ENHANCED_SITE = https://cop-image-prod.oss-cn-hangzhou.aliyuncs.com/resourc
 define QEMU_ENHANCED_INSTALL_TARGET_CMDS
 	mkdir -p $(HOST_DIR)/csky-qemu
 	cp -r $(@D)/* $(HOST_DIR)/csky-qemu
+	rm -f $(HOST_DIR)/csky-qemu/share/qemu/edk2-aarch64-code.fd
+	rm -f $(HOST_DIR)/csky-qemu/share/qemu/edk2-arm-code.fd
+	rm -f $(HOST_DIR)/csky-qemu/share/qemu/edk2-arm-vars.fd
 endef
 
 $(eval $(generic-package))
