@@ -4,7 +4,7 @@
 #
 ################################################################################
 
-OPENSBI_C910_VERSION = c0849cd731fca884c939e6a1a699a853231292a2
+OPENSBI_C910_VERSION = adf8b73675fe46344cd869c25e3f8546b9a8e25e
 OPENSBI_C910_SOURCE = opensbi-c910-$(OPENSBI_C910_VERSION).tar.gz
 OPENSBI_C910_SITE = $(call github,riscv,opensbi,$(OPENSBI_C910_VERSION))
 OPENSBI_C910_INSTALL_TARGET = NO
