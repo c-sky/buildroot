@@ -29,7 +29,7 @@ index 239353d..ab89b7e 100644
  	default "arc-2019.03-release" if BR2_GCC_VERSION_ARC
  	default "or1k-musl-5.4.0-20170218" if BR2_GCC_VERSION_OR1K
 -	default "48152afb96c59733d5bc79e3399bb7b3d4b44266" if BR2_GCC_VERSION_CSKY
-+	default "254d794e1821058b21384cd5b53c85a530a067dc" if BR2_GCC_VERSION_CSKY
++	default "d0abebf90e6108e05cb18c33be261cdbdb5d98f3" if BR2_GCC_VERSION_CSKY
  
  config BR2_EXTRA_GCC_CONFIG_OPTIONS
  	string "Additional gcc options"
