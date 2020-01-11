@@ -1,0 +1,41 @@
+set endian little
+set confirm off
+
+# Invalid L1-cache include I/Dcache
+set $cr17 = (1<<4) | 3 | (7<<16)
+
+# Setup MMU MSA0 reg, format:
+# 31 - 29 | 28 - 9 | 8 | 7 | 6 | 5 | 4 | 3 | 2 | 1 | 0
+#   BA     Reserved  SH  WA  B   SO SEC  C   D   V
+set $msa0 = 0x1ce
+
+# Setup CPU features regs
+# Enable MMU, Icache, Dcache, Return Stack, BPB, BTB, IBTB ...
+set $cr31 = 0x650c
+set $cr18 = 0x1586d
+
+# Invalid L2 cache by 'exec l2cache.iall'
+set *0x8f000000=0x9820c100
+set $pc=0x8f000000
+si
+
+# Enable L2 cache
+set $cr23 = 0x9
+
+set $vmlinux_addr = 0x80000000
+set $rootfs_addr = $vmlinux_addr + 0x01000000
+set $dtb_addr    =  $rootfs_addr - 0x00100000
+
+# Load rootfs
+restore ../rootfs.cpio.gz binary $rootfs_addr
+
+# Load dtb
+restore hw.dtb binary $dtb_addr
+set $r1 = $dtb_addr
+
+# Load kernel
+restore ../Image binary $vmlinux_addr
+set $pc = $vmlinux_addr
+
+# Sync I/Dcache before run kernel
+set $cr17 = 0x33

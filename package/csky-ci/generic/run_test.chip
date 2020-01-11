@@ -7,10 +7,24 @@ function start_serial_and_dbg_server()
 	./$OUT_PATH/host/csky-ci/csky_serial > >(tee $ROOT_PATH/test.log) &
 	sleep 3
 
+    #define the board startup time,because every board maybe has
+    #different booting time from u-boot to kerenl boot
+    for board in "$@"
+    do
+    if [ $board == "by" ]; then
+         sleep_time=7
+    else
+         sleep_time=3
+    fi
+    done
+
 	./$OUT_PATH/host/csky-ci/csky_switch /dev/csky_switch off
 	sleep 3
 	./$OUT_PATH/host/csky-ci/csky_switch /dev/csky_switch on
-	sleep 3
+	sleep ${sleep_time}s
+
+	#for 860 board. stop the uboot
+	echo -e \\n  > $OUT_PATH/host/csky-ci/csky_serial
 
 	cd $OUT_PATH/host/csky-jtag/C-Sky_DebugServer
 	killall DebugServerConsole.elf > /dev/null 2>&1
@@ -46,7 +60,7 @@ function timeout()
 
 while true;
 do
-	start_serial_and_dbg_server
+	start_serial_and_dbg_server $1
 	timeout
 	if [ $? = '0' ];
 	then

@@ -1,0 +1,125 @@
+/dts-v1/;
+
+/ {
+	model = "c860 lite platform";
+	compatible = "c860.lite.platform";
+	interrupt-parent = <&intc>;
+	#address-cells = <1>;
+	#size-cells = <1>;
+
+	cpus {
+		#address-cells = <1>;
+		#size-cells = <0>;
+		cpu@0 {
+			device_type = "cpu";
+			reg = <0>;
+			status = "ok";
+		};
+		cpu@1 {
+			device_type = "cpu";
+			reg = <1>;
+			status = "fail";
+		};
+	};
+
+	mem: memory@0 {
+		device_type = "memory";
+		reg = <0x0 0xe0000000>;
+	};
+
+	soc {
+		#address-cells = <1>;
+		#size-cells = <1>;
+		compatible = "simple-bus";
+		ranges;
+
+		dummy_apb: apb-clock {
+			compatible = "fixed-clock";
+			clock-frequency = <24000000>;
+			clock-output-names = "dummy_apb";
+			#clock-cells = <0>;
+		};
+
+		sys_pclk: sys-pclock {
+			compatible = "fixed-clock";
+			clock-frequency = <62500000>;
+			#clock-cells = <0>;
+		};
+
+		sys_hclk: sys-hclock {
+			compatible = "fixed-clock";
+			clock-frequency = <125000000>;
+			#clock-cells = <0>;
+		};
+
+		intc: interrupt-controller@f8002000 {
+			compatible = "csky,dual-apb-intc";
+			reg = <0xf8002000 0x1000>;
+			interrupt-controller;
+			#interrupt-cells = <1>;
+			csky,support-pulse-signal;
+		};
+
+		/* clock event */
+		timer0: timer0@f8005000 {
+			compatible = "snps,dw-apb-timer";
+			reg = <0xf8005000 0x1000>;
+			clocks = <&sys_pclk>;
+			clock-names = "timer";
+			interrupts = <54>;
+			interrupt-parent = <&intc>;
+		};
+
+		/* clock source */
+		timer1: timer1@f8005014 {
+			compatible = "snps,dw-apb-timer";
+			reg = <0xf8005014 0x800>;
+			clocks = <&sys_pclk>;
+			clock-names = "timer";
+			interrupts = <55>;
+			interrupt-parent = <&intc>;
+		};
+
+		serial0: serial@f8006000 {
+			compatible = "snps,dw-apb-uart";
+			status = "okay";
+			reg = <0xf8006000 0x1000>;
+			interrupt-parent = <&intc>;
+			clocks = <&dummy_apb>;
+			interrupts = <47>;
+			clock-names = "baudclk";
+			reg-shift = <2>;
+			reg-io-width = <4>;
+		};
+
+		serial1: serial@f8007000 {
+			compatible = "snps,dw-apb-uart";
+			status = "okay";
+			reg = <0xf8007000 0x1000>;
+			interrupt-parent = <&intc>;
+			clocks = <&dummy_apb>;
+			interrupts = <48>;
+			clock-names = "baudclk";
+			reg-shift = <2>;
+			reg-io-width = <4>;
+		};
+
+		usb_otg: usb_otg@f6000000 {
+			compatible = "snps,dwc2";
+			status = "okay";
+			reg = <0xf6000000 0x100000>;
+			dr_mode = "host";
+			clocks = <&sys_hclk>;
+			clock-names = "otg";
+			interrupts = <15>;
+			g-use-dma;
+			g-rx-fifo-size = <539>;
+			g-np-tx-fifo-size = <32>;
+			g-tx-fifo-size = <256 256 512 512 768 768>;
+		};
+	};
+
+	chosen {
+		bootargs = "console=ttyS0,115200 rdinit=/sbin/init root=/dev/ram0";
+	};
+};
