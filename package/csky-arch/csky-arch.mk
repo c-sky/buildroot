@@ -4,9 +4,9 @@
 #
 ################################################################################
 
-CSKY_ARCH_VERSION_4_9  = b46ab09db6b7fcff99d56a3a4720b0f7a14eb75f
-CSKY_ARCH_VERSION_4_14 = 5058c7ed8c9d20e9c7ad913dd25be6c61dbb5578
-CSKY_ARCH_VERSION_4_19 = fb72647c7686e1d84c112dd10c5d593f7d7f3ce5
+CSKY_ARCH_VERSION_4_9  = 3dc509b631bd022e01f62af061157be4c1078fee
+CSKY_ARCH_VERSION_4_14 = cc30ab46bfceb6b856c8eeae75ce3fead86264a7
+CSKY_ARCH_VERSION_4_19 = 87c6e40082d65d89b5e9eed4dfc2944e354762bb
 
 CSKY_ARCH_VERSION = none
 
