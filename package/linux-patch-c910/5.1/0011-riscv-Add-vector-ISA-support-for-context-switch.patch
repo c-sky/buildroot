@@ -47,7 +47,7 @@ index 3d3b84311..62cc54a69 100644
 +	bool "VECTOR support"
 +	default n
 +	help
-+	  Say N here if you want to disable all vecotr related procedure
++	  Say N here if you want to disable all vector related procedure
 +	  in the kernel.
 +
 +	  If you don't know what to do here, say Y.
@@ -688,7 +688,7 @@ index 837e16460..d34eec100 100644
 +	long err;
 +	struct __riscv_v_state __user *state = sc_vregs;
 +
-+	fstate_save(current, regs);
++	vstate_save(current, regs);
 +	err = __copy_to_user(state, &current->thread.vstate, sizeof(*state));
 +	if (unlikely(err))
 +		return err;
