@@ -1,5 +1,5 @@
-if [ $# -lt 1 -o $# -gt 3 ] ; then
-	echo "Usage: . run.sh <ip:port> [an/eg/ve/ban] [s/m]"
+if [ $# -lt 1 -o $# -gt 4 ] ; then
+	echo "Usage: . run.sh <ip:port> [an/eg/ve/ban] [s/m] noreset"
 	echo "Usage: [an/eg/ve/ban] is for board name"
 	echo "Usage: [s/m] is for onecore/twocore"
 	exit 1
@@ -7,6 +7,11 @@ fi
 
 BOARD="eg"
 NRCORE=2
+
+GDBRESET="reset"
+if [ $4 == "noreset" ]; then
+GDBRESET="noreset"
+fi
 
 for idx in "$@"
 do
@@ -18,6 +23,7 @@ elif [ $idx == "eg" ]; then
 	BOARD="eg"
 elif [ $idx == "ve" ]; then
 	BOARD="ve"
+	GDBRESET="noreset"
 elif [ $idx == "s" ]; then
 	NRCORE=1
 elif [ $idx == "m" ]; then
@@ -62,6 +68,11 @@ ROOTFS_END=`printf "0x%x" $ROOTFS_END`
 sed -i "s/linux,initrd-end.*/linux,initrd-end = <$ROOTFS_END>;/g" .hw.dts
 
 dtc -I dts -O dtb .hw.dts > hw.dtb
+
+# reset
+if [ $GDBRESET == "reset" ]; then
+./riscv64-linux-gdb -ex "tar remote $1" -ex "reset" -ex "set confirm off" -ex "q"
+fi
 
 # Init DDR
 if [ $BOARD == "ve" ]; then

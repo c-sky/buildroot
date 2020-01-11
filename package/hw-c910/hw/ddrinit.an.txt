@@ -4,8 +4,5 @@ set height 0
 # Don't confirm when quit
 set confirm off
 
-# Reset target board
-reset
-
 set *0xfff78040 = 0xffff
 shell $(sleep 3)

@@ -4,9 +4,6 @@ set height 0
 # Don't confirm when quit
 set confirm off
 
-# Reset target board
-reset
-
 shell $(sleep 1)
 
 # FPGA demultiplex
