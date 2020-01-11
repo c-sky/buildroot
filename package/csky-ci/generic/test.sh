@@ -1,5 +1,14 @@
 #!/bin/sh
 
+cat /proc/cmdline | grep -E 'chipci|qemuci'
+if [ $? -ne 0 ]
+then
+        echo "Skip the ci test"
+        exit 0
+else
+		echo "Lets start the ci test"
+fi
+
 sleep 5
 #init system time to avoid case settimeofday01 fail
 date -s 09:00:00

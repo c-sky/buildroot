@@ -101,6 +101,23 @@ if [ -f $OUT_PATH/images/rootfs.tar ]; then
 	rm -f /tmp/rootfs_nfs/etc/init.d/S50sshd
 fi
 
+function csky_ci_setting()
+{
+        for file_name in `grep -nr "bootargs" $OUT_PATH/images/hw | grep "console" | awk -F ":" '{print $1}'`
+        do
+                echo "the file name is $file_name"
+                grep -nr "chipci" $file_name
+                if [ $? -ne 0 ]; then
+                        line=`grep -nr bootargs $file_name | awk -F ":" '{print $1}'`
+                        sed -i "$line s/console/chipci &/" $file_name
+                else
+                        echo "this test file already in ci mode"
+                fi
+        done
+}
+
+csky_ci_setting
+
 #Must enter /output/images to execute since we need the configs
 cd $OUT_PATH/images/hw
 chmod 755 ./run.sh
