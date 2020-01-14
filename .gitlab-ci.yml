@@ -15,6 +15,7 @@ stages:
   - qemu-test
   - chip-test
   - build-enhanced
+  - qemu-test-enhanced
 
 variables:
     PREFIX: ""
@@ -287,6 +288,42 @@ wait_for_trigger:
       - 810f_4.14_glibc_compat
     <<: *dh7200_chip_test
 
+#qemu test enhanced
+.810_qemu_test_enhanced: &810_qemu_test_enhanced
+    stage: qemu-test-enhanced
+    before_script: *810_qemu_before_test
+    <<: *common_tests
+
+810f_4.9_glibc_qemu_test_enhanced:
+    dependencies:
+      - 810f_4.9_glibc_enhanced
+    <<: *810_qemu_test_enhanced
+
+810f_4.9_uclibc_qemu_test_enhanced:
+    dependencies:
+      - 810f_4.9_uclibc_enhanced
+    <<: *810_qemu_test_enhanced
+
+810f_4.19_glibc_qemu_test_enhanced:
+    dependencies:
+      - 810f_4.19_glibc_enhanced
+    <<: *810_qemu_test_enhanced
+
+810v_4.9_glibc_qemu_test_enhanced:
+    dependencies:
+      - 810v_4.9_glibc_enhanced
+    <<: *810_qemu_test_enhanced
+
+810v_4.9_uclibc_qemu_test_enhanced:
+    dependencies:
+      - 810v_4.9_uclibc_enhanced
+    <<: *810_qemu_test_enhanced
+
+810v_4.19_glibc_qemu_test_enhanced:
+    dependencies:
+      - 810v_4.19_glibc_enhanced
+    <<: *810_qemu_test_enhanced
+
 ################ 860 ################
 # qemu
 .860_qemu_before_test: &860_qemu_before_test
@@ -381,6 +418,42 @@ wait_for_trigger:
 #      - 860_next_glibc_compat
 #    <<: *by_chip_test
 
+#qemu test enhanced
+.860_qemu_test_enhanced: &860_qemu_test_enhanced
+    stage: qemu-test-enhanced
+    before_script: *860_qemu_before_test
+    <<: *common_tests
+
+860f_4.9_glibc_qemu_test_enhanced:
+    dependencies:
+      - 860f_4.9_glibc_enhanced
+    <<: *860_qemu_test_enhanced
+
+860f_4.9_uclibc_qemu_test_enhanced:
+    dependencies:
+      - 860f_4.9_uclibc_enhanced
+    <<: *860_qemu_test_enhanced
+
+860f_4.19_glibc_qemu_test_enhanced:
+    dependencies:
+      - 860f_4.19_glibc_enhanced
+    <<: *860_qemu_test_enhanced
+
+860v_4.9_glibc_qemu_test_enhanced:
+    dependencies:
+      - 860v_4.9_glibc_enhanced
+    <<: *860_qemu_test_enhanced
+
+860v_4.9_uclibc_qemu_test_enhanced:
+    dependencies:
+      - 860v_4.9_uclibc_enhanced
+    <<: *860_qemu_test_enhanced
+
+860v_4.19_glibc_qemu_test_enhanced:
+    dependencies:
+      - 860v_4.19_glibc_enhanced
+    <<: *860_qemu_test_enhanced
+
 ################ 910 ################
 # qemu
 .910_qemu_before_test: &910_qemu_before_test
@@ -427,14 +500,18 @@ wait_for_trigger:
       - 910_next_glibc_compat
     <<: *910_fpga_test
 
-################ enhanced ################
-807_4.9_glibc_enhanced: *enhanced_build
-807_4.9_uclibc_enhanced: *enhanced_build
-807_4.19_glibc_enhanced: *enhanced_build
-807f_4.9_glibc_enhanced: *enhanced_build
-807f_4.9_uclibc_enhanced: *enhanced_build
-807f_4.19_glibc_enhanced: *enhanced_build
+#qemu test enhanced
+.910_qemu_test_enhanced: &910_qemu_test_enhanced
+    stage: qemu-test-enhanced
+    before_script: *910_qemu_before_test
+    <<: *common_tests
 
+910_5.1_glibc_qemu_test_enhanced:
+    dependencies:
+      - 910_5.1_glibc_enhanced
+    <<: *910_qemu_test_enhanced
+
+################ enhanced ################
 810f_4.9_glibc_enhanced: *enhanced_build
 810f_4.9_uclibc_enhanced: *enhanced_build
 810f_4.19_glibc_enhanced: *enhanced_build
