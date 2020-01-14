@@ -1,9 +1,15 @@
 #!/bin/bash
 
-F=$(grep "ssh check pass" $1)
-if [ ! -n "$F" ]; then
-        echo "ssh test failed!"
-        return 1
+result=$(grep "skip ssh check" $1)
+if [ ! -n "$result" ]; then
+        F=$(grep "ssh check pass" $1)
+        if [ ! -n "$F" ]; then
+                echo "ssh test failed!"
+                exit 1
+        else
+	            echo "ssh test pass!"
+        fi
+
 else
-	echo "ssh test pass!"
+        echo "ssh test skip and pass!"
 fi
