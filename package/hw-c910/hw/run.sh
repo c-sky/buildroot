@@ -1,6 +1,6 @@
 if [ $# -lt 1 -o $# -gt 4 ] ; then
-	echo "Usage: . run.sh <ip:port> [an/eg/ve/ban] [s/m] noreset"
-	echo "Usage: [an/eg/ve/ban] is for board name"
+	echo "Usage: . run.sh <ip:port> [an/eg/ve/ice] [s/m] noreset"
+	echo "Usage: [an/eg/ve/ice] is for board name"
 	echo "Usage: [s/m] is for onecore/twocore"
 	exit 1
 fi
@@ -17,8 +17,8 @@ for idx in "$@"
 do
 if [ $idx == "an" ]; then
 	BOARD="an"
-elif [ $idx == "ban" ]; then
-	BOARD="ban"
+elif [ $idx == "ice" ]; then
+	BOARD="ice"
 elif [ $idx == "eg" ]; then
 	BOARD="eg"
 elif [ $idx == "ve" ]; then
@@ -79,7 +79,7 @@ if [ $BOARD == "ve" ]; then
 	echo "No need ddr_init for veloce"
 elif [ $BOARD == "eg" ]; then
 ./riscv64-linux-gdb -ex "tar remote $1" -x $DDRINIT ddr_init_$BOARD\_elf -ex "c" -ex "q" > /dev/null
-else #Both an and ban don't need ddr_init_elf
+else
 ./riscv64-linux-gdb -ex "tar remote $1" -x $DDRINIT -ex "q"
 fi
 

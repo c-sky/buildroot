@@ -1,6 +1,6 @@
 if [ $# -lt 1 -o $# -gt 3 ] ; then
-	echo "Usage: . run.sh <ip:port> [an/eg/ve] [1/2/3/4]"
-	echo "Usage: [an/eg/ve] is for platform"
+	echo "Usage: . run.sh <ip:port> [ice/eg/ve] [1/2/3/4]"
+	echo "Usage: [ice/eg/ve] is for platform"
 	echo "Usage: [1/2/3/4] is for cpu quantity"
 	exit 1
 fi
@@ -10,8 +10,8 @@ NRCORE=2
 
 for idx in "$@"
 do
-if [ $idx == "an" ]; then
-	BOARD="an"
+if [ $idx == "ice" ]; then
+	BOARD="ice"
 elif [ $idx == "eg" ]; then
 	BOARD="eg"
 elif [ $idx == "ve" ]; then
