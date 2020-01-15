@@ -1,5 +1,5 @@
 if [ $# -lt 1 -o $# -gt 3 ] ; then
-	echo "Usage: . run.sh <ip:port> [ice/eg/ve/by] [1/2/3/4]"
+	echo "Usage: . run.sh <ip:port> [ice/an/eg/ve/by] [1/2/3/4]"
 	echo "Usage: [an/eg/ve] is for platform"
 	echo "Usage: [1/2/3/4] is for cpu quantity"
 	exit 1
@@ -12,6 +12,8 @@ for idx in "$@"
 do
 if [ $idx == "ice" ]; then
 	BOARD="ice"
+elif [ $idx == "an" ]; then
+	BOARD="an"
 elif [ $idx == "eg" ]; then
 	BOARD="eg"
 elif [ $idx == "ve" ]; then
@@ -77,4 +79,4 @@ else
 fi
 
 # Run linux
-./csky-linux-gdb -ex "tar remote $1" -x $GDBINIT -ex "c"
+./csky-linux-gdb -ex "tar remote $1" -x $GDBINIT -ex "c" -ex "q"
