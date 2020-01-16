@@ -307,8 +307,6 @@
 
 	chosen {
 		bootargs = "console=ttyS0,115200";
-		linux,initrd-start = <0x1000000>;
-		linux,initrd-end = <0x17000000>;
 		stdout-path = "serial@fff73000";
 	};
 };
