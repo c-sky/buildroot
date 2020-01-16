@@ -19,7 +19,7 @@ index b0c6dae..43c806e 100644
  $(eval $(generic-package))
  endif
 +CSKY_LINUX_NEXT_VERSION	= 89366173a8d0b903256107753c8ff6a1760848f6
-+CSKY_LINUX_NEXT_RISCV_VERSION	= 2b6c47c9c126ac846e0726ce8ad73f4bc45d04c7
++CSKY_LINUX_NEXT_RISCV_VERSION	= d0777a6a5d8a942b7be284f0ffe620832af78334
 diff --git a/package/gcc/Config.in.host b/package/gcc/Config.in.host
 index 239353d..ab89b7e 100644
 --- a/package/gcc/Config.in.host

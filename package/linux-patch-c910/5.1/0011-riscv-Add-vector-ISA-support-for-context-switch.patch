@@ -772,11 +772,11 @@ index 000000000..7e698e6c5
 +
 +	vsetvli	t0, x0, e8,m8
 +	vsb.v	v0,  (a0)
-+	addi	a0, a0, RISCV_VECTOR_VLENB
++	addi	a0, a0, RISCV_VECTOR_VLENB*8
 +	vsb.v	v8,  (a0)
-+	addi	a0, a0, RISCV_VECTOR_VLENB
++	addi	a0, a0, RISCV_VECTOR_VLENB*8
 +	vsb.v	v16, (a0)
-+	addi	a0, a0, RISCV_VECTOR_VLENB
++	addi	a0, a0, RISCV_VECTOR_VLENB*8
 +	vsb.v	v24, (a0)
 +
 +	csrc	sstatus, t1
@@ -793,11 +793,11 @@ index 000000000..7e698e6c5
 +
 +	vsetvli	t0, x0, e8,m8
 +	vlb.v	v0,  (a0)
-+	addi	a0, a0, RISCV_VECTOR_VLENB
++	addi	a0, a0, RISCV_VECTOR_VLENB*8
 +	vlb.v	v8,  (a0)
-+	addi	a0, a0, RISCV_VECTOR_VLENB
++	addi	a0, a0, RISCV_VECTOR_VLENB*8
 +	vlb.v	v16, (a0)
-+	addi	a0, a0, RISCV_VECTOR_VLENB
++	addi	a0, a0, RISCV_VECTOR_VLENB*8
 +	vlb.v	v24, (a0)
 +
 +	mv	a0,  t2
