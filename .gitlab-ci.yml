@@ -360,26 +360,27 @@ wait_for_trigger:
     before_script: *by_chip_before_test
     <<: *common_tests
 
-860_4.9_glibc_by_test:
-    tags:
-      - csky-860-chip
-    dependencies:
-      - 860_4.9_glibc_compat
-    <<: *by_chip_test
+#860_4.9_glibc_by_test:
+#    tags:
+#      - csky-860-chip
+#    dependencies:
+#      - 860_4.9_glibc_compat
+#    <<: *by_chip_test
+#
+#860_4.19_glibc_by_test:
+#    tags:
+#      - csky-860-chip
+#    dependencies:
+#      - 860_4.19_glibc_compat
+#    <<: *by_chip_test
+#
+#860_next_glibc_by_test:
+#    tags:
+#      - csky-860-chip
+#    dependencies:
+#      - 860_next_glibc_compat
+#    <<: *by_chip_test
 
-860_4.19_glibc_by_test:
-    tags:
-      - csky-860-chip
-    dependencies:
-      - 860_4.19_glibc_compat
-    <<: *by_chip_test
-
-860_next_glibc_by_test:
-    tags:
-      - csky-860-chip
-    dependencies:
-      - 860_next_glibc_compat
-    <<: *by_chip_test
 ################ 910 ################
 # qemu
 .910_qemu_before_test: &910_qemu_before_test
