@@ -1,0 +1,45 @@
+From 2163036c818683ce744888f5cd7c855d0ce1e581 Mon Sep 17 00:00:00 2001
+From: Guo Ren <guoren@kernel.org>
+Date: Sun, 19 Jan 2020 17:12:33 +0800
+Subject: [PATCH] riscv: Support ARCH_HAS_DMA_MMAP_PGPROT
+
+Implement riscv's own arch_dma_mmap_pgprot to support writecombine
+dma memory allocate.
+
+Signed-off-by: Guo Ren <guoren@kernel.org>
+---
+ arch/riscv/Kconfig          | 1 +
+ arch/riscv/mm/dma-mapping.c | 8 ++++++++
+ 2 files changed, 9 insertions(+)
+
+diff --git a/arch/riscv/Kconfig b/arch/riscv/Kconfig
+index 62cc54a69..9751eb821 100644
+--- a/arch/riscv/Kconfig
++++ b/arch/riscv/Kconfig
+@@ -54,6 +54,7 @@ config RISCV
+ 	select GENERIC_IRQ_MULTI_HANDLER
+ 	select ARCH_HAS_PTE_SPECIAL
+ 	select HAVE_EBPF_JIT if 64BIT
++	select ARCH_HAS_DMA_MMAP_PGPROT
+ 
+ config MMU
+ 	def_bool y
+diff --git a/arch/riscv/mm/dma-mapping.c b/arch/riscv/mm/dma-mapping.c
+index 59bd2f7bb..a0a10c866 100644
+--- a/arch/riscv/mm/dma-mapping.c
++++ b/arch/riscv/mm/dma-mapping.c
+@@ -84,3 +84,11 @@ void arch_sync_dma_for_cpu(struct device *dev, phys_addr_t paddr,
+ 		BUG();
+ 	}
+ }
++
++pgprot_t arch_dma_mmap_pgprot(struct device *dev, pgprot_t prot,
++		unsigned long attrs)
++{
++	if (attrs & DMA_ATTR_WRITE_COMBINE)
++		return pgprot_writecombine(prot);
++	return pgprot_noncached(prot);
++}
+-- 
+2.17.0
+
