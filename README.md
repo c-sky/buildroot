@@ -8,3 +8,6 @@ T-Head buildroot is based on buildroot.org and make some project-specific custom
 
 # Quick Start
 https://github.com/c-sky/buildroot/releases
+
+for gx6605s board:
+  $ make CONF=csky_gx6605s_defconfig
