@@ -17,9 +17,9 @@ index 03355f5..1f15041 100644
 --- a/toolchain/helpers.mk
 +++ b/toolchain/helpers.mk
 @@ -135,9 +135,14 @@ copy_toolchain_sysroot = \
-			$(call simplify_symlink,$$i,$(STAGING_DIR)) ; \
-		done ; \
-	fi ; \
+ 			$(call simplify_symlink,$$i,$(STAGING_DIR)) ; \
+ 		done ; \
+ 	fi ; \
 -	if [ ! -e $(STAGING_DIR)/lib/ld*.so.* ]; then \
 -		if [ -e $${ARCH_SYSROOT_DIR}/lib/ld*.so.* ]; then \
 -			cp -a $${ARCH_SYSROOT_DIR}/lib/ld*.so.* $(STAGING_DIR)/lib/ ; \
@@ -31,21 +31,21 @@ index 03355f5..1f15041 100644
 +	if [ ! -e $(STAGING_DIR)/lib/$${LD_NAME} ]; then \
 +		if [ -e $${ARCH_SYSROOT_DIR}/lib/$${LD_NAME} ]; then \
 +			cp -a $${ARCH_SYSROOT_DIR}/lib/$${LD_NAME} $(STAGING_DIR)/lib/ ; \
-		fi ; \
-	fi ; \
-	if [ `readlink -f $${SYSROOT_DIR}` != `readlink -f $${ARCH_SYSROOT_DIR}` ] ; then \
+ 		fi ; \
+ 	fi ; \
+ 	if [ `readlink -f $${SYSROOT_DIR}` != `readlink -f $${ARCH_SYSROOT_DIR}` ] ; then \
 diff --git a/toolchain/toolchain-external/pkg-toolchain-external.mk b/toolchain/toolchain-external/pkg-toolchain-external.mk
 index baf719a..13b2468 100644
 --- a/toolchain/toolchain-external/pkg-toolchain-external.mk
 +++ b/toolchain/toolchain-external/pkg-toolchain-external.mk
 @@ -454,6 +454,8 @@ create_lib_symlinks = \
-	ARCH_LIB_DIR="$(call toolchain_find_libdir,$(TOOLCHAIN_EXTERNAL_CC) $(TOOLCHAIN_EXTERNAL_CFLAGS))" ; \
-	if [ ! -e "$${DESTDIR}/$${ARCH_LIB_DIR}" -a ! -e "$${DESTDIR}/usr/$${ARCH_LIB_DIR}" ]; then \
-		relpath="$(call relpath_prefix,$${ARCH_LIB_DIR})" ; \
+ 	ARCH_LIB_DIR="$(call toolchain_find_libdir,$(TOOLCHAIN_EXTERNAL_CC) $(TOOLCHAIN_EXTERNAL_CFLAGS))" ; \
+ 	if [ ! -e "$${DESTDIR}/$${ARCH_LIB_DIR}" -a ! -e "$${DESTDIR}/usr/$${ARCH_LIB_DIR}" ]; then \
+ 		relpath="$(call relpath_prefix,$${ARCH_LIB_DIR})" ; \
 +		mkdir -p `dirname "$${DESTDIR}/$${ARCH_LIB_DIR}"` ; \
 +		mkdir -p `dirname "$${DESTDIR}/usr/$${ARCH_LIB_DIR}"` ; \
-		ln -snf $${relpath}lib "$${DESTDIR}/$${ARCH_LIB_DIR}" ; \
-		ln -snf $${relpath}lib "$${DESTDIR}/usr/$${ARCH_LIB_DIR}" ; \
-	fi
+ 		ln -snf $${relpath}lib "$${DESTDIR}/$${ARCH_LIB_DIR}" ; \
+ 		ln -snf $${relpath}lib "$${DESTDIR}/usr/$${ARCH_LIB_DIR}" ; \
+ 	fi
 --
 2.7.4

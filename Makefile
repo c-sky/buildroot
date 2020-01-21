@@ -21,6 +21,7 @@ define DOWNLOAD
 endef
 
 define COPYFILES
+	set -e; \
 	if [ ! -d $(BRW_DIR) ]; then \
 		tar xf $(BRW_FILE) -C $(BRW_ROOT); \
 		cp $(BRW_ROOT)/package/* $(BRW_DIR)/package/ -raf; \
