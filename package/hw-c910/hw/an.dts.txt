@@ -19,7 +19,7 @@
 			reg = <0>;
 			status = "okay";
 			compatible = "riscv";
-			riscv,isa = "rv64imafdcsu";
+			riscv,isa = "rv64imafdcvsu";
 			mmu-type = "riscv,sv39";
 			cpu0_intc: interrupt-controller {
 				#interrupt-cells = <1>;
@@ -32,7 +32,7 @@
 			reg = <1>;
 			status = "fail";
 			compatible = "riscv";
-			riscv,isa = "rv64imafdcsu";
+			riscv,isa = "rv64imafdcvsu";
 			mmu-type = "riscv,sv39";
 			cpu1_intc: interrupt-controller {
 				#interrupt-cells = <1>;
@@ -45,7 +45,7 @@
 			reg = <2>;
 			status = "fail";
 			compatible = "riscv";
-			riscv,isa = "rv64imafdcsu";
+			riscv,isa = "rv64imafdcvsu";
 			mmu-type = "riscv,sv39";
 			cpu2_intc: interrupt-controller {
 				#interrupt-cells = <1>;
@@ -58,7 +58,7 @@
 			reg = <3>;
 			status = "fail";
 			compatible = "riscv";
-			riscv,isa = "rv64imafdcsu";
+			riscv,isa = "rv64imafdcvsu";
 			mmu-type = "riscv,sv39";
 			cpu3_intc: interrupt-controller {
 				#interrupt-cells = <1>;
@@ -71,7 +71,7 @@
 			reg = <4>;
 			status = "fail";
 			compatible = "riscv";
-			riscv,isa = "rv64imafdcsu";
+			riscv,isa = "rv64imafdcvsu";
 			mmu-type = "riscv,sv39";
 			cpu4_intc: interrupt-controller {
 				#interrupt-cells = <1>;
@@ -84,7 +84,7 @@
 			reg = <5>;
 			status = "fail";
 			compatible = "riscv";
-			riscv,isa = "rv64imafdcsu";
+			riscv,isa = "rv64imafdcvsu";
 			mmu-type = "riscv,sv39";
 			cpu5_intc: interrupt-controller {
 				#interrupt-cells = <1>;
@@ -97,7 +97,7 @@
 			reg = <6>;
 			status = "fail";
 			compatible = "riscv";
-			riscv,isa = "rv64imafdcsu";
+			riscv,isa = "rv64imafdcvsu";
 			mmu-type = "riscv,sv39";
 			cpu6_intc: interrupt-controller {
 				#interrupt-cells = <1>;
@@ -110,7 +110,7 @@
 			reg = <7>;
 			status = "fail";
 			compatible = "riscv";
-			riscv,isa = "rv64imafdcsu";
+			riscv,isa = "rv64imafdcvsu";
 			mmu-type = "riscv,sv39";
 			cpu7_intc: interrupt-controller {
 				#interrupt-cells = <1>;
@@ -123,7 +123,7 @@
 			reg = <8>;
 			status = "fail";
 			compatible = "riscv";
-			riscv,isa = "rv64imafdcsu";
+			riscv,isa = "rv64imafdcvsu";
 			mmu-type = "riscv,sv39";
 			cpu8_intc: interrupt-controller {
 				#interrupt-cells = <1>;
@@ -136,7 +136,7 @@
 			reg = <9>;
 			status = "fail";
 			compatible = "riscv";
-			riscv,isa = "rv64imafdcsu";
+			riscv,isa = "rv64imafdcvsu";
 			mmu-type = "riscv,sv39";
 			cpu9_intc: interrupt-controller {
 				#interrupt-cells = <1>;
@@ -149,7 +149,7 @@
 			reg = <10>;
 			status = "fail";
 			compatible = "riscv";
-			riscv,isa = "rv64imafdcsu";
+			riscv,isa = "rv64imafdcvsu";
 			mmu-type = "riscv,sv39";
 			cpu10_intc: interrupt-controller {
 				#interrupt-cells = <1>;
@@ -162,7 +162,7 @@
 			reg = <11>;
 			status = "fail";
 			compatible = "riscv";
-			riscv,isa = "rv64imafdcsu";
+			riscv,isa = "rv64imafdcvsu";
 			mmu-type = "riscv,sv39";
 			cpu11_intc: interrupt-controller {
 				#interrupt-cells = <1>;
@@ -175,7 +175,7 @@
 			reg = <12>;
 			status = "fail";
 			compatible = "riscv";
-			riscv,isa = "rv64imafdcsu";
+			riscv,isa = "rv64imafdcvsu";
 			mmu-type = "riscv,sv39";
 			cpu12_intc: interrupt-controller {
 				#interrupt-cells = <1>;
@@ -188,7 +188,7 @@
 			reg = <13>;
 			status = "fail";
 			compatible = "riscv";
-			riscv,isa = "rv64imafdcsu";
+			riscv,isa = "rv64imafdcvsu";
 			mmu-type = "riscv,sv39";
 			cpu13_intc: interrupt-controller {
 				#interrupt-cells = <1>;
@@ -201,7 +201,7 @@
 			reg = <14>;
 			status = "fail";
 			compatible = "riscv";
-			riscv,isa = "rv64imafdcsu";
+			riscv,isa = "rv64imafdcvsu";
 			mmu-type = "riscv,sv39";
 			cpu14_intc: interrupt-controller {
 				#interrupt-cells = <1>;
@@ -214,7 +214,7 @@
 			reg = <15>;
 			status = "fail";
 			compatible = "riscv";
-			riscv,isa = "rv64imafdcsu";
+			riscv,isa = "rv64imafdcvsu";
 			mmu-type = "riscv,sv39";
 			cpu15_intc: interrupt-controller {
 				#interrupt-cells = <1>;
