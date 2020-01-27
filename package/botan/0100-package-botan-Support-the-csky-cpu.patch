@@ -1,0 +1,29 @@
+From a2b6a56eefef5917defb9499da10ecbb02c551df Mon Sep 17 00:00:00 2001
+From: MaJun <majun258@linux.alibaba.com>
+Date: Sun, 26 Jan 2020 08:05:53 +0800
+Subject: [PATCH] package/botan: Support the csky cpu
+
+This patch mainly added the csky cpu support in botan
+
+Signed-off-by: MaJun <majun258@linux.alibaba.com>
+---
+ src/build-data/arch/csky.txt | 7 +++++++
+ 1 file changed, 7 insertions(+)
+ create mode 100644 src/build-data/arch/csky.txt
+
+diff --git a/src/build-data/arch/csky.txt b/src/build-data/arch/csky.txt
+new file mode 100644
+index 0000000..d795812
+--- /dev/null
++++ b/src/build-data/arch/csky.txt
+@@ -0,0 +1,7 @@
++
++endian little
++family csky
++
++<aliases>
++</aliases>
++
+-- 
+1.8.3.1
+
