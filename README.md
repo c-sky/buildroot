@@ -8,3 +8,13 @@ T-Head buildroot is based on buildroot.org and make some project-specific custom
 
 # Quick Start
 https://github.com/c-sky/buildroot/releases
+
+# Merge Rules
+1: Every monday is our merge window. Please rebase your patch on the version of last monday.
+
+2: Please make a merge request through gitlab when your patch passed all of the tests.
+
+3: Please write a detail and useful commit message for your patch.
+
+4: Please send you patch to linux@c-sky.com for review.
+
