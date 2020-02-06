@@ -68,7 +68,7 @@ index 55e6c5846..c25937415 100644
 -riscv-march-$(CONFIG_RISCV_ISA_A)	:= $(riscv-march-y)a
 -riscv-march-$(CONFIG_FPU)		:= $(riscv-march-y)fd
 -riscv-march-$(CONFIG_RISCV_ISA_C)	:= $(riscv-march-y)c
--riscv-march-$(CONFIG_RISCV_ISA_CUSTOM)	:= $(riscv-march-y)$(CONFIG_RISCV_ISA_CUSTOM_STR)
+-riscv-march-$(CONFIG_RISCV_ISA_THEAD)	:= $(riscv-march-y)xthead
 -KBUILD_CFLAGS += -march=$(subst fd,,$(riscv-march-y))
 -KBUILD_AFLAGS += -march=$(riscv-march-y)
 -
@@ -76,7 +76,7 @@ index 55e6c5846..c25937415 100644
 +riscv-march-cflags-$(CONFIG_ARCH_RV64I)		:= rv64im
 +riscv-march-cflags-$(CONFIG_RISCV_ISA_A)	:= $(riscv-march-cflags-y)a
 +riscv-march-cflags-$(CONFIG_RISCV_ISA_C)	:= $(riscv-march-cflags-y)c
-+riscv-march-cflags-$(CONFIG_RISCV_ISA_CUSTOM)	:= $(riscv-march-cflags-y)$(CONFIG_RISCV_ISA_CUSTOM_STR)
++
 +
 +riscv-march-aflags-$(CONFIG_ARCH_RV32I)		:= rv32im
 +riscv-march-aflags-$(CONFIG_ARCH_RV64I)		:= rv64im
@@ -84,9 +84,9 @@ index 55e6c5846..c25937415 100644
 +riscv-march-aflags-$(CONFIG_FPU)		:= $(riscv-march-aflags-y)fd
 +riscv-march-aflags-$(CONFIG_RISCV_ISA_C)	:= $(riscv-march-aflags-y)c
 +riscv-march-aflags-$(CONFIG_VECTOR)		:= $(riscv-march-aflags-y)v
-+riscv-march-aflags-$(CONFIG_RISCV_ISA_CUSTOM)	:= $(riscv-march-aflags-y)$(CONFIG_RISCV_ISA_CUSTOM_STR)
++riscv-march-aflags-$(CONFIG_RISCV_ISA_THEAD)	:= $(riscv-march-aflags-y)xthead
 +
-+KBUILD_CFLAGS += -march=$(riscv-march-cflags-y)
++KBUILD_CFLAGS += -march=$(riscv-march-cflags-y) -Wa,-march=$(riscv-march-aflags-y)
 +KBUILD_AFLAGS += -march=$(riscv-march-aflags-y)
  KBUILD_CFLAGS += -mno-save-restore
  KBUILD_CFLAGS += -DCONFIG_PAGE_OFFSET=$(CONFIG_PAGE_OFFSET)
