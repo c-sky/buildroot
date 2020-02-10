@@ -24,7 +24,7 @@ index 03355f5..1f15041 100644
 -		if [ -e $${ARCH_SYSROOT_DIR}/lib/ld*.so.* ]; then \
 -			cp -a $${ARCH_SYSROOT_DIR}/lib/ld*.so.* $(STAGING_DIR)/lib/ ; \
 +	if [ "$(TOOLCHAIN_EXTERNAL_READELF)" != "" ]; then \
-+		LD_NAME=`$(TOOLCHAIN_EXTERNAL_READELF) -d $${ARCH_SYSROOT_DIR}$${ARCH_LIB_DIR}/libc*.so|grep ld|grep so|awk '{print $$NF}'|sed "s/\[//g"|sed "s/\]//g"`; \
++		LD_NAME=`$(TOOLCHAIN_EXTERNAL_READELF) -d $${ARCH_SYSROOT_DIR}$${ARCH_LIB_DIR}/libc-*.so|grep ld-linux|grep so|awk '{print $$NF}'|sed "s/\[//g"|sed "s/\]//g"`; \
 +	else \
 +		LD_NAME="ld*.so.*"; \
 +	fi; \
