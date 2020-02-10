@@ -511,6 +511,16 @@ wait_for_trigger:
       - 910_5.1_glibc_enhanced
     <<: *910_qemu_test_enhanced
 
+
+910f_5.1_glibc_qemu_test_enhanced:
+    dependencies:
+      - 910f_5.1_glibc_enhanced
+    <<: *910_qemu_test_enhanced
+
+#910v_5.1_glibc_qemu_test_enhanced:
+#    dependencies:
+#      - 910v_5.1_glibc_enhanced
+#    <<: *910_qemu_test_enhanced
 ################ enhanced ################
 810f_4.9_glibc_enhanced: *enhanced_build
 810f_4.9_uclibc_enhanced: *enhanced_build
@@ -527,3 +537,5 @@ wait_for_trigger:
 860v_4.19_glibc_enhanced: *enhanced_build
 
 910_5.1_glibc_enhanced: *enhanced_build
+910f_5.1_glibc_enhanced: *enhanced_build
+910v_5.1_glibc_enhanced: *enhanced_build
