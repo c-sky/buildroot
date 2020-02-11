@@ -63,6 +63,9 @@ define OPENSSH_CP_SCRIPT
 	  cp -f package/csky-ci/authorized_keys $(TARGET_DIR)/root/.ssh/authorized_keys; \
 	fi
 endef
+
+ifeq ($(BR2_PACKAGE_CSKY_CI),y)
 OPENSSH_POST_INSTALL_TARGET_HOOKS += OPENSSH_CP_SCRIPT
+endif
 
 $(eval $(generic-package))
