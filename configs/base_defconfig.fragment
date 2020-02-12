@@ -1,0 +1,2 @@
+# More packages for Fedora
+BR2_PACKAGE_FEDORA_NEED=y

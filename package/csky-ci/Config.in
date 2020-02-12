@@ -5,8 +5,5 @@ config BR2_PACKAGE_CSKY_CI
 	select BR2_PACKAGE_LINUX_TOOLS_PERF if !BR2_ck610
 	select BR2_PACKAGE_HOST_DTC if !BR2_ck610
 	select BR2_PACKAGE_OPENSSH if !BR2_riscv
-	select BR2_PACKAGE_LIBFFI
-	select BR2_PACKAGE_BOTAN
-	select BR2_PACKAGE_STRACE
 	help
 	  C-Sky ci test script
