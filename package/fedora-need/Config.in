@@ -7,5 +7,7 @@ config BR2_PACKAGE_FEDORA_NEED
 	select BR2_PACKAGE_LIBFFI
 	select BR2_PACKAGE_BOTAN
 	select BR2_PACKAGE_STRACE
+	select BR2_PACKAGE_LIBNSS
+	select BR2_PACKAGE_LIBNSPR
 	help
 	  Build more packages for fedora project
