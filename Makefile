@@ -43,7 +43,20 @@ define COPYFILES
 		sed -i '/^BR2_PRIMARY_SITE.*/d' $(BRW_ROOT)/configs_enhanced/* ;\
 		echo "BR2_PRIMARY_SITE=\"$(INSIDE_SITE)/\"" | tee -a $(BRW_ROOT)/configs_enhanced/* ; \
 	fi; \
+
+	for file_name in $(BRW_ROOT)/configs/*defconfig; \
+	do \
+		echo "the file name is $$file_name"; \
+		cat $(BRW_ROOT)/configs/base_defconfig.fragment >> $$file_name; \
+	done
+
 	cp $(BRW_ROOT)/configs/* $(BRW_DIR)/configs/ -f; \
+
+	for file_name in $(BRW_ROOT)/configs/*defconfig; \
+	do \
+		echo "the file name is $$file_name"; \
+		cat $(BRW_ROOT)/configs_enhanced/base_enhanced_defconfig.fragment >> $$file_name; \
+	done
 	cp $(BRW_ROOT)/configs_enhanced/* $(BRW_DIR)/configs/ -f;
 endef
 
