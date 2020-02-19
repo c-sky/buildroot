@@ -19,6 +19,22 @@ Quick Start for qemu run
 
  (Login with username "root", and no password)
 
+Enable 9pfs in qemu
+===================
+step1: create a dir in host, for example:
+mkdir -p /home/csky/shared
+
+step2: start qemu
+qemu_start_cmd -fsdev local,security_model=passthrough,id=fsdev0,path=/home/csky/shared -device virtio-9p-pci,id=fs0,fsdev=fsdev0,mount_tag=hostshare
+
+step3: create a dir in qemu
+mkdir -p /root/host_shared
+
+step4: mount
+mount -t 9p -o trans=virtio,version=9p2000.L hostshare /root/host_shared/
+
+Now, you can share the files between qemu and host through the diretory
+created before.
 
 Enable qemu network
 ===================
