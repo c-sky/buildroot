@@ -1,26 +1,25 @@
-From b4807852f4bae2ae251bf5e5f1e60316c6341404 Mon Sep 17 00:00:00 2001
-From: MaJun <majun258@linux.alibaba.com>
-Date: Fri, 24 Jan 2020 15:45:14 +0800
+From 66b0559049655c9bc7540c2efd39ce9ad569dea1 Mon Sep 17 00:00:00 2001
+From: Ma Jun <majun258@linux.alibaba.com>
+Date: Mon, 24 Feb 2020 10:21:17 +0800
 Subject: [PATCH] package/libffi: Add csky cpu support
 
 This patch added the csky cpu support in libffi (3.3-rc0).
 
-Signed-off-by: Zhang Wenmeng <zhangwenmeng.pt@alibaba-inc.com>
-Signed-off-by: MaJun <majun258@linux.alibaba.com>
+Signed-off-by: Ma Jun <majun258@linux.alibaba.com>
 ---
  Makefile.am          |   2 +
  README.md            |   1 +
  configure.host       |   5 +
- src/csky/ffi.c       | 393 +++++++++++++++++++++++++++++++++++++++++++++++++++
- src/csky/ffitarget.h |  63 +++++++++
- src/csky/sysv.S      | 371 ++++++++++++++++++++++++++++++++++++++++++++++++
- 6 files changed, 835 insertions(+)
+ src/csky/ffi.c       | 395 +++++++++++++++++++++++++++++++++++++++++++
+ src/csky/ffitarget.h |  63 +++++++
+ src/csky/sysv.S      | 371 ++++++++++++++++++++++++++++++++++++++++
+ 6 files changed, 837 insertions(+)
  create mode 100644 src/csky/ffi.c
  create mode 100644 src/csky/ffitarget.h
  create mode 100644 src/csky/sysv.S
 
 diff --git a/Makefile.am b/Makefile.am
-index 27a11b2..1e66c00 100644
+index f83e444..e528ffd 100644
 --- a/Makefile.am
 +++ b/Makefile.am
 @@ -53,6 +53,7 @@ noinst_HEADERS = \
@@ -69,10 +68,10 @@ index 7634c3a..9201cd4 100644
  	SOURCES="ffi.c eabi.S"
 diff --git a/src/csky/ffi.c b/src/csky/ffi.c
 new file mode 100644
-index 0000000..78e13cb
+index 0000000..eb53848
 --- /dev/null
 +++ b/src/csky/ffi.c
-@@ -0,0 +1,393 @@
+@@ -0,0 +1,395 @@
 +/* -----------------------------------------------------------------------
 +   ffi.c
 +
@@ -143,11 +142,11 @@ index 0000000..78e13cb
 +#endif
 +
 +		if ((alignment - 1) & (unsigned) argp) {
-+			argp = (char *) ALIGN(argp, alignment);
++			argp = (char *) FFI_ALIGN(argp, alignment);
 +		}
 +
 +		if ((*p_arg)->type == FFI_TYPE_STRUCT)
-+			argp = (char *) ALIGN(argp, 4);
++			argp = (char *) FFI_ALIGN(argp, 4);
 +
 +		z = (*p_arg)->size;
 +		if (z < sizeof(int))
@@ -375,7 +374,7 @@ index 0000000..78e13cb
 +
 +      /* Align if necessary */
 +      if ((alignment - 1) & (unsigned) argp) {
-+	argp = (char *) ALIGN(argp, alignment);
++	argp = (char *) FFI_ALIGN(argp, alignment);
 +      }
 +
 +      z = (*p_arg)->size;
@@ -409,6 +408,8 @@ index 0000000..78e13cb
 + */
 +#define CACHEFLUSH_IN_FFI 1
 +#if CACHEFLUSH_IN_FFI
++extern void ffi_csky_cacheflush(unsigned char *__tramp, unsigned int k,
++		int i);
 +#define FFI_INIT_TRAMPOLINE(TRAMP,FUN,CTX)                              \
 +({ unsigned char *__tramp = (unsigned char*)(TRAMP);                    \
 +   unsigned int  __fun = (unsigned int)(FUN);                           \
@@ -913,5 +914,5 @@ index 0000000..962a796
 +
 +#endif /* __CSKYABIV2__ */
 -- 
-1.8.3.1
+2.17.1
 
