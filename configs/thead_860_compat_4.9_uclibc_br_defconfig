@@ -11,7 +11,7 @@ BR2_LINUX_KERNEL_UIMAGE=y
 BR2_LINUX_KERNEL_CUSTOM_VERSION=y
 BR2_LINUX_KERNEL_CUSTOM_VERSION_VALUE="4.9.56"
 BR2_LINUX_KERNEL_USE_ARCH_DEFAULT_CONFIG=y
-BR2_LINUX_KERNEL_CONFIG_FRAGMENT_FILES="board/csky-ci/defconfigs/kernel.860.fragment"
+BR2_LINUX_KERNEL_CONFIG_FRAGMENT_FILES="board/csky-ci/defconfigs/kernel.860.fragment board/csky-ci/defconfigs/kernel.pci-9pfs-gpu.fragment"
 
 # System configuration
 BR2_OPTIMIZE_2=y
