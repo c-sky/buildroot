@@ -1,4 +1,4 @@
-From 888abbc9f661c33fd66ccdf3710c4fb729b4b779 Mon Sep 17 00:00:00 2001
+From 86c0ac82a8d051bf4288351cb230043fa5c9e928 Mon Sep 17 00:00:00 2001
 From: Guo Ren <ren_guo@c-sky.com>
 Date: Wed, 9 Oct 2019 15:08:35 +0800
 Subject: [PATCH] arch/riscv: add v & xthead extension
@@ -21,21 +21,25 @@ Xbargle”.
 Changelog v2:
     - remove ISA_CUSTOM_STR support
 
+Changelog v3:
+    - add lp64v for GCC_TAEGET_ABI
+
 Signed-off-by: Guo Ren <ren_guo@c-sky.com>
 Signed-off-by: Mao Han <han_mao@c-sky.com>
+Signed-off-by: Ma Jun  <majun@linux.alibaba.com>
 ---
- arch/Config.in.riscv | 14 ++++++++++++++
+ arch/Config.in.riscv | 19 +++++++++++++++++++
  arch/arch.mk.riscv   |  6 ++++++
- 2 files changed, 20 insertions(+)
+ 2 files changed, 25 insertions(+)
 
 diff --git a/arch/Config.in.riscv b/arch/Config.in.riscv
-index bdd2672..8e7d9f7 100644
+index bdd2672..93e068e 100644
 --- a/arch/Config.in.riscv
 +++ b/arch/Config.in.riscv
 @@ -18,6 +18,12 @@ config BR2_RISCV_ISA_RVD
  config BR2_RISCV_ISA_RVC
  	bool
-
+ 
 +config BR2_RISCV_ISA_RVV
 +	bool
 +
@@ -58,9 +62,9 @@ index bdd2672..8e7d9f7 100644
 +	bool "T-HEAD Extensions"
 +	select BR2_RISCV_ISA_THEAD
  endif
-
+ 
  choice
-@@ -106,6 +124,10 @@ config BR2_RISCV_ABI_LP64F
+@@ -106,6 +120,10 @@ config BR2_RISCV_ABI_LP64F
  config BR2_RISCV_ABI_LP64D
  	bool "lp64d"
  	depends on BR2_ARCH_IS_64 && BR2_RISCV_ISA_RVD
@@ -71,6 +75,14 @@ index bdd2672..8e7d9f7 100644
  endchoice
  
  config BR2_ARCH
+@@ -122,6 +140,7 @@ config BR2_GCC_TARGET_ABI
+ 	default "lp64" if BR2_RISCV_ABI_LP64
+ 	default "lp64f" if BR2_RISCV_ABI_LP64F
+ 	default "lp64d" if BR2_RISCV_ABI_LP64D
++	default "lp64v" if BR2_RISCV_ABI_LP64V
+ 
+ config BR2_READELF_ARCH_NAME
+ 	default "RISC-V"
 diff --git a/arch/arch.mk.riscv b/arch/arch.mk.riscv
 index f3bf2b3..85c76c0 100644
 --- a/arch/arch.mk.riscv
@@ -85,7 +97,8 @@ index f3bf2b3..85c76c0 100644
 +ifeq ($(BR2_RISCV_ISA_THEAD),y)
 +GCC_TARGET_ARCH := $(GCC_TARGET_ARCH)xthead
 +endif
-
+ 
  endif
---
-2.7.4
+-- 
+1.8.3.1
+
