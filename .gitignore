@@ -13,3 +13,5 @@
 *.rej
 *~
 *.pyc
+buildroot-*/
+thead_*/
