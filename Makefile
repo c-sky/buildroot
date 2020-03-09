@@ -44,20 +44,19 @@ define COPYFILES
 		echo "BR2_PRIMARY_SITE=\"$(INSIDE_SITE)/\"" | tee -a $(BRW_ROOT)/configs_enhanced/* ; \
 	fi; \
 
-	for file_name in $(BRW_ROOT)/configs/*defconfig; \
-	do \
-		echo "the file name is $$file_name"; \
-		cat $(BRW_ROOT)/configs/base_defconfig.fragment >> $$file_name; \
-	done
+	rm -rf $(BRW_DIR)/configs/$(CONF); \
+	if [ -f $(BRW_ROOT)/configs/$(CONF) ];then \
+		cp $(BRW_ROOT)/configs/$(CONF)  $(BRW_DIR)/configs/ -f; \
+		echo "the file name is $(BRW_DIR)/configs/$(CONF)"; \
+		cat $(BRW_ROOT)/configs/base_defconfig.fragment >> $(BRW_DIR)/configs/$(CONF); \
+	elif [ -f $(BRW_ROOT)/configs_enhanced/$(CONF) ];then \
+		cp $(BRW_ROOT)/configs_enhanced/$(CONF)  $(BRW_DIR)/configs/ -f; \
+		echo "the file name is $(BRW_DIR)/configs_enhanced/$(CONF)"; \
+		cat $(BRW_ROOT)/configs_enhanced/base_enhanced_defconfig.fragment >> $(BRW_DIR)/configs/$(CONF); \
+	else  \
+		echo " this config is invalid $(CONF)"; \
+	fi; \
 
-	cp $(BRW_ROOT)/configs/* $(BRW_DIR)/configs/ -f; \
-
-	for file_name in $(BRW_ROOT)/configs/*defconfig; \
-	do \
-		echo "the file name is $$file_name"; \
-		cat $(BRW_ROOT)/configs_enhanced/base_enhanced_defconfig.fragment >> $$file_name; \
-	done
-	cp $(BRW_ROOT)/configs_enhanced/* $(BRW_DIR)/configs/ -f;
 endef
 
 .PHONY: all
