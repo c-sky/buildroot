@@ -1,0 +1,27 @@
+From aba786e56a59b666ef0fe3f29755be20dd9de5fd Mon Sep 17 00:00:00 2001
+From: Mao Han <han_mao@c-sky.com>
+Date: Wed, 11 Mar 2020 10:52:15 +0800
+Subject: [PATCH] fs/cpio-minimize-thead: Fix incorrect S50sshd deletion
+
+Do not remove S50sshd when csky-ci is not selected.
+
+Signed-off-by: Mao Han <han_mao@c-sky.com>
+---
+ fs/cpio-minimize-thead/cpio-minimize-thead.mk | 2 ++
+ 1 file changed, 2 insertions(+)
+
+diff --git a/fs/cpio-minimize-thead/cpio-minimize-thead.mk b/fs/cpio-minimize-thead/cpio-minimize-thead.mk
+index a75d50baf3..00360e586d 100644
+--- a/fs/cpio-minimize-thead/cpio-minimize-thead.mk
++++ b/fs/cpio-minimize-thead/cpio-minimize-thead.mk
+@@ -4,5 +4,7 @@ define ROOTFS_CPIO_MINIMIZE_THEAD
+ 	rm -rf $(TARGET_DIR)/etc/init.ci/ltp_run
+ endef
+ 
++ifeq ($(BR2_PACKAGE_CSKY_CI),y)
+ ROOTFS_CPIO_PRE_GEN_HOOKS += ROOTFS_CPIO_MINIMIZE_THEAD
+ ROOTFS_TAR_PRE_GEN_HOOKS  += ROOTFS_CPIO_MINIMIZE_THEAD
++endif
+-- 
+2.17.1
+
