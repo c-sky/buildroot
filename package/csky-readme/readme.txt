@@ -21,20 +21,20 @@ Quick Start for qemu run
 
 Enable 9pfs in qemu
 ===================
-step1: create a dir in host, for example:
 mkdir -p /home/csky/shared
+(create a dir in host)
 
-step2: start qemu
 qemu_start_cmd -fsdev local,security_model=passthrough,id=fsdev0,path=/home/csky/shared -device virtio-9p-pci,id=fs0,fsdev=fsdev0,mount_tag=hostshare
+(start qemu)
 
-step3: create a dir in qemu
 mkdir -p /root/host_shared
+(create a dir in qemu)
 
-step4: mount
 mount -t 9p -o trans=virtio,version=9p2000.L hostshare /root/host_shared/
+(mount the directory on the host)
 
-Now, you can share the files between qemu and host through the diretory
-created before.
+(Now, you can share the files between qemu and host through the diretory
+created before.)
 
 Enable qemu network
 ===================
@@ -83,6 +83,17 @@ Build linux kernel
 
  echo "Compile"
  linux_compile_cmd
+
+Enable the gcov function in kernel
+==================================
+(Csky cpu now support the gcov function in kernel. But the Image size
+ would be about 24M if this function is enbaled. So we disabled this function
+ defaultly. If you want to enable it, please open the following config)
+
+CONFIG_DEBUG_FS=y
+CONFIG_GCOV_KERNEL=y
+CONFIG_GCOV_FORMAT_4_7=y
+CONFIG_GCOV_PROFILE_ALL=y
 
 
 Build buildroot
