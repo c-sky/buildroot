@@ -4,7 +4,7 @@
 #
 ################################################################################
 
-MISC_DOWNLOAD_C860_VERSION = 63f88a0aec0f9db43e1efda8c419ddf9e6a11072
+MISC_DOWNLOAD_C860_VERSION = f3c7bd6ec73975652fa90007fbe05a0d3d9185bd
 MISC_DOWNLOAD_C860_SOURCE = misc-download-c860-$(MISC_DOWNLOAD_C860_VERSION).tar.gz
 MISC_DOWNLOAD_C860_SITE = $(call github,c-sky,860_misc_downloads,$(MISC_DOWNLOAD_C860_VERSION))
 

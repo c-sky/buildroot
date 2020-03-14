@@ -46,12 +46,27 @@
 		compatible = "simple-bus";
 		ranges;
 
+		dummy_mptimer: mptimer-clock {
+			compatible = "fixed-clock";
+			clock-frequency = <125000000>;
+			clock-output-names = "dummy_mptimer";
+			#clock-cells = <0>;
+		};
+
+		dummy_ahb: ahb-clock {
+			compatible = "fixed-clock";
+			clock-frequency = <250000000>;
+			clock-output-names = "dummy_ahb";
+			#clock-cells = <0>;
+		};
+
 		dummy_apb: apb-clock {
 			compatible = "fixed-clock";
-			clock-frequency = <50000000>;
+			clock-frequency = <62500000>;
 			clock-output-names = "dummy_apb";
 			#clock-cells = <0>;
 		};
+
 
 		intc: interrupt-controller {
 			compatible = "csky,mpintc";
@@ -61,7 +76,7 @@
 
 		timer0: timer {
 			compatible = "csky,mptimer";
-			clocks = <&dummy_apb>;
+			clocks = <&dummy_mptimer>;
 			interrupts = <16>;
 			interrupt-parent = <&intc>;
 		};
@@ -89,23 +104,11 @@
 			interrupt-parent = <&intc>;
 			interrupts = <56>;
 			interrupt-names = "macirq";
-			clocks = <&dummy_apb>;
+			clocks = <&dummy_ahb>;
 			clock-names = "stmmaceth";
 			snps,pbl = <32>;
 			snps,fixed-burst;
-
 			phy-mode = "mii";
-			phy-handle = <&phy_88E1111>;
-
-			mdio0 {
-				#address-cells = <1>;
-				#size-cells = <0>;
-				compatible = "snps,dwmac-mdio";
-
-				phy_88E1111: ethernet-phy@0 {
-					reg = <0>;
-				};
-			};
 		};
 	};
 

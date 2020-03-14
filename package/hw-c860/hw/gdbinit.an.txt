@@ -11,7 +11,7 @@ set $msa0 = 0x1ce
 
 # Setup CPU features regs
 # Enable MMU, Icache, Dcache, Return Stack, BPB, BTB, IBTB ...
-set $cr31 = 0x650c
+set $cr31 = 0x670c
 set $cr18 = 0x1586d
 
 # Invalid L2 cache by 'exec l2cache.iall'
@@ -20,7 +20,7 @@ set $pc=0x8f000000
 si
 
 # Enable L2 cache
-set $cr23 = 0x9
+set $cr23 = 0xe0010009
 
 set $vmlinux_addr = 0x80000000
 set $rootfs_addr = $vmlinux_addr + 0x01000000

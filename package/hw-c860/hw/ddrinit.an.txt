@@ -4,8 +4,22 @@ set height 0
 # Don't confirm when quit
 set confirm off
 
-# Reset target board
-reset
+# Disable CPU cache
+set $cr18=0x00
 
-set *0xfff78040 = 0xffff
-shell $(sleep 3)
+# Disable watchdog
+set *0xfff78000=0x5ada7200
+set *0xfff78010=0
+
+# Enable DDR clocks
+set *0xfff77108=0xff
+
+# MII, External 100Mbps Mode
+set *0xfe83025c=0x0
+set *0xfe83031c=0x1
+# CLK_OUT pad disable
+set *0xfff770c0=0x18a
+
+load
+
+disp /i $pc

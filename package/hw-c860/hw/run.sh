@@ -73,7 +73,9 @@ if [ $BOARD == "by" ]; then
 elif [ $BOARD == "ve" ]; then
 	echo "No need ddr_init for veloce"
 elif [ $BOARD == "eg" ]; then
-./csky-linux-gdb -ex "tar remote $1" -x $DDRINIT ddr_init_elf -ex "c" -ex "q" > /dev/null
+./csky-linux-gdb -ex "tar remote $1" -x $DDRINIT ddr_init_$BOARD\_elf -ex "c" -ex "q" > /dev/null
+elif [ $BOARD == "an" ]; then
+./csky-linux-gdb -ex "tar remote $1" -x $DDRINIT ddr_init_$BOARD\_elf -ex "c" -ex "q" > /dev/null
 else
 ./csky-linux-gdb -ex "tar remote $1" -x $DDRINIT -ex "q"
 fi
