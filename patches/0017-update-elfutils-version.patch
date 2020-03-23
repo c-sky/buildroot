@@ -1,0 +1,163 @@
+From 151280ba4aa39041003cf229fb7074f3b2d23086 Mon Sep 17 00:00:00 2001
+From: Mao Han <han_mao@c-sky.com>
+Date: Mon, 23 Mar 2020 17:15:24 +0800
+Subject: [PATCH] update elfutils version
+
+---
+ ...nable-disable-progs-configure-option.patch |  4 +-
+ ...e-Werror-conditional-to-BUILD_WERROR.patch |  4 +-
+ .../0004-FIX-compat-tool-useabilty.patch      | 46 +++++++++++++++++++
+ package/elfutils/Config.in                    |  1 +
+ package/elfutils/elfutils.mk                  |  7 +--
+ 5 files changed, 57 insertions(+), 5 deletions(-)
+ create mode 100644 package/elfutils/0004-FIX-compat-tool-useabilty.patch
+
+diff --git a/package/elfutils/0001-Add-a-enable-disable-progs-configure-option.patch b/package/elfutils/0001-Add-a-enable-disable-progs-configure-option.patch
+index 3f80fe6..36bd462 100644
+--- a/package/elfutils/0001-Add-a-enable-disable-progs-configure-option.patch
++++ b/package/elfutils/0001-Add-a-enable-disable-progs-configure-option.patch
+@@ -13,9 +13,11 @@ obstack_printf() in uClibc for example).
+ Based on the former patch by Thomas Petazzoni.
+ 
+ [Vincent: tweak patch for 0.166]
++[Bernd: rebased patch for 0.177]
+ 
+ Signed-off-by: Thomas Petazzoni <thomas.petazzoni@free-electrons.com>
+ Signed-off-by: Vicente Olivert Riera <Vincent.Riera@imgtec.com>
++Signed-off-by: Bernd Kuhls <bernd.kuhls@t-online.de>
+ ---
+  Makefile.am  | 6 +++++-
+  configure.ac | 6 ++++++
+@@ -44,7 +46,7 @@ diff --git a/configure.ac b/configure.ac
+ index c2c1d90b2133..7b4c38381cca 100644
+ --- a/configure.ac
+ +++ b/configure.ac
+-@@ -259,6 +259,12 @@ AC_SUBST([LIBEBL_SUBDIR])
++@@ -345,6 +345,12 @@ AC_SUBST([LIBEBL_SUBDIR])
+  AC_DEFINE_UNQUOTED(LIBEBL_SUBDIR, "$LIBEBL_SUBDIR")
+  AH_TEMPLATE([LIBEBL_SUBDIR], [$libdir subdirectory containing libebl modules.])
+  
+diff --git a/package/elfutils/0003-Really-make-Werror-conditional-to-BUILD_WERROR.patch b/package/elfutils/0003-Really-make-Werror-conditional-to-BUILD_WERROR.patch
+index 21ffa7f..85ac1e4 100644
+--- a/package/elfutils/0003-Really-make-Werror-conditional-to-BUILD_WERROR.patch
++++ b/package/elfutils/0003-Really-make-Werror-conditional-to-BUILD_WERROR.patch
+@@ -12,9 +12,11 @@ function [-Werror=maybe-uninitialized]
+ cc1: all warnings being treated as errors
+ 
+ [Vincent: tweak patch for 0.166]
++[Bernd: rebased patch for 0.177]
+ 
+ Signed-off-by: "Yann E. MORIN" <yann.morin.1998@free.fr>
+ Signed-off-by: Vicente Olivert Riera <Vincent.Riera@imgtec.com>
++Signed-off-by: Bernd Kuhls <bernd.kuhls@t-online.de>
+ ---
+  config/eu.am | 1 -
+  1 file changed, 1 deletion(-)
+@@ -24,7 +26,7 @@ index c2cc349ce876..99b368e09060 100644
+ --- a/config/eu.am
+ +++ b/config/eu.am
+ @@ -73,7 +73,6 @@ AM_CFLAGS = -std=gnu99 -Wall -Wshadow -Wformat=2 \
+- 	    -Wold-style-definition -Wstrict-prototypes \
++ 	    -Wold-style-definition -Wstrict-prototypes -Wtrampolines \
+  	    $(LOGICAL_OP_WARNING) $(DUPLICATED_COND_WARNING) \
+  	    $(NULL_DEREFERENCE_WARNING) $(IMPLICIT_FALLTHROUGH_WARNING) \
+ -	    $(if $($(*F)_no_Werror),,-Werror) \
+diff --git a/package/elfutils/0004-FIX-compat-tool-useabilty.patch b/package/elfutils/0004-FIX-compat-tool-useabilty.patch
+new file mode 100644
+index 0000000..15a12c3
+--- /dev/null
++++ b/package/elfutils/0004-FIX-compat-tool-useabilty.patch
+@@ -0,0 +1,46 @@
++From 8dd41bb339972f4c42509e7cfc54e4831050a79f Mon Sep 17 00:00:00 2001
++From: Mao Han <han_mao@c-sky.com>
++Date: Wed, 8 Apr 2020 14:58:00 +0800
++Subject: [PATCH] Fix csky compat tool useabilty
++
++---
++ backends/csky_initreg.c | 1 +
++ libebl/eblopenbackend.c | 3 +--
++ 2 files changed, 2 insertions(+), 2 deletions(-)
++
++diff --git a/backends/csky_initreg.c b/backends/csky_initreg.c
++index 81a0da3..42b754a 100644
++--- a/backends/csky_initreg.c
+++++ b/backends/csky_initreg.c
++@@ -36,6 +36,7 @@
++ # include <sys/uio.h>
++ # include <sys/procfs.h>
++ # include <sys/ptrace.h>
+++# include <asm/ptrace.h>
++ #endif
++ 
++ #define BACKEND csky_
++diff --git a/libebl/eblopenbackend.c b/libebl/eblopenbackend.c
++index 01711f5..03bff82 100644
++--- a/libebl/eblopenbackend.c
+++++ b/libebl/eblopenbackend.c
++@@ -84,7 +84,6 @@ static const struct
++   { "v800", "ebl_v800", "v800", 4, EM_V800, 0, 0 },
++   { "fr20", "ebl_fr20", "fr20", 4, EM_FR20, 0, 0 },
++   { "rh32", "ebl_rh32", "rh32", 4, EM_RH32, 0, 0 },
++-  { "rce", "ebl_rce", "rce", 3, EM_RCE, 0, 0 },
++   { "tricore", "elf_tricore", "tricore", 7, EM_TRICORE, 0, 0 },
++   { "arc", "elf_arc", "arc", 3, EM_ARC, 0, 0 },
++   { "h8", "elf_h8_300", "h8_300", 6, EM_H8_300, 0, 0 },
++@@ -135,7 +134,7 @@ static const struct
++   { "bpf", "elf_bpf", "bpf", 3, EM_BPF, 0, 0 },
++   { "riscv", "elf_riscv", "riscv", 5, EM_RISCV, ELFCLASS64, ELFDATA2LSB },
++   { "riscv", "elf_riscv", "riscv", 5, EM_RISCV, ELFCLASS32, ELFDATA2LSB },
++-  { "csky", "elf_csky", "csky", 4, EM_CSKY, ELFCLASS32, ELFDATA2LSB },
+++  { "csky", "elf_csky", "csky", 4, EM_RCE, ELFCLASS32, ELFDATA2LSB },
++ };
++ #define nmachines (sizeof (machines) / sizeof (machines[0]))
++ 
++-- 
++2.17.1
++
+diff --git a/package/elfutils/Config.in b/package/elfutils/Config.in
+index 6c8bd0b..11f3d98 100644
+--- a/package/elfutils/Config.in
++++ b/package/elfutils/Config.in
+@@ -4,6 +4,7 @@ comment "elfutils needs a uClibc or glibc toolchain w/ wchar, dynamic library"
+ 
+ config BR2_PACKAGE_ELFUTILS
+ 	bool "elfutils"
++	default y if BR2_PACKAGE_LINUX_TOOLS_PERF
+ 	depends on BR2_USE_WCHAR
+ 	depends on !BR2_STATIC_LIBS
+ 	# Only glibc and uClibc implement the myriad of required GNUisms
+diff --git a/package/elfutils/elfutils.mk b/package/elfutils/elfutils.mk
+index 2d62017..7316760 100644
+--- a/package/elfutils/elfutils.mk
++++ b/package/elfutils/elfutils.mk
+@@ -4,7 +4,7 @@
+ #
+ ################################################################################
+ 
+-ELFUTILS_VERSION = 0.174
++ELFUTILS_VERSION = 0.177
+ ELFUTILS_SOURCE = elfutils-$(ELFUTILS_VERSION).tar.bz2
+ ELFUTILS_SITE = https://sourceware.org/elfutils/ftp/$(ELFUTILS_VERSION)
+ ELFUTILS_INSTALL_STAGING = YES
+@@ -20,7 +20,8 @@ HOST_ELFUTILS_AUTORECONF = YES
+ # Pass a custom program prefix to avoid a naming conflict between
+ # elfutils binaries and binutils binaries.
+ ELFUTILS_CONF_OPTS += \
+-	--program-prefix="eu-"
++	--program-prefix="eu-" \
++	--disable-textrelcheck
+ 
+ HOST_ELFUTILS_CONF_OPTS = \
+ 	--with-bzlib \
+@@ -67,7 +68,7 @@ endif
+ 
+ ifeq ($(BR2_PACKAGE_ELFUTILS_PROGS),y)
+ ELFUTILS_CONF_OPTS += --enable-progs
+-ELFUTILS_LICENSE := $(ELFUTILS_LICENSE), GPL-3.0+ (programs)
++ELFUTILS_LICENSE += , GPL-3.0+ (programs)
+ ELFUTILS_LICENSE_FILES += COPYING
+ else
+ ELFUTILS_CONF_OPTS += --disable-progs
+-- 
+2.17.1
+
