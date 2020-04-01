@@ -29,7 +29,6 @@ define COPYFILES
 		cp $(BRW_ROOT)/board/* $(BRW_DIR)/board/ -raf; \
 		cp $(BRW_ROOT)/fs/* $(BRW_DIR)/fs/ -raf; \
 		rm -rf package/ncurses/*.patch; \
-		echo "DL_DIR=$(BR2_DL_DIR)" >> $(BRW_DIR)/Makefile; \
 		if [ -f ~/.gitconfig ]; then \
 			cd $(BRW_DIR); \
 			git init .; git add . > /dev/null; \
@@ -39,6 +38,8 @@ define COPYFILES
 			$(BRW_DIR)/support/scripts/apply-patches.sh $(BRW_DIR) $(BRW_PATCH_DIR); \
 		fi; \
 	fi; \
+	
+	echo "DL_DIR=$(BR2_DL_DIR)" >> $(BRW_DIR)/Makefile; \
 	if [ "$(INSIDE_SITE)" != "" ];then \
 		sed -i '/^BR2_PRIMARY_SITE.*/d' $(BRW_ROOT)/configs_enhanced/* ;\
 		echo "BR2_PRIMARY_SITE=\"$(INSIDE_SITE)/\"" | tee -a $(BRW_ROOT)/configs_enhanced/* ; \
