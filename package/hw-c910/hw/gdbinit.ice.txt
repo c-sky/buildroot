@@ -38,7 +38,7 @@ set $pmpcfg0 = 0x88981b1b1b0f
 
 set $bbl_addr = 0x00000000
 set $vmlinux_addr = $bbl_addr + 0x00200000
-set $rootfs_addr  = $bbl_addr + 0x01000000
+set $rootfs_addr  = $bbl_addr + 0x02000000
 set $dtb_addr  = $rootfs_addr - 0x00100000
 
 # Load rootfs

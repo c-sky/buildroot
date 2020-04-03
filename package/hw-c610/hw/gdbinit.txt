@@ -17,7 +17,7 @@ set $cr30 = 0x1c
 set $cr18 = 0x7d
 
 set $vmlinux_addr = 0x90000000
-set $rootfs_addr = $vmlinux_addr + 0x01000000
+set $rootfs_addr = $vmlinux_addr + 0x02000000
 set $dtb_addr    =  $rootfs_addr - 0x00100000
 
 # Load dtb

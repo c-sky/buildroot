@@ -23,7 +23,7 @@ si
 set $cr23 = 0x9
 
 set $vmlinux_addr = 0x80000000
-set $rootfs_addr = $vmlinux_addr + 0x01000000
+set $rootfs_addr = $vmlinux_addr + 0x02000000
 set $dtb_addr    =  $rootfs_addr - 0x00100000
 
 # Load rootfs
