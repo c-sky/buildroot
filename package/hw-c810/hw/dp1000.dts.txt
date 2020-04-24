@@ -1,0 +1,500 @@
+/dts-v1/;
+
+/ {
+    model = "csky deepeye1000";
+    compatible = "csky,deepeye1000";
+    interrupt-parent = <&intc>;
+    #address-cells = <1>;
+    #size-cells = <1>;
+
+    memory {
+        device_type = "memory";
+        reg = <0x0 0x7ffff000>;
+    };
+    reserved-memory {
+        #address-cells = <1>;
+        #size-cells = <1>;
+        ranges;
+
+        /*DO NOT change reserved memory region name.*/
+        mem_low_reserved: mem_low_reserved {
+            compatible = "shared-dma-pool";
+            reusable;
+            reg = <0x10000000 0x01000000>;
+        };
+
+        dec_reserved: dec_reserved {
+            compatible = "shared-dma-pool";
+            reg = <0x1B000000 0x05000000>;
+        };
+
+        runtime_reserved: runtime_reserved {
+            reg = <0x20000000 0x38000000>;
+        };
+
+        vp_reserved: vp_reserved {
+            reg = <0x58000000 0x08000000>;
+        };
+
+        linux,cma {
+            compatible = "shared-dma-pool";
+            reusable;
+            reg = <0x60000000 0x1fc00000>;
+            alignment = <0x2000>;
+            linux,cma-default;
+        };
+    };
+
+    soc {
+        compatible = "simple-bus";
+        ranges;
+        #address-cells = <1>;
+        #size-cells = <1>;
+            
+            ref_clk: ref-clk {
+                #clock-cells = <0>;
+                compatible = "dp1000,clk-fixed";
+                clock-frequency = <24000000>;
+                clock-output-names = "ref_clk";
+            };
+            ap_bus_pll: ap-bus-pll {
+                #clock-cells = <0>;
+                compatible = "dp1000,clk-fixed";
+                clock-frequency = <700000000>;
+                clock-output-names = "ap_bus_pll";
+            };
+            nn_pll: nn-pll {
+                #clock-cells = <0>;
+                compatible = "dp1000,clk-fixed";
+                clock-frequency = <750000000>;
+                clock-output-names = "nn_pll";
+            };
+					
+            cpu_pll: cpu-pll {
+                #clock-cells = <0>;
+                compatible = "dp1000,clk-fixed";
+                clock-frequency = <1000000000>;
+                clock-output-names = "cpu_pll";
+            };
+			cpu_mux: cpu-mux {
+                #clock-cells = <1>;
+                compatible = "dp1000,clk-mux";
+//                reg = <CPU_CLK_SEL 0x4>;
+                reg = <0xfc207100 0x4>;
+                bit-shift = <0>;
+                bit-width = <2>;
+                clocks = <&ref_clk>, <&cpu_pll>, <&nn_pll>, <&ap_bus_pll>;
+                //clocks = <&ref_clk>;///, <&nn_pll>, <&ap_bus_pll>;
+                clock-output-names = "cpu_mux";
+            };
+            
+            cpu_core_clk: cpu-core-clk {
+                #clock-cells = <0>;
+                compatible = "dp1000,clk-divider";
+//                reg = <CPU_CLK_DIV 0x4>;
+                reg = <0xfc207104 0x4>;
+                bit-shift = <0>;
+                bit-width = <5>;
+                clocks = <&cpu_mux 0>;
+                clock-output-names = "cpu_core_clk";
+            };
+	timer_clk: timer-clock {
+                compatible = "fixed-clock";
+                clock-frequency = <24000000>;
+                #clock-cells = <0>;
+            };
+    
+	high_apb_clk: high-apb-clock {
+                compatible = "fixed-clock";
+                clock-frequency = <175000000>;
+                #clock-cells = <0>;
+            };
+           
+	ahb_clk: ahp-clock {
+                compatible = "fixed-clock";
+                clock-frequency = <175000000>;
+                #clock-cells = <0>;
+            };
+
+
+            sdio0_clk: sdio0-clock {
+                compatible = "fixed-clock";
+                clock-frequency = <50000000>;
+                #clock-cells = <0>;
+            };
+
+            sdio1_2_clk: sdio1_2-clock {
+                compatible = "fixed-clock";
+                clock-frequency = <25000000>;
+                #clock-cells = <0>;
+            };
+        pinctrl: pinctrl@0xfc209000 {
+            compatible = "vsi,pinctrl-deepeye";
+            reg = <0xfc209000 0x1000>;
+
+            uart0_0: uart0_0 {
+                mux {
+                    function = "uart0";
+                    groups = "uart0_0_grp";
+                };
+            };
+
+            uart1_1: uart1_1 {
+                mux {
+                    function = "uart1";
+                    groups = "uart1_1_grp";
+                };
+            };
+
+            uart2_1: uart2_1 {
+                mux {
+                    function = "uart2";
+                    groups = "uart2_1_grp";
+                };
+            };
+
+            spim_0: spim_0 {
+                mux {
+                    function = "spim";
+                    groups = "spim_0_grp";
+                };
+            };
+
+            spis_0: spis_0 {
+                mux {
+                    function = "spis";
+                    groups = "spis_0_grp";
+                };
+            };
+
+            spis_1: spis_1 {
+                mux {
+                    function = "spis";
+                    groups = "spis_1_grp";
+                };
+            };
+
+            i2c0_0: i2c0_0 {
+                mux {
+                    function = "i2c0";
+                    groups = "i2c0_0_grp";
+                };
+                conf {
+                    groups = "i2c0_0_grp";
+                    drive-strength = <8>;
+                };
+            };
+
+            i2c1_0: i2c1_0 {
+                mux {
+                    function = "i2c1";
+                    groups = "i2c1_0_grp";
+                };
+                conf {
+                    groups = "i2c1_0_grp";
+                    drive-strength = <8>;
+                };
+            };
+
+            i2c1_2: i2c1_2 {
+                mux {
+                    function = "i2c1";
+                    groups = "i2c1_2_grp";
+                };
+            };
+
+            i2c2_0: i2c2_0 {
+                mux {
+                    function = "i2c2";
+                    groups = "i2c2_0_grp";
+                };
+                conf {
+                    groups = "i2c2_0_grp";
+                    drive-strength = <8>;
+                };
+            };
+
+            i2c2_2: i2c2_2 {
+                mux {
+                    function = "i2c2";
+                    groups = "i2c2_2_grp";
+                };
+            };
+
+            i2c3_2: i2c3_2 {
+                mux {
+                    function = "i2c3";
+                    groups = "i2c3_2_grp";
+                };
+            };
+
+            i2c3_3: i2c3_3 {
+                mux {
+                    function = "i2c3";
+                    groups = "i2c3_3_grp";
+                };
+            };
+			
+			// GPIO30/UART1CTS/PWM2/UART2RXD
+			pwm2_0: pwm2_0 {
+				mux {
+                    function = "pwm2";
+                    groups = "pwm2_0_grp";
+                };
+			};
+			
+			// GPIO36/PWM2/SCL2
+			pwm2_1: pwm2_1 {
+				mux {
+                    function = "pwm2";
+                    groups = "pwm2_1_grp";
+                };
+			};
+			
+			// GPIO31/UART1RTS/PWM3/UART2TXD
+			pwm3_0: pwm3_0 {
+				 mux {
+                    function = "pwm3";
+                    groups = "pwm3_0_grp";
+                };
+			};
+			
+			// GPIO37/PWM3/SDA2
+			pwm3_1: pwm3_1 {
+				 mux {
+                    function = "pwm3";
+                    groups = "pwm3_1_grp";
+                };
+			};
+        };
+
+        rtc: rtc@0xfc20c000 {
+            compatible = "vsi,dp1000-rtc";
+            reg = <0xfc20c000 0x1000>;
+            interrupts = <37>;
+        };
+
+        gpio: gpio@0xfc300000 {
+            compatible = "snps,dw-apb-gpio";
+            reg = <0xfc300000 0x1000>;
+            #address-cells = <1>;
+            #size-cells = <0>;
+
+            gpio_porta: gpio-controller@0 {
+                compatible = "snps,dw-apb-gpio-port";
+                gpio-controller;
+                snps,nr-gpios = <17>;
+                // gpio0-13 <-> pinctrl_pin0-13, gpio14-16 <-> pinctrl_pin39-41
+                gpio-ranges = <&pinctrl 0 0 14>, <&pinctrl 14 39 3>;
+                #gpio-cells = <2>;
+                reg = <0>;
+                interrupt-controller;
+                #interrupt-cells = <2>;
+                interrupts = <35>;
+            };
+
+            gpio_portb: gpio-controller@1 {
+                compatible = "snps,dw-apb-gpio-port";
+                gpio-controller;
+                snps,nr-gpios = <29>;
+                // gpio0-24 <-> pinctrl_pin14-38, gpio25-28 <-> pinctrl_pin42-45
+                gpio-ranges = <&pinctrl 0 14 25>, <&pinctrl 25 42 4>;
+                #gpio-cells = <2>;
+                reg = <1>;
+            };
+        };
+
+        intc: interrupt-controller {
+            compatible = "csky,apb-intc";
+            reg = <0xfc600000 0x1000>;
+            interrupt-controller;
+	    csky,support-pulse-signal;
+            #interrupt-cells = <1>;
+        };
+
+        // clockevent
+        timer0 {
+            compatible = "snps,dw-apb-timer";
+            reg = <0xfc200000 0x1000>;
+            interrupts = <28>;
+            clocks = <&timer_clk>;
+            clock-names = "timer";
+        };
+
+        // clocksource
+        timer1 {
+            compatible = "snps,dw-apb-timer";
+            reg = <0xfc201000 0x1000>;
+            interrupts = <29>;
+            clocks = <&timer_clk>;
+            clock-names = "timer";
+        };
+		
+		 pwm2 {
+            compatible = "intellif,dp1000-pwm";
+            status = "disabled";
+            reg = <0xfc202000 0x1000>;
+            interrupts = <30>;
+            pinctrl-names = "default";
+            pinctrl-0 = <&pwm2_0>;
+			clocks = <&timer_clk>;
+            clock-names = "timer";
+			//clocks = <&ref_clk>;
+            //clock-names = "timer2_clk";
+		};
+		
+		 pwm3 {
+            compatible = "intellif,dp1000-pwm";
+            status = "disabled";
+            reg = <0xfc203000 0x1000>;
+            interrupts = <31>;
+            pinctrl-names = "default";
+            pinctrl-0 = <&pwm3_0>;
+			clocks = <&timer_clk>;
+            clock-names = "timer";
+			//clocks = <&ref_clk>;
+            //clock-names = "timer3_clk";
+		};
+			
+        uart0 {
+            compatible = "snps,dw-apb-uart";
+            reg = <0xfc400000 0x1000>;
+            interrupts = <21>;
+            clocks = <&high_apb_clk>;
+            clock-names = "baudclk";
+            reg-shift = <2>;
+            reg-io-width = <4>;
+            pinctrl-names = "default";
+            pinctrl-0 = <&uart0_0>;
+            dmas = <&ahb_dmac 0 0 0>,
+                   <&ahb_dmac 1 0 0>;
+            dma-names = "tx", "rx";
+        };
+
+        uart1 {
+            compatible = "snps,dw-apb-uart";
+            status = "disabled";
+            reg = <0xfc401000 0x1000>;
+            interrupts = <22>;
+            clocks = <&high_apb_clk>;
+            clock-names = "baudclk";
+            reg-shift = <2>;
+            reg-io-width = <4>;
+            pinctrl-names = "default";
+            pinctrl-0 = <&uart1_1>;
+        };
+
+        uart2 {
+            compatible = "snps,dw-apb-uart";
+            status = "disabled";
+            reg = <0xfc402000 0x1000>;
+            interrupts = <23>;
+            clocks = <&high_apb_clk>;
+            clock-names = "baudclk";
+            reg-shift = <2>;
+            reg-io-width = <4>;
+            pinctrl-names = "default";
+            pinctrl-0 = <&uart2_1>;
+        };
+
+        ahb_dmac: dmac@0xfc100000 {
+            compatible = "snps,dma-spear1340";
+            //status = "disabled";
+            reg = <0xfc100000 0x8000>;
+            interrupts = <11>;
+
+            dma-channels = <8>;
+            dma-requests = <16>;
+            dma-masters = <1>;
+            #dma-cells = <3>;
+            chan_allocation_order = <1>;
+            chan_priority = <1>;
+            block_size = <0x7ff>;
+            // data-width has to be the same with tr-width which
+            // is 4 bytes in our case
+            // 8 bytes data-width could cause bytes losing due to
+            // the tr-width smaller than single AHB transfer width
+            // in the suspend process
+            data-width = <4>;
+            clocks = <&ahb_clk>;
+            clock-names = "hclk";
+        };
+        usb {
+            //dr_mode = "peripheral";
+            dr_mode = "host";
+            compatible = "snps,dwc3";
+            status = "okay";
+            reg = <0xfc700000 0x100000>;
+            interrupts = <7>;
+            snps,dis_u3_susphy_quirk;
+            snps,dis_u2_susphy_quirk;
+        };
+
+        sdio0: sdhci@0xfc108000 {
+            compatible = "snps,dwc-sdhci";
+            status = "disabled";
+            reg = <0xfc108000 0x8000>;
+            interrupts = <41>;
+            clocks = <&sdio0_clk>;
+            bus-width = <4>;
+            wp-inverted;
+            no-1-8-v;
+        };
+
+        emmc: sdhci@0xfc110000 {
+            compatible = "snps,dwc-sdhci";
+            status = "disabled";
+            reg = <0xfc110000 0x8000>;
+            interrupts = <43>;
+            clocks = <&sdio1_2_clk>;
+            bus-width = <8>;
+            mmc-hs200-1_8v;
+            no-sdio;
+            no-sd;
+        };
+
+        sd: sdhci@0xfc118000 {
+            compatible = "snps,dwc-sdhci";
+            status = "disabled";
+            reg = <0xfc118000 0x8000>;
+            interrupts = <45>;
+            clocks = <&sdio1_2_clk>;
+            bus-width = <4>;
+	    wp-inverted;
+	    no-1-8-v;
+	    no-sd-wp;
+            no-sdio;
+        };
+
+
+        efuse: efuse@fc409000 {
+            compatible = "verisilicon,vsi-efuse";
+            reg = <0xfc409000 512>;
+            clocks = <&high_apb_clk>;
+            interrupts = <36>;
+        };
+        perf_mon: ddr_perf_mon@0xfc410000 {
+            compatible = "ddr_perf_mon";
+            reg = <0xfc410000 0x514>;
+            interrupts = <8>;
+            clocks = <&high_apb_clk>;
+            clock-names = "pm_clk";
+            dmas = <&ahb_dmac 14 0 0>,
+                   <&ahb_dmac 15 0 0>;
+            dma-names = "pm1", "pm2";
+            ap_sram_addr = <0xfc000000>;
+            ap_sram_size = <0x10000>;
+        };
+		
+
+	mem_low{
+		compatible = "intellif,mem_low";
+		memory-region = <&mem_low_reserved>;
+	};
+
+    };
+	
+	chosen {
+			        bootargs = "console=ttyS0,115200 rdinit=/sbin/init root=/dev/ram0";
+	};
+};

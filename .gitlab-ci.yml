@@ -288,6 +288,29 @@ wait_for_trigger:
       - 810f_4.14_glibc_compat
     <<: *dh7200_chip_test
 
+.dp1000_chip_before_test: &dp1000_chip_before_test
+    - RUN="run_test_chip.sh"
+    - BOARD="dp1000"
+
+.dp1000_chip_test: &dp1000_chip_test
+    stage: chip-test
+    before_script: *dp1000_chip_before_test
+    <<: *common_tests
+
+810f_4.9_glibc_dp1000_test:
+    tags:
+      - csky-810-dp1000
+    dependencies:
+      - 810f_4.9_glibc_compat
+    <<: *dp1000_chip_test
+
+810f_4.14_glibc_dp1000_test:
+    tags:
+      - csky-810-dp1000
+    dependencies:
+      - 810f_4.14_glibc_compat
+    <<: *dp1000_chip_test
+
 #qemu test enhanced
 .810_qemu_test_enhanced: &810_qemu_test_enhanced
     stage: qemu-test-enhanced

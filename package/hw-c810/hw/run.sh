@@ -1,5 +1,5 @@
 if [ $# != 2 ]; then
-	echo "Usage: . run.sh <ip:port> <dh7200/fpga>"
+	echo "Usage: . run.sh <ip:port> <dh7200/fpga/dp1000>"
 	return 0
 fi
 
@@ -9,6 +9,9 @@ if [ $2 == 'dh7200' ]; then
 elif [ $2 == 'fpga' ]; then
 	cp fpga.dts.txt .hw.dts -f
 	cp gdbinit.fpga.txt gdbinit -f
+elif [ $2 == 'dp1000' ]; then
+	cp dp1000.dts.txt .hw.dts -f
+	cp gdbinit.dp1000.txt gdbinit -f
 else
 	echo "No support"
 	return 0

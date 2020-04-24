@@ -14,6 +14,8 @@ function start_serial_and_dbg_server()
     do
     if [ $board == "by" ]; then
          sleep_time=7
+    elif [ $board == "dp1000" ]; then
+         sleep_time=4
     else
          sleep_time=3
     fi
