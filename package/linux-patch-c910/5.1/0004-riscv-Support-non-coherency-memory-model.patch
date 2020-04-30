@@ -359,7 +359,7 @@ index 498c0a0..4b3d83d 100644
 +	register unsigned long i asm("a0") = start & ~(L1_CACHE_BYTES - 1);
 +
 +	for (; i < end; i += L1_CACHE_BYTES)
-+		asm volatile (".long 0x0275000b"); /* dcache.civa a0 */
++		asm volatile (".long 0x02b5000b"); /* dcache.cipa a0 */
 +
 +	sync_is();
 +}
@@ -369,7 +369,7 @@ index 498c0a0..4b3d83d 100644
 +	register unsigned long i asm("a0") = start & ~(L1_CACHE_BYTES - 1);
 +
 +	for (; i < end; i += L1_CACHE_BYTES)
-+		asm volatile (".long 0x0255000b"); /* dcache.cva a0 */
++		asm volatile (".long 0x0295000b"); /* dcache.cpa a0 */
 +
 +	sync_is();
 +}
@@ -409,7 +409,7 @@ index 0000000..59bd2f7
 +
 +	memset(ptr, 0, size);
 +#ifdef NO_SBI_FENCE_DMA
-+	dma_wbinv_range((unsigned long)ptr, (unsigned long)ptr + size);
++	dma_wbinv_range(page_to_phys(page), page_to_phys(page) + size);
 +#else
 +	sbi_fence_dma(page_to_phys(page), size, DMA_BIDIRECTIONAL);
 +#endif
@@ -418,7 +418,7 @@ index 0000000..59bd2f7
 +static inline void cache_op(phys_addr_t paddr, size_t size,
 +			    void (*fn)(unsigned long start, unsigned long end))
 +{
-+	unsigned long start = (unsigned long)phys_to_virt(paddr);
++	unsigned long start = (unsigned long)paddr;
 +
 +	fn(start, start + size);
 +}
