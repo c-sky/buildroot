@@ -1,0 +1,162 @@
+From a507bb311273bb88bc3cf65c17b76ac2017b114d Mon Sep 17 00:00:00 2001
+From: Guo Ren <guoren@linux.alibaba.com>
+Date: Wed, 9 Oct 2019 15:20:26 +0800
+Subject: [PATCH 3/5] riscv: Use generic asid algorithm to implement switch_mm
+
+Use linux generic asid/vmid algorithm to implement csky
+switch_mm function. The algorithm is from arm and it could
+work with SMP system. It'll help reduce tlb flush for
+switch_mm in task/vm switch.
+
+Signed-off-by: Guo Ren <guoren@linux.alibaba.com>
+---
+ arch/riscv/include/asm/csr.h         |  3 ++
+ arch/riscv/include/asm/mmu.h         |  1 +
+ arch/riscv/include/asm/mmu_context.h | 17 ++++++-----
+ arch/riscv/mm/Makefile               |  1 +
+ arch/riscv/mm/context.c              | 43 ++++++++++++++++++++++++++--
+ 5 files changed, 56 insertions(+), 9 deletions(-)
+
+diff --git a/arch/riscv/include/asm/csr.h b/arch/riscv/include/asm/csr.h
+index a18923fa23c8..c747d693e610 100644
+--- a/arch/riscv/include/asm/csr.h
++++ b/arch/riscv/include/asm/csr.h
+@@ -42,6 +42,9 @@
+ #define SATP_PPN	_AC(0x00000FFFFFFFFFFF, UL)
+ #define SATP_MODE_39	_AC(0x8000000000000000, UL)
+ #define SATP_MODE	SATP_MODE_39
++#define SATP_ASID_BITS	16
++#define SATP_ASID_SHIFT	44
++#define SATP_ASID_MASK	_AC(0xFFFF, UL)
+ #endif
+ 
+ /* SCAUSE */
+diff --git a/arch/riscv/include/asm/mmu.h b/arch/riscv/include/asm/mmu.h
+index 151476fb58cb..2c0679c7cf0b 100644
+--- a/arch/riscv/include/asm/mmu.h
++++ b/arch/riscv/include/asm/mmu.h
+@@ -11,6 +11,7 @@
+ 
+ typedef struct {
+ 	void *vdso;
++	atomic64_t asid;
+ #ifdef CONFIG_SMP
+ 	/* A local icache flush is needed before user execution can resume. */
+ 	cpumask_t icache_stale_mask;
+diff --git a/arch/riscv/include/asm/mmu_context.h b/arch/riscv/include/asm/mmu_context.h
+index 67c463812e2d..5f44a8e0859b 100644
+--- a/arch/riscv/include/asm/mmu_context.h
++++ b/arch/riscv/include/asm/mmu_context.h
+@@ -12,19 +12,20 @@
+ 
+ #include <linux/mm.h>
+ #include <linux/sched.h>
++#include <asm/tlbflush.h>
++#include <asm/cacheflush.h>
++#include <asm/asid.h>
++
++#define ASID_MASK		((1 << SATP_ASID_BITS) - 1)
++#define cpu_asid(mm)		(atomic64_read(&mm->context.asid) & ASID_MASK)
++
++#define init_new_context(tsk,mm)	({ atomic64_set(&(mm)->context.asid, 0); 0; })
+ 
+ static inline void enter_lazy_tlb(struct mm_struct *mm,
+ 	struct task_struct *task)
+ {
+ }
+ 
+-/* Initialize context-related info for a new mm_struct */
+-static inline int init_new_context(struct task_struct *task,
+-	struct mm_struct *mm)
+-{
+-	return 0;
+-}
+-
+ static inline void destroy_context(struct mm_struct *mm)
+ {
+ }
+@@ -32,6 +33,8 @@ static inline void destroy_context(struct mm_struct *mm)
+ void switch_mm(struct mm_struct *prev, struct mm_struct *next,
+ 	struct task_struct *task);
+ 
++void check_and_switch_context(struct mm_struct *mm, unsigned int cpu);
++
+ static inline void activate_mm(struct mm_struct *prev,
+ 			       struct mm_struct *next)
+ {
+diff --git a/arch/riscv/mm/Makefile b/arch/riscv/mm/Makefile
+index b2b4723fc8f5..27711a91caac 100644
+--- a/arch/riscv/mm/Makefile
++++ b/arch/riscv/mm/Makefile
+@@ -14,6 +14,7 @@ obj-y += context.o
+ obj-y += sifive_l2_cache.o
+ obj-y += dma-mapping.o
+ obj-y += asid.o
++obj-y += context.o
+ 
+ ifeq ($(CONFIG_MMU),y)
+ obj-$(CONFIG_SMP) += tlbflush.o
+diff --git a/arch/riscv/mm/context.c b/arch/riscv/mm/context.c
+index ca66d44156b6..cae066cfe353 100644
+--- a/arch/riscv/mm/context.c
++++ b/arch/riscv/mm/context.c
+@@ -44,6 +44,7 @@ void switch_mm(struct mm_struct *prev, struct mm_struct *next,
+ 	struct task_struct *task)
+ {
+ 	unsigned int cpu;
++	unsigned long asid;
+ 
+ 	if (unlikely(prev == next))
+ 		return;
+@@ -58,8 +59,46 @@ void switch_mm(struct mm_struct *prev, struct mm_struct *next,
+ 	cpumask_clear_cpu(cpu, mm_cpumask(prev));
+ 	cpumask_set_cpu(cpu, mm_cpumask(next));
+ 
+-	csr_write(CSR_SATP, virt_to_pfn(next->pgd) | SATP_MODE);
+-	local_flush_tlb_all();
++	check_and_switch_context(next, cpu);
++	asid = (next->context.asid.counter & SATP_ASID_MASK)
++		<< SATP_ASID_SHIFT;
++
++	csr_write(sptbr, virt_to_pfn(next->pgd) | SATP_MODE | asid);
+ 
+ 	flush_icache_deferred(next);
+ }
++
++static DEFINE_PER_CPU(atomic64_t, active_asids);
++static DEFINE_PER_CPU(u64, reserved_asids);
++
++struct asid_info asid_info;
++
++void check_and_switch_context(struct mm_struct *mm, unsigned int cpu)
++{
++	asid_check_context(&asid_info, &mm->context.asid, cpu, mm);
++}
++
++static void asid_flush_cpu_ctxt(void)
++{
++	local_flush_tlb_all();
++}
++
++static int asids_init(void)
++{
++	BUG_ON(((1 << SATP_ASID_BITS) - 1) <= num_possible_cpus());
++
++	if (asid_allocator_init(&asid_info, SATP_ASID_BITS, 1,
++				asid_flush_cpu_ctxt))
++		panic("Unable to initialize ASID allocator for %lu ASIDs\n",
++		      NUM_ASIDS(&asid_info));
++
++	asid_info.active = &active_asids;
++	asid_info.reserved = &reserved_asids;
++
++	pr_info("ASID allocator initialised with %lu entries\n",
++		NUM_CTXT_ASIDS(&asid_info));
++
++	local_flush_tlb_all();
++	return 0;
++}
++early_initcall(asids_init);
+-- 
+2.17.0
+

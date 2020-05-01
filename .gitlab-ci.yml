@@ -488,11 +488,17 @@ wait_for_trigger:
     <<: *common_tests
 
 910_5.1_glibc_compat: *common_build
+9xx_5.4_glibc_compat: *common_build
 910_next_glibc_compat: *common_build
 
 910_5.1_glibc_qemu_test:
     dependencies:
       - 910_5.1_glibc_compat
+    <<: *910_qemu_test
+
+9xx_5.4_glibc_qemu_test:
+    dependencies:
+      - 9xx_5.4_glibc_compat
     <<: *910_qemu_test
 
 910_next_glibc_qemu_test:
@@ -514,6 +520,13 @@ wait_for_trigger:
       - csky-860-fpga #Use name 860 for now
     dependencies:
       - 910_5.1_glibc_compat
+    <<: *910_fpga_test
+
+9xx_5.4_glibc_fpga_test:
+    tags:
+      - csky-860-fpga #Use name 860 for now
+    dependencies:
+      - 9xx_5.4_glibc_compat
     <<: *910_fpga_test
 
 910_next_glibc_fpga_test:

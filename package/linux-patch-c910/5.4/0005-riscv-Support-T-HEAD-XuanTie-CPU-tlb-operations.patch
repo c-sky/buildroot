@@ -1,0 +1,105 @@
+From 97a262d3a5c64113dd42f703e287191bdb98c78b Mon Sep 17 00:00:00 2001
+From: Guo Ren <guoren@linux.alibaba.com>
+Date: Mon, 13 Jan 2020 14:29:27 +0800
+Subject: [PATCH 5/5] riscv: Support T-HEAD XuanTie CPU tlb operations
+
+T-HEAD XuanTie CPU sfence.vma support broadcast to all harts and
+no need to IPI all harts with sbi call.
+
+Also support asid to determine process.
+
+Signed-off-by: Guo Ren <guoren@linux.alibaba.com>
+---
+ arch/riscv/include/asm/tlbflush.h |  9 +++++-
+ arch/riscv/mm/tlbflush.c          | 51 +++++++++++++++++++++++++++++++
+ 2 files changed, 59 insertions(+), 1 deletion(-)
+
+diff --git a/arch/riscv/include/asm/tlbflush.h b/arch/riscv/include/asm/tlbflush.h
+index f02188a5b0f4..7b554146e7d5 100644
+--- a/arch/riscv/include/asm/tlbflush.h
++++ b/arch/riscv/include/asm/tlbflush.h
+@@ -44,7 +44,14 @@ static inline void flush_tlb_range(struct vm_area_struct *vma,
+ static inline void flush_tlb_kernel_range(unsigned long start,
+ 	unsigned long end)
+ {
+-	flush_tlb_all();
++	start &= PAGE_MASK;
++	end   += PAGE_SIZE - 1;
++	end   &= PAGE_MASK;
++
++	while (start < end) {
++		__asm__ __volatile__ ("sfence.vma %0" : : "r" (start) : "memory");
++		start += PAGE_SIZE;
++	}
+ }
+ 
+ #endif /* _ASM_RISCV_TLBFLUSH_H */
+diff --git a/arch/riscv/mm/tlbflush.c b/arch/riscv/mm/tlbflush.c
+index 24cd33d2c48f..8c3f41cc9d7b 100644
+--- a/arch/riscv/mm/tlbflush.c
++++ b/arch/riscv/mm/tlbflush.c
+@@ -2,6 +2,56 @@
+ 
+ #include <linux/mm.h>
+ #include <linux/smp.h>
++
++#define XUANTIE
++#ifdef  XUANTIE
++#include <asm/mmu_context.h>
++
++void flush_tlb_all(void)
++{
++	__asm__ __volatile__ ("sfence.vma" : : : "memory");
++}
++
++void flush_tlb_mm(struct mm_struct *mm)
++{
++	int newpid = cpu_asid(mm);
++
++	__asm__ __volatile__ ("sfence.vma zero, %0"
++				:
++				: "r"(newpid)
++				: "memory");
++}
++
++void flush_tlb_page(struct vm_area_struct *vma, unsigned long addr)
++{
++	int newpid = cpu_asid(vma->vm_mm);
++
++	addr &= PAGE_MASK;
++
++	__asm__ __volatile__ ("sfence.vma %0, %1"
++				:
++				: "r"(addr), "r"(newpid)
++				: "memory");
++}
++
++void flush_tlb_range(struct vm_area_struct *vma, unsigned long start,
++			unsigned long end)
++{
++	unsigned long newpid = cpu_asid(vma->vm_mm);
++
++	start &= PAGE_MASK;
++	end   += PAGE_SIZE - 1;
++	end   &= PAGE_MASK;
++
++	while (start < end) {
++		__asm__ __volatile__ ("sfence.vma %0, %1"
++					:
++					: "r"(start), "r"(newpid)
++					: "memory");
++		start += PAGE_SIZE;
++	}
++}
++#else
+ #include <asm/sbi.h>
+ 
+ void flush_tlb_all(void)
+@@ -33,3 +83,4 @@ void flush_tlb_range(struct vm_area_struct *vma, unsigned long start,
+ {
+ 	__sbi_tlb_flush_range(mm_cpumask(vma->vm_mm), start, end - start);
+ }
++#endif
+-- 
+2.17.0
+
