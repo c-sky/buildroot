@@ -1,0 +1,27 @@
+From fef6edb335a9b6832b28cedafe2a79fd392fa8d6 Mon Sep 17 00:00:00 2001
+From: Mao Han <han_mao@linux.alibaba.com>
+Date: Sun, 10 May 2020 16:03:46 +0800
+Subject: [PATCH] arch/riscv: fix base pmu regist
+
+---
+ arch/riscv/kernel/perf_event.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/arch/riscv/kernel/perf_event.c b/arch/riscv/kernel/perf_event.c
+index 91626d9ae..577071620 100644
+--- a/arch/riscv/kernel/perf_event.c
++++ b/arch/riscv/kernel/perf_event.c
+@@ -477,9 +477,9 @@ int __init init_hw_perf_events(void)
+ 		if (of_id)
+ 			riscv_pmu = of_id->data;
+ 		of_node_put(node);
++		perf_pmu_register(riscv_pmu->pmu, "cpu", PERF_TYPE_RAW);
+ 	}
+ 
+-	perf_pmu_register(riscv_pmu->pmu, "cpu", PERF_TYPE_RAW);
+ 	return 0;
+ }
+ arch_initcall(init_hw_perf_events);
+-- 
+2.17.1
+
