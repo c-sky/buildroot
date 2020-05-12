@@ -29,7 +29,7 @@ BR2_LINUX_KERNEL_CUSTOM_TARBALL=y
 BR2_LINUX_KERNEL_CUSTOM_TARBALL_LOCATION="https://github.com/c-sky/csky-linux/archive/$(CSKY_LINUX_NEXT_RISCV_VERSION).tar.gz"
 BR2_LINUX_KERNEL_USE_ARCH_DEFAULT_CONFIG=y
 BR2_LINUX_KERNEL_IMAGE=y
-BR2_LINUX_KERNEL_CONFIG_FRAGMENT_FILES="package/linux-patch-c910/linux-5.1.config.fragment"
+BR2_LINUX_KERNEL_CONFIG_FRAGMENT_FILES="package/linux-patch-c910/linux-5.1.config.fragment board/csky-ci/defconfigs/kernel.pci-9pfs-gpu.fragment"
 
 # Bootloader
 BR2_TARGET_OPENSBI=y

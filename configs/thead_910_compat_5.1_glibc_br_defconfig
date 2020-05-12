@@ -30,7 +30,7 @@ BR2_LINUX_KERNEL_CUSTOM_VERSION_VALUE="5.1.15"
 BR2_LINUX_KERNEL_USE_ARCH_DEFAULT_CONFIG=y
 BR2_LINUX_KERNEL_IMAGE=y
 BR2_LINUX_KERNEL_PATCH="package/linux-patch-c910/5.1/"
-BR2_LINUX_KERNEL_CONFIG_FRAGMENT_FILES="package/linux-patch-c910/linux-5.1.config.fragment"
+BR2_LINUX_KERNEL_CONFIG_FRAGMENT_FILES="package/linux-patch-c910/linux-5.1.config.fragment board/csky-ci/defconfigs/kernel.pci-9pfs-gpu.fragment"
 
 # Bootloader
 BR2_TARGET_OPENSBI=y
