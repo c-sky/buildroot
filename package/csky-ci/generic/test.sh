@@ -1,5 +1,20 @@
 #!/bin/sh
 
+#9pfs works on qemu specifically
+cat /proc/cmdline | grep -E 'qemuci'
+if [ $? -eq 0 ]; then
+	mkdir -p /root/host_shared
+	mount -t 9p -o trans=virtio,version=9p2000.L hostshare /root/host_shared/
+	ls -l /root/host_shared/
+
+	if [ ! -f /root/host_shared/9PFS_IS_GREAT ]; then
+		echo "9pfs tests failed"
+		exit 0
+	else
+		echo "9pfs works fine"
+	fi
+fi
+
 cat /proc/cmdline | grep -E 'chipci|qemuci'
 if [ $? -ne 0 ]
 then

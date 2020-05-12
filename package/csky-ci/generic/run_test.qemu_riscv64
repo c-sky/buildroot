@@ -1,4 +1,6 @@
 ROOT_PATH=$(dirname "$0")/../../../
 OUT_PATH=$(dirname "$0")/../../
 
-$OUT_PATH/host/csky-qemu/bin/qemu-system-riscv64 -M virt -m 1024 -kernel $OUT_PATH/images/fw_jump.elf -device loader,file=$OUT_PATH/images/Image,addr=0x80200000 -nographic -append "rootwait root=/dev/vda ro qemuci" -drive file=$OUT_PATH/images/rootfs.ext2,format=raw,id=hd0 -device virtio-blk-device,drive=hd0 -object rng-random,filename=/dev/urandom,id=rng0 -device virtio-rng-device,rng=rng0> >(tee $ROOT_PATH/test.log)
+mkdir -p /home/csky/shared
+touch /home/csky/shared/9PFS_IS_GREAT
+$OUT_PATH/host/csky-qemu/bin/qemu-system-riscv64 -M virt -m 1024 -kernel $OUT_PATH/images/fw_jump.elf -device loader,file=$OUT_PATH/images/Image,addr=0x80200000 -nographic -append "rootwait root=/dev/vda ro qemuci" -drive file=$OUT_PATH/images/rootfs.ext2,format=raw,id=hd0 -device virtio-blk-device,drive=hd0 -object rng-random,filename=/dev/urandom,id=rng0 -device virtio-rng-device,rng=rng0 -fsdev local,security_model=passthrough,id=fsdev0,path=/home/csky/shared -device virtio-9p-device,id=fs0,fsdev=fsdev0,mount_tag=hostshare> >(tee $ROOT_PATH/test.log)

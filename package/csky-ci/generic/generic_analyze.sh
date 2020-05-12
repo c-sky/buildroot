@@ -29,6 +29,10 @@ if grep -q "csky-ci tests failed" $ROOT_PATH/test.log; then
 	echo "Total failure. Check test.log"
 	RESULT=$(($RESULT+1))
 fi
+if grep -q "9pfs tests failed" $ROOT_PATH/test.log; then
+	echo "9pfs failure. Check test.log"
+	RESULT=$(($RESULT+1))
+fi
 
 #Analyze the output(host) result
 while read LINE
