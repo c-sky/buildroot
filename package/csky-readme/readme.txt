@@ -24,7 +24,7 @@ Enable 9pfs in qemu
 mkdir -p /home/csky/shared
 (create a dir in host)
 
-sudo qemu_start_cmd -fsdev local,security_model=passthrough,id=fsdev0,path=/home/csky/shared -device virtio-9p-pci,id=fs0,fsdev=fsdev0,mount_tag=hostshare
+sudo qemu_start_cmd -fsdev local,security_model=passthrough,id=fsdev0,path=/home/csky/shared -device virtio-9p-device,id=fs0,fsdev=fsdev0,mount_tag=hostshare
 (start qemu)
 
 mkdir -p /root/host_shared
