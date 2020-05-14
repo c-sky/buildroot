@@ -9,7 +9,7 @@ BOARD="eg"
 NRCORE=2
 
 GDBRESET="reset"
-if [ $4 == "noreset" ]; then
+if [ "$4" == "noreset" ]; then
 GDBRESET="noreset"
 fi
 
