@@ -64,7 +64,6 @@ wait_for_trigger:
           xz -z output/images/rootfs.ext2;
       fi
     - if [ -f output/images/rootfs.cpio ]; then
-          rm -f output/images/rootfs.tar;
           rm -f output/images/rootfs.cpio;
       fi
     - if [ -f output/images/rootfs.tar ]; then

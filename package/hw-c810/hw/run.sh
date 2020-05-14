@@ -20,8 +20,12 @@ fi
 set -ex
 
 #setup_initrd_addr .hw.dts
-chmod 755 setup_initrd.sh
-./setup_initrd.sh .hw.dts
+if [ $2 != 'dp1000' ]; then
+	chmod 755 setup_initrd.sh
+	./setup_initrd.sh .hw.dts
+else
+	./dts-fix.sh .hw.dts
+fi
 
 ./dtc -I dts -O dtb .hw.dts > hw.dtb
 
