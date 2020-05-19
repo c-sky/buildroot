@@ -1,0 +1,2014 @@
+From 5f011097c636edb5cfa50836bb1d42f84e087799 Mon Sep 17 00:00:00 2001
+From: Liu Yibin <yibin_liu@c-sky.com>
+Date: Thu, 12 Mar 2020 11:16:07 +0800
+Subject: [PATCH] Kexec support riscv
+
+---
+ config/config.sub                       |   2 +-
+ configure                               |   3 +
+ configure.ac                            |   3 +
+ include/elf.h                           |   1 +
+ include/image.h                         |   1 +
+ kexec/Makefile                          |   1 +
+ kexec/arch/riscv/Makefile               |  49 ++
+ kexec/arch/riscv/crashdump-riscv.c      | 251 ++++++++++
+ kexec/arch/riscv/crashdump-riscv.h      |  26 ++
+ kexec/arch/riscv/image-header.h         | 150 ++++++
+ kexec/arch/riscv/include/arch/options.h |  39 ++
+ kexec/arch/riscv/iomem.h                |  10 +
+ kexec/arch/riscv/kexec-elf-riscv.c      | 162 +++++++
+ kexec/arch/riscv/kexec-image-riscv.c    |  95 ++++
+ kexec/arch/riscv/kexec-riscv.c          | 780 ++++++++++++++++++++++++++++++++
+ kexec/arch/riscv/kexec-riscv.h          |  75 +++
+ kexec/arch/riscv/kexec-uImage-riscv.c   |  34 ++
+ kexec/kexec-syscall.h                   |   7 +
+ kexec/kexec.c                           |   2 -
+ purgatory/Makefile                      |  17 +-
+ purgatory/arch/riscv/Makefile           |  17 +
+ purgatory/arch/riscv/entry.S            |  25 +
+ 22 files changed, 1734 insertions(+), 16 deletions(-)
+ create mode 100644 kexec/arch/riscv/Makefile
+ create mode 100644 kexec/arch/riscv/crashdump-riscv.c
+ create mode 100644 kexec/arch/riscv/crashdump-riscv.h
+ create mode 100644 kexec/arch/riscv/image-header.h
+ create mode 100644 kexec/arch/riscv/include/arch/options.h
+ create mode 100644 kexec/arch/riscv/iomem.h
+ create mode 100644 kexec/arch/riscv/kexec-elf-riscv.c
+ create mode 100644 kexec/arch/riscv/kexec-image-riscv.c
+ create mode 100644 kexec/arch/riscv/kexec-riscv.c
+ create mode 100644 kexec/arch/riscv/kexec-riscv.h
+ create mode 100644 kexec/arch/riscv/kexec-uImage-riscv.c
+ create mode 100644 purgatory/arch/riscv/Makefile
+ create mode 100644 purgatory/arch/riscv/entry.S
+
+diff --git a/config/config.sub b/config/config.sub
+index 6205f84..985098e 100755
+--- a/config/config.sub
++++ b/config/config.sub
+@@ -1292,7 +1292,7 @@ case $basic_machine in
+ 	pmac | pmac-mpw)
+ 		basic_machine=powerpc-apple
+ 		;;
+-	*-unknown)
++	*-unknown | *-buildroot)
+ 		# Make sure to match an already-canonicalized machine name.
+ 		;;
+ 	*)
+diff --git a/configure b/configure
+index ed2af9a..2ad3c16 100755
+--- a/configure
++++ b/configure
+@@ -3058,6 +3058,9 @@ case $target_cpu in
+ 	ia64|x86_64|alpha|m68k )
+ 		ARCH="$target_cpu"
+ 		;;
++	riscv* )
++		ARCH="riscv"
++		;;
+ 	* )
+ 		as_fn_error $? "unsupported architecture $target_cpu" "$LINENO" 5
+ 		;;
+diff --git a/configure.ac b/configure.ac
+index e05d601..65dd54a 100644
+--- a/configure.ac
++++ b/configure.ac
+@@ -55,6 +55,9 @@ case $target_cpu in
+ 	ia64|x86_64|alpha|m68k )
+ 		ARCH="$target_cpu"
+ 		;;
++	riscv* )
++		ARCH="riscv"
++		;;
+ 	* )
+ 		AC_MSG_ERROR([unsupported architecture $target_cpu])
+ 		;;
+diff --git a/include/elf.h b/include/elf.h
+index b7677a2..1963210 100644
+--- a/include/elf.h
++++ b/include/elf.h
+@@ -266,6 +266,7 @@ typedef struct
+    chances of collision with official or non-GNU unofficial values.  */
+ 
+ #define EM_ALPHA	0x9026
++#define EM_RISCV	243
+ 
+ /* Legal values for e_version (version).  */
+ 
+diff --git a/include/image.h b/include/image.h
+index 8e9d81e..0254a82 100644
+--- a/include/image.h
++++ b/include/image.h
+@@ -86,6 +86,7 @@
+ #define IH_ARCH_ARC		23	/* Synopsys DesignWare ARC */
+ #define IH_ARCH_X86_64		24	/* AMD x86_64, Intel and Via */
+ #define IH_ARCH_XTENSA		25	/* Xtensa       */
++#define IH_ARCH_RISCV		26	/* RISCV        */
+ 
+ /*
+  * Image Types
+diff --git a/kexec/Makefile b/kexec/Makefile
+index 4db84d8..0077588 100644
+--- a/kexec/Makefile
++++ b/kexec/Makefile
+@@ -92,6 +92,7 @@ include $(srcdir)/kexec/arch/ppc64/Makefile
+ include $(srcdir)/kexec/arch/s390/Makefile
+ include $(srcdir)/kexec/arch/sh/Makefile
+ include $(srcdir)/kexec/arch/x86_64/Makefile
++include $(srcdir)/kexec/arch/riscv/Makefile
+ 
+ KEXEC_SRCS += $($(ARCH)_KEXEC_SRCS)
+ 
+diff --git a/kexec/arch/riscv/Makefile b/kexec/arch/riscv/Makefile
+new file mode 100644
+index 0000000..d2850ec
+--- /dev/null
++++ b/kexec/arch/riscv/Makefile
+@@ -0,0 +1,49 @@
++
++riscv_FS2DT += kexec/fs2dt.c
++riscv_FS2DT_INCLUDE += \
++	-include $(srcdir)/kexec/arch/riscv/crashdump-riscv.h \
++	-include $(srcdir)/kexec/arch/riscv/kexec-riscv.h
++
++riscv_DT_OPS += kexec/dt-ops.c
++
++riscv_MEM_REGIONS = kexec/mem_regions.c
++
++riscv_CPPFLAGS += -I $(srcdir)/kexec/
++
++riscv_KEXEC_SRCS += \
++	kexec/arch/riscv/crashdump-riscv.c \
++	kexec/arch/riscv/kexec-riscv.c \
++	kexec/arch/riscv/kexec-elf-riscv.c \
++	kexec/arch/riscv/kexec-uImage-riscv.c \
++	kexec/arch/riscv/kexec-image-riscv.c
++
++riscv_UIMAGE = kexec/kexec-uImage.c
++
++riscv_ARCH_REUSE_INITRD =
++riscv_ADD_SEGMENT =
++riscv_VIRT_TO_PHYS =
++riscv_PHYS_TO_VIRT =
++
++dist += $(riscv_KEXEC_SRCS) \
++	kexec/arch/riscv/include/arch/options.h \
++	kexec/arch/riscv/crashdump-riscv.h \
++	kexec/arch/riscv/image-header.h \
++	kexec/arch/riscv/iomem.h \
++	kexec/arch/riscv/kexec-riscv.h \
++	kexec/arch/riscv/Makefile
++
++ifdef HAVE_LIBFDT
++
++LIBS += -lfdt
++
++else
++
++include $(srcdir)/kexec/libfdt/Makefile.libfdt
++
++libfdt_SRCS += $(LIBFDT_SRCS:%=kexec/libfdt/%)
++
++riscv_CPPFLAGS += -I$(srcdir)/kexec/libfdt
++
++riscv_KEXEC_SRCS += $(libfdt_SRCS)
++
++endif
+diff --git a/kexec/arch/riscv/crashdump-riscv.c b/kexec/arch/riscv/crashdump-riscv.c
+new file mode 100644
+index 0000000..ba3b524
+--- /dev/null
++++ b/kexec/arch/riscv/crashdump-riscv.c
+@@ -0,0 +1,251 @@
++/*
++ * RISCV crashdump.
++ *     partly derived from arm implementation
++ *
++ * Copyright (c) 2014-2017 Linaro Limited
++ * Author: AKASHI Takahiro <takahiro.akashi@linaro.org>
++ *
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License version 2 as
++ * published by the Free Software Foundation.
++ */
++
++#define _GNU_SOURCE
++
++#include <errno.h>
++#include <linux/elf.h>
++
++#include "kexec.h"
++#include "crashdump.h"
++#include "crashdump-riscv.h"
++#include "iomem.h"
++#include "kexec-riscv.h"
++#include "kexec-elf.h"
++#include "mem_regions.h"
++
++/* memory ranges on crashed kernel */
++static struct memory_range system_memory_ranges[CRASH_MAX_MEMORY_RANGES];
++static struct memory_ranges system_memory_rgns = {
++	.size = 0,
++	.max_size = CRASH_MAX_MEMORY_RANGES,
++	.ranges = system_memory_ranges,
++};
++
++/* memory range reserved for crashkernel */
++struct memory_range crash_reserved_mem;
++struct memory_ranges usablemem_rgns = {
++	.size = 0,
++	.max_size = 1,
++	.ranges = &crash_reserved_mem,
++};
++
++struct memory_range elfcorehdr_mem;
++
++#define EM_RISCV	243
++static struct crash_elf_info elf_info = {
++	.class		= ELFCLASS64,
++#if (__BYTE_ORDER == __LITTLE_ENDIAN)
++	.data		= ELFDATA2LSB,
++#else
++	.data		= ELFDATA2MSB,
++#endif
++	.machine	= EM_RISCV,
++};
++
++/*
++ * Note: The returned value is correct only if !CONFIG_RANDOMIZE_BASE.
++ */
++static uint64_t get_kernel_page_offset(void)
++{
++	int i;
++
++	if (elf_info.kern_vaddr_start == UINT64_MAX)
++		return UINT64_MAX;
++
++	/* Current max virtual memory range is 48-bits. */
++	for (i = 48; i > 0; i--)
++		if (!(elf_info.kern_vaddr_start & (1UL << i)))
++			break;
++
++	if (i <= 0)
++		return UINT64_MAX;
++	else
++		return UINT64_MAX << i;
++}
++
++/*
++ * iomem_range_callback() - callback called for each iomem region
++ * @data: not used
++ * @nr: not used
++ * @str: name of the memory region
++ * @base: start address of the memory region
++ * @length: size of the memory region
++ *
++ * This function is called once for each memory region found in /proc/iomem.
++ * It locates system RAM and crashkernel reserved memory and places these to
++ * variables, respectively, system_memory_ranges and crash_reserved_mem.
++ */
++
++static int iomem_range_callback(void *UNUSED(data), int UNUSED(nr),
++				char *str, unsigned long long base,
++				unsigned long long length)
++{
++	if (strncmp(str, CRASH_KERNEL, strlen(CRASH_KERNEL)) == 0)
++		return mem_regions_add(&usablemem_rgns,
++				       base, length, RANGE_RAM);
++	else if (strncmp(str, SYSTEM_RAM, strlen(SYSTEM_RAM)) == 0)
++		return mem_regions_add(&system_memory_rgns,
++				       base, length, RANGE_RAM);
++	else if (strncmp(str, KERNEL_CODE, strlen(KERNEL_CODE)) == 0)
++		elf_info.kern_paddr_start = base;
++	else if (strncmp(str, KERNEL_DATA, strlen(KERNEL_DATA)) == 0)
++		elf_info.kern_size = base + length - elf_info.kern_paddr_start;
++
++	return 0;
++}
++
++int is_crashkernel_mem_reserved(void)
++{
++	if (!usablemem_rgns.size)
++		kexec_iomem_for_each_line(NULL, iomem_range_callback, NULL);
++
++	return crash_reserved_mem.start != crash_reserved_mem.end;
++}
++
++/*
++ * crash_get_memory_ranges() - read system physical memory
++ *
++ * Function reads through system physical memory and stores found memory
++ * regions in system_memory_ranges.
++ * Regions are sorted in ascending order.
++ *
++ * Returns 0 in case of success and a negative value otherwise.
++ */
++static int crash_get_memory_ranges(void)
++{
++	/*
++	 * First read all memory regions that can be considered as
++	 * system memory including the crash area.
++	 */
++	if (!usablemem_rgns.size)
++		kexec_iomem_for_each_line(NULL, iomem_range_callback, NULL);
++
++	/* allow only a single region for crash dump kernel */
++	if (usablemem_rgns.size != 1)
++		return -EINVAL;
++
++	dbgprint_mem_range("Reserved memory range", &crash_reserved_mem, 1);
++
++	if (mem_regions_exclude(&system_memory_rgns, &crash_reserved_mem)) {
++		fprintf(stderr,
++			"Error: Number of crash memory ranges excedeed the max limit\n");
++		return -ENOMEM;
++	}
++
++	/*
++	 * Make sure that the memory regions are sorted.
++	 */
++	mem_regions_sort(&system_memory_rgns);
++
++	dbgprint_mem_range("Coredump memory ranges",
++			   system_memory_rgns.ranges, system_memory_rgns.size);
++
++	/*
++	 * For additional kernel code/data segment.
++	 * kern_paddr_start/kern_size are determined in iomem_range_callback
++	 */
++	elf_info.kern_vaddr_start = get_kernel_sym("_text");
++	if (!elf_info.kern_vaddr_start)
++		elf_info.kern_vaddr_start = UINT64_MAX;
++
++	return 0;
++}
++
++/*
++ * load_crashdump_segments() - load the elf core header
++ * @info: kexec info structure
++ *
++ * This function creates and loads an additional segment of elf core header
++ : which is used to construct /proc/vmcore on crash dump kernel.
++ *
++ * Return 0 in case of success and -1 in case of error.
++ */
++
++int load_crashdump_segments(struct kexec_info *info)
++{
++	unsigned long elfcorehdr;
++	unsigned long bufsz;
++	void *buf;
++	int err;
++
++	/*
++	 * First fetch all the memory (RAM) ranges that we are going to
++	 * pass to the crash dump kernel during panic.
++	 */
++
++	err = crash_get_memory_ranges();
++
++	if (err)
++		return EFAILED;
++
++	elf_info.page_offset = get_kernel_page_offset();
++	dbgprintf("%s: page_offset:   %016llx\n", __func__,
++			elf_info.page_offset);
++
++	err = crash_create_elf64_headers(info, &elf_info,
++			system_memory_rgns.ranges, system_memory_rgns.size,
++			&buf, &bufsz, ELF_CORE_HEADER_ALIGN);
++
++	if (err)
++		return EFAILED;
++
++	elfcorehdr = add_buffer_phys_virt(info, buf, bufsz, bufsz, 0,
++		crash_reserved_mem.start, crash_reserved_mem.end,
++		-1, 0);
++
++	elfcorehdr_mem.start = elfcorehdr;
++	elfcorehdr_mem.end = elfcorehdr + bufsz - 1;
++
++	dbgprintf("%s: elfcorehdr 0x%llx-0x%llx\n", __func__,
++			elfcorehdr_mem.start, elfcorehdr_mem.end);
++
++	return 0;
++}
++
++/*
++ * e_entry and p_paddr are actually in virtual address space.
++ * Those values will be translated to physcal addresses by using
++ * virt_to_phys() in add_segment().
++ * So let's fix up those values for later use so the memory base
++ * (riscv_mm.phys_offset) will be correctly replaced with
++ * crash_reserved_mem.start.
++ */
++void fixup_elf_addrs(struct mem_ehdr *ehdr)
++{
++	struct mem_phdr *phdr;
++	int i;
++
++	ehdr->e_entry += - riscv_mem.phys_offset + crash_reserved_mem.start;
++
++	for (i = 0; i < ehdr->e_phnum; i++) {
++		phdr = &ehdr->e_phdr[i];
++		if (phdr->p_type != PT_LOAD)
++			continue;
++		phdr->p_paddr +=
++			(-riscv_mem.phys_offset + crash_reserved_mem.start);
++	}
++}
++
++int get_crash_kernel_load_range(uint64_t *start, uint64_t *end)
++{
++	if (!usablemem_rgns.size)
++		kexec_iomem_for_each_line(NULL, iomem_range_callback, NULL);
++
++	if (!crash_reserved_mem.end)
++		return -1;
++
++	*start = crash_reserved_mem.start;
++	*end = crash_reserved_mem.end;
++
++	return 0;
++}
+diff --git a/kexec/arch/riscv/crashdump-riscv.h b/kexec/arch/riscv/crashdump-riscv.h
+new file mode 100644
+index 0000000..140b16d
+--- /dev/null
++++ b/kexec/arch/riscv/crashdump-riscv.h
+@@ -0,0 +1,26 @@
++/*
++ * RISCV crashdump.
++ *
++ * Copyright (c) 2014-2017 Linaro Limited
++ * Author: AKASHI Takahiro <takahiro.akashi@linaro.org>
++ *
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License version 2 as
++ * published by the Free Software Foundation.
++ */
++
++#ifndef CRASHDUMP_RISCV_H
++#define CRASHDUMP_RISCV_H
++
++#include "kexec.h"
++
++#define CRASH_MAX_MEMORY_RANGES	32
++
++extern struct memory_ranges usablemem_rgns;
++extern struct memory_range crash_reserved_mem;
++extern struct memory_range elfcorehdr_mem;
++
++extern int load_crashdump_segments(struct kexec_info *info);
++extern void fixup_elf_addrs(struct mem_ehdr *ehdr);
++
++#endif /* CRASHDUMP_RISCV_H */
+diff --git a/kexec/arch/riscv/image-header.h b/kexec/arch/riscv/image-header.h
+new file mode 100644
+index 0000000..81abe57
+--- /dev/null
++++ b/kexec/arch/riscv/image-header.h
+@@ -0,0 +1,150 @@
++/*
++ * RISCV binary image header.
++ */
++
++#if !defined(__RISCV_IMAGE_HEADER_H)
++#define __RISCV_IMAGE_HEADER_H
++
++#include <endian.h>
++#include <stdint.h>
++
++/**
++ * struct riscv_image_header - riscv kernel image header.
++ *
++ * @pe_sig: Optional PE format 'MZ' signature.
++ * @branch_code: Reserved for instructions to branch to stext.
++ * @text_offset: The image load offset in LSB byte order.
++ * @image_size: An estimated size of the memory image size in LSB byte order.
++ * @flags: Bit flags in LSB byte order:
++ *   Bit 0:   Image byte order: 1=MSB.
++ *   Bit 1-2: Kernel page size: 1=4K, 2=16K, 3=64K.
++ *   Bit 3:   Image placement: 0=low.
++ * @reserved_1: Reserved.
++ * @magic: Magic number, "ARM\x64".
++ * @pe_header: Optional offset to a PE format header.
++ **/
++
++struct riscv_image_header {
++	uint8_t pe_sig[2];
++	uint16_t branch_code[3];
++	uint64_t text_offset;
++	uint64_t image_size;
++	uint64_t flags;
++	uint64_t reserved_1[3];
++	uint8_t magic[4];
++	uint32_t pe_header;
++};
++
++static const uint8_t riscv_image_magic[4] = {'R', 'S', 'C', '\x05'};
++static const uint8_t riscv_image_pe_sig[2] = {'M', 'Z'};
++static const uint64_t riscv_image_flag_be = (1UL << 0);
++static const uint64_t riscv_image_flag_page_size = (3UL << 1);
++static const uint64_t riscv_image_flag_placement = (1UL << 3);
++
++/**
++ * enum riscv_header_page_size
++ */
++
++enum riscv_header_page_size {
++	riscv_header_page_size_invalid = 0,
++	riscv_header_page_size_4k,
++	riscv_header_page_size_16k,
++	riscv_header_page_size_64k
++};
++
++/**
++ * riscv_header_check_magic - Helper to check the riscv image header.
++ *
++ * Returns non-zero if header is OK.
++ */
++
++static inline int riscv_header_check_magic(const struct riscv_image_header *h)
++{
++	if (!h)
++		return 0;
++
++	printf("h->magic[0]: %c\n", h->magic[0]);
++	printf("h->magic[1]: %c\n", h->magic[1]);
++	printf("h->magic[2]: %c\n", h->magic[2]);
++	printf("h->magic[3]: %c\n", h->magic[3]);
++
++	return (h->magic[0] == riscv_image_magic[0]
++		&& h->magic[1] == riscv_image_magic[1]
++		&& h->magic[2] == riscv_image_magic[2]
++		&& h->magic[3] == riscv_image_magic[3]);
++}
++
++/**
++ * riscv_header_check_pe_sig - Helper to check the riscv image header.
++ *
++ * Returns non-zero if 'MZ' signature is found.
++ */
++
++static inline int riscv_header_check_pe_sig(const struct riscv_image_header *h)
++{
++	if (!h)
++		return 0;
++
++	return 1;
++}
++
++/**
++ * riscv_header_check_msb - Helper to check the riscv image header.
++ *
++ * Returns non-zero if the image was built as big endian.
++ */
++
++static inline int riscv_header_check_msb(const struct riscv_image_header *h)
++{
++	if (!h)
++		return 0;
++
++	return (le64toh(h->flags) & riscv_image_flag_be) >> 0;
++}
++
++/**
++ * riscv_header_page_size
++ */
++
++static inline enum riscv_header_page_size riscv_header_page_size(
++	const struct riscv_image_header *h)
++{
++	if (!h)
++		return 0;
++
++	return (le64toh(h->flags) & riscv_image_flag_page_size) >> 1;
++}
++
++/**
++ * riscv_header_placement
++ *
++ * Returns non-zero if the image has no physical placement restrictions.
++ */
++
++static inline int riscv_header_placement(const struct riscv_image_header *h)
++{
++	if (!h)
++		return 0;
++
++	return (le64toh(h->flags) & riscv_image_flag_placement) >> 3;
++}
++
++static inline uint64_t riscv_header_text_offset(
++	const struct riscv_image_header *h)
++{
++	if (!h)
++		return 0;
++
++	return le64toh(h->text_offset);
++}
++
++static inline uint64_t riscv_header_image_size(
++	const struct riscv_image_header *h)
++{
++	if (!h)
++		return 0;
++
++	return le64toh(h->image_size);
++}
++
++#endif
+diff --git a/kexec/arch/riscv/include/arch/options.h b/kexec/arch/riscv/include/arch/options.h
+new file mode 100644
+index 0000000..824eef9
+--- /dev/null
++++ b/kexec/arch/riscv/include/arch/options.h
+@@ -0,0 +1,39 @@
++#if !defined(KEXEC_ARCH_RISCV_OPTIONS_H)
++#define KEXEC_ARCH_RISCV_OPTIONS_H
++
++#define OPT_APPEND		((OPT_MAX)+0)
++#define OPT_DTB			((OPT_MAX)+1)
++#define OPT_INITRD		((OPT_MAX)+2)
++#define OPT_REUSE_CMDLINE	((OPT_MAX)+3)
++#define OPT_ARCH_MAX		((OPT_MAX)+4)
++
++#define KEXEC_ARCH_OPTIONS \
++	KEXEC_OPTIONS \
++	{ "append",        1, NULL, OPT_APPEND }, \
++	{ "command-line",  1, NULL, OPT_APPEND }, \
++	{ "dtb",           1, NULL, OPT_DTB }, \
++	{ "initrd",        1, NULL, OPT_INITRD }, \
++	{ "ramdisk",       1, NULL, OPT_INITRD }, \
++	{ "reuse-cmdline", 0, NULL, OPT_REUSE_CMDLINE }, \
++
++#define KEXEC_ARCH_OPT_STR KEXEC_OPT_STR /* Only accept long arch options. */
++#define KEXEC_ALL_OPTIONS KEXEC_ARCH_OPTIONS
++#define KEXEC_ALL_OPT_STR KEXEC_ARCH_OPT_STR
++
++static const char riscv_opts_usage[] __attribute__ ((unused)) =
++"     --append=STRING       Set the kernel command line to STRING.\n"
++"     --command-line=STRING Set the kernel command line to STRING.\n"
++"     --dtb=FILE            Use FILE as the device tree blob.\n"
++"     --initrd=FILE         Use FILE as the kernel initial ramdisk.\n"
++"     --ramdisk=FILE        Use FILE as the kernel initial ramdisk.\n"
++"     --reuse-cmdline       Use kernel command line from running system.\n";
++
++struct riscv_opts {
++	const char *command_line;
++	const char *dtb;
++	const char *initrd;
++};
++
++extern struct riscv_opts riscv_opts;
++
++#endif
+diff --git a/kexec/arch/riscv/iomem.h b/kexec/arch/riscv/iomem.h
+new file mode 100644
+index 0000000..d4864bb
+--- /dev/null
++++ b/kexec/arch/riscv/iomem.h
+@@ -0,0 +1,10 @@
++#ifndef IOMEM_H
++#define IOMEM_H
++
++#define SYSTEM_RAM		"System RAM\n"
++#define KERNEL_CODE		"Kernel code\n"
++#define KERNEL_DATA		"Kernel data\n"
++#define CRASH_KERNEL		"Crash kernel\n"
++#define IOMEM_RESERVED		"reserved\n"
++
++#endif
+diff --git a/kexec/arch/riscv/kexec-elf-riscv.c b/kexec/arch/riscv/kexec-elf-riscv.c
+new file mode 100644
+index 0000000..0953f46
+--- /dev/null
++++ b/kexec/arch/riscv/kexec-elf-riscv.c
+@@ -0,0 +1,162 @@
++/*
++ * RISCV kexec elf support.
++ */
++
++#define _GNU_SOURCE
++
++#include <errno.h>
++#include <limits.h>
++#include <stdlib.h>
++#include <linux/elf.h>
++
++#include "crashdump-riscv.h"
++#include "kexec-riscv.h"
++#include "kexec-elf.h"
++#include "kexec-syscall.h"
++
++#define EM_RISCV	243
++int elf_riscv_probe(const char *kernel_buf, off_t kernel_size)
++{
++	struct mem_ehdr ehdr;
++	int result;
++
++	result = build_elf_exec_info(kernel_buf, kernel_size, &ehdr, 0);
++
++	if (result < 0) {
++		dbgprintf("%s: Not an ELF executable.\n", __func__);
++		goto on_exit;
++	}
++
++	if (ehdr.e_machine != EM_RISCV) {
++		dbgprintf("%s: Not an RISCV ELF executable.\n", __func__);
++		result = -1;
++		goto on_exit;
++	}
++
++	result = 0;
++on_exit:
++	free_elf_info(&ehdr);
++	return result;
++}
++
++int elf_riscv_load(int argc, char **argv, const char *kernel_buf,
++	off_t kernel_size, struct kexec_info *info)
++{
++	const struct riscv_image_header *header = NULL;
++	unsigned long kernel_segment;
++	struct mem_ehdr ehdr;
++	int result;
++	int i;
++
++	result = build_elf_exec_info(kernel_buf, kernel_size, &ehdr, 0);
++
++	if (result < 0) {
++		dbgprintf("%s: build_elf_exec_info failed\n", __func__);
++		goto exit;
++	}
++
++	/* Find and process the riscv image header. */
++
++	for (i = 0; i < ehdr.e_phnum; i++) {
++		struct mem_phdr *phdr = &ehdr.e_phdr[i];
++		unsigned long header_offset;
++
++		if (phdr->p_type != PT_LOAD)
++			continue;
++
++		/*
++		 * When CONFIG_RISCV_RANDOMIZE_TEXT_OFFSET=y the image header
++		 * could be offset in the elf segment.  The linker script sets
++		 * ehdr.e_entry to the start of text.
++		 */
++
++		header_offset = ehdr.e_entry - phdr->p_vaddr;
++
++		header = (const struct riscv_image_header *)(
++			kernel_buf + phdr->p_offset + header_offset);
++
++		if (!riscv_process_image_header(header)) {
++			dbgprintf("%s: e_entry:        %016llx\n", __func__,
++				ehdr.e_entry);
++			dbgprintf("%s: p_vaddr:        %016llx\n", __func__,
++				phdr->p_vaddr);
++			dbgprintf("%s: header_offset:  %016lx\n", __func__,
++				header_offset);
++
++			break;
++		}
++	}
++
++	if (i == ehdr.e_phnum) {
++		dbgprintf("%s: Valid riscv header not found\n", __func__);
++		result = EFAILED;
++		goto exit;
++	}
++
++	kernel_segment = riscv_locate_kernel_segment(info);
++
++	if (kernel_segment == ULONG_MAX) {
++		dbgprintf("%s: Kernel segment is not allocated\n", __func__);
++		result = EFAILED;
++		goto exit;
++	}
++
++	riscv_mem.vp_offset = _ALIGN_DOWN(ehdr.e_entry, MiB(2));
++	if (!(info->kexec_flags & KEXEC_ON_CRASH))
++		riscv_mem.vp_offset -= kernel_segment - get_phys_offset();
++
++	dbgprintf("%s: kernel_segment: %016lx\n", __func__, kernel_segment);
++	dbgprintf("%s: text_offset:    %016lx\n", __func__,
++		riscv_mem.text_offset);
++	dbgprintf("%s: image_size:     %016lx\n", __func__,
++		riscv_mem.image_size);
++	dbgprintf("%s: phys_offset:    %016lx\n", __func__,
++		riscv_mem.phys_offset);
++	dbgprintf("%s: vp_offset:      %016lx\n", __func__,
++		riscv_mem.vp_offset);
++	dbgprintf("%s: PE format:      %s\n", __func__,
++		(riscv_header_check_pe_sig(header) ? "yes" : "no"));
++
++	/* create and initialize elf core header segment */
++	if (info->kexec_flags & KEXEC_ON_CRASH) {
++		result = load_crashdump_segments(info);
++		if (result) {
++			dbgprintf("%s: Creating eflcorehdr failed.\n",
++								__func__);
++			goto exit;
++		}
++	}
++
++	/* load the kernel */
++	if (info->kexec_flags & KEXEC_ON_CRASH)
++		/*
++		 * offset addresses in elf header in order to load
++		 * vmlinux (elf_exec) into crash kernel's memory
++		 */
++		fixup_elf_addrs(&ehdr);
++
++	result = elf_exec_load(&ehdr, info);
++
++	if (result) {
++		dbgprintf("%s: elf_exec_load failed\n", __func__);
++		goto exit;
++	}
++
++	/* load additional data */
++	result = riscv_load_other_segments(info, kernel_segment
++		+ riscv_mem.text_offset);
++
++exit:
++	reset_vp_offset();
++	free_elf_info(&ehdr);
++	if (result)
++		fprintf(stderr, "kexec: Bad elf image file, load failed.\n");
++	return result;
++}
++
++void elf_riscv_usage(void)
++{
++	printf(
++"     An RISCV ELF image, big or little endian.\n"
++"     Typically vmlinux or a stripped version of vmlinux.\n\n");
++}
+diff --git a/kexec/arch/riscv/kexec-image-riscv.c b/kexec/arch/riscv/kexec-image-riscv.c
+new file mode 100644
+index 0000000..c5f5371
+--- /dev/null
++++ b/kexec/arch/riscv/kexec-image-riscv.c
+@@ -0,0 +1,95 @@
++/*
++ * RISCV kexec binary image support.
++ */
++
++#define _GNU_SOURCE
++
++#include "crashdump-riscv.h"
++#include "kexec-riscv.h"
++#include "kexec-syscall.h"
++#include <limits.h>
++
++int image_riscv_probe(const char *kernel_buf, off_t kernel_size)
++{
++	const struct riscv_image_header *h;
++
++	if (kernel_size < sizeof(struct riscv_image_header)) {
++		dbgprintf("%s: No riscv image header.\n", __func__);
++		return -1;
++	}
++
++	h = (const struct riscv_image_header *)(kernel_buf);
++
++	if (!riscv_header_check_magic(h)) {
++		dbgprintf("%s: Bad riscv image header.\n", __func__);
++		return -1;
++	}
++
++	return 0;
++}
++
++int image_riscv_load(int argc, char **argv, const char *kernel_buf,
++	off_t kernel_size, struct kexec_info *info)
++{
++	const struct riscv_image_header *header;
++	unsigned long kernel_segment;
++	int result;
++
++	header = (const struct riscv_image_header *)(kernel_buf);
++
++	if (riscv_process_image_header(header))
++		return EFAILED;
++
++    kernel_segment = riscv_locate_kernel_segment(info);
++
++    if (kernel_segment == ULONG_MAX) {
++            dbgprintf("%s: Kernel segment is not allocated\n", __func__);
++	result = EFAILED;
++            goto exit;
++    }
++
++	dbgprintf("%s: kernel_segment: %016lx\n", __func__, kernel_segment);
++	dbgprintf("%s: text_offset:    %016lx\n", __func__,
++		riscv_mem.text_offset);
++	dbgprintf("%s: image_size:     %016lx\n", __func__,
++		riscv_mem.image_size);
++	dbgprintf("%s: phys_offset:    %016lx\n", __func__,
++		riscv_mem.phys_offset);
++	dbgprintf("%s: vp_offset:      %016lx\n", __func__,
++		riscv_mem.vp_offset);
++	dbgprintf("%s: PE format:      %s\n", __func__,
++		(riscv_header_check_pe_sig(header) ? "yes" : "no"));
++
++	/* create and initialize elf core header segment */
++	if (info->kexec_flags & KEXEC_ON_CRASH) {
++		result = load_crashdump_segments(info);
++		if (result) {
++			dbgprintf("%s: Creating eflcorehdr failed.\n",
++								__func__);
++			goto exit;
++		}
++	}
++
++	/* load the kernel */
++	printf("1111111111111\n");
++	add_segment_phys_virt(info, kernel_buf, kernel_size,
++			kernel_segment + riscv_mem.text_offset,
++			riscv_mem.image_size, 0);
++
++	/* load additional data */
++	printf("2222222222\n");
++	result = riscv_load_other_segments(info, kernel_segment
++		+ riscv_mem.text_offset);
++
++exit:
++        if (result)
++                fprintf(stderr, "kexec: load failed.\n");
++        return result;
++}
++
++void image_riscv_usage(void)
++{
++	printf(
++"     An RISCV binary image, compressed or not, big or little endian.\n"
++"     Typically an Image, Image.gz or Image.lzma file.\n\n");
++}
+diff --git a/kexec/arch/riscv/kexec-riscv.c b/kexec/arch/riscv/kexec-riscv.c
+new file mode 100644
+index 0000000..8a7de28
+--- /dev/null
++++ b/kexec/arch/riscv/kexec-riscv.c
+@@ -0,0 +1,780 @@
++/*
++ * RISCV kexec.
++ */
++
++#define _GNU_SOURCE
++
++#include <assert.h>
++#include <errno.h>
++#include <getopt.h>
++#include <inttypes.h>
++#include <libfdt.h>
++#include <limits.h>
++#include <stdlib.h>
++#include <sys/stat.h>
++#include <linux/elf-em.h>
++#include <elf.h>
++
++#include "kexec.h"
++#include "kexec-riscv.h"
++#include "crashdump.h"
++#include "crashdump-riscv.h"
++#include "dt-ops.h"
++#include "fs2dt.h"
++#include "iomem.h"
++#include "kexec-syscall.h"
++#include "arch/options.h"
++
++#define ROOT_NODE_ADDR_CELLS_DEFAULT 1
++#define ROOT_NODE_SIZE_CELLS_DEFAULT 1
++
++#define PROP_ADDR_CELLS "#address-cells"
++#define PROP_SIZE_CELLS "#size-cells"
++#define PROP_ELFCOREHDR "linux,elfcorehdr"
++#define PROP_USABLE_MEM_RANGE "linux,usable-memory-range"
++
++/* Global varables the core kexec routines expect. */
++
++unsigned char reuse_initrd;
++
++off_t initrd_base;
++off_t initrd_size;
++
++const struct arch_map_entry arches[] = {
++	{ "riscv", KEXEC_ARCH_RISCV },
++	{ "riscv64", KEXEC_ARCH_RISCV },
++	{ NULL, 0 },
++};
++
++struct file_type file_type[] = {
++	{"vmlinux", elf_riscv_probe, elf_riscv_load, elf_riscv_usage},
++	{"Image", image_riscv_probe, image_riscv_load, image_riscv_usage},
++	{"uImage", uImage_riscv_probe, uImage_riscv_load, uImage_riscv_usage},
++};
++
++int file_types = sizeof(file_type) / sizeof(file_type[0]);
++
++/* riscv global varables. */
++
++struct riscv_opts riscv_opts;
++struct riscv_mem riscv_mem = {
++	.phys_offset = riscv_mem_ngv,
++	.vp_offset = riscv_mem_ngv,
++};
++
++uint64_t get_phys_offset(void)
++{
++	assert(riscv_mem.phys_offset != riscv_mem_ngv);
++	return riscv_mem.phys_offset;
++}
++
++uint64_t get_vp_offset(void)
++{
++	assert(riscv_mem.vp_offset != riscv_mem_ngv);
++	return riscv_mem.vp_offset;
++}
++
++/**
++ * riscv_process_image_header - Process the riscv image header.
++ *
++ * Make a guess that KERNEL_IMAGE_SIZE will be enough for older kernels.
++ */
++
++int riscv_process_image_header(const struct riscv_image_header *h)
++{
++	if (h->image_size) {
++		riscv_mem.text_offset = riscv_header_text_offset(h);
++		riscv_mem.text_offset = 0;
++		riscv_mem.image_size = riscv_header_image_size(h);
++	}
++
++	return 0;
++}
++
++void arch_usage(void)
++{
++	printf(riscv_opts_usage);
++}
++
++int arch_process_options(int argc, char **argv)
++{
++	static const char short_options[] = KEXEC_OPT_STR "";
++	static const struct option options[] = {
++		KEXEC_ARCH_OPTIONS
++		{ 0 }
++	};
++	int opt;
++	char *cmdline = NULL;
++	const char *append = NULL;
++
++	for (opt = 0; opt != -1; ) {
++		opt = getopt_long(argc, argv, short_options, options, 0);
++
++		switch (opt) {
++		case OPT_APPEND:
++			append = optarg;
++			break;
++		case OPT_REUSE_CMDLINE:
++			cmdline = get_command_line();
++			break;
++		case OPT_DTB:
++			riscv_opts.dtb = optarg;
++			break;
++		case OPT_INITRD:
++			riscv_opts.initrd = optarg;
++			break;
++		default:
++			break; /* Ignore core and unknown options. */
++		}
++	}
++
++	riscv_opts.command_line = concat_cmdline(cmdline, append);
++
++	dbgprintf("%s:%d: command_line: %s\n", __func__, __LINE__,
++		riscv_opts.command_line);
++	dbgprintf("%s:%d: initrd: %s\n", __func__, __LINE__,
++		riscv_opts.initrd);
++	dbgprintf("%s:%d: dtb: %s\n", __func__, __LINE__, riscv_opts.dtb);
++
++	return 0;
++}
++
++/**
++ * struct dtb - Info about a binary device tree.
++ *
++ * @buf: Device tree data.
++ * @size: Device tree data size.
++ * @name: Shorthand name of this dtb for messages.
++ * @path: Filesystem path.
++ */
++
++struct dtb {
++	char *buf;
++	off_t size;
++	const char *name;
++	const char *path;
++};
++
++/**
++ * dump_reservemap - Dump the dtb's reservemap.
++ */
++
++static void dump_reservemap(const struct dtb *dtb)
++{
++	int i;
++
++	for (i = 0; ; i++) {
++		uint64_t address;
++		uint64_t size;
++
++		fdt_get_mem_rsv(dtb->buf, i, &address, &size);
++
++		if (!size)
++			break;
++
++		dbgprintf("%s: %s {%" PRIx64 ", %" PRIx64 "}\n", __func__,
++			dtb->name, address, size);
++	}
++}
++
++/**
++ * set_bootargs - Set the dtb's bootargs.
++ */
++
++static int set_bootargs(struct dtb *dtb, const char *command_line)
++{
++	int result;
++
++	if (!command_line || !command_line[0])
++		return 0;
++
++	result = dtb_set_bootargs(&dtb->buf, &dtb->size, command_line);
++
++	if (result) {
++		fprintf(stderr,
++			"kexec: Set device tree bootargs failed.\n");
++		return EFAILED;
++	}
++
++	return 0;
++}
++
++/**
++ * read_proc_dtb - Read /proc/device-tree.
++ */
++
++static int read_proc_dtb(struct dtb *dtb)
++{
++	int result;
++	struct stat s;
++	static const char path[] = "/proc/device-tree";
++
++	result = stat(path, &s);
++
++	if (result) {
++		dbgprintf("%s: %s\n", __func__, strerror(errno));
++		return EFAILED;
++	}
++
++	dtb->path = path;
++	create_flatten_tree((char **)&dtb->buf, &dtb->size, NULL);
++
++	return 0;
++}
++
++/**
++ * read_sys_dtb - Read /sys/firmware/fdt.
++ */
++
++static int read_sys_dtb(struct dtb *dtb)
++{
++	int result;
++	struct stat s;
++	static const char path[] = "/sys/firmware/fdt";
++
++	result = stat(path, &s);
++
++	if (result) {
++		dbgprintf("%s: %s\n", __func__, strerror(errno));
++		return EFAILED;
++	}
++
++	dtb->path = path;
++	dtb->buf = slurp_file(path, &dtb->size);
++
++	return 0;
++}
++
++/**
++ * read_1st_dtb - Read the 1st stage kernel's dtb.
++ */
++
++static int read_1st_dtb(struct dtb *dtb)
++{
++	int result;
++
++	dtb->name = "dtb_sys";
++	result = read_sys_dtb(dtb);
++
++	if (!result)
++		goto on_success;
++
++	dtb->name = "dtb_proc";
++	result = read_proc_dtb(dtb);
++
++	if (!result)
++		goto on_success;
++
++	dbgprintf("%s: not found\n", __func__);
++	return EFAILED;
++
++on_success:
++	dbgprintf("%s: found %s\n", __func__, dtb->path);
++	return 0;
++}
++
++static int get_cells_size(void *fdt, uint32_t *address_cells,
++						uint32_t *size_cells)
++{
++	int nodeoffset;
++	const uint32_t *prop = NULL;
++	int prop_len;
++
++	/* default values */
++	*address_cells = ROOT_NODE_ADDR_CELLS_DEFAULT;
++	*size_cells = ROOT_NODE_SIZE_CELLS_DEFAULT;
++
++	/* under root node */
++	nodeoffset = fdt_path_offset(fdt, "/");
++	if (nodeoffset < 0)
++		goto on_error;
++
++	prop = fdt_getprop(fdt, nodeoffset, PROP_ADDR_CELLS, &prop_len);
++	if (prop) {
++		if (prop_len == sizeof(*prop))
++			*address_cells = fdt32_to_cpu(*prop);
++		else
++			goto on_error;
++	}
++
++	prop = fdt_getprop(fdt, nodeoffset, PROP_SIZE_CELLS, &prop_len);
++	if (prop) {
++		if (prop_len == sizeof(*prop))
++			*size_cells = fdt32_to_cpu(*prop);
++		else
++			goto on_error;
++	}
++
++	dbgprintf("%s: #address-cells:%d #size-cells:%d\n", __func__,
++			*address_cells, *size_cells);
++	return 0;
++
++on_error:
++	return EFAILED;
++}
++
++static bool cells_size_fitted(uint32_t address_cells, uint32_t size_cells,
++						struct memory_range *range)
++{
++	dbgprintf("%s: %llx-%llx\n", __func__, range->start, range->end);
++
++	/* if *_cells >= 2, cells can hold 64-bit values anyway */
++	if ((address_cells == 1) && (range->start >= (1ULL << 32)))
++		return false;
++
++	if ((size_cells == 1) &&
++			((range->end - range->start + 1) >= (1ULL << 32)))
++		return false;
++
++	return true;
++}
++
++static void fill_property(void *buf, uint64_t val, uint32_t cells)
++{
++	uint32_t val32;
++	int i;
++
++	if (cells == 1) {
++		val32 = cpu_to_fdt32((uint32_t)val);
++		memcpy(buf, &val32, sizeof(uint32_t));
++	} else {
++		for (i = 0;
++		     i < (cells * sizeof(uint32_t) - sizeof(uint64_t)); i++)
++			*(char *)buf++ = 0;
++
++		val = cpu_to_fdt64(val);
++		memcpy(buf, &val, sizeof(uint64_t));
++	}
++}
++
++static int fdt_setprop_range(void *fdt, int nodeoffset,
++				const char *name, struct memory_range *range,
++				uint32_t address_cells, uint32_t size_cells)
++{
++	void *buf, *prop;
++	size_t buf_size;
++	int result;
++
++	buf_size = (address_cells + size_cells) * sizeof(uint32_t);
++	prop = buf = xmalloc(buf_size);
++
++	fill_property(prop, range->start, address_cells);
++	prop += address_cells * sizeof(uint32_t);
++
++	fill_property(prop, range->end - range->start + 1, size_cells);
++	prop += size_cells * sizeof(uint32_t);
++
++	result = fdt_setprop(fdt, nodeoffset, name, buf, buf_size);
++
++	free(buf);
++
++	return result;
++}
++
++/**
++ * setup_2nd_dtb - Setup the 2nd stage kernel's dtb.
++ */
++
++static int setup_2nd_dtb(struct dtb *dtb, char *command_line, int on_crash)
++{
++	uint32_t address_cells, size_cells;
++	int range_len;
++	int nodeoffset;
++	char *new_buf = NULL;
++	int new_size;
++	int result;
++
++	result = fdt_check_header(dtb->buf);
++
++	if (result) {
++		fprintf(stderr, "kexec: Invalid 2nd device tree.\n");
++		return EFAILED;
++	}
++
++	result = set_bootargs(dtb, command_line);
++
++	if (on_crash) {
++		/* determine #address-cells and #size-cells */
++		result = get_cells_size(dtb->buf, &address_cells, &size_cells);
++		if (result) {
++			fprintf(stderr,
++				"kexec: cannot determine cells-size.\n");
++			result = -EINVAL;
++			goto on_error;
++		}
++
++		if (!cells_size_fitted(address_cells, size_cells,
++					&elfcorehdr_mem)) {
++			fprintf(stderr,
++				"kexec: elfcorehdr doesn't fit cells-size.\n");
++			result = -EINVAL;
++			goto on_error;
++		}
++
++		if (!cells_size_fitted(address_cells, size_cells,
++					&crash_reserved_mem)) {
++			fprintf(stderr,
++				"kexec: usable memory range doesn't fit cells-size.\n");
++			result = -EINVAL;
++			goto on_error;
++		}
++
++		/* duplicate dt blob */
++		range_len = sizeof(uint32_t) * (address_cells + size_cells);
++		new_size = fdt_totalsize(dtb->buf)
++			+ fdt_prop_len(PROP_ELFCOREHDR, range_len)
++			+ fdt_prop_len(PROP_USABLE_MEM_RANGE, range_len);
++
++		new_buf = xmalloc(new_size);
++		result = fdt_open_into(dtb->buf, new_buf, new_size);
++		if (result) {
++			dbgprintf("%s: fdt_open_into failed: %s\n", __func__,
++				fdt_strerror(result));
++			result = -ENOSPC;
++			goto on_error;
++		}
++
++		/* add linux,elfcorehdr */
++		nodeoffset = fdt_path_offset(new_buf, "/chosen");
++		result = fdt_setprop_range(new_buf, nodeoffset,
++				PROP_ELFCOREHDR, &elfcorehdr_mem,
++				address_cells, size_cells);
++		if (result) {
++			dbgprintf("%s: fdt_setprop failed: %s\n", __func__,
++				fdt_strerror(result));
++			result = -EINVAL;
++			goto on_error;
++		}
++
++		/* add linux,usable-memory-range */
++		nodeoffset = fdt_path_offset(new_buf, "/chosen");
++		result = fdt_setprop_range(new_buf, nodeoffset,
++				PROP_USABLE_MEM_RANGE, &crash_reserved_mem,
++				address_cells, size_cells);
++		if (result) {
++			dbgprintf("%s: fdt_setprop failed: %s\n", __func__,
++				fdt_strerror(result));
++			result = -EINVAL;
++			goto on_error;
++		}
++
++		fdt_pack(new_buf);
++		dtb->buf = new_buf;
++		dtb->size = fdt_totalsize(new_buf);
++	}
++
++	dump_reservemap(dtb);
++
++
++	return result;
++
++on_error:
++	fprintf(stderr, "kexec: %s failed.\n", __func__);
++	if (new_buf)
++		free(new_buf);
++
++	return result;
++}
++
++unsigned long riscv_locate_kernel_segment(struct kexec_info *info)
++{
++	unsigned long hole;
++
++	if (info->kexec_flags & KEXEC_ON_CRASH) {
++		unsigned long hole_end;
++
++		hole = (crash_reserved_mem.start < mem_min ?
++				mem_min : crash_reserved_mem.start);
++		hole = _ALIGN_UP(hole, MiB(2));
++		hole_end = hole + riscv_mem.text_offset + riscv_mem.image_size;
++
++		if ((hole_end > mem_max) ||
++		    (hole_end > crash_reserved_mem.end)) {
++			dbgprintf("%s: Crash kernel out of range\n", __func__);
++			hole = ULONG_MAX;
++		}
++	} else {
++		hole = locate_hole(info,
++			riscv_mem.text_offset + riscv_mem.image_size,
++			MiB(2), 0, ULONG_MAX, 1);
++
++		if (hole == ULONG_MAX)
++			dbgprintf("%s: locate_hole failed\n", __func__);
++	}
++
++	printf("hole: 0x%lx\n", hole);
++
++	return hole;
++}
++
++/**
++ * riscv_load_other_segments - Prepare the dtb, initrd and purgatory segments.
++ */
++
++int riscv_load_other_segments(struct kexec_info *info,
++	unsigned long image_base)
++{
++	int result;
++	unsigned long dtb_base;
++	unsigned long hole_min;
++	unsigned long hole_max;
++	unsigned long initrd_end;
++	char *initrd_buf = NULL;
++	struct dtb dtb;
++	char command_line[COMMAND_LINE_SIZE] = "";
++
++	if (riscv_opts.command_line) {
++		strncpy(command_line, riscv_opts.command_line,
++			sizeof(command_line));
++		command_line[sizeof(command_line) - 1] = 0;
++	}
++
++	if (riscv_opts.dtb) {
++		dtb.name = "dtb_user";
++		dtb.buf = slurp_file(riscv_opts.dtb, &dtb.size);
++	} else {
++		result = read_1st_dtb(&dtb);
++
++		if (result) {
++			fprintf(stderr,
++				"kexec: Error: No device tree available.\n");
++			return EFAILED;
++		}
++	}
++
++	result = setup_2nd_dtb(&dtb, command_line,
++			info->kexec_flags & KEXEC_ON_CRASH);
++
++	if (result)
++		return EFAILED;
++
++	/* Put the other segments after the image. */
++
++	hole_min = image_base + riscv_mem.image_size;
++	if (info->kexec_flags & KEXEC_ON_CRASH)
++		hole_max = crash_reserved_mem.end;
++	else
++		hole_max = ULONG_MAX;
++
++	if (riscv_opts.initrd) {
++		initrd_buf = slurp_file(riscv_opts.initrd, &initrd_size);
++
++		if (!initrd_buf)
++			fprintf(stderr, "kexec: Empty ramdisk file.\n");
++		else {
++			/* Put the initrd after the kernel. */
++
++			initrd_base = add_buffer_phys_virt(info, initrd_buf,
++				initrd_size, initrd_size, 0,
++				hole_min, hole_max, 1, 0);
++
++			initrd_end = initrd_base + initrd_size;
++
++			/* Check limits as specified in booting.txt.
++			 * The kernel may have as little as 32 GB of address space to map
++			 * system memory and both kernel and initrd must be 1GB aligend.
++			 */
++
++			if (_ALIGN_UP(initrd_end, GiB(1)) - _ALIGN_DOWN(image_base, GiB(1)) > GiB(32)) {
++				fprintf(stderr, "kexec: Error: image + initrd too big.\n");
++				return EFAILED;
++			}
++
++			dbgprintf("initrd: base %lx, size %lxh (%ld)\n",
++				initrd_base, initrd_size, initrd_size);
++
++			result = dtb_set_initrd((char **)&dtb.buf,
++				&dtb.size, initrd_base,
++				initrd_base + initrd_size);
++
++			if (result)
++				return EFAILED;
++		}
++	}
++
++	/* Check size limit as specified in booting.txt. */
++
++	if (dtb.size > MiB(2)) {
++		fprintf(stderr, "kexec: Error: dtb too big.\n");
++		return EFAILED;
++	}
++
++	dtb_base = add_buffer_phys_virt(info, dtb.buf, dtb.size, dtb.size,
++		0, hole_min, hole_max, 1, 0);
++
++	/* dtb_base is valid if we got here. */
++
++	dbgprintf("dtb:    base %lx, size %lxh (%ld)\n", dtb_base, dtb.size,
++		dtb.size);
++
++	elf_rel_build_load(info, &info->rhdr, purgatory, purgatory_size,
++		hole_min, hole_max, 1, 0);
++
++	printf("000000000000\n");
++	info->entry = (void *)elf_rel_get_addr(&info->rhdr, "purgatory_start");
++	printf("info->entry: %lx\n", (long)info->entry);
++
++	elf_rel_set_symbol(&info->rhdr, "riscv_kernel_entry", &image_base,
++		sizeof(image_base));
++	printf("image_base: %lx\n", (long)image_base);
++
++	elf_rel_set_symbol(&info->rhdr, "riscv_dtb_addr", &dtb_base,
++		sizeof(dtb_base));
++	printf("dtb_base: %lx\n", (long)dtb_base);
++
++	return 0;
++}
++
++/**
++ * virt_to_phys - For processing elf file values.
++ */
++
++unsigned long virt_to_phys(unsigned long v)
++{
++	unsigned long p;
++
++	p = v - get_vp_offset() + get_phys_offset();
++
++	return p;
++}
++
++/**
++ * phys_to_virt - For crashdump setup.
++ */
++
++unsigned long phys_to_virt(struct crash_elf_info *elf_info,
++	unsigned long long p)
++{
++	unsigned long v;
++
++	v = p - get_phys_offset() + elf_info->page_offset;
++
++	return v;
++}
++
++/**
++ * add_segment - Use virt_to_phys when loading elf files.
++ */
++
++void add_segment(struct kexec_info *info, const void *buf, size_t bufsz,
++	unsigned long base, size_t memsz)
++{
++	add_segment_phys_virt(info, buf, bufsz, base, memsz, 1);
++}
++
++/**
++ * get_memory_ranges_iomem_cb - Helper for get_memory_ranges_iomem.
++ */
++
++static int get_memory_ranges_iomem_cb(void *data, int nr, char *str,
++	unsigned long long base, unsigned long long length)
++{
++	struct memory_range *r;
++
++	if (nr >= KEXEC_SEGMENT_MAX)
++		return -1;
++
++	r = (struct memory_range *)data + nr;
++
++	if (!strncmp(str, SYSTEM_RAM, strlen(SYSTEM_RAM)))
++		r->type = RANGE_RAM;
++	else if (!strncmp(str, IOMEM_RESERVED, strlen(IOMEM_RESERVED)))
++		r->type = RANGE_RESERVED;
++	else
++		return 1;
++
++	r->start = base;
++	r->end = base + length - 1;
++
++	set_phys_offset(r->start);
++
++	dbgprintf("%s: %016llx - %016llx : %s", __func__, r->start,
++		r->end, str);
++
++	return 0;
++}
++
++/**
++ * get_memory_ranges_iomem - Try to get the memory ranges from /proc/iomem.
++ */
++
++static int get_memory_ranges_iomem(struct memory_range *array,
++	unsigned int *count)
++{
++	*count = kexec_iomem_for_each_line(NULL,
++		get_memory_ranges_iomem_cb, array);
++
++	if (!*count) {
++		dbgprintf("%s: failed: No RAM found.\n", __func__);
++		return EFAILED;
++	}
++
++	return 0;
++}
++
++/**
++ * get_memory_ranges - Try to get the memory ranges some how.
++ */
++
++int get_memory_ranges(struct memory_range **range, int *ranges,
++	unsigned long kexec_flags)
++{
++	static struct memory_range array[KEXEC_SEGMENT_MAX];
++	unsigned int count;
++	int result;
++
++	result = get_memory_ranges_iomem(array, &count);
++
++	*range = result ? NULL : array;
++	*ranges = result ? 0 : count;
++
++	return result;
++}
++
++int arch_compat_trampoline(struct kexec_info *info)
++{
++	return 0;
++}
++
++int machine_verify_elf_rel(struct mem_ehdr *ehdr)
++{
++	return (ehdr->e_machine == EM_RISCV);
++}
++
++void machine_apply_elf_rel(struct mem_ehdr *ehdr, struct mem_sym *UNUSED(sym),
++	unsigned long r_type, void *ptr, unsigned long address,
++	unsigned long value)
++{
++#define R_RISCV_PCREL_HI20  23
++#define R_RISCV_PCREL_LO12_I    24
++#define R_RISCV_ALIGN       43
++#define R_RISCV_RELAX       51
++
++	printf("r_type: %ld, 0x%lx\n", r_type, r_type);
++	switch (r_type) {
++	case R_RISCV_PCREL_HI20:
++		/* Do nothing */
++		break;
++	case R_RISCV_PCREL_LO12_I:
++		/* Do nothing */
++		break;
++	case R_RISCV_RELAX:
++		/* Do nothing */
++		break;
++	case R_RISCV_ALIGN:
++		/* Do nothing */
++		break;
++	default:
++		die("%s: ERROR Unknown type: %lu\n", __func__, r_type);
++		break;
++	}
++}
++
++void arch_reuse_initrd(void)
++{
++	reuse_initrd = 1;
++}
++
++void arch_update_purgatory(struct kexec_info *UNUSED(info))
++{
++}
+diff --git a/kexec/arch/riscv/kexec-riscv.h b/kexec/arch/riscv/kexec-riscv.h
+new file mode 100644
+index 0000000..fa2a98b
+--- /dev/null
++++ b/kexec/arch/riscv/kexec-riscv.h
+@@ -0,0 +1,75 @@
++/*
++ * RISCV kexec.
++ */
++
++#if !defined(KEXEC_RISCV_H)
++#define KEXEC_RISCV_H
++
++#include <stdbool.h>
++#include <sys/types.h>
++
++#include "image-header.h"
++#include "kexec.h"
++
++#define KEXEC_SEGMENT_MAX 64
++
++#define BOOT_BLOCK_VERSION 17
++#define BOOT_BLOCK_LAST_COMP_VERSION 16
++#define COMMAND_LINE_SIZE 512
++
++#define KiB(x) ((x) * 1024UL)
++#define MiB(x) (KiB(x) * 1024UL)
++#define GiB(x) (MiB(x) * 1024UL)
++
++int elf_riscv_probe(const char *kernel_buf, off_t kernel_size);
++int elf_riscv_load(int argc, char **argv, const char *kernel_buf,
++	off_t kernel_size, struct kexec_info *info);
++void elf_riscv_usage(void);
++
++int image_riscv_probe(const char *kernel_buf, off_t kernel_size);
++int image_riscv_load(int argc, char **argv, const char *kernel_buf,
++	off_t kernel_size, struct kexec_info *info);
++void image_riscv_usage(void);
++int uImage_riscv_probe(const char *buf, off_t len);
++int uImage_riscv_load(int argc, char **argv, const char *buf, off_t len,
++		      struct kexec_info *info);
++void uImage_riscv_usage(void);
++
++off_t initrd_base;
++off_t initrd_size;
++
++/**
++ * struct riscv_mem - Memory layout info.
++ */
++
++struct riscv_mem {
++	uint64_t phys_offset;
++	uint64_t text_offset;
++	uint64_t image_size;
++	uint64_t vp_offset;
++};
++
++#define riscv_mem_ngv UINT64_MAX
++struct riscv_mem riscv_mem;
++
++uint64_t get_phys_offset(void);
++uint64_t get_vp_offset(void);
++
++static inline void reset_vp_offset(void)
++{
++	riscv_mem.vp_offset = riscv_mem_ngv;
++}
++
++static inline void set_phys_offset(uint64_t v)
++{
++	if (riscv_mem.phys_offset == riscv_mem_ngv
++		|| v < riscv_mem.phys_offset)
++		riscv_mem.phys_offset = v;
++}
++
++int riscv_process_image_header(const struct riscv_image_header *h);
++unsigned long riscv_locate_kernel_segment(struct kexec_info *info);
++int riscv_load_other_segments(struct kexec_info *info,
++	unsigned long image_base);
++
++#endif
+diff --git a/kexec/arch/riscv/kexec-uImage-riscv.c b/kexec/arch/riscv/kexec-uImage-riscv.c
+new file mode 100644
+index 0000000..d3c3cae
+--- /dev/null
++++ b/kexec/arch/riscv/kexec-uImage-riscv.c
+@@ -0,0 +1,34 @@
++/*
++ * uImage support added by David Woodhouse <dwmw2@infradead.org>
++ */
++#include <stdint.h>
++#include <string.h>
++#include <sys/types.h>
++#include <image.h>
++#include <kexec-uImage.h>
++#include "../../kexec.h"
++#include "kexec-riscv.h"
++
++int uImage_riscv_probe(const char *buf, off_t len)
++{
++	return uImage_probe_kernel(buf, len, IH_ARCH_RISCV);
++}
++
++int uImage_riscv_load(int argc, char **argv, const char *buf, off_t len,
++	struct kexec_info *info)
++{
++	struct Image_info img;
++	int ret;
++
++	ret = uImage_load(buf, len, &img);
++	if (ret)
++		return ret;
++
++	return image_riscv_load(argc, argv, img.buf, img.len, info);
++}
++
++void uImage_riscv_usage(void)
++{
++	printf(
++"     An RISCV U-boot uImage file, compressed or not, big or little endian.\n\n");
++}
+diff --git a/kexec/kexec-syscall.h b/kexec/kexec-syscall.h
+index b96e02a..29ee951 100644
+--- a/kexec/kexec-syscall.h
++++ b/kexec/kexec-syscall.h
+@@ -42,6 +42,9 @@
+ #if defined(__arm__) || defined(__arm64__)
+ #define __NR_kexec_load		__NR_SYSCALL_BASE + 347
+ #endif
++#if defined(__riscv__)
++#define __NR_kexec_load                104
++#endif
+ #if defined(__mips__)
+ #define __NR_kexec_load                4311
+ #endif
+@@ -118,6 +121,7 @@ static inline long kexec_file_load(int kernel_fd, int initrd_fd,
+ #define KEXEC_ARCH_IA_64   (50 << 16)
+ #define KEXEC_ARCH_ARM     (40 << 16)
+ #define KEXEC_ARCH_ARM64   (183 << 16)
++#define KEXEC_ARCH_RISCV   (243 << 16)
+ #define KEXEC_ARCH_S390    (22 << 16)
+ #define KEXEC_ARCH_SH      (42 << 16)
+ #define KEXEC_ARCH_MIPS_LE (10 << 16)
+@@ -166,5 +170,8 @@ static inline long kexec_file_load(int kernel_fd, int initrd_fd,
+ #if defined(__arm64__)
+ #define KEXEC_ARCH_NATIVE	KEXEC_ARCH_ARM64
+ #endif
++#if defined(__riscv__)
++#define KEXEC_ARCH_NATIVE	KEXEC_ARCH_RISCV
++#endif
+ 
+ #endif /* KEXEC_SYSCALL_H */
+diff --git a/kexec/kexec.c b/kexec/kexec.c
+index 32ae56c..497c60b 100644
+--- a/kexec/kexec.c
++++ b/kexec/kexec.c
+@@ -805,8 +805,6 @@ static int my_load(const char *type, int fileind, int argc, char **argv,
+ 	if (sort_segments(&info) < 0) {
+ 		return -1;
+ 	}
+-	/* if purgatory is loaded update it */
+-	update_purgatory(&info);
+ 	if (entry)
+ 		info.entry = entry;
+ 
+diff --git a/purgatory/Makefile b/purgatory/Makefile
+index 49ce80a..f258c56 100644
+--- a/purgatory/Makefile
++++ b/purgatory/Makefile
+@@ -9,13 +9,9 @@
+ 
+ PURGATORY = purgatory/purgatory.ro
+ PURGATORY_SRCS =
+-PURGATORY_SRCS += purgatory/purgatory.c
+-PURGATORY_SRCS += purgatory/printf.c
+-PURGATORY_SRCS += purgatory/string.c
+ PURGATORY_MAP = purgatory/purgatory.map
+ 
+-dist += purgatory/Makefile $(PURGATORY_SRCS)				\
+-	purgatory/include/purgatory.h purgatory/include/string.h
++dist += purgatory/Makefile $(PURGATORY_SRCS)
+ 
+ include $(srcdir)/purgatory/arch/alpha/Makefile
+ include $(srcdir)/purgatory/arch/arm/Makefile
+@@ -28,22 +24,17 @@ include $(srcdir)/purgatory/arch/ppc64/Makefile
+ include $(srcdir)/purgatory/arch/s390/Makefile
+ include $(srcdir)/purgatory/arch/sh/Makefile
+ include $(srcdir)/purgatory/arch/x86_64/Makefile
++include $(srcdir)/purgatory/arch/riscv/Makefile
+ 
+ PURGATORY_SRCS+=$($(ARCH)_PURGATORY_SRCS)
+ 
+-PURGATORY_OBJS = $(call objify, $(PURGATORY_SRCS)) purgatory/sha256.o
++PURGATORY_OBJS = $(call objify, $(PURGATORY_SRCS))
+ PURGATORY_DEPS = $(call depify, $(PURGATORY_OBJS))
+ 
+ clean += $(PURGATORY_OBJS) $(PURGATORY_DEPS) $(PURGATORY) $(PURGATORY_MAP) $(PURGATORY).sym
+ 
+ -include $(PURGATORY_DEPS)
+ 
+-purgatory/sha256.o: CFLAGS += -O2 $($(ARCH)_PURGATORY_SHA256_CFLAGS)
+-
+-purgatory/sha256.o: $(srcdir)/util_lib/sha256.c
+-	mkdir -p $(@D)
+-	$(COMPILE.c) -o $@ $^
+-
+ $(PURGATORY): CC=$(TARGET_CC)
+ $(PURGATORY): CFLAGS+=$(PURGATORY_EXTRA_CFLAGS) \
+ 		      $($(ARCH)_PURGATORY_EXTRA_CFLAGS) \
+@@ -54,10 +45,10 @@ $(PURGATORY): CFLAGS+=$(PURGATORY_EXTRA_CFLAGS) \
+ $(PURGATORY): CPPFLAGS=$($(ARCH)_PURGATORY_EXTRA_CFLAGS) \
+ 			-I$(srcdir)/purgatory/include \
+ 			-I$(srcdir)/purgatory/arch/$(ARCH)/include \
+-			-I$(srcdir)/util_lib/include \
+ 			-I$(srcdir)/include \
+ 			-Iinclude \
+ 			-I$(shell $(CC) -print-file-name=include)
++
+ $(PURGATORY): LDFLAGS=$($(ARCH)_PURGATORY_EXTRA_CFLAGS)\
+ 			-Wl,--no-undefined -nostartfiles -nostdlib \
+ 			-nodefaultlibs -e purgatory_start -r \
+diff --git a/purgatory/arch/riscv/Makefile b/purgatory/arch/riscv/Makefile
+new file mode 100644
+index 0000000..e2b4cfd
+--- /dev/null
++++ b/purgatory/arch/riscv/Makefile
+@@ -0,0 +1,17 @@
++
++riscv_PURGATORY_EXTRA_CFLAGS = \
++	-fno-PIC \
++	-fno-stack-protector \
++	-fno-asynchronous-unwind-tables \
++	-Wundef \
++	-Werror-implicit-function-declaration \
++	-Wdeclaration-after-statement \
++	-Werror=implicit-int \
++	-Werror=strict-prototypes
++
++riscv_PURGATORY_SRCS += \
++	purgatory/arch/riscv/entry.S
++
++dist += \
++	$(riscv_PURGATORY_SRCS) \
++	purgatory/arch/riscv/Makefile
+diff --git a/purgatory/arch/riscv/entry.S b/purgatory/arch/riscv/entry.S
+new file mode 100644
+index 0000000..94f1762
+--- /dev/null
++++ b/purgatory/arch/riscv/entry.S
+@@ -0,0 +1,25 @@
++/*
++ * RISCV purgatory.
++ */
++
++.macro	size, sym:req
++	.size \sym, . - \sym
++.endm
++
++.text
++
++.globl purgatory_start
++purgatory_start:
++/* Doing nothing for now */
++
++size purgatory_start
++
++.globl riscv_kernel_entry
++riscv_kernel_entry:
++	.quad	0
++size riscv_kernel_entry
++
++.globl riscv_dtb_addr
++riscv_dtb_addr:
++	.quad	0
++size riscv_dtb_addr
+-- 
+2.7.4
+
