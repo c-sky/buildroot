@@ -36,9 +36,9 @@ set $pmpaddr5 = 0xffffffffff >> 2
 # Access needn't lock bit for the m state.
 set $pmpcfg0 = 0x88981b1b1b0f
 
-set $bbl_addr = 0x00000000
-set $vmlinux_addr = $bbl_addr + 0x00200000
-set $rootfs_addr  = $bbl_addr + 0x02000000
+set $opensbi_addr = 0x00000000
+set $vmlinux_addr = $opensbi_addr + 0x00200000
+set $rootfs_addr  = $opensbi_addr + 0x02000000
 set $dtb_addr  = $rootfs_addr - 0x00100000
 
 # Load rootfs
@@ -51,6 +51,6 @@ set $a1 = $dtb_addr
 # Load kernel
 restore ../Image binary $vmlinux_addr
 
-# Load bbl
-restore fw_jump_0G.bin binary $bbl_addr
-set $pc = $bbl_addr
+# Load opensbi
+restore fw_jump_0G.bin binary $opensbi_addr
+set $pc = $opensbi_addr
