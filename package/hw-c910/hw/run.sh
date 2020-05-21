@@ -1,6 +1,6 @@
 if [ $# -lt 1 -o $# -gt 4 ] ; then
-	echo "Usage: . run.sh <ip:port> [an/eg/ve/ice] [s/m] noreset"
-	echo "Usage: [an/eg/ve/ice] is for board name"
+	echo "Usage: . run.sh <ip:port> [an/eg/ve/ice/th] [s/m] noreset"
+	echo "Usage: [an/eg/ve/ice/th] is for board name"
 	echo "Usage: [s/m] is for onecore/twocore"
 	exit 1
 fi
@@ -19,6 +19,8 @@ if [ $idx == "an" ]; then
 	BOARD="an"
 elif [ $idx == "ice" ]; then
 	BOARD="ice"
+elif [ $idx == "th" ]; then
+	BOARD="th"
 elif [ $idx == "eg" ]; then
 	BOARD="eg"
 elif [ $idx == "ve" ]; then

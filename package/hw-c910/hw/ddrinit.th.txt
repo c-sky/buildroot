@@ -1,0 +1,8 @@
+# Set gdb environment
+set height 0
+
+# Don't confirm when quit
+set confirm off
+
+set *0xffffc36140 = 0xfff
+shell $(sleep 3)
