@@ -296,8 +296,8 @@
 
 	chosen {
 		bootargs = "console=ttyS0,115200 crashkernel=256M-:128M";
-		linux,initrd-start = <0xc2000000>;
-		linux,initrd-end = <0x0>;
+		linux,initrd-start = <0x0 0xc2000000>;
+		linux,initrd-end = <0x0 0x0>;
 		stdout-path = "serial@1fba4000";
 	};
 };

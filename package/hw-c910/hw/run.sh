@@ -63,11 +63,11 @@ if [ $NRCORE -gt 1 ] ; then
 enable_dts_cores $NRCORE
 fi
 
-ROOTFS_BASE=`cat .hw.dts | grep initrd-start | awk -F "<" '{print $2}' | awk -F ">" '{print $1}'`
+ROOTFS_BASE=`cat .hw.dts | grep initrd-start | awk -F " " '{print $4}' | awk -F ">" '{print $1}'`
 ROOTFS_SIZE=`ls -lt ../rootfs.cpio.gz | awk '{print $5}'`
 ((ROOTFS_END= $ROOTFS_BASE + $ROOTFS_SIZE))
 ROOTFS_END=`printf "0x%x" $ROOTFS_END`
-sed -i "s/linux,initrd-end.*/linux,initrd-end = <$ROOTFS_END>;/g" .hw.dts
+sed -i "s/linux,initrd-end = <0x0 .*/linux,initrd-end = <0x0 $ROOTFS_END>;/g" .hw.dts
 
 ./dtc -I dts -O dtb .hw.dts > hw.dtb
 
