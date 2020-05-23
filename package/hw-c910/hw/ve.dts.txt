@@ -271,6 +271,7 @@
 			interrupt-parent = <&intc>;
 			interrupts = <24>;
 			clocks = <&dummy_apb>;
+			clock-frequency = <62500000>;
 			clock-names = "baudclk";
 			reg-shift = <2>;
 			reg-io-width = <4>;
@@ -309,6 +310,6 @@
 		bootargs = "console=ttyS0,115200";
 		linux,initrd-start = <0x0 0x2000000>;
 		linux,initrd-end = <0x0 0x0>;
-		stdout-path = "serial@fff73000";
+		stdout-path = "/soc/serial@fff73000:115200";
 	};
 };
