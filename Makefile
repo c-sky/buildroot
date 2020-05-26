@@ -45,7 +45,6 @@ define COPYFILES
 		echo "BR2_PRIMARY_SITE=\"$(INSIDE_SITE)/\"" | tee -a $(BRW_ROOT)/configs_enhanced/* ; \
 	fi; \
 
-	rm -rf $(BRW_DIR)/configs/$(CONF); \
 	if [ -f $(BRW_ROOT)/configs/$(CONF) ];then \
 		cp $(BRW_ROOT)/configs/$(CONF)  $(BRW_DIR)/configs/ -f; \
 		echo "the file name is $(BRW_DIR)/configs/$(CONF)"; \
@@ -55,7 +54,7 @@ define COPYFILES
 		echo "the file name is $(BRW_DIR)/configs_enhanced/$(CONF)"; \
 		cat $(BRW_ROOT)/configs_enhanced/base_enhanced_defconfig.fragment >> $(BRW_DIR)/configs/$(CONF); \
 	else  \
-		echo " this config is invalid $(CONF)"; \
+		echo "This config is from origin buildroot: $(CONF)"; \
 	fi; \
 
 endef
