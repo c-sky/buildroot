@@ -15,9 +15,10 @@ diff --git a/package/csky-arch/csky-arch.mk b/package/csky-arch/csky-arch.mk
 index b0c6dae..43c806e 100644
 --- a/package/csky-arch/csky-arch.mk
 +++ b/package/csky-arch/csky-arch.mk
-@@ -43,3 +43,5 @@ endif
+@@ -43,4 +43,6 @@ endif
  
  $(eval $(generic-package))
+ endif
  endif
 +CSKY_LINUX_NEXT_VERSION	= b9bbe6ed63b2b9f2c9ee5cbd0f2c946a2723f4ce
 +CSKY_LINUX_NEXT_RISCV_VERSION	= 9edb457ad90ef06ad5e59623d1785fd9df5254e5

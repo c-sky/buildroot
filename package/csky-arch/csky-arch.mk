@@ -23,6 +23,7 @@ ifneq ($(findstring y,$(BR2_PACKAGE_HOST_LINUX_HEADERS_CUSTOM_4_19) $(BR2_TOOLCH
 CSKY_ARCH_VERSION = $(CSKY_ARCH_VERSION_4_19)
 endif
 
+ifeq ($(BR2_csky),y)
 ifneq ($(CSKY_ARCH_VERSION), none)
 CSKY_ARCH_SITE = $(call github,c-sky,csky-linux,$(CSKY_ARCH_VERSION))
 
@@ -43,4 +44,5 @@ LINUX_HEADERS_POST_PATCH_HOOKS += LINUX_HEADERS_CSKY_ARCH
 endif
 
 $(eval $(generic-package))
+endif
 endif
