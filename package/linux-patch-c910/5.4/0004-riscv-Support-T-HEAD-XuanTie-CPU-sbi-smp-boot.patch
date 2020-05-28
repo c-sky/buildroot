@@ -1,7 +1,7 @@
 From a012e4192439c619c79af97d5b1bdbeb74f4991f Mon Sep 17 00:00:00 2001
 From: Guo Ren <guoren@linux.alibaba.com>
 Date: Thu, 9 Jan 2020 14:36:46 +0800
-Subject: [PATCH 4/5] riscv: Support T-HEAD XuanTie CPU sbi smp boot
+Subject: [PATCH 04/10] riscv: Support T-HEAD XuanTie CPU sbi smp boot
 
 Signed-off-by: Guo Ren <guoren@linux.alibaba.com>
 ---
@@ -9,7 +9,7 @@ Signed-off-by: Guo Ren <guoren@linux.alibaba.com>
  1 file changed, 1 insertion(+)
 
 diff --git a/arch/riscv/kernel/smpboot.c b/arch/riscv/kernel/smpboot.c
-index 261f4087cc39..a1b09bea7322 100644
+index 261f408..a1b09be 100644
 --- a/arch/riscv/kernel/smpboot.c
 +++ b/arch/riscv/kernel/smpboot.c
 @@ -102,6 +102,7 @@ int __cpu_up(unsigned int cpu, struct task_struct *tidle)
@@ -21,5 +21,5 @@ index 261f4087cc39..a1b09bea7322 100644
  	 * On RISC-V systems, all harts boot on their own accord.  Our _start
  	 * selects the first hart to boot the kernel and causes the remainder
 -- 
-2.17.0
+2.7.4
 

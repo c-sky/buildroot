@@ -1,12 +1,13 @@
-From 78c381d042650b90a31941325fd66fa05f9cbbe1 Mon Sep 17 00:00:00 2001
+From 3d9407760c42b12c0610aaf5da27d691ac39c90e Mon Sep 17 00:00:00 2001
 From: Liu Yibin <jiulong@linux.alibaba.com>
 Date: Fri, 15 May 2020 17:58:37 +0800
-Subject: [PATCH] Add kdump support for riscv
+Subject: [PATCH 10/10] Add kdump support for riscv
 
 This patch adds kdump for RISC-V. I've tested it on
 riscv64 qemu.
 
 Signed-off-by: Liu Yibin <jiulong@linux.alibaba.com>
+Signed-off-by: Guo Ren <guoren@linux.alibaba.com>
 ---
  arch/riscv/Kconfig                  |  20 +++++
  arch/riscv/include/asm/elf.h        |   3 +
@@ -76,7 +77,7 @@ index ef04084..1e31d4f 100644
   * specific libraries for optimization.  This is more specific in
 diff --git a/arch/riscv/include/asm/kexec.h b/arch/riscv/include/asm/kexec.h
 new file mode 100644
-index 0000000..bfaca0d
+index 00000000..bfaca0d
 --- /dev/null
 +++ b/arch/riscv/include/asm/kexec.h
 @@ -0,0 +1,99 @@
@@ -274,7 +275,7 @@ index 696020f..d296357 100644
  clean:
 diff --git a/arch/riscv/kernel/cpu-reset.S b/arch/riscv/kernel/cpu-reset.S
 new file mode 100644
-index 0000000..51d67ce
+index 00000000..51d67ce
 --- /dev/null
 +++ b/arch/riscv/kernel/cpu-reset.S
 @@ -0,0 +1,23 @@
@@ -303,7 +304,7 @@ index 0000000..51d67ce
 +ENDPROC(__cpu_soft_restart)
 diff --git a/arch/riscv/kernel/cpu-reset.h b/arch/riscv/kernel/cpu-reset.h
 new file mode 100644
-index 0000000..f97e893
+index 00000000..f97e893
 --- /dev/null
 +++ b/arch/riscv/kernel/cpu-reset.h
 @@ -0,0 +1,58 @@
@@ -367,7 +368,7 @@ index 0000000..f97e893
 +#endif
 diff --git a/arch/riscv/kernel/crash_dump.c b/arch/riscv/kernel/crash_dump.c
 new file mode 100644
-index 0000000..991e8e7e
+index 00000000..991e8e7e
 --- /dev/null
 +++ b/arch/riscv/kernel/crash_dump.c
 @@ -0,0 +1,69 @@
@@ -442,7 +443,7 @@ index 0000000..991e8e7e
 +}
 diff --git a/arch/riscv/kernel/machine_kexec.c b/arch/riscv/kernel/machine_kexec.c
 new file mode 100644
-index 0000000..2f96d54
+index 00000000..2f96d54
 --- /dev/null
 +++ b/arch/riscv/kernel/machine_kexec.c
 @@ -0,0 +1,163 @@
@@ -611,7 +612,7 @@ index 0000000..2f96d54
 +}
 diff --git a/arch/riscv/kernel/relocate_kernel.S b/arch/riscv/kernel/relocate_kernel.S
 new file mode 100644
-index 0000000..e61847d
+index 00000000..e61847d
 --- /dev/null
 +++ b/arch/riscv/kernel/relocate_kernel.S
 @@ -0,0 +1,32 @@
@@ -660,7 +661,7 @@ index aa56bb1..ff87940 100644
 +{
 +}
 diff --git a/arch/riscv/mm/init.c b/arch/riscv/mm/init.c
-index f5d813c..88c5219 100644
+index cb0eb68..cd3a35f 100644
 --- a/arch/riscv/mm/init.c
 +++ b/arch/riscv/mm/init.c
 @@ -13,6 +13,8 @@

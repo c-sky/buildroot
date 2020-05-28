@@ -1,10 +1,10 @@
-From 7a00f34e85a794691914a7ee1d4ec0d3bc0e4b89 Mon Sep 17 00:00:00 2001
+From 6e1b34857bfcc5f4ce31e0145aa53cb894df264b Mon Sep 17 00:00:00 2001
 From: Mao Han <han_mao@linux.alibaba.com>
 Date: Thu, 7 May 2020 09:48:35 +0800
-Subject: [PATCH] riscv/c910: perf PMU record support
+Subject: [PATCH 08/10] riscv/thead_xt: perf PMU record support
 
 This patch add basic perf counter access and hw event sampling support
-for csky c910. The PMU can support various hardware event, including
+for T-HEAD XuanTie. The PMU can support various hardware event, including
 cycles, instructions, cache access/miss, LSU event and etc.
 
 Liu Yibin init the counters of c910.
@@ -14,20 +14,22 @@ Mao Han add counters' overflow interrupts for PMU record.
 Signed-off-by: Mao Han <han_mao@c-sky.com>
 Co-developed: Liu Yibin <yibin_liu@c-sky.com>
 Reviewed-by: Guo Ren <ren_guo@c-sky.com>
+Signed-off-by: Guo Ren <guoren@linux.alibaba.com>
 ---
  arch/riscv/include/asm/csr.h        |   2 +
  arch/riscv/include/asm/perf_event.h |   4 +-
  arch/riscv/include/asm/sbi.h        |   6 +
  arch/riscv/kernel/irq.c             |   7 +
+ arch/riscv/kernel/perf_event.c      |   2 +-
  drivers/perf/Kconfig                |   8 +
  drivers/perf/Makefile               |   1 +
- drivers/perf/c910_pmu.c             | 756 ++++++++++++++++++++++++++++
+ drivers/perf/thead_xt_pmu_v1.c      | 768 ++++++++++++++++++++++++++++++++++++
  include/linux/cpuhotplug.h          |   1 +
- 8 files changed, 783 insertions(+), 2 deletions(-)
- create mode 100644 drivers/perf/c910_pmu.c
+ 9 files changed, 796 insertions(+), 3 deletions(-)
+ create mode 100644 drivers/perf/thead_xt_pmu_v1.c
 
 diff --git a/arch/riscv/include/asm/csr.h b/arch/riscv/include/asm/csr.h
-index c747d693e..f38383836 100644
+index c747d69..f383838 100644
 --- a/arch/riscv/include/asm/csr.h
 +++ b/arch/riscv/include/asm/csr.h
 @@ -59,6 +59,7 @@
@@ -47,7 +49,7 @@ index c747d693e..f38383836 100644
  #define CSR_CYCLE		0xc00
  #define CSR_TIME		0xc01
 diff --git a/arch/riscv/include/asm/perf_event.h b/arch/riscv/include/asm/perf_event.h
-index aefbfaa6a..21b719f44 100644
+index aefbfaa..4de9810 100644
 --- a/arch/riscv/include/asm/perf_event.h
 +++ b/arch/riscv/include/asm/perf_event.h
 @@ -18,8 +18,8 @@
@@ -56,13 +58,13 @@ index aefbfaa6a..21b719f44 100644
  
 -#ifdef CONFIG_RISCV_BASE_PMU
 -#define RISCV_MAX_COUNTERS	2
-+#if defined(CONFIG_RISCV_BASE_PMU) || defined(CONFIG_PERF_C910_PMU)
++#if defined(CONFIG_RISCV_BASE_PMU) || defined(CONFIG_THEAD_XT_V1_PMU)
 +#define RISCV_MAX_COUNTERS	32
  #endif
  
  #ifndef RISCV_MAX_COUNTERS
 diff --git a/arch/riscv/include/asm/sbi.h b/arch/riscv/include/asm/sbi.h
-index 21134b3ef..3f40aec76 100644
+index 21134b3..3f40aec 100644
 --- a/arch/riscv/include/asm/sbi.h
 +++ b/arch/riscv/include/asm/sbi.h
 @@ -17,6 +17,7 @@
@@ -84,7 +86,7 @@ index 21134b3ef..3f40aec76 100644
 +
  #endif
 diff --git a/arch/riscv/kernel/irq.c b/arch/riscv/kernel/irq.c
-index fffac6ddb..2f38b05ec 100644
+index fffac6d..04f11b7 100644
 --- a/arch/riscv/kernel/irq.c
 +++ b/arch/riscv/kernel/irq.c
 @@ -17,6 +17,7 @@
@@ -107,7 +109,7 @@ index fffac6ddb..2f38b05ec 100644
  	case INTERRUPT_CAUSE_TIMER:
  		riscv_timer_interrupt();
  		break;
-+#ifdef CONFIG_C910_PMU
++#ifdef CONFIG_THEAD_XT_V1_PMU
 +	case INTERRUPT_CAUSE_PMU:
 +		riscv_pmu_handle_irq();
 +		break;
@@ -115,40 +117,55 @@ index fffac6ddb..2f38b05ec 100644
  #ifdef CONFIG_SMP
  	case INTERRUPT_CAUSE_SOFTWARE:
  		/*
+diff --git a/arch/riscv/kernel/perf_event.c b/arch/riscv/kernel/perf_event.c
+index 91626d9..5770716 100644
+--- a/arch/riscv/kernel/perf_event.c
++++ b/arch/riscv/kernel/perf_event.c
+@@ -477,9 +477,9 @@ int __init init_hw_perf_events(void)
+ 		if (of_id)
+ 			riscv_pmu = of_id->data;
+ 		of_node_put(node);
++		perf_pmu_register(riscv_pmu->pmu, "cpu", PERF_TYPE_RAW);
+ 	}
+ 
+-	perf_pmu_register(riscv_pmu->pmu, "cpu", PERF_TYPE_RAW);
+ 	return 0;
+ }
+ arch_initcall(init_hw_perf_events);
 diff --git a/drivers/perf/Kconfig b/drivers/perf/Kconfig
-index 09ae8a970..a2af6235c 100644
+index 09ae8a9..2f6b891 100644
 --- a/drivers/perf/Kconfig
 +++ b/drivers/perf/Kconfig
 @@ -71,6 +71,14 @@ config ARM_DSU_PMU
  	  system, control logic. The PMU allows counting various events related
  	  to DSU.
  
-+config C910_PMU
-+	bool "C910 Performance Monitoring Unit"
++config THEAD_XT_V1_PMU
++	bool "T-HEAD XuanTie v1 Performance Monitoring Unit"
 +	depends on RISCV
 +	def_bool y
 +	help
-+	  C910 PMU that support various hardware event, including cycles,
++	  T-HEAD XuanTie PMU support various hardware event, including cycles,
 +	  instructions, cache access/miss, LSU event and etc.
 +
  config FSL_IMX8_DDR_PMU
  	tristate "Freescale i.MX8 DDR perf monitor"
  	depends on ARCH_MXC
 diff --git a/drivers/perf/Makefile b/drivers/perf/Makefile
-index 2ebb4de17..a0242349a 100644
+index 2ebb4de..f3d65a5 100644
 --- a/drivers/perf/Makefile
 +++ b/drivers/perf/Makefile
 @@ -12,3 +12,4 @@ obj-$(CONFIG_QCOM_L3_PMU) += qcom_l3_pmu.o
  obj-$(CONFIG_THUNDERX2_PMU) += thunderx2_pmu.o
  obj-$(CONFIG_XGENE_PMU) += xgene_pmu.o
  obj-$(CONFIG_ARM_SPE_PMU) += arm_spe_pmu.o
-+obj-$(CONFIG_C910_PMU) += c910_pmu.o
-diff --git a/drivers/perf/c910_pmu.c b/drivers/perf/c910_pmu.c
++obj-$(CONFIG_THEAD_XT_V1_PMU) += thead_xt_pmu_v1.o
+diff --git a/drivers/perf/thead_xt_pmu_v1.c b/drivers/perf/thead_xt_pmu_v1.c
 new file mode 100644
-index 000000000..6b6be2feb
+index 00000000..1406833
 --- /dev/null
-+++ b/drivers/perf/c910_pmu.c
-@@ -0,0 +1,756 @@
++++ b/drivers/perf/thead_xt_pmu_v1.c
+@@ -0,0 +1,768 @@
 +// SPDX-License-Identifier: GPL-2.0
 +/* Copyright (C) 2018 Hangzhou C-SKY Microsystems co.,ltd. */
 +
@@ -542,12 +559,23 @@ index 000000000..6b6be2feb
 +	}
 +}
 +
++int riscv_pmu_event_is_frequent(int idx)
++{
++	return  idx >= RISCV_PMU_CYCLE &&
++		idx <= RISCV_PMU_L1DCWMC;
++}
++
 +int riscv_pmu_event_set_period(struct perf_event *event)
 +{
 +	struct hw_perf_event *hwc = &event->hw;
 +	s64 left = local64_read(&hwc->period_left);
 +	s64 period = hwc->sample_period;
 +	int ret = 0;
++
++	if (period < 4096 && period != 0 &&
++	    riscv_pmu_event_is_frequent(hwc->idx)) {
++		hwc->sample_period = period = 4096;
++	}
 +
 +	if (unlikely(left <= -period)) {
 +		left = period;
@@ -865,7 +893,7 @@ index 000000000..6b6be2feb
 +		return ret;
 +	}
 +
-+	ret = perf_pmu_register(&riscv_pmu.pmu, "c910_pmu", PERF_TYPE_RAW);
++	ret = perf_pmu_register(&riscv_pmu.pmu, "thead_xt_pmu", PERF_TYPE_RAW);
 +	if (ret) {
 +		riscv_pmu_free_irq();
 +		free_percpu(riscv_pmu.hw_events);
@@ -875,6 +903,7 @@ index 000000000..6b6be2feb
 +}
 +
 +const static struct of_device_id riscv_pmu_of_device_ids[] = {
++	{.compatible = "riscv,thead_xt_pmu"},
 +	{.compatible = "riscv,c910_pmu"},
 +	{},
 +};
@@ -886,7 +915,7 @@ index 000000000..6b6be2feb
 +
 +static struct platform_driver riscv_pmu_driver = {
 +	.driver = {
-+		   .name = "c910_pmu",
++		   .name = "thead_xt_pmu",
 +		   .of_match_table = riscv_pmu_of_device_ids,
 +		   },
 +	.probe = riscv_pmu_dev_probe,
@@ -906,7 +935,7 @@ index 000000000..6b6be2feb
 +}
 +device_initcall(riscv_pmu_probe);
 diff --git a/include/linux/cpuhotplug.h b/include/linux/cpuhotplug.h
-index 2d55cee63..168b23173 100644
+index 2d55cee..168b231 100644
 --- a/include/linux/cpuhotplug.h
 +++ b/include/linux/cpuhotplug.h
 @@ -174,6 +174,7 @@ enum cpuhp_state {
@@ -918,5 +947,5 @@ index 2d55cee63..168b23173 100644
  	CPUHP_AP_WORKQUEUE_ONLINE,
  	CPUHP_AP_RCUTREE_ONLINE,
 -- 
-2.17.1
+2.7.4
 

@@ -1,7 +1,7 @@
 From 6e3fddd6961440c5284301013e86036883217340 Mon Sep 17 00:00:00 2001
 From: Guo Ren <guoren@linux.alibaba.com>
 Date: Mon, 23 Sep 2019 17:01:53 +0800
-Subject: [PATCH 1/5] riscv: Support non-coherency memory model
+Subject: [PATCH 01/10] riscv: Support non-coherency memory model
 
 The current riscv linux implementation requires SOC system to support
 memory coherence between all I/O devices and CPUs. But some SOC systems
@@ -75,21 +75,21 @@ Tested-by: Liu Yibin <yibin_liu@c-sky.com>
 Tested-by: Mao Han <han_Mao@c-sky.com>
 Signed-off-by: Guo Ren <guoren@linux.alibaba.com>
 ---
- arch/riscv/Kconfig                    |  6 +++
+ arch/riscv/Kconfig                    |  6 ++++
  arch/riscv/include/asm/cacheflush.h   |  3 ++
- arch/riscv/include/asm/io.h           | 15 +++----
+ arch/riscv/include/asm/io.h           | 15 ++++-----
  arch/riscv/include/asm/pgtable-64.h   |  2 +-
- arch/riscv/include/asm/pgtable-bits.h | 12 +++++-
- arch/riscv/include/asm/pgtable.h      | 45 ++++++++++++++++---
+ arch/riscv/include/asm/pgtable-bits.h | 12 ++++++-
+ arch/riscv/include/asm/pgtable.h      | 45 +++++++++++++++++++++----
  arch/riscv/mm/Makefile                |  1 +
- arch/riscv/mm/cacheflush.c            | 21 +++++++++
- arch/riscv/mm/dma-mapping.c           | 62 +++++++++++++++++++++++++++
- arch/riscv/mm/ioremap.c               | 40 +++++++++--------
+ arch/riscv/mm/cacheflush.c            | 21 ++++++++++++
+ arch/riscv/mm/dma-mapping.c           | 62 +++++++++++++++++++++++++++++++++++
+ arch/riscv/mm/ioremap.c               | 40 ++++++++++++----------
  10 files changed, 173 insertions(+), 34 deletions(-)
  create mode 100644 arch/riscv/mm/dma-mapping.c
 
 diff --git a/arch/riscv/Kconfig b/arch/riscv/Kconfig
-index a0fa4be94a68..461850b0fac4 100644
+index a0fa4be..461850b 100644
 --- a/arch/riscv/Kconfig
 +++ b/arch/riscv/Kconfig
 @@ -30,9 +30,11 @@ config RISCV
@@ -116,7 +116,7 @@ index a0fa4be94a68..461850b0fac4 100644
  	select EDAC_SUPPORT
  	select ARCH_HAS_GIGANTIC_PAGE
 diff --git a/arch/riscv/include/asm/cacheflush.h b/arch/riscv/include/asm/cacheflush.h
-index 555b20b11dc3..9c48863003b4 100644
+index 555b20b..9c48863 100644
 --- a/arch/riscv/include/asm/cacheflush.h
 +++ b/arch/riscv/include/asm/cacheflush.h
 @@ -99,6 +99,9 @@ void flush_icache_mm(struct mm_struct *mm, bool local);
@@ -130,7 +130,7 @@ index 555b20b11dc3..9c48863003b4 100644
   * Bits in sys_riscv_flush_icache()'s flags argument.
   */
 diff --git a/arch/riscv/include/asm/io.h b/arch/riscv/include/asm/io.h
-index 3ba4d93721d3..78919a410845 100644
+index 3ba4d93..78919a4 100644
 --- a/arch/riscv/include/asm/io.h
 +++ b/arch/riscv/include/asm/io.h
 @@ -15,16 +15,13 @@
@@ -157,7 +157,7 @@ index 3ba4d93721d3..78919a410845 100644
  extern void iounmap(volatile void __iomem *addr);
  
 diff --git a/arch/riscv/include/asm/pgtable-64.h b/arch/riscv/include/asm/pgtable-64.h
-index 74630989006d..832b1fc1c21c 100644
+index 7463098..832b1fc 100644
 --- a/arch/riscv/include/asm/pgtable-64.h
 +++ b/arch/riscv/include/asm/pgtable-64.h
 @@ -55,7 +55,7 @@ static inline void pud_clear(pud_t *pudp)
@@ -170,7 +170,7 @@ index 74630989006d..832b1fc1c21c 100644
  
  #define pmd_index(addr) (((addr) >> PMD_SHIFT) & (PTRS_PER_PMD - 1))
 diff --git a/arch/riscv/include/asm/pgtable-bits.h b/arch/riscv/include/asm/pgtable-bits.h
-index bbaeb5d35842..f2feeabffb9a 100644
+index bbaeb5d..f2feeab 100644
 --- a/arch/riscv/include/asm/pgtable-bits.h
 +++ b/arch/riscv/include/asm/pgtable-bits.h
 @@ -24,6 +24,13 @@
@@ -199,7 +199,7 @@ index bbaeb5d35842..f2feeabffb9a 100644
  
  #endif /* _ASM_RISCV_PGTABLE_BITS_H */
 diff --git a/arch/riscv/include/asm/pgtable.h b/arch/riscv/include/asm/pgtable.h
-index d3221017194d..37e4219b0e37 100644
+index d322101..37e4219 100644
 --- a/arch/riscv/include/asm/pgtable.h
 +++ b/arch/riscv/include/asm/pgtable.h
 @@ -35,9 +35,11 @@
@@ -289,7 +289,7 @@ index d3221017194d..37e4219b0e37 100644
   * Encode and decode a swap entry
   *
 diff --git a/arch/riscv/mm/Makefile b/arch/riscv/mm/Makefile
-index 9d9a17335686..565156950de4 100644
+index 9d9a173..5651569 100644
 --- a/arch/riscv/mm/Makefile
 +++ b/arch/riscv/mm/Makefile
 @@ -12,6 +12,7 @@ obj-y += ioremap.o
@@ -301,7 +301,7 @@ index 9d9a17335686..565156950de4 100644
  ifeq ($(CONFIG_MMU),y)
  obj-$(CONFIG_SMP) += tlbflush.o
 diff --git a/arch/riscv/mm/cacheflush.c b/arch/riscv/mm/cacheflush.c
-index c54bd3c79955..5db2b91e7b2f 100644
+index c54bd3c..5db2b91 100644
 --- a/arch/riscv/mm/cacheflush.c
 +++ b/arch/riscv/mm/cacheflush.c
 @@ -74,3 +74,24 @@ void flush_icache_pte(pte_t pte)
@@ -331,7 +331,7 @@ index c54bd3c79955..5db2b91e7b2f 100644
 +}
 diff --git a/arch/riscv/mm/dma-mapping.c b/arch/riscv/mm/dma-mapping.c
 new file mode 100644
-index 000000000000..37366bf47e41
+index 00000000..37366bf
 --- /dev/null
 +++ b/arch/riscv/mm/dma-mapping.c
 @@ -0,0 +1,62 @@
@@ -398,7 +398,7 @@ index 000000000000..37366bf47e41
 +	}
 +}
 diff --git a/arch/riscv/mm/ioremap.c b/arch/riscv/mm/ioremap.c
-index ac621ddb45c0..91367eb1c287 100644
+index ac621dd..91367eb 100644
 --- a/arch/riscv/mm/ioremap.c
 +++ b/arch/riscv/mm/ioremap.c
 @@ -50,26 +50,19 @@ static void __iomem *__ioremap_caller(phys_addr_t addr, size_t size,
@@ -456,5 +456,5 @@ index ac621ddb45c0..91367eb1c287 100644
 +}
 +EXPORT_SYMBOL(phys_mem_access_prot);
 -- 
-2.17.0
+2.7.4
 

@@ -1,20 +1,21 @@
-From 767b158257f6a790f86773c5185347dbc5e10ec6 Mon Sep 17 00:00:00 2001
+From ec7a7dd0a256addb27bbe6f0493f832c66c4000b Mon Sep 17 00:00:00 2001
 From: Liu Yibin <jiulong@linux.alibaba.com>
 Date: Sat, 23 May 2020 10:43:09 +0800
-Subject: [PATCH] Flush TLB after set_pte()
+Subject: [PATCH 09/10] Flush TLB after set_pte()
 
 Flush TLB after any kind of page table operation
 
 Signed-off-by: Liu Yibin <jiulong@linux.alibaba.com>
+Signed-off-by: Guo Ren <guoren@linux.alibaba.com>
 ---
  arch/riscv/mm/init.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/arch/riscv/mm/init.c b/arch/riscv/mm/init.c
-index 88c5219..cd3a35f 100644
+index f5d813c..cb0eb68 100644
 --- a/arch/riscv/mm/init.c
 +++ b/arch/riscv/mm/init.c
-@@ -333,8 +333,8 @@ void __set_fixmap(enum fixed_addresses idx, phys_addr_t phys, pgprot_t prot)
+@@ -170,8 +170,8 @@ void __set_fixmap(enum fixed_addresses idx, phys_addr_t phys, pgprot_t prot)
  		set_pte(ptep, pfn_pte(phys >> PAGE_SHIFT, prot));
  	} else {
  		pte_clear(&init_mm, addr, ptep);

@@ -1,7 +1,7 @@
 From 15b2949064490545651e470053b22cf787936970 Mon Sep 17 00:00:00 2001
 From: Guo Ren <guoren@linux.alibaba.com>
 Date: Tue, 18 Jun 2019 20:06:52 +0800
-Subject: [PATCH 2/5] riscv: Add new asid lib code from arm
+Subject: [PATCH 02/10] riscv: Add new asid lib code from arm
 
 This patch only contains asid help code from arm for next patch to
 use.
@@ -41,16 +41,16 @@ Signed-off-by: Guo Ren <guoren@linux.alibaba.com>
 Cc: Arnd Bergmann <arnd@arndb.de>
 Cc: Julien Grall <julien.grall@arm.com>
 ---
- arch/riscv/include/asm/asid.h |  78 ++++++++++++++
+ arch/riscv/include/asm/asid.h |  78 +++++++++++++++++
  arch/riscv/mm/Makefile        |   1 +
- arch/riscv/mm/asid.c          | 189 ++++++++++++++++++++++++++++++++++
+ arch/riscv/mm/asid.c          | 189 ++++++++++++++++++++++++++++++++++++++++++
  3 files changed, 268 insertions(+)
  create mode 100644 arch/riscv/include/asm/asid.h
  create mode 100644 arch/riscv/mm/asid.c
 
 diff --git a/arch/riscv/include/asm/asid.h b/arch/riscv/include/asm/asid.h
 new file mode 100644
-index 000000000000..ac08b0ffbe1f
+index 00000000..ac08b0f
 --- /dev/null
 +++ b/arch/riscv/include/asm/asid.h
 @@ -0,0 +1,78 @@
@@ -133,7 +133,7 @@ index 000000000000..ac08b0ffbe1f
 +
 +#endif
 diff --git a/arch/riscv/mm/Makefile b/arch/riscv/mm/Makefile
-index 565156950de4..b2b4723fc8f5 100644
+index 5651569..b2b4723 100644
 --- a/arch/riscv/mm/Makefile
 +++ b/arch/riscv/mm/Makefile
 @@ -13,6 +13,7 @@ obj-y += cacheflush.o
@@ -146,7 +146,7 @@ index 565156950de4..b2b4723fc8f5 100644
  obj-$(CONFIG_SMP) += tlbflush.o
 diff --git a/arch/riscv/mm/asid.c b/arch/riscv/mm/asid.c
 new file mode 100644
-index 000000000000..b2e914745c1d
+index 00000000..b2e9147
 --- /dev/null
 +++ b/arch/riscv/mm/asid.c
 @@ -0,0 +1,189 @@
@@ -340,5 +340,5 @@ index 000000000000..b2e914745c1d
 +	return 0;
 +}
 -- 
-2.17.0
+2.7.4
 
