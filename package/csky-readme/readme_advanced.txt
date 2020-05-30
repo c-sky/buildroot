@@ -1,22 +1,6 @@
 
 <<<<<<<<<<<<<< Advanced tips <<<<<<<<<<<<<<<<<<<<<<<<<
 
-Quick Start for hw run
-======================
- (Start JtagServer with a hw target board)
- cd ./host/csky-jtag/C-Sky_DebugServer
- sudo ./DebugServerConsole.elf -setclk 6
-
- (Open another console window for gdb connect)
- wget -nc https://gitlab.com/c-sky/buildroot/-/jobs/<buildroot-job_id>/artifacts/raw/output/images/toolchain_<buildroot-config>_<buildroot-version>.tar.xz
- wget -nc https://gitlab.com/c-sky/buildroot/-/jobs/<buildroot-job_id>/artifacts/raw/output/images/Image.xz
- wget -nc https://gitlab.com/c-sky/buildroot/-/jobs/<buildroot-job_id>/artifacts/raw/output/images/rootfs.cpio.gz
- wget -nc https://gitlab.com/c-sky/buildroot/-/jobs/<buildroot-job_id>/artifacts/raw/output/images/hw.tar.gz
- xz -d -k Image.xz
- tar zxvf hw.tar.gz
- cd hw/
- bash run.sh 127.0.0.1:1025
-
 Enable 9pfs in qemu
 ===================
 mkdir -p /home/csky/shared

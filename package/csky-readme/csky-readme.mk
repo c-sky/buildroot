@@ -14,6 +14,7 @@ CSKY_README_CK910=$(shell grep BR2_riscv=y $(CONFIG_DIR)/.config)
 
 define CSKY_README_INSTALL_IMAGES_CMDS
 	cp package/csky-readme/readme.txt $(BINARIES_DIR)/
+	cp package/csky-readme/readme_advanced.txt $(BINARIES_DIR)/
 	sed -i 's/<buildroot-job_id>/$(GITLAB_CI_JOB_ID)/g' $(BINARIES_DIR)/readme.txt
 	sed -i 's/<buildroot-config>/$(CSKY_README_BD_CONFIG)/g' $(BINARIES_DIR)/readme.txt
 	sed -i 's/<buildroot-version>/$(CSKY_README_BD_VERSION)/g' $(BINARIES_DIR)/readme.txt

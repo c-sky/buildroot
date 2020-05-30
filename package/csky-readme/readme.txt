@@ -46,6 +46,34 @@ Build buildroot
  git checkout <buildroot-version>
  make CONF=<buildroot-config>
 
+Run with hardware
+=================
+ We could use Jtag to run kernel in any platforms, here are the tips:
+
+ (Download tools)
+ wget -nc https://gitlab.com/c-sky/buildroot/-/jobs/<buildroot-job_id>/artifacts/raw/output/images/toolchain_<buildroot-config>_<buildroot-version>.tar.xz
+ wget -nc https://gitlab.com/c-sky/buildroot/-/jobs/<buildroot-job_id>/artifacts/raw/output/images/Image.xz
+ wget -nc https://gitlab.com/c-sky/buildroot/-/jobs/<buildroot-job_id>/artifacts/raw/output/images/rootfs.cpio.gz
+ wget -nc https://gitlab.com/c-sky/buildroot/-/jobs/<buildroot-job_id>/artifacts/raw/output/images/hw.tar.gz
+ xz -d -k Image.xz
+ tar zxvf hw.tar.gz
+
+ (Start JtagServer with a hw target board)
+ cd ./host/csky-jtag/C-Sky_DebugServer
+ sudo ./DebugServerConsole.elf -setclk 6
+
+ (Open another console window for gdb connect)
+ cd hw/
+ bash run.sh 127.0.0.1:1025
+
+ (We needn't uart to print for bootup, we could just use gdbmacro to dmesg from ram.)
+ wget https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/tree/Documentation/admin-guide/kdump/gdbmacros.txt
+ (In gdb console)
+ source gdbmacros.txt
+ dmesg
+ (All bootup message will be printed.)
+
+ (So, we only need cpu and DRAM to debug hw bootup after dram init.)
 
 Gitlab-CI url
 =============
