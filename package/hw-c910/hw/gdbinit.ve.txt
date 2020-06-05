@@ -43,7 +43,8 @@ set $dtb_addr  = $rootfs_addr - 0x00100000
 # restore ../rootfs.cpio.gz binary $rootfs_addr
 
 # Load dtb
-restore hw.dtb binary $dtb_addr
+# restore hw.dtb binary $dtb_addr
+#Restore by gdb will cause instability, so do it through velrun
 set $a1 = $dtb_addr
 
 # Load kernel (Done by veloce)
