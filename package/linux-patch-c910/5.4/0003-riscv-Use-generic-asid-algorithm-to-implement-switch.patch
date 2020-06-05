@@ -1,4 +1,4 @@
-From a507bb311273bb88bc3cf65c17b76ac2017b114d Mon Sep 17 00:00:00 2001
+From 7e4ba74d7c53bd62a4807edd8a0dcc78c5c50937 Mon Sep 17 00:00:00 2001
 From: Guo Ren <guoren@linux.alibaba.com>
 Date: Wed, 9 Oct 2019 15:20:26 +0800
 Subject: [PATCH 03/10] riscv: Use generic asid algorithm to implement
@@ -16,7 +16,8 @@ Signed-off-by: Guo Ren <guoren@linux.alibaba.com>
  arch/riscv/include/asm/mmu_context.h | 17 ++++++++------
  arch/riscv/mm/Makefile               |  1 +
  arch/riscv/mm/context.c              | 43 ++++++++++++++++++++++++++++++++++--
- 5 files changed, 56 insertions(+), 9 deletions(-)
+ arch/riscv/mm/fault.c                |  2 +-
+ 6 files changed, 57 insertions(+), 10 deletions(-)
 
 diff --git a/arch/riscv/include/asm/csr.h b/arch/riscv/include/asm/csr.h
 index a18923f..c747d69 100644
@@ -158,6 +159,19 @@ index ca66d44..cae066c 100644
 +	return 0;
 +}
 +early_initcall(asids_init);
+diff --git a/arch/riscv/mm/fault.c b/arch/riscv/mm/fault.c
+index 247b8c8..71c9017 100644
+--- a/arch/riscv/mm/fault.c
++++ b/arch/riscv/mm/fault.c
+@@ -232,7 +232,7 @@ asmlinkage void do_page_fault(struct pt_regs *regs)
+ 		 * of a task switch.
+ 		 */
+ 		index = pgd_index(addr);
+-		pgd = (pgd_t *)pfn_to_virt(csr_read(CSR_SATP)) + index;
++		pgd = (pgd_t *)pfn_to_virt(csr_read(CSR_SATP) & SATP_PPN) + index;
+ 		pgd_k = init_mm.pgd + index;
+ 
+ 		if (!pgd_present(*pgd_k))
 -- 
 2.7.4
 
