@@ -40,188 +40,6 @@
 				interrupt-controller;
 			};
 		};
-		cpu@2 {
-			device_type = "cpu";
-			reg = <2>;
-			status = "fail";
-			compatible = "riscv";
-			riscv,isa = "rv64imafdcvsu";
-			mmu-type = "riscv,sv39";
-			cpu2_intc: interrupt-controller {
-				#interrupt-cells = <1>;
-				compatible = "riscv,cpu-intc";
-				interrupt-controller;
-			};
-		};
-		cpu@3 {
-			device_type = "cpu";
-			reg = <3>;
-			status = "fail";
-			compatible = "riscv";
-			riscv,isa = "rv64imafdcvsu";
-			mmu-type = "riscv,sv39";
-			cpu3_intc: interrupt-controller {
-				#interrupt-cells = <1>;
-				compatible = "riscv,cpu-intc";
-				interrupt-controller;
-			};
-		};
-		cpu@4 {
-			device_type = "cpu";
-			reg = <4>;
-			status = "fail";
-			compatible = "riscv";
-			riscv,isa = "rv64imafdcvsu";
-			mmu-type = "riscv,sv39";
-			cpu4_intc: interrupt-controller {
-				#interrupt-cells = <1>;
-				compatible = "riscv,cpu-intc";
-				interrupt-controller;
-			};
-		};
-		cpu@5 {
-			device_type = "cpu";
-			reg = <5>;
-			status = "fail";
-			compatible = "riscv";
-			riscv,isa = "rv64imafdcvsu";
-			mmu-type = "riscv,sv39";
-			cpu5_intc: interrupt-controller {
-				#interrupt-cells = <1>;
-				compatible = "riscv,cpu-intc";
-				interrupt-controller;
-			};
-		};
-		cpu@6 {
-			device_type = "cpu";
-			reg = <6>;
-			status = "fail";
-			compatible = "riscv";
-			riscv,isa = "rv64imafdcvsu";
-			mmu-type = "riscv,sv39";
-			cpu6_intc: interrupt-controller {
-				#interrupt-cells = <1>;
-				compatible = "riscv,cpu-intc";
-				interrupt-controller;
-			};
-		};
-		cpu@7 {
-			device_type = "cpu";
-			reg = <7>;
-			status = "fail";
-			compatible = "riscv";
-			riscv,isa = "rv64imafdcvsu";
-			mmu-type = "riscv,sv39";
-			cpu7_intc: interrupt-controller {
-				#interrupt-cells = <1>;
-				compatible = "riscv,cpu-intc";
-				interrupt-controller;
-			};
-		};
-		cpu@8 {
-			device_type = "cpu";
-			reg = <8>;
-			status = "fail";
-			compatible = "riscv";
-			riscv,isa = "rv64imafdcvsu";
-			mmu-type = "riscv,sv39";
-			cpu8_intc: interrupt-controller {
-				#interrupt-cells = <1>;
-				compatible = "riscv,cpu-intc";
-				interrupt-controller;
-			};
-		};
-		cpu@9 {
-			device_type = "cpu";
-			reg = <9>;
-			status = "fail";
-			compatible = "riscv";
-			riscv,isa = "rv64imafdcvsu";
-			mmu-type = "riscv,sv39";
-			cpu9_intc: interrupt-controller {
-				#interrupt-cells = <1>;
-				compatible = "riscv,cpu-intc";
-				interrupt-controller;
-			};
-		};
-		cpu@10 {
-			device_type = "cpu";
-			reg = <10>;
-			status = "fail";
-			compatible = "riscv";
-			riscv,isa = "rv64imafdcvsu";
-			mmu-type = "riscv,sv39";
-			cpu10_intc: interrupt-controller {
-				#interrupt-cells = <1>;
-				compatible = "riscv,cpu-intc";
-				interrupt-controller;
-			};
-		};
-		cpu@11 {
-			device_type = "cpu";
-			reg = <11>;
-			status = "fail";
-			compatible = "riscv";
-			riscv,isa = "rv64imafdcvsu";
-			mmu-type = "riscv,sv39";
-			cpu11_intc: interrupt-controller {
-				#interrupt-cells = <1>;
-				compatible = "riscv,cpu-intc";
-				interrupt-controller;
-			};
-		};
-		cpu@12 {
-			device_type = "cpu";
-			reg = <12>;
-			status = "fail";
-			compatible = "riscv";
-			riscv,isa = "rv64imafdcvsu";
-			mmu-type = "riscv,sv39";
-			cpu12_intc: interrupt-controller {
-				#interrupt-cells = <1>;
-				compatible = "riscv,cpu-intc";
-				interrupt-controller;
-			};
-		};
-		cpu@13 {
-			device_type = "cpu";
-			reg = <13>;
-			status = "fail";
-			compatible = "riscv";
-			riscv,isa = "rv64imafdcvsu";
-			mmu-type = "riscv,sv39";
-			cpu13_intc: interrupt-controller {
-				#interrupt-cells = <1>;
-				compatible = "riscv,cpu-intc";
-				interrupt-controller;
-			};
-		};
-		cpu@14 {
-			device_type = "cpu";
-			reg = <14>;
-			status = "fail";
-			compatible = "riscv";
-			riscv,isa = "rv64imafdcvsu";
-			mmu-type = "riscv,sv39";
-			cpu14_intc: interrupt-controller {
-				#interrupt-cells = <1>;
-				compatible = "riscv,cpu-intc";
-				interrupt-controller;
-			};
-		};
-		cpu@15 {
-			device_type = "cpu";
-			reg = <15>;
-			status = "fail";
-			compatible = "riscv";
-			riscv,isa = "rv64imafdcvsu";
-			mmu-type = "riscv,sv39";
-			cpu15_intc: interrupt-controller {
-				#interrupt-cells = <1>;
-				compatible = "riscv,cpu-intc";
-				interrupt-controller;
-			};
-		};
 	};
 
 	soc {
@@ -237,20 +55,6 @@
 			interrupts-extended = <
 				&cpu0_intc  0xffffffff &cpu0_intc  9
 				&cpu1_intc  0xffffffff &cpu1_intc  9
-				&cpu2_intc  0xffffffff &cpu2_intc  9
-				&cpu3_intc  0xffffffff &cpu3_intc  9
-				&cpu4_intc  0xffffffff &cpu4_intc  9
-				&cpu5_intc  0xffffffff &cpu5_intc  9
-				&cpu6_intc  0xffffffff &cpu6_intc  9
-				&cpu7_intc  0xffffffff &cpu7_intc  9
-				&cpu8_intc  0xffffffff &cpu8_intc  9
-				&cpu9_intc  0xffffffff &cpu9_intc  9
-				&cpu10_intc 0xffffffff &cpu10_intc 9
-				&cpu11_intc 0xffffffff &cpu11_intc 9
-				&cpu12_intc 0xffffffff &cpu12_intc 9
-				&cpu13_intc 0xffffffff &cpu13_intc 9
-				&cpu14_intc 0xffffffff &cpu14_intc 9
-				&cpu15_intc 0xffffffff &cpu15_intc 9
 				>;
 			reg = <0x0 0xf0000000 0x0 0x04000000>;
 			reg-names = "control";
@@ -276,6 +80,7 @@
 			reg-shift = <2>;
 			reg-io-width = <4>;
 		};
+	};
 
 	chosen {
 		bootargs = "console=ttyS0,115200";
