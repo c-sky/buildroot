@@ -446,6 +446,17 @@ wait_for_trigger:
     before_script: *860_qemu_before_test
     <<: *common_tests
 
+860_4.9_glibc_qemu_test_enhanced:
+    dependencies:
+      - 860_4.9_glibc_enhanced
+    <<: *860_qemu_test_enhanced
+
+860_4.19_glibc_qemu_test_enhanced:
+    dependencies:
+      - 860_4.19_glibc_enhanced
+    <<: *860_qemu_test_enhanced
+
+
 860f_4.9_glibc_qemu_test_enhanced:
     dependencies:
       - 860f_4.9_glibc_enhanced
@@ -569,6 +580,8 @@ wait_for_trigger:
 810v_4.9_uclibc_enhanced: *enhanced_build
 810v_4.19_glibc_enhanced: *enhanced_build
 
+860_4.9_glibc_enhanced: *enhanced_build
+860_4.19_glibc_enhanced: *enhanced_build
 860f_4.9_glibc_enhanced: *enhanced_build
 860f_4.9_uclibc_enhanced: *enhanced_build
 860f_4.19_glibc_enhanced: *enhanced_build
