@@ -593,3 +593,4 @@ wait_for_trigger:
 910f_5.1_glibc_enhanced: *enhanced_build
 910v_5.1_glibc_enhanced: *enhanced_build
 9xxf_5.4_glibc_enhanced: *enhanced_build
+9xxv_5.4_glibc_enhanced: *enhanced_build
