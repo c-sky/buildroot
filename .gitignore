@@ -14,4 +14,4 @@
 *~
 *.pyc
 buildroot-*/
-thead_*/
+*_defconfig/
