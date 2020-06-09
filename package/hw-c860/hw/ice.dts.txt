@@ -101,6 +101,7 @@
 			snps,pbl = <32>;
 			snps,fixed-burst;
 
+			max-speed = <100>;
 			phy-mode = "mii";
 			phy-handle = <&phy_88E1111>;
 

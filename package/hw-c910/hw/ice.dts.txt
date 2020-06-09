@@ -198,6 +198,7 @@
 		};
 		cpu@14 {
 			device_type = "cpu";
+
 			reg = <14>;
 			status = "fail";
 			compatible = "riscv";
@@ -292,6 +293,7 @@
 			snps,pbl = <32>;
 			snps,fixed-burst;
 
+			max-speed = <100>;
 			phy-mode = "mii";
 			phy-handle = <&phy_88E1111>;
 			mdio0 {
