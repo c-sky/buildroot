@@ -1,4 +1,4 @@
-From 3a4fb15609856138472ea666c993040bab42470c Mon Sep 17 00:00:00 2001
+From 77309d1fa692fc874e673fa88afd346946b366e3 Mon Sep 17 00:00:00 2001
 From: Guo Ren <ren_guo@c-sky.com>
 Date: Tue, 31 Dec 2019 20:20:27 +0800
 Subject: [PATCH 11/11] riscv: Add vector ISA support
@@ -25,6 +25,7 @@ Signed-off-by: Guo Ren <guoren@linux.alibaba.com>
  arch/riscv/include/uapi/asm/sigcontext.h |   1 +
  arch/riscv/kernel/Makefile               |   1 +
  arch/riscv/kernel/asm-offsets.c          | 190 +++++++++++++++++++++++++++++++
+ arch/riscv/kernel/cpu.c                  |   2 +-
  arch/riscv/kernel/cpufeature.c           |  13 ++-
  arch/riscv/kernel/entry.S                |   2 +-
  arch/riscv/kernel/head.S                 |   2 +-
@@ -33,7 +34,7 @@ Signed-off-by: Guo Ren <guoren@linux.alibaba.com>
  arch/riscv/kernel/signal.c               |  41 +++++++
  arch/riscv/kernel/vector.S               |  84 ++++++++++++++
  include/uapi/linux/elf.h                 |   1 +
- 19 files changed, 475 insertions(+), 9 deletions(-)
+ 20 files changed, 476 insertions(+), 10 deletions(-)
  create mode 100644 arch/riscv/kernel/vector.S
 
 diff --git a/arch/riscv/Kconfig b/arch/riscv/Kconfig
@@ -478,6 +479,19 @@ index 9f5628c..a6010c3 100644
  	/*
  	 * We allocate a pt_regs on the stack when entering the kernel.  This
  	 * ensures the alignment is sane.
+diff --git a/arch/riscv/kernel/cpu.c b/arch/riscv/kernel/cpu.c
+index 7da3c6a..b186f6db 100644
+--- a/arch/riscv/kernel/cpu.c
++++ b/arch/riscv/kernel/cpu.c
+@@ -48,7 +48,7 @@ int riscv_of_processor_hartid(struct device_node *node)
+ 
+ static void print_isa(struct seq_file *f, const char *orig_isa)
+ {
+-	static const char *ext = "mafdcsu";
++	static const char *ext = "mafdcvsu";
+ 	const char *isa = orig_isa;
+ 	const char *e;
+ 
 diff --git a/arch/riscv/kernel/cpufeature.c b/arch/riscv/kernel/cpufeature.c
 index a5ad000..8689df0 100644
 --- a/arch/riscv/kernel/cpufeature.c
@@ -698,7 +712,7 @@ index d0f6f21..40c1b82 100644
  
 diff --git a/arch/riscv/kernel/vector.S b/arch/riscv/kernel/vector.S
 new file mode 100644
-index 00000000..b0e8954
+index 00000000..0afc308
 --- /dev/null
 +++ b/arch/riscv/kernel/vector.S
 @@ -0,0 +1,84 @@
