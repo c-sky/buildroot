@@ -409,7 +409,37 @@ wait_for_trigger:
       - 860_4.9_glibc_compat
     <<: *860_fpga_test
 
-# chip -- by
+# chip test
+.an_chip_before_test: &an_chip_before_test
+    - RUN="run_test_chip.sh"
+    - BOARD="an"
+
+.an_chip_test: &an_chip_test
+    stage: chip-test
+    before_script: *an_chip_before_test
+    <<: *common_tests
+
+860_4.9_glibc_an_test:
+    tags:
+      - csky-860-anole
+    dependencies:
+      - 860_4.9_glibc_compat
+    <<: *an_chip_test
+
+860_4.19_glibc_an_test:
+    tags:
+      - csky-860-anole
+    dependencies:
+      - 860_4.19_glibc_compat
+    <<: *an_chip_test
+
+860_next_glibc_an_test:
+    tags:
+      - csky-860-anole
+    dependencies:
+      - 860_next_glibc_compat
+    <<: *an_chip_test
+
 .by_chip_before_test: &by_chip_before_test
     - RUN="run_test_chip.sh"
     - BOARD="by"

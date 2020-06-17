@@ -14,6 +14,7 @@ if [ $idx == "ice" ]; then
 	BOARD="ice"
 elif [ $idx == "an" ]; then
 	BOARD="an"
+	NRCORE=2
 elif [ $idx == "eg" ]; then
 	BOARD="eg"
 elif [ $idx == "ve" ]; then
@@ -72,9 +73,9 @@ if [ $BOARD == "by" ]; then
 	echo "No need ddr_init for by DVB board"
 elif [ $BOARD == "ve" ]; then
 	echo "No need ddr_init for veloce"
-elif [ $BOARD == "eg" ]; then
-./csky-linux-gdb -ex "tar remote $1" -x $DDRINIT ddr_init_$BOARD\_elf -ex "c" -ex "q" > /dev/null
 elif [ $BOARD == "an" ]; then
+	echo "No need ddr_init for anole board"
+elif [ $BOARD == "eg" ]; then
 ./csky-linux-gdb -ex "tar remote $1" -x $DDRINIT ddr_init_$BOARD\_elf -ex "c" -ex "q" > /dev/null
 else
 ./csky-linux-gdb -ex "tar remote $1" -x $DDRINIT -ex "q"
