@@ -98,17 +98,49 @@
 			reg-io-width = <4>;
 		};
 
-		gmac: ethernet@FFFC0000 {
-			compatible = "snps,dwmac";
-			reg = <0xfffc0000 0x2000>;
+		gmac_pll_out_clk: gmac_pll_out_clk {
+			#clock-cells = <0>;
+			compatible = "fixed-clock";
+			clock-frequency = <1000000000>;
+			clock-output-names = "gmac_pll_out_clk";
+		};
+
+		stmmac_axi_setup: stmmac-axi-config {
+			snps,wr_osr_lmt = <3>;
+			snps,rd_osr_lmt = <3>;
+			snps,blen = <16 8 4 0 0 0 0>;
+		};
+
+		gmac: ethernet@fffc0000 {
+			compatible = "thead,dwmac";
+			reg = < 0xfffc0000 0x2000
+				0xfe83025c 0x4
+				0xfe83031c 0x4
+				0xfff770c0 0x1c>;
+			reg-names = "gmac", "phy_if_reg", "txclk_dir_reg", "clk_mgr_reg";
 			interrupt-parent = <&intc>;
 			interrupts = <56>;
 			interrupt-names = "macirq";
-			clocks = <&dummy_ahb>;
-			clock-names = "stmmaceth";
+			clocks = <&dummy_ahb>, <&gmac_pll_out_clk>;
+			clock-names = "stmmaceth", "gmac_pll_clk";
 			snps,pbl = <32>;
 			snps,fixed-burst;
-			phy-mode = "mii";
+			snps,axi-config = <&stmmac_axi_setup>;
+
+			phy-mode = "rgmii-txid";
+			rx-clk-delay = <0x0>; /* for RGMII */
+			tx-clk-delay = <0>;    /* for RGMII */
+
+			phy-handle = <&eth_phy_0>;
+			mdio0 {
+				#address-cells = <1>;
+				#size-cells = <0>;
+				compatible = "snps,dwmac-mdio";
+
+				eth_phy_0: ethernet-phy@0 {
+					reg = <0>;
+				};
+			};
 		};
 	};
 

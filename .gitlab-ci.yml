@@ -394,20 +394,20 @@ wait_for_trigger:
     <<: *860_qemu_test
 
 # fpga
-.860_fpga_before_test: &860_fpga_before_test
-    - RUN="run_test_fpga.sh"
+# .860_fpga_before_test: &860_fpga_before_test
+#    - RUN="run_test_fpga.sh"
 
-.860_fpga_test: &860_fpga_test
-    stage: chip-test
-    before_script: *860_fpga_before_test
-    <<: *common_tests
+# .860_fpga_test: &860_fpga_test
+#    stage: chip-test
+#    before_script: *860_fpga_before_test
+#    <<: *common_tests
 
-860_4.9_glibc_fpga_test:
-    tags:
-      - csky-860-fpga
-    dependencies:
-      - 860_4.9_glibc_compat
-    <<: *860_fpga_test
+# 860_4.9_glibc_fpga_test:
+#    tags:
+#      - csky-860-fpga
+#    dependencies:
+#      - 860_4.9_glibc_compat
+#    <<: *860_fpga_test
 
 # chip test
 .an_chip_before_test: &an_chip_before_test
