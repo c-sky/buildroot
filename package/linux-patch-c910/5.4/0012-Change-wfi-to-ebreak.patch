@@ -1,0 +1,27 @@
+From ee28df9a0b3565aa9e2be279909f123eaeb9e393 Mon Sep 17 00:00:00 2001
+From: Liu Yibin <jiulong@linux.alibaba.com>
+Date: Sat, 20 Jun 2020 14:46:41 +0800
+Subject: [PATCH] Change wfi to ebreak
+
+Signed-off-by: Liu Yibin <jiulong@linux.alibaba.com>
+---
+ arch/riscv/kernel/head.S | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
+
+diff --git a/arch/riscv/kernel/head.S b/arch/riscv/kernel/head.S
+index c7edddf..f976001 100644
+--- a/arch/riscv/kernel/head.S
++++ b/arch/riscv/kernel/head.S
+@@ -191,7 +191,8 @@ relocate:
+ .align 2
+ .Lsecondary_park:
+ 	/* We lack SMP support or have too many harts, so park this hart */
+-	wfi
++	ebreak
++	ebreak
+ 	j .Lsecondary_park
+ END(_start)
+ 
+-- 
+2.7.4
+
