@@ -1,0 +1,34 @@
+From e6a21b861e623c673ee0c0e2bd45ffc2cfb62c85 Mon Sep 17 00:00:00 2001
+From: Guo Ren <guoren@linux.alibaba.com>
+Date: Wed, 24 Jun 2020 03:08:05 +0000
+Subject: [PATCH] riscv: Add CONFIG_HZ_12 in Kconfig.hz
+
+Signed-off-by: Guo Ren <guoren@linux.alibaba.com>
+---
+ kernel/Kconfig.hz | 3 +++
+ 1 file changed, 3 insertions(+)
+
+diff --git a/kernel/Kconfig.hz b/kernel/Kconfig.hz
+index 38ef6d0..6b3590b 100644
+--- a/kernel/Kconfig.hz
++++ b/kernel/Kconfig.hz
+@@ -16,6 +16,8 @@ choice
+ 	 environment leading to NR_CPUS * HZ number of timer interrupts
+ 	 per second.
+ 
++	config HZ_12
++		bool "12 HZ"
+ 
+ 	config HZ_100
+ 		bool "100 HZ"
+@@ -50,6 +52,7 @@ endchoice
+ 
+ config HZ
+ 	int
++	default 12 if HZ_12
+ 	default 100 if HZ_100
+ 	default 250 if HZ_250
+ 	default 300 if HZ_300
+-- 
+2.7.4
+
