@@ -15,11 +15,6 @@
 			reg = <0>;
 			status = "ok";
 		};
-		cpu@1 {
-			device_type = "cpu";
-			reg = <1>;
-			status = "fail";
-		};
 	};
 
 	mem: memory@0 {
