@@ -1,0 +1,28 @@
+From c36b654b81bb4f86ad8415d24a8b871e4849ca8a Mon Sep 17 00:00:00 2001
+From: Ma Jun <majun258@linux.alibaba.com>
+Date: Mon, 20 Apr 2020 17:30:02 +0800
+Subject: [PATCH] support the csky architecture in systemd-bootchart
+
+Signed-off-by: Ma Jun <majun258@linux.alibaba.com>
+---
+ src/architecture.h | 4 ++++
+ 1 file changed, 4 insertions(+)
+
+diff --git a/src/architecture.h b/src/architecture.h
+index 26679e2..99d19c3 100644
+--- a/src/architecture.h
++++ b/src/architecture.h
+@@ -188,6 +188,10 @@ int uname_architecture(void);
+ #elif defined(__m68k__)
+ #  define native_architecture() ARCHITECTURE_M68K
+ #  define LIB_ARCH_TUPLE "m68k-linux-gnu"
++#elif defined(__csky__)
++#  define native_architecture() ARCHITECTURE_CSKY
++#  define LIB_ARCH_TUPLE "csky-linux-gnu"
++#  define PROC_CPUINFO_MODEL "model name"
+ #elif defined(__tilegx__)
+ #  define native_architecture() ARCHITECTURE_TILEGX
+ #  error "Missing LIB_ARCH_TUPLE for TILEGX"
+-- 
+1.8.3.1
+

@@ -1,0 +1,139 @@
+From d0d10f67f80dad4cba3880aa040a572dd048c5b6 Mon Sep 17 00:00:00 2001
+From: Ma Jun <majun258@linux.alibaba.com>
+Date: Tue, 14 Apr 2020 18:03:54 +0800
+Subject: [PATCH] Support the csky architecture
+
+Support the csky architecture.
+
+Signed-off-by: Ma Jun <majun258@linux.alibaba.com>
+---
+ configure.ac                |  1 +
+ include/urcu/arch/csky.h    | 51 +++++++++++++++++++++++++++++++++++++++++++++
+ include/urcu/uatomic/csky.h | 45 +++++++++++++++++++++++++++++++++++++++
+ 3 files changed, 97 insertions(+)
+ create mode 100644 include/urcu/arch/csky.h
+ create mode 100644 include/urcu/uatomic/csky.h
+
+diff --git a/configure.ac b/configure.ac
+index 7d5aa87..a2e96a8 100644
+--- a/configure.ac
++++ b/configure.ac
+@@ -149,6 +149,7 @@ AS_CASE([$host_cpu],
+ 	[tile*], [ARCHTYPE="tile"],
+ 	[hppa*], [ARCHTYPE="hppa"],
+ 	[m68k], [ARCHTYPE="m68k"],
++	[csky*], [ARCHTYPE="csky"],
+ 	[ARCHTYPE="unknown"]
+ )
+ 
+diff --git a/include/urcu/arch/csky.h b/include/urcu/arch/csky.h
+new file mode 100644
+index 0000000..c74bc10
+--- /dev/null
++++ b/include/urcu/arch/csky.h
+@@ -0,0 +1,51 @@
++#ifndef _URCU_ARCH_CSKY_H
++#define _URCU_ARCH_CSKY_H
++
++/*
++ * arch/aarch64.h: definitions for aarch64 architecture
++ *
++ * Copyright (c) 2010 Paul E. McKenney, IBM Corporation.
++ * Copyright (c) 2009-2015 Mathieu Desnoyers <mathieu.desnoyers@efficios.com>
++ *
++ * This library is free software; you can redistribute it and/or
++ * modify it under the terms of the GNU Lesser General Public
++ * License as published by the Free Software Foundation; either
++ * version 2.1 of the License, or (at your option) any later version.
++ *
++ * This library is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
++ * Lesser General Public License for more details.
++ *
++ * You should have received a copy of the GNU Lesser General Public
++ * License along with this library; if not, write to the Free Software
++ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
++ */
++
++#include <urcu/compiler.h>
++#include <urcu/config.h>
++#include <urcu/syscall-compat.h>
++
++#ifdef __cplusplus
++extern "C" {
++#endif
++
++#include <stdlib.h>
++#include <sys/time.h>
++
++/*
++ * On Linux, define the membarrier system call number if not yet available in
++ * the system headers. aarch64 implements asm-generic/unistd.h system call
++ * numbers.
++ */
++#if (defined(__linux__) && !defined(__NR_membarrier))
++#define __NR_membarrier		283
++#endif
++
++#ifdef __cplusplus
++}
++#endif
++
++#include <urcu/arch/generic.h>
++
++#endif /* _URCU_ARCH_CSKY_H */
+diff --git a/include/urcu/uatomic/csky.h b/include/urcu/uatomic/csky.h
+new file mode 100644
+index 0000000..d96e56c
+--- /dev/null
++++ b/include/urcu/uatomic/csky.h
+@@ -0,0 +1,45 @@
++#ifndef _URCU_ARCH_UATOMIC_CSKY_H
++#define _URCU_ARCH_UATOMIC_CSKY_H
++
++/*
++ * Copyright (c) 1991-1994 by Xerox Corporation.  All rights reserved.
++ * Copyright (c) 1996-1999 by Silicon Graphics.  All rights reserved.
++ * Copyright (c) 1999-2004 Hewlett-Packard Development Company, L.P.
++ * Copyright (c) 2009-2015 Mathieu Desnoyers
++ * Copyright (c) 2010      Paul E. McKenney, IBM Corporation
++ *			   (Adapted from uatomic_arch_ppc.h)
++ *
++ * THIS MATERIAL IS PROVIDED AS IS, WITH ABSOLUTELY NO WARRANTY EXPRESSED
++ * OR IMPLIED.  ANY USE IS AT YOUR OWN RISK.
++ *
++ * Permission is hereby granted to use or copy this program
++ * for any purpose,  provided the above notices are retained on all copies.
++ * Permission to modify the code and to distribute modified code is granted,
++ * provided the above notices are retained, and a notice that the code was
++ * modified is included with the above copyright notice.
++ *
++ * Code inspired from libuatomic_ops-1.2, inherited in part from the
++ * Boehm-Demers-Weiser conservative garbage collector.
++ */
++
++#include <urcu/compiler.h>
++#include <urcu/system.h>
++
++#ifdef __cplusplus
++extern "C" {
++#endif
++
++/* csky don't support */
++
++/*
++#define UATOMIC_HAS_ATOMIC_BYTE
++#define UATOMIC_HAS_ATOMIC_SHORT
++*/
++
++#ifdef __cplusplus
++}
++#endif
++
++#include <urcu/uatomic/generic.h>
++
++#endif /* _URCU_ARCH_UATOMIC_CSKY_H */
+-- 
+1.8.3.1
+
