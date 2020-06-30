@@ -4,7 +4,7 @@
 #
 ################################################################################
 
-MISC_DOWNLOAD_C910_VERSION = d55ec02c4ee9c5990313bb211256f0ee369cb1d5
+MISC_DOWNLOAD_C910_VERSION = 526840b146651f565fcd2388eaf890d51f75f1eb
 MISC_DOWNLOAD_C910_SOURCE = misc-download-c910-$(MISC_DOWNLOAD_C910_VERSION).tar.gz
 MISC_DOWNLOAD_C910_SITE = $(call github,c-sky,910_misc_downloads,$(MISC_DOWNLOAD_C910_VERSION))
 
