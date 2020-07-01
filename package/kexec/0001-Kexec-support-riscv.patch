@@ -1,8 +1,9 @@
-From 5f011097c636edb5cfa50836bb1d42f84e087799 Mon Sep 17 00:00:00 2001
+From 41d921162c890e544b4522186d6a048911d5edab Mon Sep 17 00:00:00 2001
 From: Liu Yibin <yibin_liu@c-sky.com>
 Date: Thu, 12 Mar 2020 11:16:07 +0800
 Subject: [PATCH] Kexec support riscv
 
+Signed-off-by: Liu Yibin <jiulong@linux.alibaba.com>
 ---
  config/config.sub                       |   2 +-
  configure                               |   3 +
@@ -17,8 +18,8 @@ Subject: [PATCH] Kexec support riscv
  kexec/arch/riscv/include/arch/options.h |  39 ++
  kexec/arch/riscv/iomem.h                |  10 +
  kexec/arch/riscv/kexec-elf-riscv.c      | 162 +++++++
- kexec/arch/riscv/kexec-image-riscv.c    |  95 ++++
- kexec/arch/riscv/kexec-riscv.c          | 780 ++++++++++++++++++++++++++++++++
+ kexec/arch/riscv/kexec-image-riscv.c    |  93 ++++
+ kexec/arch/riscv/kexec-riscv.c          | 779 ++++++++++++++++++++++++++++++++
  kexec/arch/riscv/kexec-riscv.h          |  75 +++
  kexec/arch/riscv/kexec-uImage-riscv.c   |  34 ++
  kexec/kexec-syscall.h                   |   7 +
@@ -26,7 +27,7 @@ Subject: [PATCH] Kexec support riscv
  purgatory/Makefile                      |  17 +-
  purgatory/arch/riscv/Makefile           |  17 +
  purgatory/arch/riscv/entry.S            |  25 +
- 22 files changed, 1734 insertions(+), 16 deletions(-)
+ 22 files changed, 1731 insertions(+), 16 deletions(-)
  create mode 100644 kexec/arch/riscv/Makefile
  create mode 100644 kexec/arch/riscv/crashdump-riscv.c
  create mode 100644 kexec/arch/riscv/crashdump-riscv.h
@@ -849,10 +850,10 @@ index 0000000..0953f46
 +}
 diff --git a/kexec/arch/riscv/kexec-image-riscv.c b/kexec/arch/riscv/kexec-image-riscv.c
 new file mode 100644
-index 0000000..c5f5371
+index 0000000..a425a81
 --- /dev/null
 +++ b/kexec/arch/riscv/kexec-image-riscv.c
-@@ -0,0 +1,95 @@
+@@ -0,0 +1,93 @@
 +/*
 + * RISCV kexec binary image support.
 + */
@@ -926,13 +927,11 @@ index 0000000..c5f5371
 +	}
 +
 +	/* load the kernel */
-+	printf("1111111111111\n");
 +	add_segment_phys_virt(info, kernel_buf, kernel_size,
 +			kernel_segment + riscv_mem.text_offset,
 +			riscv_mem.image_size, 0);
 +
 +	/* load additional data */
-+	printf("2222222222\n");
 +	result = riscv_load_other_segments(info, kernel_segment
 +		+ riscv_mem.text_offset);
 +
@@ -950,10 +949,10 @@ index 0000000..c5f5371
 +}
 diff --git a/kexec/arch/riscv/kexec-riscv.c b/kexec/arch/riscv/kexec-riscv.c
 new file mode 100644
-index 0000000..8a7de28
+index 0000000..7f72ae3
 --- /dev/null
 +++ b/kexec/arch/riscv/kexec-riscv.c
-@@ -0,0 +1,780 @@
+@@ -0,0 +1,779 @@
 +/*
 + * RISCV kexec.
 + */
@@ -1566,7 +1565,6 @@ index 0000000..8a7de28
 +	elf_rel_build_load(info, &info->rhdr, purgatory, purgatory_size,
 +		hole_min, hole_max, 1, 0);
 +
-+	printf("000000000000\n");
 +	info->entry = (void *)elf_rel_get_addr(&info->rhdr, "purgatory_start");
 +	printf("info->entry: %lx\n", (long)info->entry);
 +
