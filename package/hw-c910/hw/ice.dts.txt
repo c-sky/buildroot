@@ -256,7 +256,7 @@
 			reg = <0x3 0xf0000000 0x0 0x04000000>;
 			reg-names = "control";
 			riscv,max-priority = <7>;
-			riscv,ndev = <64>;
+			riscv,ndev = <128>;
 		};
 
 		dummy_apb: apb-clock {
@@ -289,6 +289,24 @@
 			clocks = <&dummy_apb>, <&dummy_apb>;
 			clock-names = "biu", "ciu";
 			max-frequency = <25000000>;
+		};
+
+		dmac0: dmac@3fffd0000 {
+			compatible = "snps,axi-dma-1.01a";
+			reg = <0x3 0xfffd0000 0x0 0x1000>;
+			interrupt-parent = <&intc>;
+			interrupts = <65>;
+			clocks = <&dummy_apb>, <&dummy_apb>;
+			clock-names = "core-clk", "cfgr-clk";
+			
+			dma-channels = <8>;
+			snps,block-size = <65536 65536 65536 65536 65536 65536 65536 65536>;
+			snps,priority = <0 1 2 3 4 5 6 7>;
+			snps,dma-masters = <1>;
+			snps,data-width = <4>;
+			snps,axi-max-burst-len = <16>;
+			
+			status = "ok";
 		};
 
 		gmac: ethernet@3fffc0000 {
