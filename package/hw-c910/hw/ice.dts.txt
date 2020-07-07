@@ -256,7 +256,7 @@
 			reg = <0x3 0xf0000000 0x0 0x04000000>;
 			reg-names = "control";
 			riscv,max-priority = <7>;
-			riscv,ndev = <128>;
+			riscv,ndev = <80>;
 		};
 
 		dummy_apb: apb-clock {
@@ -298,15 +298,15 @@
 			interrupts = <65>;
 			clocks = <&dummy_apb>, <&dummy_apb>;
 			clock-names = "core-clk", "cfgr-clk";
-			
+
 			dma-channels = <8>;
 			snps,block-size = <65536 65536 65536 65536 65536 65536 65536 65536>;
 			snps,priority = <0 1 2 3 4 5 6 7>;
 			snps,dma-masters = <1>;
 			snps,data-width = <4>;
 			snps,axi-max-burst-len = <16>;
-			
-			status = "ok";
+
+			status = "disabled";
 		};
 
 		gmac: ethernet@3fffc0000 {
