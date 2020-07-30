@@ -19,8 +19,10 @@ if [ $idx == "an" ]; then
 	BOARD="an"
 elif [ $idx == "ice_evb" ]; then
 	BOARD="ice_evb"
+	GDBRESET="noreset"
 elif [ $idx == "ice_fpga" ]; then
 	BOARD="ice_fpga"
+	GDBRESET="noreset"
 elif [ $idx == "th" ]; then
 	BOARD="th"
 elif [ $idx == "eg" ]; then
