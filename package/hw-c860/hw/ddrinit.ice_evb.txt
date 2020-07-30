@@ -4,4 +4,8 @@ set height 0
 # Don't confirm when quit
 set confirm off
 
+file spl-ice_evb
+load
+c
+
 shell $(sleep 3)
