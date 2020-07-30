@@ -20,7 +20,7 @@ set $pc=0x8f000000
 si
 
 # Enable L2 cache
-set $cr23 = 0xe0010009
+set $cr23 = 0xe0410009
 
 set $vmlinux_addr = 0x80000000
 set $rootfs_addr = $vmlinux_addr + 0x02000000

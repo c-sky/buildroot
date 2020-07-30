@@ -5,7 +5,7 @@ set height 0
 set $mcor = 0x70013
 
 # Enable L2 Cache
-set $mccr2 = 0xe0010009
+set $mccr2 = 0xe0410009
 
 # Enable L1 Cache
 set $mhcr = 0x11ff
