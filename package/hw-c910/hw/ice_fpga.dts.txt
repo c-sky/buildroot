@@ -272,7 +272,6 @@
 			interrupt-parent = <&intc>;
 			interrupts = <23>;
 			clocks = <&dummy_apb>;
-			clock-frequency = <50000000>;
 			clock-names = "baudclk";
 			reg-shift = <2>;
 			reg-io-width = <4>;
@@ -280,15 +279,6 @@
 
 		pmu: pmu {
 			compatible = "riscv,c910_pmu";
-		};
-
-		mmc: mmc0@3fffb0000 {
-			compatible = "snps,dw-mshc";
-			reg = <0x3 0xfffb0000 0x0 0x400>;
-			bus-width = <8>;
-			clocks = <&dummy_apb>, <&dummy_apb>;
-			clock-names = "biu", "ciu";
-			max-frequency = <25000000>;
 		};
 
 		dmac0: dmac@3fffd0000 {
