@@ -75,17 +75,17 @@ sed -i "s/linux,initrd-end = <0x0 .*/linux,initrd-end = <0x0 $ROOTFS_END>;/g" .h
 
 # reset
 if [ $GDBRESET == "reset" ]; then
-./riscv64-linux-gdb -ex "tar remote $1" -ex "reset" -ex "set confirm off" -ex "q"
+./riscv64-elf-gdb -ex "tar remote $1" -ex "reset" -ex "set confirm off" -ex "q"
 fi
 
 # Init DDR
 if [ $BOARD == "ve" ]; then
 	echo "No need ddr_init for veloce"
 elif [ $BOARD == "eg" ]; then
-./riscv64-linux-gdb -ex "tar remote $1" -x $DDRINIT ddr_init_$BOARD\_elf -ex "c" -ex "q" > /dev/null
+./riscv64-elf-gdb -ex "tar remote $1" -x $DDRINIT ddr_init_$BOARD\_elf -ex "c" -ex "q" > /dev/null
 else
-./riscv64-linux-gdb -ex "tar remote $1" -x $DDRINIT -ex "q"
+./riscv64-elf-gdb -ex "tar remote $1" -x $DDRINIT -ex "q"
 fi
 
 # Run linux
-./riscv64-linux-gdb -ex "tar remote $1" -x $GDBINIT -ex "c" -ex "q"
+./riscv64-elf-gdb -ex "tar remote $1" -x $GDBINIT -ex "c" -ex "q"
