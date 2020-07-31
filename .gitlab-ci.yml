@@ -598,6 +598,11 @@ wait_for_trigger:
       - 9xxf_5.4_glibc_enhanced
     <<: *910_qemu_test_enhanced
 
+9xxf_5.9_glibc_qemu_test_enhanced:
+    dependencies:
+      - 9xxf_5.9_glibc_enhanced
+    <<: *910_qemu_test_enhanced
+
 #910v_5.1_glibc_qemu_test_enhanced:
 #    dependencies:
 #      - 910v_5.1_glibc_enhanced
@@ -626,3 +631,4 @@ wait_for_trigger:
 9xxf_5.4_12hzglibc_enhanced: *enhanced_build
 9xxv_5.4_glibc_enhanced: *enhanced_build
 9xxv_5.4_12hzglibc_enhanced: *enhanced_build
+9xxf_5.9_glibc_enhanced: *enhanced_build
