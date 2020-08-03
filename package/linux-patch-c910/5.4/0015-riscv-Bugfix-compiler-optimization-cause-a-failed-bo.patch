@@ -1,0 +1,42 @@
+From 33aba2a348a63b3b842de3e6caead839ba3c3bbd Mon Sep 17 00:00:00 2001
+From: Liu Yibin <jiulong@linux.alibaba.com>
+Date: Mon, 3 Aug 2020 16:10:26 +0800
+Subject: [PATCH] riscv: Bugfix compiler optimization cause a failed bootup
+
+Signed-off-by: Liu Yibin <jiulong@linux.alibaba.com>
+---
+ arch/riscv/kernel/setup.c   | 2 +-
+ arch/riscv/kernel/smpboot.c | 4 ++--
+ 2 files changed, 3 insertions(+), 3 deletions(-)
+
+diff --git a/arch/riscv/kernel/setup.c b/arch/riscv/kernel/setup.c
+index 845ae0e..55ec0a5 100644
+--- a/arch/riscv/kernel/setup.c
++++ b/arch/riscv/kernel/setup.c
+@@ -38,7 +38,7 @@ struct screen_info screen_info = {
+ #endif
+ 
+ /* The lucky hart to first increment this variable will boot the other cores */
+-atomic_t hart_lottery;
++__section(.data) atomic_t hart_lottery;
+ unsigned long boot_cpu_hartid;
+ 
+ void __init parse_dtb(void)
+diff --git a/arch/riscv/kernel/smpboot.c b/arch/riscv/kernel/smpboot.c
+index a1b09be..7e557bb 100644
+--- a/arch/riscv/kernel/smpboot.c
++++ b/arch/riscv/kernel/smpboot.c
+@@ -33,8 +33,8 @@
+ 
+ #include "head.h"
+ 
+-void *__cpu_up_stack_pointer[NR_CPUS];
+-void *__cpu_up_task_pointer[NR_CPUS];
++__section(.data) void *__cpu_up_stack_pointer[NR_CPUS];
++__section(.data) void *__cpu_up_task_pointer[NR_CPUS];
+ static DECLARE_COMPLETION(cpu_running);
+ 
+ void __init smp_prepare_boot_cpu(void)
+-- 
+2.7.4
+
