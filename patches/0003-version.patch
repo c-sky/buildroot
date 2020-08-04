@@ -21,7 +21,7 @@ index b0c6dae..43c806e 100644
  endif
  endif
 +CSKY_LINUX_NEXT_VERSION	= b9bbe6ed63b2b9f2c9ee5cbd0f2c946a2723f4ce
-+CSKY_LINUX_NEXT_RISCV_VERSION	= d5a8ccd05c1bec5d5b64d6931c86ea35a22f6085
++CSKY_LINUX_NEXT_RISCV_VERSION	= ba7edae7677f16f2d1d4c783a879e2813037c818
 diff --git a/package/gcc/Config.in.host b/package/gcc/Config.in.host
 index 239353d..ab89b7e 100644
 --- a/package/gcc/Config.in.host
