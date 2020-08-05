@@ -81,6 +81,13 @@
 			#clock-cells = <0>;
 		};
 
+		dummy_clk_sdio: dummy-clk-sdio {
+			compatible = "fixed-clock";
+			clock-frequency = <150000000>;
+			clock-output-names = "dummy_clk_sdio";
+			#clock-cells = <0>;
+		};
+
 		intc: interrupt-controller {
 			compatible = "csky,mpintc";
 			interrupt-controller;
@@ -127,6 +134,21 @@
 			snps,axi-max-burst-len = <16>;
 
 			status = "disabled";
+		};
+
+		sdhc0: sdhc0@fffb0000 {
+			compatible = "snps,dw-mshc";
+			reg = <0xfffb0000 0x1000>;
+			interrupt-parent = <&intc>;
+			interrupts = <37>;
+			clocks = <&dummy_clk_sdio>, <&dummy_clk_sdio>;
+			clock-names = "ciu", "biu";
+			num-slots = <1>;
+			card-detect-delay = <200>;
+			cap-mmc-highspeed;
+			cap-cmd23;
+			non-removable;
+			bus-width = <8>;
 		};
 
 		stmmac_axi_setup: stmmac-axi-config {
