@@ -33,7 +33,7 @@ define CSKY_README_INSTALL_IMAGES_CMDS
 		sed -i 's/linux_compile_cmd/LD_LIBRARY_PATH=..\/host\/lib make ARCH=csky CROSS_COMPILE=..\/host\/bin\/csky-linux- Image/g' $(BINARIES_DIR)/readme.txt; \
 	elif [ -n "$(CSKY_README_CK910)" ]; then \
 		sed -i 's/qemu_start_cmd/LD_LIBRARY_PATH=.\/host\/lib .\/host\/csky-qemu\/bin\/qemu-system-riscv64 -M virt -kernel fw_jump.elf -device loader,file=Image,addr=0x80200000 -append "rootwait root=\/dev\/vda ro" -drive file=rootfs.ext2,format=raw,id=hd0 -device virtio-blk-device,drive=hd0 -nographic -smp 1/g' $(BINARIES_DIR)/readme.txt; \
-		sed -i 's/linux_compile_cmd/LD_LIBRARY_PATH=..\/host\/lib make ARCH=riscv CROSS_COMPILE=..\/host\/bin\/riscv64-linux- Image/g' $(BINARIES_DIR)/readme.txt; \
+		sed -i 's/linux_compile_cmd/LD_LIBRARY_PATH=..\/host\/lib make ARCH=riscv CROSS_COMPILE=..\/host\/bin\/riscv64-unknown-linux-gnu- Image/g' $(BINARIES_DIR)/readme.txt; \
 	else \
 		sed -i 's/qemu_start_cmd/.\/host\/csky-qemu\/bin\/qemu-system-cskyv2 -M virt -cpu c810v -kernel Image -nographic -append "console=ttyS0,115200 rdinit=\/sbin\/init rootwait root=\/dev\/vda ro" -drive file=rootfs.ext2,format=raw,id=hd0 -device virtio-blk-device,drive=hd0/g' $(BINARIES_DIR)/readme.txt; \
 		sed -i 's/linux_compile_cmd/LD_LIBRARY_PATH=..\/host\/lib make ARCH=csky CROSS_COMPILE=..\/host\/bin\/csky-linux- Image/g' $(BINARIES_DIR)/readme.txt; \

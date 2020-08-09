@@ -61,19 +61,21 @@ Run with hardware
  (Start JtagServer with a hw target board)
  cd ./host/csky-jtag/C-Sky_DebugServer
  sudo ./DebugServerConsole.elf -setclk 6
+ (It will show <ip:port> for run.sh connecting)
 
  (Open another console window for gdb connect)
  cd hw/
- bash run.sh 127.0.0.1:1025
+ bash run.sh <ip:port> <board_name> <cpu_number>
 
+How to get dmesg without uart
+=============================
  (We needn't uart to print for bootup, we could just use gdbmacro to dmesg from ram.)
  wget https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/tree/Documentation/admin-guide/kdump/gdbmacros.txt
- (In gdb console)
+
+ (In gdb)
+ file <linux dir>/vmlinux
  source gdbmacros.txt
  dmesg
- (All bootup message will be printed.)
-
- (So, we only need cpu and DRAM to debug hw bootup after dram init.)
 
 Gitlab-CI url
 =============
