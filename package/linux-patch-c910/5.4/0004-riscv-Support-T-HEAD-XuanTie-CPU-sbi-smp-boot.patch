@@ -1,7 +1,7 @@
-From a012e4192439c619c79af97d5b1bdbeb74f4991f Mon Sep 17 00:00:00 2001
+From b13d8fc57604b25011ae83c106719973ac664bfb Mon Sep 17 00:00:00 2001
 From: Guo Ren <guoren@linux.alibaba.com>
 Date: Thu, 9 Jan 2020 14:36:46 +0800
-Subject: [PATCH 04/10] riscv: Support T-HEAD XuanTie CPU sbi smp boot
+Subject: [PATCH 04/15] riscv: Support T-HEAD XuanTie CPU sbi smp boot
 
 Signed-off-by: Guo Ren <guoren@linux.alibaba.com>
 ---

@@ -1,7 +1,7 @@
-From e6a21b861e623c673ee0c0e2bd45ffc2cfb62c85 Mon Sep 17 00:00:00 2001
+From f1341509c9b0f90eca425b885bb33c1346d6918b Mon Sep 17 00:00:00 2001
 From: Guo Ren <guoren@linux.alibaba.com>
 Date: Wed, 24 Jun 2020 03:08:05 +0000
-Subject: [PATCH] riscv: Add CONFIG_HZ_12 in Kconfig.hz
+Subject: [PATCH 15/15] riscv: Add CONFIG_HZ_12 in Kconfig.hz
 
 Signed-off-by: Guo Ren <guoren@linux.alibaba.com>
 ---

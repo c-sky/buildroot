@@ -1,7 +1,7 @@
 From 15b2949064490545651e470053b22cf787936970 Mon Sep 17 00:00:00 2001
 From: Guo Ren <guoren@linux.alibaba.com>
 Date: Tue, 18 Jun 2019 20:06:52 +0800
-Subject: [PATCH 02/10] riscv: Add new asid lib code from arm
+Subject: [PATCH 02/15] riscv: Add new asid lib code from arm
 
 This patch only contains asid help code from arm for next patch to
 use.

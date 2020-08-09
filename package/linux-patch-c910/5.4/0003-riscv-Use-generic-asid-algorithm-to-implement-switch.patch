@@ -1,7 +1,7 @@
 From 5e5dec3539cedea4894b19674ba6ac316367ff68 Mon Sep 17 00:00:00 2001
 From: Guo Ren <guoren@linux.alibaba.com>
 Date: Wed, 9 Oct 2019 15:20:26 +0800
-Subject: [PATCH 03/11] riscv: Use generic asid algorithm to implement
+Subject: [PATCH 03/15] riscv: Use generic asid algorithm to implement
  switch_mm
 
 Use linux generic asid/vmid algorithm to implement csky

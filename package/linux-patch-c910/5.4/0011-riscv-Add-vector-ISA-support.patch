@@ -1,7 +1,7 @@
-From 77309d1fa692fc874e673fa88afd346946b366e3 Mon Sep 17 00:00:00 2001
+From f3d2f191f2e5308f45085b94bb6188756c5ddc4e Mon Sep 17 00:00:00 2001
 From: Guo Ren <ren_guo@c-sky.com>
 Date: Tue, 31 Dec 2019 20:20:27 +0800
-Subject: [PATCH 11/11] riscv: Add vector ISA support
+Subject: [PATCH 11/15] riscv: Add vector ISA support
 
 The implementation follow the RISC-V "V" Vector Extension with 128bit-vlen.
 In this patch, we implement basic context switch, singal and ptrace interface

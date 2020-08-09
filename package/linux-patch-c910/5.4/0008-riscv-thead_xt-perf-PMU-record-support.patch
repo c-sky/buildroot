@@ -1,7 +1,7 @@
-From 6e1b34857bfcc5f4ce31e0145aa53cb894df264b Mon Sep 17 00:00:00 2001
+From d13b409cc1a5d4d2ebccb2b2065d7340030c51ad Mon Sep 17 00:00:00 2001
 From: Mao Han <han_mao@linux.alibaba.com>
 Date: Thu, 7 May 2020 09:48:35 +0800
-Subject: [PATCH 08/10] riscv/thead_xt: perf PMU record support
+Subject: [PATCH 08/15] riscv/thead_xt: perf PMU record support
 
 This patch add basic perf counter access and hw event sampling support
 for T-HEAD XuanTie. The PMU can support various hardware event, including

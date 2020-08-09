@@ -1,0 +1,284 @@
+From 69f6f4050015f158da0c5eed4a97130400c358c7 Mon Sep 17 00:00:00 2001
+From: Guo Ren <guoren@linux.alibaba.com>
+Date: Wed, 22 Jul 2020 04:57:17 +0000
+Subject: [PATCH 14/15] riscv/c910: Support mmu v1
+
+C910 MMU v1 need more memory barriers during satp switch and tlb
+operations.
+
+Signed-off-by: Guo Ren <guoren@linux.alibaba.com>
+---
+ arch/riscv/include/asm/fence.h    |  4 ++++
+ arch/riscv/include/asm/io.h       | 17 ++++++++++++++
+ arch/riscv/include/asm/tlbflush.h |  9 +++++++
+ arch/riscv/mm/context.c           |  8 ++++++-
+ arch/riscv/mm/tlbflush.c          | 49 +++++++++++++++++++++++++++++++++++++++
+ 5 files changed, 86 insertions(+), 1 deletion(-)
+
+diff --git a/arch/riscv/include/asm/fence.h b/arch/riscv/include/asm/fence.h
+index 2b443a3..3313e39 100644
+--- a/arch/riscv/include/asm/fence.h
++++ b/arch/riscv/include/asm/fence.h
+@@ -9,4 +9,8 @@
+ #define RISCV_RELEASE_BARRIER
+ #endif
+ 
++extern int c910_mmu_v1_flag;
++#define sync_mmu_v1() \
++	if (c910_mmu_v1_flag) asm volatile (".long 0x01b0000b");
++
+ #endif	/* _ASM_RISCV_FENCE_H */
+diff --git a/arch/riscv/include/asm/io.h b/arch/riscv/include/asm/io.h
+index 78919a4..9e7d1f299 100644
+--- a/arch/riscv/include/asm/io.h
++++ b/arch/riscv/include/asm/io.h
+@@ -12,6 +12,7 @@
+ #define _ASM_RISCV_IO_H
+ 
+ #include <linux/types.h>
++#include <asm/fence.h>
+ #include <asm/mmiowb.h>
+ #include <asm/pgtable.h>
+ 
+@@ -29,26 +30,34 @@ extern void iounmap(volatile void __iomem *addr);
+ #define __raw_writeb __raw_writeb
+ static inline void __raw_writeb(u8 val, volatile void __iomem *addr)
+ {
++	sync_mmu_v1();
+ 	asm volatile("sb %0, 0(%1)" : : "r" (val), "r" (addr));
++	sync_mmu_v1();
+ }
+ 
+ #define __raw_writew __raw_writew
+ static inline void __raw_writew(u16 val, volatile void __iomem *addr)
+ {
++	sync_mmu_v1();
+ 	asm volatile("sh %0, 0(%1)" : : "r" (val), "r" (addr));
++	sync_mmu_v1();
+ }
+ 
+ #define __raw_writel __raw_writel
+ static inline void __raw_writel(u32 val, volatile void __iomem *addr)
+ {
++	sync_mmu_v1();
+ 	asm volatile("sw %0, 0(%1)" : : "r" (val), "r" (addr));
++	sync_mmu_v1();
+ }
+ 
+ #ifdef CONFIG_64BIT
+ #define __raw_writeq __raw_writeq
+ static inline void __raw_writeq(u64 val, volatile void __iomem *addr)
+ {
++	sync_mmu_v1();
+ 	asm volatile("sd %0, 0(%1)" : : "r" (val), "r" (addr));
++	sync_mmu_v1();
+ }
+ #endif
+ 
+@@ -57,7 +66,9 @@ static inline u8 __raw_readb(const volatile void __iomem *addr)
+ {
+ 	u8 val;
+ 
++	sync_mmu_v1();
+ 	asm volatile("lb %0, 0(%1)" : "=r" (val) : "r" (addr));
++	sync_mmu_v1();
+ 	return val;
+ }
+ 
+@@ -66,7 +77,9 @@ static inline u16 __raw_readw(const volatile void __iomem *addr)
+ {
+ 	u16 val;
+ 
++	sync_mmu_v1();
+ 	asm volatile("lh %0, 0(%1)" : "=r" (val) : "r" (addr));
++	sync_mmu_v1();
+ 	return val;
+ }
+ 
+@@ -75,7 +88,9 @@ static inline u32 __raw_readl(const volatile void __iomem *addr)
+ {
+ 	u32 val;
+ 
++	sync_mmu_v1();
+ 	asm volatile("lw %0, 0(%1)" : "=r" (val) : "r" (addr));
++	sync_mmu_v1();
+ 	return val;
+ }
+ 
+@@ -85,7 +100,9 @@ static inline u64 __raw_readq(const volatile void __iomem *addr)
+ {
+ 	u64 val;
+ 
++	sync_mmu_v1();
+ 	asm volatile("ld %0, 0(%1)" : "=r" (val) : "r" (addr));
++	sync_mmu_v1();
+ 	return val;
+ }
+ #endif
+diff --git a/arch/riscv/include/asm/tlbflush.h b/arch/riscv/include/asm/tlbflush.h
+index 7b55414..7c2454e 100644
+--- a/arch/riscv/include/asm/tlbflush.h
++++ b/arch/riscv/include/asm/tlbflush.h
+@@ -12,12 +12,18 @@
+ 
+ static inline void local_flush_tlb_all(void)
+ {
++	sync_mmu_v1();
++	sync_mmu_v1();
++	sync_mmu_v1();
+ 	__asm__ __volatile__ ("sfence.vma" : : : "memory");
+ }
+ 
+ /* Flush one page from local TLB */
+ static inline void local_flush_tlb_page(unsigned long addr)
+ {
++	sync_mmu_v1();
++	sync_mmu_v1();
++	sync_mmu_v1();
+ 	__asm__ __volatile__ ("sfence.vma %0" : : "r" (addr) : "memory");
+ }
+ 
+@@ -49,6 +55,9 @@ static inline void flush_tlb_kernel_range(unsigned long start,
+ 	end   &= PAGE_MASK;
+ 
+ 	while (start < end) {
++		sync_mmu_v1();
++		sync_mmu_v1();
++		sync_mmu_v1();
+ 		__asm__ __volatile__ ("sfence.vma %0" : : "r" (start) : "memory");
+ 		start += PAGE_SIZE;
+ 	}
+diff --git a/arch/riscv/mm/context.c b/arch/riscv/mm/context.c
+index cae066c..f73bc92 100644
+--- a/arch/riscv/mm/context.c
++++ b/arch/riscv/mm/context.c
+@@ -8,6 +8,7 @@
+ #include <asm/tlbflush.h>
+ #include <asm/cacheflush.h>
+ #include <asm/mmu_context.h>
++#include <asm/fence.h>
+ 
+ /*
+  * When necessary, performs a deferred icache flush for the given MM context,
+@@ -45,6 +46,7 @@ void switch_mm(struct mm_struct *prev, struct mm_struct *next,
+ {
+ 	unsigned int cpu;
+ 	unsigned long asid;
++	unsigned long x;
+ 
+ 	if (unlikely(prev == next))
+ 		return;
+@@ -63,7 +65,11 @@ void switch_mm(struct mm_struct *prev, struct mm_struct *next,
+ 	asid = (next->context.asid.counter & SATP_ASID_MASK)
+ 		<< SATP_ASID_SHIFT;
+ 
+-	csr_write(sptbr, virt_to_pfn(next->pgd) | SATP_MODE | asid);
++	x = virt_to_pfn(next->pgd) | SATP_MODE | asid;
++	sync_mmu_v1();
++	sync_mmu_v1();
++	sync_mmu_v1();
++	csr_write(sptbr, x);
+ 
+ 	flush_icache_deferred(next);
+ }
+diff --git a/arch/riscv/mm/tlbflush.c b/arch/riscv/mm/tlbflush.c
+index 8c3f41c..00d4a77 100644
+--- a/arch/riscv/mm/tlbflush.c
++++ b/arch/riscv/mm/tlbflush.c
+@@ -7,23 +7,39 @@
+ #ifdef  XUANTIE
+ #include <asm/mmu_context.h>
+ 
++int c910_mmu_v1_flag = 0;
++
+ void flush_tlb_all(void)
+ {
++if (c910_mmu_v1_flag) {
++	sync_mmu_v1();
++	sync_mmu_v1();
++	sync_mmu_v1();
++}
++
+ 	__asm__ __volatile__ ("sfence.vma" : : : "memory");
+ }
+ 
+ void flush_tlb_mm(struct mm_struct *mm)
+ {
++if (c910_mmu_v1_flag) {
+ 	int newpid = cpu_asid(mm);
+ 
+ 	__asm__ __volatile__ ("sfence.vma zero, %0"
+ 				:
+ 				: "r"(newpid)
+ 				: "memory");
++} else {
++	sync_mmu_v1();
++	sync_mmu_v1();
++	sync_mmu_v1();
++	__asm__ __volatile__ ("sfence.vma" : : : "memory");
++}
+ }
+ 
+ void flush_tlb_page(struct vm_area_struct *vma, unsigned long addr)
+ {
++if (c910_mmu_v1_flag) {
+ 	int newpid = cpu_asid(vma->vm_mm);
+ 
+ 	addr &= PAGE_MASK;
+@@ -32,6 +48,18 @@ void flush_tlb_page(struct vm_area_struct *vma, unsigned long addr)
+ 				:
+ 				: "r"(addr), "r"(newpid)
+ 				: "memory");
++
++} else {
++	addr &= PAGE_MASK;
++
++	sync_mmu_v1();
++	sync_mmu_v1();
++	sync_mmu_v1();
++	__asm__ __volatile__ ("sfence.vma %0"
++				:
++				: "r"(addr)
++				: "memory");
++}
+ }
+ 
+ void flush_tlb_range(struct vm_area_struct *vma, unsigned long start,
+@@ -43,6 +71,18 @@ void flush_tlb_range(struct vm_area_struct *vma, unsigned long start,
+ 	end   += PAGE_SIZE - 1;
+ 	end   &= PAGE_MASK;
+ 
++if (c910_mmu_v1_flag) {
++	while (start < end) {
++		sync_mmu_v1();
++		sync_mmu_v1();
++		sync_mmu_v1();
++		__asm__ __volatile__ ("sfence.vma %0"
++					:
++					: "r"(start)
++					: "memory");
++		start += PAGE_SIZE;
++	}
++} else {
+ 	while (start < end) {
+ 		__asm__ __volatile__ ("sfence.vma %0, %1"
+ 					:
+@@ -51,6 +91,15 @@ void flush_tlb_range(struct vm_area_struct *vma, unsigned long start,
+ 		start += PAGE_SIZE;
+ 	}
+ }
++}
++
++static int __init c910_mmu_v1(char *str)
++{
++	c910_mmu_v1_flag = 1;
++	return 0;
++}
++early_param("c910_mmu_v1", c910_mmu_v1);
++
+ #else
+ #include <asm/sbi.h>
+ 
+-- 
+2.7.4
+

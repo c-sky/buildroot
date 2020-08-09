@@ -1,7 +1,7 @@
-From 3d9407760c42b12c0610aaf5da27d691ac39c90e Mon Sep 17 00:00:00 2001
+From faa8ce0bba0ec139922392a424dfef407e8370f6 Mon Sep 17 00:00:00 2001
 From: Liu Yibin <jiulong@linux.alibaba.com>
 Date: Fri, 15 May 2020 17:58:37 +0800
-Subject: [PATCH 10/10] Add kdump support for riscv
+Subject: [PATCH 10/15] Add kdump support for riscv
 
 This patch adds kdump for RISC-V. I've tested it on
 riscv64 qemu.

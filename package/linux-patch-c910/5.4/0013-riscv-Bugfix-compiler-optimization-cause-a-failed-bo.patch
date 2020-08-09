@@ -1,9 +1,11 @@
-From 33aba2a348a63b3b842de3e6caead839ba3c3bbd Mon Sep 17 00:00:00 2001
+From 3ac6233b8a367af6fc07beb0d19106b78698b1c6 Mon Sep 17 00:00:00 2001
 From: Liu Yibin <jiulong@linux.alibaba.com>
 Date: Mon, 3 Aug 2020 16:10:26 +0800
-Subject: [PATCH] riscv: Bugfix compiler optimization cause a failed bootup
+Subject: [PATCH 13/15] riscv: Bugfix compiler optimization cause a failed
+ bootup
 
 Signed-off-by: Liu Yibin <jiulong@linux.alibaba.com>
+Signed-off-by: Guo Ren <guoren@linux.alibaba.com>
 ---
  arch/riscv/kernel/setup.c   | 2 +-
  arch/riscv/kernel/smpboot.c | 4 ++--

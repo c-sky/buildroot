@@ -1,7 +1,7 @@
-From 7a9fece5668df5d145782e656ece852cec4c8920 Mon Sep 17 00:00:00 2001
+From 9b9ea43fedceaa2b0454e721c0d8f3de144b21c3 Mon Sep 17 00:00:00 2001
 From: Guo Ren <guoren@kernel.org>
 Date: Sun, 19 Jan 2020 17:12:33 +0800
-Subject: [PATCH 07/10] riscv: Support ARCH_HAS_DMA_MMAP_PGPROT
+Subject: [PATCH 07/15] riscv: Support ARCH_HAS_DMA_MMAP_PGPROT
 
 Implement riscv's own arch_dma_mmap_pgprot to support writecombine
 dma memory allocate.
