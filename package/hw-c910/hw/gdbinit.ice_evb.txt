@@ -34,9 +34,6 @@ set $pmpaddr7 = 0xffffffffff >> 2
 # Access needn't lock bit for the m state.
 set $pmpcfg0 = 0x88980000001b1b1f
 
-# Reset DW AXI DMAC
-set *0x3fff78050 |= (1 << 0)
-
 set $opensbi_addr = 0x00000000
 set $vmlinux_addr = $opensbi_addr + 0x00200000
 set $rootfs_addr  = $opensbi_addr + 0x02000000

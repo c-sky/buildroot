@@ -4,12 +4,26 @@ set height 0
 # Don't confirm when quit
 set confirm off
 
-file ppl-ice_evb
-load
-c
+# Setup clock and ddr if necessary
+if (($mxstatus & 0xf0000000) == 0xc0000000)
+	file ppl-ice_evb
+	load
+	c
 
-file spl-ice_evb
-load
-c
+	file spl-ice_evb
+	load
+	c
+end
 
 shell $(sleep 1)
+
+# Set cpu mode to M-status
+set $satp=0
+set *0x0=0x73
+set $pc=0
+si
+set $pc=0
+si
+
+# Reset DW AXI DMAC
+set *0x3fff78050 |= (1 << 0)
