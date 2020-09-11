@@ -94,10 +94,46 @@
 			#interrupt-cells = <1>;
 		};
 
-		timer0: timer {
+		mptimer: mptimer {
 			compatible = "csky,mptimer";
 			clocks = <&dummy_timer>;
 			interrupts = <16>;
+			interrupt-parent = <&intc>;
+		};
+
+		timer0: timer0@fff70000 {
+			compatible = "snps,dw-apb-timer";
+			reg = <0xfff70000 0x80>;
+			clocks = <&dummy_apb>;
+			clock-names = "timer";
+			interrupts = <32>;
+			interrupt-parent = <&intc>;
+		};
+
+		timer1: timer1@fff70014 {
+			compatible = "snps,dw-apb-timer";
+			reg = <0xfff70014 0x80>;
+			clocks = <&dummy_apb>;
+			clock-names = "timer";
+			interrupts = <33>;
+			interrupt-parent = <&intc>;
+		};
+
+		timer2: timer2@fff70028 {
+			compatible = "snps,dw-apb-timer";
+			reg = <0xfff70028 0x80>;
+			clocks = <&dummy_apb>;
+			clock-names = "timer";
+			interrupts = <34>;
+			interrupt-parent = <&intc>;
+		};
+
+		timer3: timer3@fff7003c {
+			compatible = "snps,dw-apb-timer";
+			reg = <0xfff7003c 0x80>;
+			clocks = <&dummy_apb>;
+			clock-names = "timer";
+			interrupts = <35>;
 			interrupt-parent = <&intc>;
 		};
 
