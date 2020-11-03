@@ -25,16 +25,16 @@ function mount_prepare()
 
 function ntfs3g_worker()
 {
-	gzip -c -9 $1 > test_$2.gz
+	nice -n -5 gzip -c -9 $1 > test_$2.gz
 	if [ -f test_$2.gz ]; then
-		MD5SUM_ZIP=`md5sum test_$2.gz|awk '{print $1}'`
+		MD5SUM_ZIP=`nice -n -5 md5sum test_$2.gz|awk '{print $1}'`
 		if [ ${MD5SUM_ZIP} != ${MD5SUM_SEED_ZIP} ];then
 			echo "zip error: ${MD5SUM_ZIP}"
 			exit 1
 		fi
 		echo "${MD5SUM_ZIP}   zip $2"
 
-		MD5SUM_UNZIP=`gzip -d -c /mnt/test_$2.gz|md5sum|awk '{print $1}'`
+		MD5SUM_UNZIP=`nice -n -5 gzip -d -c /mnt/test_$2.gz|md5sum|awk '{print $1}'`
 		if [ ${MD5SUM_UNZIP} != ${MD5SUM_SEED} ]; then
 			echo "unzip error: ${MD5SUM_UNZIP}"
 			exit 1
@@ -73,10 +73,10 @@ do
 	ntfs3g_worker /mnt/test.bin $j &
 
 	while [ `ls /mnt/test_*|wc -w` -ge "6" ]; do
-		sleep 1
+		echo hello > /dev/null
 	done
 done
 cd -
 
-sleep 120
+sleep 60
 echo "ntfs-3g test pass."
