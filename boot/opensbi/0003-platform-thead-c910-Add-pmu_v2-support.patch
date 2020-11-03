@@ -1,0 +1,149 @@
+From cc4e87b796f7c47ce97af78f76b2284e23770f5e Mon Sep 17 00:00:00 2001
+From: Guo Ren <guoren@linux.alibaba.com>
+Date: Tue, 1 Sep 2020 16:54:46 +0000
+Subject: [PATCH 3/3] platform/thead/c910: Add pmu_v2 support
+
+Support events dynamically bind to counters.
+
+Signed-off-by: Guo Ren <guoren@linux.alibaba.com>
+---
+ platform/thead/c910/platform.c | 109 ++++++++++++++++++++++++++++++++++++++++-
+ 1 file changed, 107 insertions(+), 2 deletions(-)
+
+diff --git a/platform/thead/c910/platform.c b/platform/thead/c910/platform.c
+index 4fe3619..ae90885 100644
+--- a/platform/thead/c910/platform.c
++++ b/platform/thead/c910/platform.c
+@@ -121,7 +121,7 @@ static int c910_system_shutdown(u32 type)
+ 	return 0;
+ }
+ 
+-void sbi_set_pmu()
++void sbi_pmu_init(void)
+ {
+ 	unsigned long interrupts;
+ 
+@@ -158,6 +158,111 @@ void sbi_set_pmu()
+ 	csr_write(CSR_MHPMEVENT28, 26);
+ }
+ 
++void sbi_pmu_map(unsigned long idx, unsigned long event_id)
++{
++	switch (idx) {
++	case 3:
++		csr_write(CSR_MHPMEVENT3, event_id);
++		break;
++	case 4:
++		csr_write(CSR_MHPMEVENT4, event_id);
++		break;
++	case 5:
++		csr_write(CSR_MHPMEVENT5, event_id);
++		break;
++	case 6:
++		csr_write(CSR_MHPMEVENT6, event_id);
++		break;
++	case 7:
++		csr_write(CSR_MHPMEVENT7, event_id);
++		break;
++	case 8:
++		csr_write(CSR_MHPMEVENT8, event_id);
++		break;
++	case 9:
++		csr_write(CSR_MHPMEVENT9, event_id);
++		break;
++	case 10:
++		csr_write(CSR_MHPMEVENT10, event_id);
++		break;
++	case 11:
++		csr_write(CSR_MHPMEVENT11, event_id);
++		break;
++	case 12:
++		csr_write(CSR_MHPMEVENT12, event_id);
++		break;
++	case 13:
++		csr_write(CSR_MHPMEVENT13, event_id);
++		break;
++	case 14:
++		csr_write(CSR_MHPMEVENT14, event_id);
++		break;
++	case 15:
++		csr_write(CSR_MHPMEVENT15, event_id);
++		break;
++	case 16:
++		csr_write(CSR_MHPMEVENT16, event_id);
++		break;
++	case 17:
++		csr_write(CSR_MHPMEVENT17, event_id);
++		break;
++	case 18:
++		csr_write(CSR_MHPMEVENT18, event_id);
++		break;
++	case 19:
++		csr_write(CSR_MHPMEVENT19, event_id);
++		break;
++	case 20:
++		csr_write(CSR_MHPMEVENT20, event_id);
++		break;
++	case 21:
++		csr_write(CSR_MHPMEVENT21, event_id);
++		break;
++	case 22:
++		csr_write(CSR_MHPMEVENT22, event_id);
++		break;
++	case 23:
++		csr_write(CSR_MHPMEVENT23, event_id);
++		break;
++	case 24:
++		csr_write(CSR_MHPMEVENT24, event_id);
++		break;
++	case 25:
++		csr_write(CSR_MHPMEVENT25, event_id);
++		break;
++	case 26:
++		csr_write(CSR_MHPMEVENT26, event_id);
++		break;
++	case 27:
++		csr_write(CSR_MHPMEVENT27, event_id);
++		break;
++	case 28:
++		csr_write(CSR_MHPMEVENT28, event_id);
++		break;
++	case 29:
++		csr_write(CSR_MHPMEVENT29, event_id);
++		break;
++	case 30:
++		csr_write(CSR_MHPMEVENT30, event_id);
++		break;
++	case 31:
++		csr_write(CSR_MHPMEVENT31, event_id);
++		break;
++	}
++}
++
++void sbi_set_pmu(unsigned long type, unsigned long idx, unsigned long event_id)
++{
++	switch (type) {
++	case 2:
++		sbi_pmu_map(idx, event_id);
++		break;
++	default:
++		sbi_pmu_init();
++		break;
++	}
++}
++
+ void sbi_boot_other_core(int hartid)
+ {
+ 	csr_write(CSR_MRVBR, FW_TEXT_START);
+@@ -174,7 +279,7 @@ static int c910_vendor_ext_provider(long extid, long funcid,
+ 		sbi_boot_other_core((int)args[0]);
+ 		break;
+ 	case SBI_EXT_VENDOR_C910_SET_PMU:
+-		sbi_set_pmu();
++		sbi_set_pmu(args[0], args[1], args[2]);
+ 		break;
+ 	default:
+ 		sbi_printf("Unsupported private sbi call: %ld\n", extid);
+-- 
+2.7.4
+
