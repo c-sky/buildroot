@@ -1,0 +1,54 @@
+From ff805a116c917799df107a23c941665019f25cda Mon Sep 17 00:00:00 2001
+From: Zong Li <zong.li@sifive.com>
+Date: Wed, 21 Oct 2020 15:38:39 +0800
+Subject: [PATCH 25/27] stop_machine: Mark functions as notrace
+
+Like the commit cb9d7fd51d9f ("watchdog: Mark watchdog touch functions
+as notrace"), some architectures assume that the stopped CPUs don't make
+function calls to traceable functions when they are in the stopped
+state. For example, it causes unexpected kernel crashed when switching
+tracer on RISC-V.
+
+The following patches added calls to these two functions, fix it by
+adding the notrace annotations.
+
+Fixes: 4ecf0a43e729 ("processor: get rid of cpu_relax_yield")
+Fixes: 366237e7b083 ("stop_machine: Provide RCU quiescent state in
+multi_cpu_stop()")
+
+Signed-off-by: Zong Li <zong.li@sifive.com>
+Signed-off-by: Guo Ren <guoren@linux.alibaba.com>
+---
+ kernel/rcu/tree.c     | 2 +-
+ kernel/stop_machine.c | 2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/kernel/rcu/tree.c b/kernel/rcu/tree.c
+index f78ee75..62f3fb1 100644
+--- a/kernel/rcu/tree.c
++++ b/kernel/rcu/tree.c
+@@ -416,7 +416,7 @@ bool rcu_eqs_special_set(int cpu)
+  *
+  * The caller must have disabled interrupts and must not be idle.
+  */
+-void rcu_momentary_dyntick_idle(void)
++notrace void rcu_momentary_dyntick_idle(void)
+ {
+ 	int special;
+ 
+diff --git a/kernel/stop_machine.c b/kernel/stop_machine.c
+index 865bb02..890b79cf 100644
+--- a/kernel/stop_machine.c
++++ b/kernel/stop_machine.c
+@@ -178,7 +178,7 @@ static void ack_state(struct multi_stop_data *msdata)
+ 		set_state(msdata, msdata->state + 1);
+ }
+ 
+-void __weak stop_machine_yield(const struct cpumask *cpumask)
++notrace void __weak stop_machine_yield(const struct cpumask *cpumask)
+ {
+ 	cpu_relax();
+ }
+-- 
+2.7.4
+

@@ -146,6 +146,7 @@ wait_for_trigger:
 610_4.14_uclibc_compat: *common_build
 610_4.14_glibc_compat: *common_build
 610_4.19_glibc_compat: *common_build
+610_5.9_glibc_compat: *common_build
 610_next_glibc_compat: *common_build
 
 610_4.9_uclibc_qemu_test:
@@ -171,6 +172,11 @@ wait_for_trigger:
 610_4.19_glibc_qemu_test:
     dependencies:
       - 610_4.19_glibc_compat
+    <<: *610_qemu_test
+
+610_5.9_glibc_qemu_test:
+    dependencies:
+      - 610_5.9_glibc_compat
     <<: *610_qemu_test
 
 610_next_glibc_qemu_test:
@@ -231,6 +237,7 @@ wait_for_trigger:
 810f_4.14_uclibc_compat: *common_build
 810f_4.14_glibc_compat: *common_build
 810f_4.19_glibc_compat: *common_build
+810f_5.9_glibc_compat: *common_build
 810f_next_glibc_compat: *common_build
 
 810f_4.9_uclibc_qemu_test:
@@ -256,6 +263,11 @@ wait_for_trigger:
 810f_4.19_glibc_qemu_test:
     dependencies:
       - 810f_4.19_glibc_compat
+    <<: *810_qemu_test
+
+810f_5.9_glibc_qemu_test:
+    dependencies:
+      - 810f_5.9_glibc_compat
     <<: *810_qemu_test
 
 810f_next_glibc_qemu_test:
@@ -361,6 +373,7 @@ wait_for_trigger:
 860_4.14_glibc_compat: *common_build
 860_4.14_uclibc_compat: *common_build
 860_4.19_glibc_compat: *common_build
+860_5.9_glibc_compat: *common_build
 860_next_glibc_compat: *common_build
 
 860_4.9_glibc_qemu_test:
@@ -386,6 +399,11 @@ wait_for_trigger:
 860_4.19_glibc_qemu_test:
     dependencies:
       - 860_4.19_glibc_compat
+    <<: *860_qemu_test
+
+860_5.9_glibc_qemu_test:
+    dependencies:
+      - 860_5.9_glibc_compat
     <<: *860_qemu_test
 
 860_next_glibc_qemu_test:
@@ -529,6 +547,7 @@ wait_for_trigger:
 
 910_5.1_glibc_compat: *common_build
 9xx_5.4_glibc_compat: *common_build
+9xx_5.9_glibc_compat: *common_build
 910_next_glibc_compat: *common_build
 
 910_5.1_glibc_qemu_test:
@@ -539,6 +558,11 @@ wait_for_trigger:
 9xx_5.4_glibc_qemu_test:
     dependencies:
       - 9xx_5.4_glibc_compat
+    <<: *910_qemu_test
+
+9xx_5.9_glibc_qemu_test:
+    dependencies:
+      - 9xx_5.9_glibc_compat
     <<: *910_qemu_test
 
 910_next_glibc_qemu_test:
@@ -586,7 +610,6 @@ wait_for_trigger:
     dependencies:
       - 910_5.1_glibc_enhanced
     <<: *910_qemu_test_enhanced
-
 
 910f_5.1_glibc_qemu_test_enhanced:
     dependencies:

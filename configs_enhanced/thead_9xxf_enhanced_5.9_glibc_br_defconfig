@@ -13,15 +13,14 @@ BR2_SHARED_STATIC_LIBS=y
 BR2_ROOTFS_DEVICE_TABLE="board/csky-ci/device_table.txt"
 BR2_ROOTFS_DEVICE_CREATION_DYNAMIC_MDEV=y
 
-# Toolchain
-# Linux headers same as kernel, a 5.4 series
 # Kernel
 BR2_LINUX_KERNEL=y
-BR2_LINUX_KERNEL_CUSTOM_TARBALL=y
-BR2_LINUX_KERNEL_CUSTOM_TARBALL_LOCATION="https://github.com/c-sky/csky-linux/archive/$(CSKY_LINUX_NEXT_RISCV_VERSION).tar.gz"
+BR2_LINUX_KERNEL_CUSTOM_VERSION=y
+BR2_LINUX_KERNEL_CUSTOM_VERSION_VALUE="5.9.3"
 BR2_LINUX_KERNEL_USE_ARCH_DEFAULT_CONFIG=y
 BR2_LINUX_KERNEL_IMAGE=y
-BR2_LINUX_KERNEL_CONFIG_FRAGMENT_FILES="package/linux-patch-c910/linux-5.1.config.fragment package/csky-qa/linux-riscv-vdsp.config.fragment package/csky-qa/linux-riscv-xthead.config.fragment board/csky-ci/defconfigs/kernel.pci-9pfs-gpu.fragment"
+BR2_LINUX_KERNEL_PATCH="package/linux-patch-thead/5.9/"
+BR2_LINUX_KERNEL_CONFIG_FRAGMENT_FILES="package/linux-patch-thead/linux-5.9.config.fragment package/csky-qa/linux-riscv-vdsp.config.fragment package/csky-qa/linux-riscv-xthead.config.fragment board/csky-ci/defconfigs/kernel.pci-9pfs-gpu.fragment"
 
 # Bootloader
 BR2_TARGET_OPENSBI=y

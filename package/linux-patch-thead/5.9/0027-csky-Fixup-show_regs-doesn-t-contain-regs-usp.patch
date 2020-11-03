@@ -1,0 +1,33 @@
+From 670e237f6e681c9e516332fbf9a96ef9e12d684a Mon Sep 17 00:00:00 2001
+From: Guo Ren <guoren@linux.alibaba.com>
+Date: Thu, 29 Oct 2020 02:40:37 +0000
+Subject: [PATCH 27/27] csky: Fixup show_regs doesn't contain regs->usp
+
+Current show_regs didn't display regs->usp and it confused debug.
+So fixup wrong SP display and add PT_REGS.
+
+Signed-off-by: Guo Ren <guoren@linux.alibaba.com>
+---
+ arch/csky/kernel/ptrace.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
+
+diff --git a/arch/csky/kernel/ptrace.c b/arch/csky/kernel/ptrace.c
+index d822144..e5bd4e0 100644
+--- a/arch/csky/kernel/ptrace.c
++++ b/arch/csky/kernel/ptrace.c
+@@ -363,9 +363,10 @@ void show_regs(struct pt_regs *fp)
+ 
+ 	pr_info("PC: 0x%08lx (%pS)\n", (long)fp->pc, (void *)fp->pc);
+ 	pr_info("LR: 0x%08lx (%pS)\n", (long)fp->lr, (void *)fp->lr);
+-	pr_info("SP: 0x%08lx\n", (long)fp);
+-	pr_info("orig_a0: 0x%08lx\n", fp->orig_a0);
++	pr_info("SP: 0x%08lx\n", (long)fp->usp);
+ 	pr_info("PSR: 0x%08lx\n", (long)fp->sr);
++	pr_info("orig_a0: 0x%08lx\n", fp->orig_a0);
++	pr_info("PT_REGS: 0x%08lx\n", (long)fp);
+ 
+ 	pr_info(" a0: 0x%08lx   a1: 0x%08lx   a2: 0x%08lx   a3: 0x%08lx\n",
+ 		fp->a0, fp->a1, fp->a2, fp->a3);
+-- 
+2.7.4
+

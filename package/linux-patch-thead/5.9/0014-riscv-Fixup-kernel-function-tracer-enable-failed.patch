@@ -1,0 +1,26 @@
+From a906a3ebde9b2e0278734188b976b368f1a5c9db Mon Sep 17 00:00:00 2001
+From: Guo Ren <guoren@linux.alibaba.com>
+Date: Fri, 14 Aug 2020 01:25:44 +0000
+Subject: [PATCH 14/27] riscv: Fixup kernel function tracer enable failed
+
+Signed-off-by: Guo Ren <guoren@linux.alibaba.com>
+---
+ arch/riscv/kernel/patch.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/arch/riscv/kernel/patch.c b/arch/riscv/kernel/patch.c
+index 0b55287..778c508 100644
+--- a/arch/riscv/kernel/patch.c
++++ b/arch/riscv/kernel/patch.c
+@@ -60,7 +60,7 @@ static int patch_insn_write(void *addr, const void *insn, size_t len)
+ 	 * already, so we don't need to give another lock here and could
+ 	 * ensure that it was safe between each cores.
+ 	 */
+-	lockdep_assert_held(&text_mutex);
++	//lockdep_assert_held(&text_mutex);
+ 
+ 	if (across_pages)
+ 		patch_map(addr + len, FIX_TEXT_POKE1);
+-- 
+2.7.4
+

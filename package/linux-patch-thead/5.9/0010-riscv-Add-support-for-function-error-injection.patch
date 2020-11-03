@@ -1,0 +1,105 @@
+From 4c7072e9171c77e00b4d7115801a64b2d48c6d5f Mon Sep 17 00:00:00 2001
+From: Guo Ren <guoren@linux.alibaba.com>
+Date: Mon, 13 Jul 2020 15:50:30 +0000
+Subject: [PATCH 10/27] riscv: Add support for function error injection
+
+Inspired by the commit 42d038c4fb00 ("arm64: Add support for function
+error injection"), this patch supports function error injection for
+riscv.
+
+This patch mainly support two functions: one is regs_set_return_value()
+which is used to overwrite the return value; the another function is
+override_function_with_return() which is to override the probed
+function returning and jump to its caller.
+
+Test log:
+ cd /sys/kernel/debug/fail_function
+ echo sys_clone > inject
+ echo 100 > probability
+ echo 1 > interval
+ ls /
+[  313.176875] FAULT_INJECTION: forcing a failure.
+[  313.176875] name fail_function, interval 1, probability 100, space 0, times 1
+[  313.184357] CPU: 0 PID: 87 Comm: sh Not tainted 5.8.0-rc5-00007-g6a758cc #117
+[  313.187616] Call Trace:
+[  313.189100] [<ffffffe0002036b6>] walk_stackframe+0x0/0xc2
+[  313.191626] [<ffffffe00020395c>] show_stack+0x40/0x4c
+[  313.193927] [<ffffffe000556c60>] dump_stack+0x7c/0x96
+[  313.194795] [<ffffffe0005522e8>] should_fail+0x140/0x142
+[  313.195923] [<ffffffe000299ffc>] fei_kprobe_handler+0x2c/0x5a
+[  313.197687] [<ffffffe0009e2ec4>] kprobe_breakpoint_handler+0xb4/0x18a
+[  313.200054] [<ffffffe00020357e>] do_trap_break+0x36/0xca
+[  313.202147] [<ffffffe000201bca>] ret_from_exception+0x0/0xc
+[  313.204556] [<ffffffe000201bbc>] ret_from_syscall+0x0/0x2
+-sh: can't fork: Invalid argument
+
+Signed-off-by: Guo Ren <guoren@linux.alibaba.com>
+Reviewed-by: Masami Hiramatsu <mhiramat@kernel.org>
+Cc: Palmer Dabbelt <palmerdabbelt@google.com>
+Cc: Paul Walmsley <paul.walmsley@sifive.com>
+---
+ arch/riscv/Kconfig              |  1 +
+ arch/riscv/include/asm/ptrace.h |  6 ++++++
+ arch/riscv/lib/Makefile         |  2 ++
+ arch/riscv/lib/error-inject.c   | 10 ++++++++++
+ 4 files changed, 19 insertions(+)
+ create mode 100644 arch/riscv/lib/error-inject.c
+
+diff --git a/arch/riscv/Kconfig b/arch/riscv/Kconfig
+index c10b451..2dd3bae 100644
+--- a/arch/riscv/Kconfig
++++ b/arch/riscv/Kconfig
+@@ -66,6 +66,7 @@ config RISCV
+ 	select HAVE_EBPF_JIT if MMU
+ 	select HAVE_FUTEX_CMPXCHG if FUTEX
+ 	select HAVE_GCC_PLUGINS
++	select HAVE_FUNCTION_ERROR_INJECTION
+ 	select HAVE_GENERIC_VDSO if MMU && 64BIT
+ 	select HAVE_KPROBES
+ 	select HAVE_KPROBES_ON_FTRACE
+diff --git a/arch/riscv/include/asm/ptrace.h b/arch/riscv/include/asm/ptrace.h
+index 23372bb..cb4abb6 100644
+--- a/arch/riscv/include/asm/ptrace.h
++++ b/arch/riscv/include/asm/ptrace.h
+@@ -109,6 +109,12 @@ static inline unsigned long regs_return_value(struct pt_regs *regs)
+ 	return regs->a0;
+ }
+ 
++static inline void regs_set_return_value(struct pt_regs *regs,
++					 unsigned long val)
++{
++	regs->a0 = val;
++}
++
+ extern int regs_query_register_offset(const char *name);
+ extern unsigned long regs_get_kernel_stack_nth(struct pt_regs *regs,
+ 					       unsigned int n);
+diff --git a/arch/riscv/lib/Makefile b/arch/riscv/lib/Makefile
+index 0d0db80..04baa93 100644
+--- a/arch/riscv/lib/Makefile
++++ b/arch/riscv/lib/Makefile
+@@ -4,3 +4,5 @@ lib-y			+= memcpy.o
+ lib-y			+= memset.o
+ lib-y			+= uaccess.o
+ lib-$(CONFIG_64BIT)	+= tishift.o
++
++obj-$(CONFIG_FUNCTION_ERROR_INJECTION) += error-inject.o
+diff --git a/arch/riscv/lib/error-inject.c b/arch/riscv/lib/error-inject.c
+new file mode 100644
+index 00000000..d667ade
+--- /dev/null
++++ b/arch/riscv/lib/error-inject.c
+@@ -0,0 +1,10 @@
++// SPDX-License-Identifier: GPL-2.0
++
++#include <linux/error-injection.h>
++#include <linux/kprobes.h>
++
++void override_function_with_return(struct pt_regs *regs)
++{
++	instruction_pointer_set(regs, regs->ra);
++}
++NOKPROBE_SYMBOL(override_function_with_return);
+-- 
+2.7.4
+

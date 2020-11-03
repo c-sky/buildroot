@@ -1,0 +1,78 @@
+From d744924a4456988d08162077ddc67455452734c8 Mon Sep 17 00:00:00 2001
+From: Guo Ren <guoren@linux.alibaba.com>
+Date: Sat, 27 Jun 2020 16:10:25 +0000
+Subject: [PATCH 02/27] riscv: Fixup compile error BUILD_BUG_ON failed
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+Unfortunately, the current code couldn't be compiled:
+
+  CC      arch/riscv/kernel/patch.o
+In file included from ./include/linux/kernel.h:11,
+                 from ./include/linux/list.h:9,
+                 from ./include/linux/preempt.h:11,
+                 from ./include/linux/spinlock.h:51,
+                 from arch/riscv/kernel/patch.c:6:
+In function ‘fix_to_virt’,
+    inlined from ‘patch_map’ at arch/riscv/kernel/patch.c:37:17:
+./include/linux/compiler.h:392:38: error: call to ‘__compiletime_assert_205’ declared with attribute error: BUILD_BUG_ON failed: idx >= __end_of_fixed_addresses
+  _compiletime_assert(condition, msg, __compiletime_assert_, __COUNTER__)
+                                      ^
+./include/linux/compiler.h:373:4: note: in definition of macro ‘__compiletime_assert’
+    prefix ## suffix();    \
+    ^~~~~~
+./include/linux/compiler.h:392:2: note: in expansion of macro ‘_compiletime_assert’
+  _compiletime_assert(condition, msg, __compiletime_assert_, __COUNTER__)
+  ^~~~~~~~~~~~~~~~~~~
+./include/linux/build_bug.h:39:37: note: in expansion of macro ‘compiletime_assert’
+ #define BUILD_BUG_ON_MSG(cond, msg) compiletime_assert(!(cond), msg)
+                                     ^~~~~~~~~~~~~~~~~~
+./include/linux/build_bug.h:50:2: note: in expansion of macro ‘BUILD_BUG_ON_MSG’
+  BUILD_BUG_ON_MSG(condition, "BUILD_BUG_ON failed: " #condition)
+  ^~~~~~~~~~~~~~~~
+./include/asm-generic/fixmap.h:32:2: note: in expansion of macro ‘BUILD_BUG_ON’
+  BUILD_BUG_ON(idx >= __end_of_fixed_addresses);
+  ^~~~~~~~~~~~
+
+Because fix_to_virt(, idx) needs a const value, not a dynamic variable of
+reg-a0 or BUILD_BUG_ON failed with "idx >= __end_of_fixed_addresses".
+
+Signed-off-by: Guo Ren <guoren@linux.alibaba.com>
+Reviewed-by: Masami Hiramatsu <mhiramat@kernel.org>
+Reviewed-by: Pekka Enberg <penberg@kernel.org>
+Cc: Paul Walmsley <paul.walmsley@sifive.com>
+Cc: Palmer Dabbelt <palmer@dabbelt.com>
+---
+ arch/riscv/kernel/patch.c | 8 ++++++--
+ 1 file changed, 6 insertions(+), 2 deletions(-)
+
+diff --git a/arch/riscv/kernel/patch.c b/arch/riscv/kernel/patch.c
+index 3fe7a52..0b55287 100644
+--- a/arch/riscv/kernel/patch.c
++++ b/arch/riscv/kernel/patch.c
+@@ -20,7 +20,12 @@ struct patch_insn {
+ };
+ 
+ #ifdef CONFIG_MMU
+-static void *patch_map(void *addr, int fixmap)
++/*
++ * The fix_to_virt(, idx) needs a const value (not a dynamic variable of
++ * reg-a0) or BUILD_BUG_ON failed with "idx >= __end_of_fixed_addresses".
++ * So use '__always_inline' and 'const unsigned int fixmap' here.
++ */
++static __always_inline void *patch_map(void *addr, const unsigned int fixmap)
+ {
+ 	uintptr_t uintaddr = (uintptr_t) addr;
+ 	struct page *page;
+@@ -37,7 +42,6 @@ static void *patch_map(void *addr, int fixmap)
+ 	return (void *)set_fixmap_offset(fixmap, page_to_phys(page) +
+ 					 (uintaddr & ~PAGE_MASK));
+ }
+-NOKPROBE_SYMBOL(patch_map);
+ 
+ static void patch_unmap(int fixmap)
+ {
+-- 
+2.7.4
+
