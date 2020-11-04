@@ -209,7 +209,7 @@
 			snps,fixed-burst;
 			snps,axi-config = <&stmmac_axi_setup>;
 
-			phy-mode = "rgmii-txid";
+			phy-mode = "rgmii-id";
 			rx-clk-delay = <0x1f>; /* for RGMII */
 			tx-clk-delay = <0x1f>; /* for RGMII */
 
