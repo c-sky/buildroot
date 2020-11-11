@@ -306,6 +306,8 @@
 		};
 
 		pmu: pmu {
+			interrupt-parent = <&cpu0_intc>;
+			interrupts = <17>;
 			compatible = "riscv,c910_pmu";
 		};
 
