@@ -23,6 +23,9 @@ elif [ $idx == "ice_evb" ]; then
 elif [ $idx == "ice_fpga" ]; then
 	BOARD="ice_fpga"
 	GDBRESET="noreset"
+elif [ $idx == "ice_fpga2" ]; then
+	BOARD="ice_fpga2"
+	GDBRESET="noreset"
 elif [ $idx == "th" ]; then
 	BOARD="th"
 elif [ $idx == "eg" ]; then
