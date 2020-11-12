@@ -1,6 +1,6 @@
 if [ $# -lt 1 -o $# -gt 4 ] ; then
-	echo "Usage: . run.sh <ip:port> [an/eg/ve/ice_evb/th] [s/m] noreset"
-	echo "Usage: [an/eg/ve/ice_evb/th] is for board name"
+	echo "Usage: . run.sh <ip:port> [an/eg/eg2/ve/ice_evb/ice_fpga/ice_fpga2/th] [s/m] noreset"
+	echo "Usage: [an/eg/eg2/ve/ice_evb/ice_fpga/ice_fpga2/th] is for board name"
 	echo "Usage: [s/m] is for onecore/twocore"
 	exit 1
 fi
@@ -30,6 +30,8 @@ elif [ $idx == "th" ]; then
 	BOARD="th"
 elif [ $idx == "eg" ]; then
 	BOARD="eg"
+elif [ $idx == "eg2" ]; then
+	BOARD="eg2"
 elif [ $idx == "ve" ]; then
 	BOARD="ve"
 	GDBRESET="noreset"
@@ -86,7 +88,7 @@ fi
 # Init DDR
 if [ $BOARD == "ve" ]; then
 	echo "No need ddr_init for veloce"
-elif [ $BOARD == "eg" ]; then
+elif [ $BOARD == "eg" -o $BOARD == "eg2" ]; then
 ./riscv64-elf-gdb -ex "tar remote $1" -x $DDRINIT ddr_init_$BOARD\_elf -ex "c" -ex "q" > /dev/null
 else
 ./riscv64-elf-gdb -ex "tar remote $1" -x $DDRINIT -ex "q"

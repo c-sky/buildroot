@@ -1,0 +1,15 @@
+# Set gdb environment
+set height 0
+
+# Don't confirm when quit
+set confirm off
+
+shell $(sleep 1)
+
+# FPGA demultiplex
+set *(unsigned int *) 0x1fbad008=0xff
+
+# Load the debugging elf file
+load
+
+disp /i $pc
