@@ -278,7 +278,9 @@
 		};
 
 		pmu: pmu {
-			compatible = "riscv,c910_pmu";
+			interrupt-parent = <&cpu0_intc>;
+			interrupts = <17>;
+			compatible = "thead,c900_pmu";
 		};
 
 		gmac: ethernet@1FB10000 {
