@@ -1,7 +1,7 @@
-From 2ac69f5ebb4ac8b9217a1eb17a74f1a26fe35114 Mon Sep 17 00:00:00 2001
+From 1036e68283cbc22edcf4ad09868a6fad80bfe93e Mon Sep 17 00:00:00 2001
 From: Lin Lei <linlei@linux.alibaba.com>
 Date: Thu, 30 Jul 2020 07:21:48 +0000
-Subject: [PATCH 18/27] drivers/net: Add dwmac-thead added.
+Subject: [PATCH 18/30] drivers/net: Add dwmac-thead added.
 
 Signed-off-by: Guo Ren <guoren@linux.alibaba.com>
 ---

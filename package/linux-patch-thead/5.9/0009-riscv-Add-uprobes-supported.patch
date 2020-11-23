@@ -1,7 +1,7 @@
-From 8fd1da0dc9db275da05c4f707a640f965522d92b Mon Sep 17 00:00:00 2001
+From 0f5e77445abc322060c004ec6d49c094c876e28a Mon Sep 17 00:00:00 2001
 From: Guo Ren <guoren@linux.alibaba.com>
 Date: Fri, 3 Jul 2020 09:51:40 +0000
-Subject: [PATCH 09/27] riscv: Add uprobes supported
+Subject: [PATCH 09/30] riscv: Add uprobes supported
 
 This patch adds support for uprobes on riscv architecture.
 

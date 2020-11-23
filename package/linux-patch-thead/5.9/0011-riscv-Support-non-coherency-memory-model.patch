@@ -1,7 +1,7 @@
-From 8fc0a1a28ea33a9414fa0f92f7a04387c509d110 Mon Sep 17 00:00:00 2001
+From 6d37d118f7b10f140ef122b010d2c45ad4cbb4ed Mon Sep 17 00:00:00 2001
 From: Guo Ren <guoren@linux.alibaba.com>
 Date: Mon, 23 Sep 2019 17:01:53 +0800
-Subject: [PATCH 11/27] riscv: Support non-coherency memory model
+Subject: [PATCH 11/30] riscv: Support non-coherency memory model
 
 The current riscv linux implementation requires SOC system to support
 memory coherence between all I/O devices and CPUs. But some SOC systems

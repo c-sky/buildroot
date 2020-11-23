@@ -1,7 +1,7 @@
-From cc4e4f113e5d16ca48b292798d8ca8b130abef2d Mon Sep 17 00:00:00 2001
+From 8ce5c5627bd64a5a3afbc9f92d9e71146d6eb387 Mon Sep 17 00:00:00 2001
 From: Guo Ren <guoren@linux.alibaba.com>
 Date: Sun, 9 Aug 2020 00:19:54 +0000
-Subject: [PATCH 06/27] riscv: Using PATCHABLE_FUNCTION_ENTRY instead of MCOUNT
+Subject: [PATCH 06/30] riscv: Using PATCHABLE_FUNCTION_ENTRY instead of MCOUNT
 
 This patch changes the current detour mechanism of dynamic ftrace
 which has been discussed during LPC 2020 RISCV-MC [1].
@@ -43,8 +43,8 @@ Cc: Paul Walmsley <paul.walmsley@sifive.com>
 ---
  arch/riscv/Makefile            |   2 +
  arch/riscv/kernel/ftrace.c     |  94 +++++++++---------
- arch/riscv/kernel/mcount-dyn.S | 211 ++++++++++++++++-------------------------
- 3 files changed, 131 insertions(+), 176 deletions(-)
+ arch/riscv/kernel/mcount-dyn.S | 218 +++++++++++++++++------------------------
+ 3 files changed, 139 insertions(+), 175 deletions(-)
 
 diff --git a/arch/riscv/Makefile b/arch/riscv/Makefile
 index fb6e37d..599aed6 100644
@@ -213,10 +213,10 @@ index 99e12fa..a4e66b4 100644
  }
  #endif /* CONFIG_DYNAMIC_FTRACE */
 diff --git a/arch/riscv/kernel/mcount-dyn.S b/arch/riscv/kernel/mcount-dyn.S
-index 35a6ed7..f49ac2d 100644
+index 35a6ed7..422fab3 100644
 --- a/arch/riscv/kernel/mcount-dyn.S
 +++ b/arch/riscv/kernel/mcount-dyn.S
-@@ -13,117 +13,52 @@
+@@ -13,117 +13,57 @@
  
  	.text
  
@@ -367,21 +367,28 @@ index 35a6ed7..f49ac2d 100644
 -	addi	s0, sp, (PT_SIZE_ON_STACK+16)
 +	addi	sp, sp, -PT_SIZE_ON_STACK
  
- 	sd x1,  PT_RA(sp)
 +	sd x1,  PT_EPC(sp)
++	addi	sp, sp, PT_SIZE_ON_STACK
++	ld x1,  (sp)
++	addi	sp, sp, -PT_SIZE_ON_STACK
+ 	sd x1,  PT_RA(sp)
++	ld x1,  PT_EPC(sp)
++
  	sd x2,  PT_SP(sp)
  	sd x3,  PT_GP(sp)
  	sd x4,  PT_TP(sp)
-@@ -157,7 +92,7 @@ ENDPROC(ftrace_caller)
- 	.endm
+@@ -158,6 +98,10 @@ ENDPROC(ftrace_caller)
  
  	.macro RESTORE_ALL
--	ld x1,  PT_RA(sp)
+ 	ld x1,  PT_RA(sp)
++	addi	sp, sp, PT_SIZE_ON_STACK
++	sd x1,  (sp)
++	addi	sp, sp, -PT_SIZE_ON_STACK
 +	ld x1,  PT_EPC(sp)
  	ld x2,  PT_SP(sp)
  	ld x3,  PT_GP(sp)
  	ld x4,  PT_TP(sp)
-@@ -189,48 +124,62 @@ ENDPROC(ftrace_caller)
+@@ -189,48 +133,62 @@ ENDPROC(ftrace_caller)
  	ld x30, PT_T5(sp)
  	ld x31, PT_T6(sp)
  
@@ -459,8 +466,8 @@ index 35a6ed7..f49ac2d 100644
  #ifdef CONFIG_FUNCTION_GRAPH_TRACER
 -	RESTORE_GRAPH_REG_ARGS
 -	call	ftrace_graph_caller
-+	addi	a0, sp, PT_SIZE_ON_STACK
-+	ld	a1, PT_RA(sp)
++	addi	a0, sp, PT_RA
++	ld	a1, PT_EPC(sp)
 +	addi	a1, a1, -FENTRY_RA_OFFSET
 +#ifdef HAVE_FUNCTION_GRAPH_FP_TEST
 +	mv	a2, s0

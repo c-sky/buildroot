@@ -1,7 +1,7 @@
-From 1e6da138fc28c2181f00ae50433f79621ba67719 Mon Sep 17 00:00:00 2001
+From a64ec806b3657ffd930aa29cd74328a781ace87a Mon Sep 17 00:00:00 2001
 From: Lu Chongzhi <chongzhi_lui@c-sky.com>
 Date: Thu, 20 Jun 2019 19:57:45 +0800
-Subject: [PATCH 23/27] thead: Fixup relocaton R_RISCV_ALIGN with our own
+Subject: [PATCH 23/30] thead: Fixup relocaton R_RISCV_ALIGN with our own
  compiler
 
  - Return 0 even relocation type is R_RISCV_ALIGN, the reason is:

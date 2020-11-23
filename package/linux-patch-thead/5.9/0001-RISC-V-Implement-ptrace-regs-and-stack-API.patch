@@ -1,7 +1,7 @@
-From 0896b0f14e01bd10f8e0adb86f7e94df8ac07be8 Mon Sep 17 00:00:00 2001
+From f681212dadafda5950f05bedf7a74b785e029a57 Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?Patrick=20St=C3=A4hlin?= <me@packi.ch>
 Date: Sat, 10 Nov 2018 19:39:13 +0100
-Subject: [PATCH 01/27] RISC-V: Implement ptrace regs and stack API
+Subject: [PATCH 01/30] RISC-V: Implement ptrace regs and stack API
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit

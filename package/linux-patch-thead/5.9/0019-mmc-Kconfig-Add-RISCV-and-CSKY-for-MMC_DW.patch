@@ -1,7 +1,7 @@
-From 58f62e887932f5e5e19d06262e88469f9662756a Mon Sep 17 00:00:00 2001
+From 00a0d485ae020969b742b27c6bfec920ec54d7fc Mon Sep 17 00:00:00 2001
 From: Guo Ren <guoren@linux.alibaba.com>
 Date: Sat, 8 Aug 2020 11:37:58 +0000
-Subject: [PATCH 19/27] mmc: Kconfig: Add RISCV and CSKY for MMC_DW
+Subject: [PATCH 19/30] mmc: Kconfig: Add RISCV and CSKY for MMC_DW
 
 Synopsys DesignWare MMC controller could be used in RISC-V and
 C-SKY architectures.

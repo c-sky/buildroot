@@ -1,7 +1,7 @@
-From 670e237f6e681c9e516332fbf9a96ef9e12d684a Mon Sep 17 00:00:00 2001
+From 435c53921186c331c340df86b99ebd6be8b7ed93 Mon Sep 17 00:00:00 2001
 From: Guo Ren <guoren@linux.alibaba.com>
 Date: Thu, 29 Oct 2020 02:40:37 +0000
-Subject: [PATCH 27/27] csky: Fixup show_regs doesn't contain regs->usp
+Subject: [PATCH 27/30] csky: Fixup show_regs doesn't contain regs->usp
 
 Current show_regs didn't display regs->usp and it confused debug.
 So fixup wrong SP display and add PT_REGS.

@@ -1,0 +1,71 @@
+From 727cd50d3fcc2b793fedda4ae672aad7fb846862 Mon Sep 17 00:00:00 2001
+From: Guo Ren <guoren@linux.alibaba.com>
+Date: Mon, 23 Nov 2020 07:53:53 +0000
+Subject: [PATCH 29/30] riscv: Fixup do_page_fault warning in uprobe_xol
+
+[  670.922295] BUG: sleeping function called from invalid context at kernel/locking/rwsem.c:1491
+[  670.930853] in_atomic(): 0, irqs_disabled(): 1, non_block: 0, pid: 96, name: hello
+[  670.938446] CPU: 0 PID: 96 Comm: hello Tainted: G        W         5.9.3-00875-gaf1498803464-dirty #31
+[  670.947775] Call Trace:
+[  670.950236] [<ffffffe000203dc8>] walk_stackframe+0x0/0xc2
+[  670.955650] [<ffffffe000204078>] show_stack+0x46/0x52
+[  670.960716] [<ffffffe0005a3fce>] dump_stack+0x90/0xb6
+[  670.965783] [<ffffffe0002336b2>] ___might_sleep+0xf8/0x10c
+[  670.971284] [<ffffffe000233716>] __might_sleep+0x50/0x7e
+[  670.976613] [<ffffffe000a71498>] down_read+0x32/0xe0
+[  670.981592] [<ffffffe000207798>] do_page_fault+0xf0/0x3d8
+[  670.987006] [<ffffffe000201de8>] ret_from_exception+0x0/0x14
+
+When CONFIG_DEBUG_ATOMIC_SLEEP is enabled:
+mmap_read_lock()->down_read()->might_sleep->___might_sleep() will
+check irqs_disabled() is 0 or Not. If irqs disabled, kernel prints
+the BUG warning.
+
+Uprobe need prepare a xol_slot to emulate single-step the instruction
+for uprobe with irqs-off in user context. So it's the only case for
+us to meet a irqs-off user context situation.
+
+Second:
+
+/* Enable interrupts if they were enabled in the parent context. */
+if (likely(regs->status & SR_PIE))
+	local_irq_enable();
+
+It's duplicate with the patch by Vincent commit: c82dd6d078a2 ("
+riscv: Avoid interrupts being erroneously enabled in
+handle_exception()")
+
+Signed-off-by: Guo Ren <guoren@linux.alibaba.com>
+Cc: Palmer Dabbelt <palmer@sifive.com>
+Cc: Vincent Chen <vincent.chen@sifive.com>
+---
+ arch/riscv/mm/fault.c | 6 ++----
+ 1 file changed, 2 insertions(+), 4 deletions(-)
+
+diff --git a/arch/riscv/mm/fault.c b/arch/riscv/mm/fault.c
+index e889e65..a9d1f12 100644
+--- a/arch/riscv/mm/fault.c
++++ b/arch/riscv/mm/fault.c
+@@ -55,10 +55,6 @@ asmlinkage void do_page_fault(struct pt_regs *regs)
+ 	if (unlikely((addr >= VMALLOC_START) && (addr <= VMALLOC_END)))
+ 		goto vmalloc_fault;
+ 
+-	/* Enable interrupts if they were enabled in the parent context. */
+-	if (likely(regs->status & SR_PIE))
+-		local_irq_enable();
+-
+ 	/*
+ 	 * If we're in an interrupt, have no user context, or are running
+ 	 * in an atomic region, then we must not take the fault.
+@@ -71,6 +67,8 @@ asmlinkage void do_page_fault(struct pt_regs *regs)
+ 
+ 	perf_sw_event(PERF_COUNT_SW_PAGE_FAULTS, 1, regs, addr);
+ 
++	/* Enable interrupts for user context. */
++	local_irq_enable();
+ retry:
+ 	mmap_read_lock(mm);
+ 	vma = find_vma(mm, addr);
+-- 
+2.7.4
+

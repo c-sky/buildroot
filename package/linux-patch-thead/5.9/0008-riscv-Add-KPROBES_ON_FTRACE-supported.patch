@@ -1,7 +1,7 @@
-From 7cd5ed0c6d56b2b5227cceca30176f1ca50bca9b Mon Sep 17 00:00:00 2001
+From 6c5c066a692035412fe2f95849bc232cd93504e1 Mon Sep 17 00:00:00 2001
 From: Guo Ren <guoren@linux.alibaba.com>
 Date: Wed, 8 Jul 2020 11:26:02 +0000
-Subject: [PATCH 08/27] riscv: Add KPROBES_ON_FTRACE supported
+Subject: [PATCH 08/30] riscv: Add KPROBES_ON_FTRACE supported
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit

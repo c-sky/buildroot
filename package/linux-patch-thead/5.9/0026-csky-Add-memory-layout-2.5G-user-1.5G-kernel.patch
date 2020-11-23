@@ -1,7 +1,7 @@
-From f7ee70575be4d0a99441f0a20010a6c4d4860880 Mon Sep 17 00:00:00 2001
+From 2c4cb240223fdf5188df3439e4e4ca8b408d7770 Mon Sep 17 00:00:00 2001
 From: Guo Ren <guoren@linux.alibaba.com>
 Date: Mon, 7 Sep 2020 06:20:18 +0000
-Subject: [PATCH 26/27] csky: Add memory layout 2.5G(user):1.5G(kernel)
+Subject: [PATCH 26/30] csky: Add memory layout 2.5G(user):1.5G(kernel)
 
 There are two ways for translating va to pa for csky:
  - Use TLB(Translate Lookup Buffer) and PTW (Page Table Walk)
