@@ -89,7 +89,7 @@ fi
 if [ $BOARD == "ve" ]; then
 	echo "No need ddr_init for veloce"
 elif [ $BOARD == "eg" -o $BOARD == "eg2" ]; then
-./riscv64-elf-gdb -ex "tar remote $1" -x $DDRINIT ddr_init_$BOARD\_elf -ex "c" -ex "q" > /dev/null
+./riscv64-elf-gdb -ex "tar remote $1" -x $DDRINIT ddr_init_eg_elf -ex "c" -ex "q" > /dev/null
 else
 ./riscv64-elf-gdb -ex "tar remote $1" -x $DDRINIT -ex "q"
 fi
