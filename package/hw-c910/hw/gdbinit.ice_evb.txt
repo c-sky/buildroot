@@ -36,7 +36,7 @@ set $pmpcfg0 = 0x88980000001b1b1f
 
 set $opensbi_addr = 0x00000000
 set $vmlinux_addr = $opensbi_addr + 0x00200000
-set $rootfs_addr  = $opensbi_addr + 0x02000000
+set $rootfs_addr  = $opensbi_addr + 0x04000000
 set $dtb_addr  = $rootfs_addr - 0x00100000
 
 # Load rootfs

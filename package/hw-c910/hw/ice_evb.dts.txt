@@ -294,6 +294,133 @@
 			#clock-cells = <0>;
 		};
 
+		usb: dwc3@3fff10000 {
+			compatible = "snps,dwc3";
+			reg = <0x3 0xfff10000 0x0 0x10000>;
+			interrupt-parent = <&intc>;
+			interrupts = <44>;
+			clocks = <&dummy_ahb>, <&dummy_ahb>, <&dummy_ahb>;
+			clock-names = "ref", "bus_early", "suspend";
+			maximum-speed = "super-speed";
+			dr_mode = "peripheral";
+			snps,usb3_lpm_capable;
+			snps,dis_u3_susphy_quirk;
+		};
+
+		gpio0: gpio@3fff71000 {
+			compatible = "snps,dw-apb-gpio";
+			reg = <0x3 0xfff71000 0x0 0x1000>;
+			#address-cells = <1>;
+			#size-cells = <0>;
+
+			/* GPIO0[0-31] */
+			gpio0_porta: gpio0-controller@0 {
+				compatible = "snps,dw-apb-gpio-port";
+				gpio-controller;
+				#gpio-cells = <2>;
+				snps,nr-gpios = <32>;
+				reg = <0>;
+
+				interrupt-controller;
+				#interrupt-cells = <2>;
+				interrupt-parent = <&intc>;
+				interrupts = <27>;
+			};
+
+			/* GPIO0[32-63] */
+			gpio0_portb: gpio0-controller@1 {
+				compatible = "snps,dw-apb-gpio-port";
+				gpio-controller;
+				#gpio-cells = <2>;
+				snps,nr-gpios = <32>;
+				reg = <1>;
+			};
+		};
+
+		gpio1: gpio@3fff72000 {
+			compatible = "snps,dw-apb-gpio";
+			reg = <0x3 0xfff72000 0x0 0x1000>;
+			#address-cells = <1>;
+			#size-cells = <0>;
+
+			/* GPIO1[0-31] */
+			gpio1_porta: gpio1-controller@0 {
+				compatible = "snps,dw-apb-gpio-port";
+				gpio-controller;
+				#gpio-cells = <2>;
+				snps,nr-gpios = <32>;
+				reg = <0>;
+			};
+
+			/* GPIO1[32-63] */
+			gpio1_portb: gpio1-controller@1 {
+				compatible = "snps,dw-apb-gpio-port";
+				gpio-controller;
+				#gpio-cells = <2>;
+				snps,nr-gpios = <32>;
+				reg = <1>;
+			};
+
+			/* GPIO1[64-95] */
+			gpio1_portc: gpio1-controller@2 {
+				compatible = "snps,dw-apb-gpio-port";
+				gpio-controller;
+				#gpio-cells = <2>;
+				snps,nr-gpios = <32>;
+				reg = <2>;
+			};
+		};
+
+		gpio-leds {
+			compatible = "gpio-leds";
+
+			led0 { /* GPIO0[11] - UART2_TXD */
+				label = "led0";
+				gpios = <&gpio0_porta 11 1>;
+				default-state = "off";
+			};
+		};
+
+		gpio-keys {
+			compatible = "gpio-keys";
+			/* autorepeat; */
+
+			key_0 { /* GPIO0[10] - UART2_RXD */
+				gpios = <&gpio0_porta 10 1>;
+				linux,code = <59>;
+				label = "key_0";
+			};
+		};
+
+		i2c@3fff74000 {
+			#address-cells = <1>;
+			#size-cells = <0>;
+			compatible = "snps,designware-i2c-ice";
+			reg = <0x3 0xfff74000 0x0 0x1000>;
+			interrupts = <21>;
+			interrupt-parent = <&intc>;
+			clocks = <&dummy_apb>;
+			clock-frequency = <400000>;
+
+			eeprom@50 {
+				compatible = "atmel,24c64";
+				reg = <0x50>;
+				pagesize = <32>;
+			};
+
+			goodix_ts@14 {
+				#gpio-cells = <2>;
+				compatible = "goodix,gt917s";
+				reg = <0x14>;
+				interrupt-parent = <&gpio0_porta>;
+				interrupts = <31 0>;
+				irq-gpios = <&gpio0_porta 31 0>;
+				reset-gpios = <&gpio0_porta 30 0>;
+				touchscreen-size-x = <720>;
+				touchscreen-size-y = <1440>;
+			};
+		};
+
 		serial@3fff73000 {
 			compatible = "snps,dw-apb-uart";
 			reg = <0x3 0xfff73000 0x0 0x400>;
@@ -344,6 +471,19 @@
 			bus-width = <8>;
 		};
 
+		sdhc1: sdhc1@3fffa0000 {
+			compatible = "snps,dw-mshc";
+			reg = <0x3 0xfffa0000 0x0 0x1000>;
+			interrupt-parent = <&intc>;
+			interrupts = <38>;
+			clocks = <&dummy_clk_sdio>, <&dummy_clk_sdio>;
+			clock-names = "ciu", "biu";
+			num-slots = <1>;
+			card-detect-delay = <200>;
+			cap-sd-highspeed;
+			bus-width = <4>;
+		};
+
 		stmmac_axi_setup: stmmac-axi-config {
 			snps,wr_osr_lmt = <3>;
 			snps,rd_osr_lmt = <3>;
@@ -381,11 +521,27 @@
 				};
 			};
 		};
+
+		gpu: gpu@3fff27000 {
+			compatible = "verisilicon,gc8000ul";
+			reg = <0x3 0xfff27000 0x0 0x1000>;
+			interrupt-parent = <&intc>;
+			interrupts = <63>;
+			contiguous-base = <0x0 0x60000000>;
+			contiguous-size = <0x0 0x10000000>;
+		};
+
+		dpu: dpu@3fff28000 {
+			compatible = "verisilicon,dc8000-fb";
+			reg = <0x3 0xfff28000 0x0 0x8000>;
+			interrupt-parent = <&intc>;
+			interrupts = <64>;
+		};
 	};
 
 	chosen {
 		bootargs = "console=ttyS0,115200 crashkernel=256M-:128M c910_mmu_v1 blkdevparts=mmcblk0:2M(table),2M(dtb),20M(kernel),60M(rootfs),-(app)";
-		linux,initrd-start = <0x0 0x2000000>;
+		linux,initrd-start = <0x0 0x4000000>;
 		linux,initrd-end = <0x0 0x0>;
 		stdout-path = "/soc/serial@3fff73000:115200";
 	};
