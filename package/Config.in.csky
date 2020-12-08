@@ -17,4 +17,5 @@ menu "T-HEAD extension"
 	source "package/qemu-enhanced/Config.in"
 	source "package/csky-jtag/Config.in"
 	source "package/fedora-need/Config.in"
+	source "package/coremark/Config.in"
 endmenu
