@@ -6,12 +6,8 @@ set confirm off
 
 # Setup clock and ddr if necessary
 if (($mxstatus & 0xf0000000) == 0xc0000000)
-	file ppl-ice_evb
-	load
-	c
-
-	file spl-ice_evb
-	load
+	restore u-boot-spl.bin binary 0x3fe400000
+	set $pc=0x3fe400000
 	c
 end
 
