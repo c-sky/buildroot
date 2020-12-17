@@ -1,7 +1,7 @@
 From 1eb324431f9888672137feac0cd09891dc27674f Mon Sep 17 00:00:00 2001
 From: Guo Ren <guoren@linux.alibaba.com>
 Date: Sat, 27 Jun 2020 16:10:25 +0000
-Subject: [PATCH 02/30] riscv: Fixup compile error BUILD_BUG_ON failed
+Subject: [PATCH 02/31] riscv: Fixup compile error BUILD_BUG_ON failed
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit

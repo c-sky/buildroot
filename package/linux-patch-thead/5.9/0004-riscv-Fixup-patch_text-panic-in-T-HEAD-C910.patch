@@ -1,7 +1,7 @@
 From 2630f52d6b46198300ed668e4ea5cb1d8ac6826b Mon Sep 17 00:00:00 2001
 From: Guo Ren <guoren@linux.alibaba.com>
 Date: Tue, 3 Nov 2020 06:10:55 +0000
-Subject: [PATCH 04/30] riscv: Fixup patch_text panic in T-HEAD C910
+Subject: [PATCH 04/31] riscv: Fixup patch_text panic in T-HEAD C910
 
 Just like arm64, we can't trace the funtion in the patch_text path.
 

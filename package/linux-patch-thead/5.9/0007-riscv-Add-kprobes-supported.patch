@@ -1,7 +1,7 @@
-From 3a7a660d44e7bfff7cc6f597715a953846b4958e Mon Sep 17 00:00:00 2001
+From e85fac3ab129c45c4e5ffe37835178b5e4fd8443 Mon Sep 17 00:00:00 2001
 From: Guo Ren <guoren@linux.alibaba.com>
 Date: Tue, 30 Jun 2020 02:29:36 +0000
-Subject: [PATCH 07/30] riscv: Add kprobes supported
+Subject: [PATCH 07/31] riscv: Add kprobes supported
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit

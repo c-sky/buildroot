@@ -1,7 +1,7 @@
 From 07c1fec95a8320c5e918d3d47642b7e0a032601e Mon Sep 17 00:00:00 2001
 From: Guo Ren <guoren@linux.alibaba.com>
 Date: Fri, 16 Oct 2020 03:55:19 +0000
-Subject: [PATCH 03/30] riscv: Fixup wrong ftrace remove cflag
+Subject: [PATCH 03/31] riscv: Fixup wrong ftrace remove cflag
 
 We must use $(CC_FLAGS_FTRACE) instead of directly using -pg. It
 will cause -fpatchable-function-entry error.

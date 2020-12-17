@@ -1,7 +1,7 @@
-From 727cd50d3fcc2b793fedda4ae672aad7fb846862 Mon Sep 17 00:00:00 2001
+From 7a218f735f4b9527bf020f54dc6f8224b3c6fc84 Mon Sep 17 00:00:00 2001
 From: Guo Ren <guoren@linux.alibaba.com>
 Date: Mon, 23 Nov 2020 07:53:53 +0000
-Subject: [PATCH 29/30] riscv: Fixup do_page_fault warning in uprobe_xol
+Subject: [PATCH 29/31] riscv: Fixup do_page_fault warning in uprobe_xol
 
 [  670.922295] BUG: sleeping function called from invalid context at kernel/locking/rwsem.c:1491
 [  670.930853] in_atomic(): 0, irqs_disabled(): 1, non_block: 0, pid: 96, name: hello

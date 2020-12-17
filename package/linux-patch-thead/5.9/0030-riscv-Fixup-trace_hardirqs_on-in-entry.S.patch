@@ -1,7 +1,7 @@
-From ae99ced1a7d09e68079b4a6593d1d6c9a1e1a8a5 Mon Sep 17 00:00:00 2001
+From 2b4d320bfaf502e9701d690ba7b33fc0a110cb02 Mon Sep 17 00:00:00 2001
 From: Guo Ren <guoren@linux.alibaba.com>
 Date: Mon, 23 Nov 2020 15:34:48 +0000
-Subject: [PATCH 30/30] riscv: Fixup trace_hardirqs_on in entry.S
+Subject: [PATCH 30/31] riscv: Fixup trace_hardirqs_on in entry.S
 
 Move trace_hardirqs_on to correct place. If SR_PIE isn't set, the
 trace_hardirqs_on will cause wrong record.

@@ -1,7 +1,7 @@
-From 131bbf05732a9a944e4cede6a0f4b64f3befe3da Mon Sep 17 00:00:00 2001
+From b3a26c4bbb979700c1f47ae7d22348fe2272bf82 Mon Sep 17 00:00:00 2001
 From: Zong Li <zong.li@sifive.com>
 Date: Wed, 21 Oct 2020 15:38:39 +0800
-Subject: [PATCH 25/30] stop_machine: Mark functions as notrace
+Subject: [PATCH 25/31] stop_machine: Mark functions as notrace
 
 Like the commit cb9d7fd51d9f ("watchdog: Mark watchdog touch functions
 as notrace"), some architectures assume that the stopped CPUs don't make

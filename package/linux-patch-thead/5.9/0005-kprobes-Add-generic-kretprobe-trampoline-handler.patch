@@ -1,7 +1,7 @@
 From c087ddba0ca0a971ebd32e349729bb8d610dda5c Mon Sep 17 00:00:00 2001
 From: Masami Hiramatsu <mhiramat@kernel.org>
 Date: Sat, 29 Aug 2020 22:00:01 +0900
-Subject: [PATCH 05/30] kprobes: Add generic kretprobe trampoline handler
+Subject: [PATCH 05/31] kprobes: Add generic kretprobe trampoline handler
 
 Add a generic kretprobe trampoline handler for unifying
 the all cloned /arch/* kretprobe trampoline handlers.

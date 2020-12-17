@@ -1,4 +1,4 @@
-From 395c9607794059651a572142d3ae52af12e49aa9 Mon Sep 17 00:00:00 2001
+From 4f2628a76581c80088aebb82bd70583187588f00 Mon Sep 17 00:00:00 2001
 From: unknown <unknown@unknown.org>
 Date: Mon, 7 Dec 2020 16:20:15 +0000
 Subject: [PATCH 31/31] drivers/i2c/buses: Designware I2C driver
