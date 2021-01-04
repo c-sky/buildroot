@@ -1,0 +1,65 @@
+From 09994cbaaf39e6edf7c1e3e44b543e51cc7dcaa6 Mon Sep 17 00:00:00 2001
+From: Guo Ren <guoren@linux.alibaba.com>
+Date: Thu, 24 Dec 2020 00:12:06 +0000
+Subject: [PATCH 38/51] csky: Fixup PTE global for 2.5:1.5 virtual memory
+
+Fixup commit c2d1adfa9a24 "csky: Add memory layout 2.5G(user):1.5G
+(kernel)". That patch broke the global bit in PTE.
+
+C-SKY TLB's entry contain two pages:
+vpn, vpn + 1 -> ppn0, ppn1
+
+All PPN's attributes contain global bit and final global is PPN0.G
+& PPN1.G. So we must keep PPN0.G and PPN1.G same in one TLB's
+entry.
+
+Signed-off-by: Guo Ren <guoren@linux.alibaba.com>
+---
+ arch/csky/include/asm/pgtable.h | 2 +-
+ arch/csky/mm/init.c             | 8 +++++++-
+ 2 files changed, 8 insertions(+), 2 deletions(-)
+
+diff --git a/arch/csky/include/asm/pgtable.h b/arch/csky/include/asm/pgtable.h
+index 6ec97af0d1ff..2485db84dba8 100644
+--- a/arch/csky/include/asm/pgtable.h
++++ b/arch/csky/include/asm/pgtable.h
+@@ -34,7 +34,7 @@
+ 
+ #define pmd_page(pmd)	(pfn_to_page(pmd_phys(pmd) >> PAGE_SHIFT))
+ #define pte_clear(mm, addr, ptep)	set_pte((ptep), \
+-	(((unsigned int) addr & PAGE_OFFSET) ? __pte(_PAGE_GLOBAL) : __pte(0)))
++	(((unsigned int) addr >= PAGE_OFFSET) ? __pte(_PAGE_GLOBAL) : __pte(0)))
+ #define pte_none(pte)		(!(pte_val(pte) & ~_PAGE_GLOBAL))
+ #define pte_present(pte)	(pte_val(pte) & _PAGE_PRESENT)
+ #define pte_pfn(x)	((unsigned long)((x).pte_low >> PAGE_SHIFT))
+diff --git a/arch/csky/mm/init.c b/arch/csky/mm/init.c
+index 7742f1441a67..8170d7ce116b 100644
+--- a/arch/csky/mm/init.c
++++ b/arch/csky/mm/init.c
+@@ -30,9 +30,12 @@
+ #include <asm/tlb.h>
+ #include <asm/cacheflush.h>
+ 
++#define PTRS_KERN_TABLE \
++		((PTRS_PER_PGD - USER_PTRS_PER_PGD) * PTRS_PER_PTE)
++
+ pgd_t swapper_pg_dir[PTRS_PER_PGD] __page_aligned_bss;
+ pte_t invalid_pte_table[PTRS_PER_PTE] __page_aligned_bss;
+-pte_t kernel_pte_tables[(PTRS_PER_PGD - USER_PTRS_PER_PGD)*PTRS_PER_PTE] __page_aligned_bss;
++pte_t kernel_pte_tables[PTRS_KERN_TABLE] __page_aligned_bss;
+ 
+ EXPORT_SYMBOL(invalid_pte_table);
+ unsigned long empty_zero_page[PAGE_SIZE / sizeof(unsigned long)]
+@@ -149,6 +152,9 @@ void __init mmu_init(unsigned long min_pfn, unsigned long max_pfn)
+ 		swapper_pg_dir[i].pgd =
+ 			__pa(kernel_pte_tables + (PTRS_PER_PTE * (i - USER_PTRS_PER_PGD)));
+ 
++	for (i = 0; i < PTRS_KERN_TABLE; i++)
++		set_pte(&kernel_pte_tables[i], __pte(_PAGE_GLOBAL));
++
+ 	for (i = min_pfn; i < max_pfn; i++)
+ 		set_pte(&kernel_pte_tables[i - PFN_DOWN(va_pa_offset)], pfn_pte(i, PAGE_KERNEL));
+ 
+-- 
+2.17.1
+

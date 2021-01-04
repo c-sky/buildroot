@@ -1,0 +1,43 @@
+From ab851dc88f727fad20423eaf695ec10fce93b0f0 Mon Sep 17 00:00:00 2001
+From: Guo Ren <guoren@linux.alibaba.com>
+Date: Mon, 28 Dec 2020 13:01:00 +0000
+Subject: [PATCH 45/51] csky: Add faulthandler_disabled() check
+
+Similar to other architectures:
+In addition to in_atomic, we also need pagefault_disabled() to
+check.
+
+Signed-off-by: Guo Ren <guoren@linux.alibaba.com>
+---
+ arch/csky/mm/fault.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/arch/csky/mm/fault.c b/arch/csky/mm/fault.c
+index cecca6729b04..9533bd8d9a6a 100644
+--- a/arch/csky/mm/fault.c
++++ b/arch/csky/mm/fault.c
+@@ -143,12 +143,11 @@ asmlinkage void do_page_fault(struct pt_regs *regs)
+ 		return;
+ 	}
+ 
+-	perf_sw_event(PERF_COUNT_SW_PAGE_FAULTS, 1, regs, address);
+ 	/*
+ 	 * If we're in an interrupt or have no user
+ 	 * context, we must not take the fault..
+ 	 */
+-	if (in_atomic() || !mm)
++	if (unlikely(faulthandler_disabled() || !mm))
+ 		goto bad_area_nosemaphore;
+ 
+ 	if (user_mode(regs))
+@@ -157,6 +156,7 @@ asmlinkage void do_page_fault(struct pt_regs *regs)
+ 	if (is_write(regs))
+ 		flags |= FAULT_FLAG_WRITE;
+ 
++	perf_sw_event(PERF_COUNT_SW_PAGE_FAULTS, 1, regs, address);
+ retry:
+ 	mmap_read_lock(mm);
+ 	vma = find_vma(mm, address);
+-- 
+2.17.1
+

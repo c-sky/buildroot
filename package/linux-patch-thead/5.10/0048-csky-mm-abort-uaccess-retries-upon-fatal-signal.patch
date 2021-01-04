@@ -1,0 +1,35 @@
+From 5e6e7185bc62a91f3bb0f267c306f85e2dbb25be Mon Sep 17 00:00:00 2001
+From: Guo Ren <guoren@linux.alibaba.com>
+Date: Wed, 30 Dec 2020 10:06:22 +0000
+Subject: [PATCH 48/51] csky: mm: abort uaccess retries upon fatal signal
+
+Pick up the patch from the 'Link' made by Mark Rutland. Keep the
+same with x86, arm, arm64, arc, sh, power.
+
+Link: https://lore.kernel.org/linux-arm-kernel/1499782763-31418-1-git-send-email-mark.rutland@arm.com/
+Signed-off-by: Guo Ren <guoren@linux.alibaba.com>
+Cc: Mark Rutland <mark.rutland@arm.com>
+---
+ arch/csky/mm/fault.c | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
+
+diff --git a/arch/csky/mm/fault.c b/arch/csky/mm/fault.c
+index c7b67976bac4..1482de56f4f7 100644
+--- a/arch/csky/mm/fault.c
++++ b/arch/csky/mm/fault.c
+@@ -279,8 +279,11 @@ asmlinkage void do_page_fault(struct pt_regs *regs)
+ 	 * signal first. We do not need to release the mmap_lock because it
+ 	 * would already be released in __lock_page_or_retry in mm/filemap.c.
+ 	 */
+-	if (fault_signal_pending(fault, regs))
++	if (fault_signal_pending(fault, regs)) {
++		if (!user_mode(regs))
++			no_context(regs, addr);
+ 		return;
++	}
+ 
+ 	if (unlikely((fault & VM_FAULT_RETRY) && (flags & FAULT_FLAG_ALLOW_RETRY))) {
+ 		flags |= FAULT_FLAG_TRIED;
+-- 
+2.17.1
+

@@ -1,0 +1,26 @@
+From 24a028f4642198335c2fc3a665ba17f75877528e Mon Sep 17 00:00:00 2001
+From: Guo Ren <guoren@linux.alibaba.com>
+Date: Thu, 9 Jan 2020 14:36:46 +0800
+Subject: [PATCH 15/51] riscv: Support T-HEAD XuanTie CPU sbi smp boot
+
+Signed-off-by: Guo Ren <guoren@linux.alibaba.com>
+---
+ arch/riscv/kernel/cpu_ops_spinwait.c | 2 ++
+ 1 file changed, 2 insertions(+)
+
+diff --git a/arch/riscv/kernel/cpu_ops_spinwait.c b/arch/riscv/kernel/cpu_ops_spinwait.c
+index b2c957bb68c1..4d980d8bdaea 100644
+--- a/arch/riscv/kernel/cpu_ops_spinwait.c
++++ b/arch/riscv/kernel/cpu_ops_spinwait.c
+@@ -33,6 +33,8 @@ static int spinwait_cpu_start(unsigned int cpuid, struct task_struct *tidle)
+ 	 */
+ 	cpu_update_secondary_bootdata(cpuid, tidle);
+ 
++	sbi_ecall(0x09000003, 0, cpuid_to_hartid_map(cpuid), 0, 0, 0, 0, 0);
++
+ 	return 0;
+ }
+ 
+-- 
+2.17.1
+

@@ -1,0 +1,161 @@
+From 63fd4d5261bd7e22399dbbf11ba2cdd41891bfb2 Mon Sep 17 00:00:00 2001
+From: Guo Ren <guoren@linux.alibaba.com>
+Date: Thu, 24 Dec 2020 06:23:31 +0000
+Subject: [PATCH 42/51] csky: Add show_tlb for CPU_CK860 debug
+
+Print all 1024 jtlb entries and 16 iutlb entries and 16 dutlb
+entries in show_regs.
+
+Signed-off-by: Guo Ren <guoren@linux.alibaba.com>
+---
+ arch/csky/kernel/ptrace.c | 121 ++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 121 insertions(+)
+
+diff --git a/arch/csky/kernel/ptrace.c b/arch/csky/kernel/ptrace.c
+index e5bd4e01b861..417b759fab6c 100644
+--- a/arch/csky/kernel/ptrace.c
++++ b/arch/csky/kernel/ptrace.c
+@@ -22,6 +22,7 @@
+ #include <asm/asm-offsets.h>
+ 
+ #include <abi/regdef.h>
++#include <abi/ckmmu.h>
+ 
+ #define CREATE_TRACE_POINTS
+ #include <trace/events/syscalls.h>
+@@ -343,6 +344,124 @@ asmlinkage void syscall_trace_exit(struct pt_regs *regs)
+ 		trace_sys_exit(regs, syscall_get_return_value(current, regs));
+ }
+ 
++#ifdef CONFIG_CPU_CK860
++static void show_iutlb(void)
++{
++	int entry, i;
++	unsigned long flags;
++	unsigned long oldpid;
++	unsigned long entryhi[16], entrylo0[16], entrylo1[16];
++
++	oldpid = read_mmu_entryhi();
++
++	entry = 0x8000;
++
++	local_irq_save(flags);
++
++	for (i = 0; i < 16; i++) {
++		write_mmu_index(entry);
++		tlb_read();
++		entryhi[i]  = read_mmu_entryhi();
++		entrylo0[i] = read_mmu_entrylo0();
++		entrylo1[i] = read_mmu_entrylo1();
++
++		entry++;
++	}
++
++	local_irq_restore(flags);
++
++	write_mmu_entryhi(oldpid);
++
++	printk("\n\n\n");
++	for (i = 0; i < 16; i++)
++		printk("iutlb[%d]:	entryhi - 0x%lx;	entrylo0 - 0x%lx;"
++		       "	entrylo1 - 0x%lx\n",
++			 i, entryhi[i], entrylo0[i], entrylo1[i]);
++	printk("\n\n\n");
++}
++
++static void show_dutlb(void)
++{
++	int entry, i;
++	unsigned long flags;
++	unsigned long oldpid;
++	unsigned long entryhi[16], entrylo0[16], entrylo1[16];
++
++	oldpid = read_mmu_entryhi();
++
++	entry = 0x4000;
++
++	local_irq_save(flags);
++
++	for (i = 0; i < 16; i++) {
++		write_mmu_index(entry);
++		tlb_read();
++		entryhi[i]  = read_mmu_entryhi();
++		entrylo0[i] = read_mmu_entrylo0();
++		entrylo1[i] = read_mmu_entrylo1();
++
++		entry++;
++	}
++
++	local_irq_restore(flags);
++
++	write_mmu_entryhi(oldpid);
++
++	printk("\n\n\n");
++	for (i = 0; i < 16; i++)
++		printk("dutlb[%d]:	entryhi - 0x%lx;	entrylo0 - 0x%lx;"
++		       "	entrylo1 - 0x%lx\n",
++			 i, entryhi[i], entrylo0[i], entrylo1[i]);
++	printk("\n\n\n");
++}
++
++static unsigned long entryhi[1024], entrylo0[1024], entrylo1[1024];
++static void show_jtlb(void)
++{
++	int entry;
++	unsigned long flags;
++	unsigned long oldpid;
++
++	oldpid = read_mmu_entryhi();
++
++	entry = 0;
++
++	local_irq_save(flags);
++	while (entry < 1024) {
++		write_mmu_index(entry);
++		tlb_read();
++		entryhi[entry]  = read_mmu_entryhi();
++		entrylo0[entry] = read_mmu_entrylo0();
++		entrylo1[entry] = read_mmu_entrylo1();
++
++		entry++;
++	}
++	local_irq_restore(flags);
++
++	write_mmu_entryhi(oldpid);
++
++	printk("\n\n\n");
++
++	for (entry = 0; entry < 1024; entry++)
++		printk("jtlb[%x]:	entryhi - 0x%lx;	entrylo0 - 0x%lx;"
++		       "	entrylo1 - 0x%lx\n",
++			 entry, entryhi[entry], entrylo0[entry], entrylo1[entry]);
++	printk("\n\n\n");
++}
++
++static void show_tlb(void)
++{
++	show_iutlb();
++	show_dutlb();
++	show_jtlb();
++}
++#else
++static void show_tlb(void)
++{
++	return;
++}
++#endif
++
+ void show_regs(struct pt_regs *fp)
+ {
+ 	pr_info("\nCURRENT PROCESS:\n\n");
+@@ -396,5 +515,7 @@ void show_regs(struct pt_regs *fp)
+ 		fp->regs[8], fp->regs[9]);
+ #endif
+ 
++	show_tlb();
++
+ 	return;
+ }
+-- 
+2.17.1
+

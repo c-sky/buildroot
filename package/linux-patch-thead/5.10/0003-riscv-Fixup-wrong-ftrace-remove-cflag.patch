@@ -1,0 +1,45 @@
+From 4bcf28b31adf6f6e43372666d800b716bb62825f Mon Sep 17 00:00:00 2001
+From: Guo Ren <guoren@linux.alibaba.com>
+Date: Fri, 16 Oct 2020 03:55:19 +0000
+Subject: [PATCH 03/51] riscv: Fixup wrong ftrace remove cflag
+
+We must use $(CC_FLAGS_FTRACE) instead of directly using -pg. It
+will cause -fpatchable-function-entry error.
+
+Signed-off-by: Guo Ren <guoren@linux.alibaba.com>
+---
+ arch/riscv/kernel/Makefile | 4 ++--
+ arch/riscv/mm/Makefile     | 2 +-
+ 2 files changed, 3 insertions(+), 3 deletions(-)
+
+diff --git a/arch/riscv/kernel/Makefile b/arch/riscv/kernel/Makefile
+index fa896c5f7ccb..27f10eb28bd3 100644
+--- a/arch/riscv/kernel/Makefile
++++ b/arch/riscv/kernel/Makefile
+@@ -4,8 +4,8 @@
+ #
+ 
+ ifdef CONFIG_FTRACE
+-CFLAGS_REMOVE_ftrace.o	= -pg
+-CFLAGS_REMOVE_patch.o	= -pg
++CFLAGS_REMOVE_ftrace.o	= $(CC_FLAGS_FTRACE)
++CFLAGS_REMOVE_patch.o	= $(CC_FLAGS_FTRACE)
+ endif
+ 
+ extra-y += head.o
+diff --git a/arch/riscv/mm/Makefile b/arch/riscv/mm/Makefile
+index c0185e556ca5..6b4b7ec1bda2 100644
+--- a/arch/riscv/mm/Makefile
++++ b/arch/riscv/mm/Makefile
+@@ -2,7 +2,7 @@
+ 
+ CFLAGS_init.o := -mcmodel=medany
+ ifdef CONFIG_FTRACE
+-CFLAGS_REMOVE_init.o = -pg
++CFLAGS_REMOVE_init.o = $(CC_FLAGS_FTRACE)
+ endif
+ 
+ KCOV_INSTRUMENT_init.o := n
+-- 
+2.17.1
+

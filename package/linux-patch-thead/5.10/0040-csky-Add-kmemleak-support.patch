@@ -1,0 +1,30 @@
+From 466dfb6d4a4e000e199d4c9c64e9d3f9cff558f1 Mon Sep 17 00:00:00 2001
+From: Guo Ren <guoren@linux.alibaba.com>
+Date: Thu, 24 Dec 2020 03:34:43 +0000
+Subject: [PATCH 40/51] csky: Add kmemleak support
+
+Here is the log after enabled:
+
+[    1.798972] kmemleak: Kernel memory leak detector initialized (mem pool available: 15851)
+[    1.798983] kmemleak: Automatic memory scanning thread started
+
+Signed-off-by: Guo Ren <guoren@linux.alibaba.com>
+---
+ arch/csky/Kconfig | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/arch/csky/Kconfig b/arch/csky/Kconfig
+index 5ebb05a84575..666437d46e96 100644
+--- a/arch/csky/Kconfig
++++ b/arch/csky/Kconfig
+@@ -44,6 +44,7 @@ config CSKY
+ 	select HAVE_CONTEXT_TRACKING
+ 	select HAVE_VIRT_CPU_ACCOUNTING_GEN
+ 	select HAVE_DEBUG_BUGVERBOSE
++	select HAVE_DEBUG_KMEMLEAK
+ 	select HAVE_DYNAMIC_FTRACE
+ 	select HAVE_DYNAMIC_FTRACE_WITH_REGS
+ 	select HAVE_FUNCTION_TRACER
+-- 
+2.17.1
+

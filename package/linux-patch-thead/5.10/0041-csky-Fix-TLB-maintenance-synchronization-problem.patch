@@ -1,0 +1,225 @@
+From cd14f4b52d9bb4c5d23dce6a451ea7ec36836344 Mon Sep 17 00:00:00 2001
+From: Guo Ren <guoren@linux.alibaba.com>
+Date: Thu, 24 Dec 2020 05:59:57 +0000
+Subject: [PATCH 41/51] csky: Fix TLB maintenance synchronization problem
+
+TLB invalidate didn't contain a barrier operation in csky cpu and
+we need to prevent previous PTW response after TLB invalidation
+instruction. Of cause, the ASID changing also needs to take care
+of the issue.
+
+CPU0                    CPU1
+===============         ===============
+set_pte
+sync_is()        ->     See the previous set_pte for all harts
+tlbi.vas         ->     Invalidate all harts TLB entry & flush pipeline
+
+Signed-off-by: Guo Ren <guoren@linux.alibaba.com>
+---
+ arch/csky/abiv1/inc/abi/ckmmu.h     |  3 ++-
+ arch/csky/abiv2/inc/abi/ckmmu.h     | 35 ++++++++++++++++++++----
+ arch/csky/include/asm/mmu_context.h |  3 +--
+ arch/csky/mm/init.c                 |  2 +-
+ arch/csky/mm/tlb.c                  | 42 ++++++++++++++++++++++++-----
+ 5 files changed, 69 insertions(+), 16 deletions(-)
+
+diff --git a/arch/csky/abiv1/inc/abi/ckmmu.h b/arch/csky/abiv1/inc/abi/ckmmu.h
+index cceb3afb4c91..b4650de43078 100644
+--- a/arch/csky/abiv1/inc/abi/ckmmu.h
++++ b/arch/csky/abiv1/inc/abi/ckmmu.h
+@@ -89,9 +89,10 @@ static inline void tlb_invalid_indexed(void)
+ 	cpwcr("cpcr8", 0x02000000);
+ }
+ 
+-static inline void setup_pgd(pgd_t *pgd)
++static inline void setup_pgd(pgd_t *pgd, int asid)
+ {
+ 	cpwcr("cpcr29", __pa(pgd) | BIT(0));
++	write_mmu_entryhi(asid);
+ }
+ 
+ static inline pgd_t *get_pgd(void)
+diff --git a/arch/csky/abiv2/inc/abi/ckmmu.h b/arch/csky/abiv2/inc/abi/ckmmu.h
+index c39b13810550..530d2c7edc85 100644
+--- a/arch/csky/abiv2/inc/abi/ckmmu.h
++++ b/arch/csky/abiv2/inc/abi/ckmmu.h
+@@ -78,8 +78,13 @@ static inline void tlb_read(void)
+ static inline void tlb_invalid_all(void)
+ {
+ #ifdef CONFIG_CPU_HAS_TLBI
+-	asm volatile("tlbi.alls\n":::"memory");
+ 	sync_is();
++	asm volatile(
++		"tlbi.alls	\n"
++		"sync.i		\n"
++		:
++		:
++		: "memory");
+ #else
+ 	mtcr("cr<8, 15>", 0x04000000);
+ #endif
+@@ -88,8 +93,13 @@ static inline void tlb_invalid_all(void)
+ static inline void local_tlb_invalid_all(void)
+ {
+ #ifdef CONFIG_CPU_HAS_TLBI
+-	asm volatile("tlbi.all\n":::"memory");
+ 	sync_is();
++	asm volatile(
++		"tlbi.all	\n"
++		"sync.i		\n"
++		:
++		:
++		: "memory");
+ #else
+ 	tlb_invalid_all();
+ #endif
+@@ -100,12 +110,27 @@ static inline void tlb_invalid_indexed(void)
+ 	mtcr("cr<8, 15>", 0x02000000);
+ }
+ 
+-static inline void setup_pgd(pgd_t *pgd)
++#define NOP32 ".long 0x4820c400\n"
++
++static inline void setup_pgd(pgd_t *pgd, int asid)
+ {
+ #ifdef CONFIG_CPU_HAS_TLBI
+-	mtcr("cr<28, 15>", __pa(pgd) | BIT(0));
++	sync_is();
++#else
++	mb();
++#endif
++	asm volatile(
++#ifdef CONFIG_CPU_HAS_TLBI
++		"mtcr %1, cr<28, 15>	\n"
+ #endif
+-	mtcr("cr<29, 15>", __pa(pgd) | BIT(0));
++		"mtcr %1, cr<29, 15>	\n"
++		"mtcr %0, cr< 4, 15>	\n"
++		".rept 64		\n"
++		NOP32
++		".endr			\n"
++		:
++		:"r"(asid), "r"(__pa(pgd) | BIT(0))
++		:"memory");
+ }
+ 
+ static inline pgd_t *get_pgd(void)
+diff --git a/arch/csky/include/asm/mmu_context.h b/arch/csky/include/asm/mmu_context.h
+index eeea57e80ddc..d9e781625458 100644
+--- a/arch/csky/include/asm/mmu_context.h
++++ b/arch/csky/include/asm/mmu_context.h
+@@ -35,8 +35,7 @@ switch_mm(struct mm_struct *prev, struct mm_struct *next,
+ 	if (prev != next)
+ 		check_and_switch_context(next, cpu);
+ 
+-	setup_pgd(next->pgd);
+-	write_mmu_entryhi(next->context.asid.counter);
++	setup_pgd(next->pgd, next->context.asid.counter);
+ 
+ 	flush_icache_deferred(next);
+ }
+diff --git a/arch/csky/mm/init.c b/arch/csky/mm/init.c
+index 8170d7ce116b..bc05a3be9d57 100644
+--- a/arch/csky/mm/init.c
++++ b/arch/csky/mm/init.c
+@@ -164,7 +164,7 @@ void __init mmu_init(unsigned long min_pfn, unsigned long max_pfn)
+ 	/* Setup page mask to 4k */
+ 	write_mmu_pagemask(0);
+ 
+-	setup_pgd(swapper_pg_dir);
++	setup_pgd(swapper_pg_dir, 0);
+ }
+ 
+ void __init fixrange_init(unsigned long start, unsigned long end,
+diff --git a/arch/csky/mm/tlb.c b/arch/csky/mm/tlb.c
+index ed1512381112..9234c5e5ceaf 100644
+--- a/arch/csky/mm/tlb.c
++++ b/arch/csky/mm/tlb.c
+@@ -24,7 +24,13 @@ void flush_tlb_all(void)
+ void flush_tlb_mm(struct mm_struct *mm)
+ {
+ #ifdef CONFIG_CPU_HAS_TLBI
+-	asm volatile("tlbi.asids %0"::"r"(cpu_asid(mm)));
++	sync_is();
++	asm volatile(
++		"tlbi.asids %0	\n"
++		"sync.i		\n"
++		:
++		: "r" (cpu_asid(mm))
++		: "memory");
+ #else
+ 	tlb_invalid_all();
+ #endif
+@@ -53,11 +59,17 @@ void flush_tlb_range(struct vm_area_struct *vma, unsigned long start,
+ 	end   &= TLB_ENTRY_SIZE_MASK;
+ 
+ #ifdef CONFIG_CPU_HAS_TLBI
++	sync_is();
+ 	while (start < end) {
+-		asm volatile("tlbi.vas %0"::"r"(start | newpid));
++		asm volatile(
++			"tlbi.vas %0	\n"
++			:
++			: "r" (start | newpid)
++			: "memory");
++
+ 		start += 2*PAGE_SIZE;
+ 	}
+-	sync_is();
++	asm volatile("sync.i\n");
+ #else
+ 	{
+ 	unsigned long flags, oldpid;
+@@ -87,11 +99,17 @@ void flush_tlb_kernel_range(unsigned long start, unsigned long end)
+ 	end   &= TLB_ENTRY_SIZE_MASK;
+ 
+ #ifdef CONFIG_CPU_HAS_TLBI
++	sync_is();
+ 	while (start < end) {
+-		asm volatile("tlbi.vaas %0"::"r"(start));
++		asm volatile(
++			"tlbi.vaas %0	\n"
++			:
++			: "r" (start)
++			: "memory");
++
+ 		start += 2*PAGE_SIZE;
+ 	}
+-	sync_is();
++	asm volatile("sync.i\n");
+ #else
+ 	{
+ 	unsigned long flags, oldpid;
+@@ -121,8 +139,13 @@ void flush_tlb_page(struct vm_area_struct *vma, unsigned long addr)
+ 	addr &= TLB_ENTRY_SIZE_MASK;
+ 
+ #ifdef CONFIG_CPU_HAS_TLBI
+-	asm volatile("tlbi.vas %0"::"r"(addr | newpid));
+ 	sync_is();
++	asm volatile(
++		"tlbi.vas %0	\n"
++		"sync.i		\n"
++		:
++		: "r" (addr | newpid)
++		: "memory");
+ #else
+ 	{
+ 	int oldpid, idx;
+@@ -147,8 +170,13 @@ void flush_tlb_one(unsigned long addr)
+ 	addr &= TLB_ENTRY_SIZE_MASK;
+ 
+ #ifdef CONFIG_CPU_HAS_TLBI
+-	asm volatile("tlbi.vaas %0"::"r"(addr));
+ 	sync_is();
++	asm volatile(
++		"tlbi.vaas %0	\n"
++		"sync.i		\n"
++		:
++		: "r" (addr)
++		: "memory");
+ #else
+ 	{
+ 	int oldpid, idx;
+-- 
+2.17.1
+

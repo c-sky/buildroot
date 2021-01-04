@@ -1,0 +1,44 @@
+From bbf6cd416c56aff6ee269a135befe013c2785f6d Mon Sep 17 00:00:00 2001
+From: Guo Ren <guoren@linux.alibaba.com>
+Date: Mon, 28 Dec 2020 15:11:26 +0000
+Subject: [PATCH 46/51] csky: Fixup do_page_fault parent irq status
+
+We must succeed parent's context irq status in page fault handler.
+
+Signed-off-by: Guo Ren <guoren@linux.alibaba.com>
+---
+ arch/csky/kernel/entry.S | 2 +-
+ arch/csky/mm/fault.c     | 4 ++++
+ 2 files changed, 5 insertions(+), 1 deletion(-)
+
+diff --git a/arch/csky/kernel/entry.S b/arch/csky/kernel/entry.S
+index 185fea477a8d..c1bd7a6b4ab6 100644
+--- a/arch/csky/kernel/entry.S
++++ b/arch/csky/kernel/entry.S
+@@ -42,7 +42,7 @@ ENTRY(csky_pagefault)
+ 	SAVE_ALL 0
+ 	zero_fp
+ 	context_tracking
+-	psrset  ee, ie
++	psrset  ee
+ 	mov     a0, sp
+ 	jbsr    do_page_fault
+ 	jmpi    ret_from_exception
+diff --git a/arch/csky/mm/fault.c b/arch/csky/mm/fault.c
+index 9533bd8d9a6a..cd8c7304c7e9 100644
+--- a/arch/csky/mm/fault.c
++++ b/arch/csky/mm/fault.c
+@@ -143,6 +143,10 @@ asmlinkage void do_page_fault(struct pt_regs *regs)
+ 		return;
+ 	}
+ 
++	/* Enable interrupts if they were enabled in the parent context. */
++	if (likely(regs->sr & BIT(6)))
++		local_irq_enable();
++
+ 	/*
+ 	 * If we're in an interrupt or have no user
+ 	 * context, we must not take the fault..
+-- 
+2.17.1
+

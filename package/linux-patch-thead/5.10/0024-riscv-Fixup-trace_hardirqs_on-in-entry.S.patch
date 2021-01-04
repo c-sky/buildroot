@@ -1,0 +1,45 @@
+From 31cf4e371ec805a748939f5376d86cabab6eb290 Mon Sep 17 00:00:00 2001
+From: Guo Ren <guoren@linux.alibaba.com>
+Date: Mon, 23 Nov 2020 15:34:48 +0000
+Subject: [PATCH 24/51] riscv: Fixup trace_hardirqs_on in entry.S
+
+Move trace_hardirqs_on to correct place. If SR_PIE isn't set, the
+trace_hardirqs_on will cause wrong record.
+
+Signed-off-by: Guo Ren <guoren@linux.alibaba.com>
+Cc: Palmer Dabbelt <palmer@sifive.com>
+Cc: Vincent Chen <vincent.chen@sifive.com>
+---
+ arch/riscv/kernel/entry.S | 10 +++++-----
+ 1 file changed, 5 insertions(+), 5 deletions(-)
+
+diff --git a/arch/riscv/kernel/entry.S b/arch/riscv/kernel/entry.S
+index 7a1a6bb82651..c1b38e296b52 100644
+--- a/arch/riscv/kernel/entry.S
++++ b/arch/riscv/kernel/entry.S
+@@ -124,17 +124,17 @@ skip_context_tracking:
+ 	REG_L a1, (a1)
+ 	jr a1
+ 1:
+-#ifdef CONFIG_TRACE_IRQFLAGS
+-	call trace_hardirqs_on
+-
+-	REG_L s1, PT_STATUS(sp)
+-#endif
+ 	/*
+ 	 * Exceptions run with interrupts enabled or disabled depending on the
+ 	 * state of SR_PIE in m/sstatus.
+ 	 */
+ 	andi t0, s1, SR_PIE
+ 	beqz t0, 1f
++#ifdef CONFIG_TRACE_IRQFLAGS
++	call trace_hardirqs_on
++
++	REG_L s1, PT_STATUS(sp)
++#endif
+ 	csrs CSR_STATUS, SR_IE
+ 
+ 1:
+-- 
+2.17.1
+

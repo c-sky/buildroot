@@ -1,0 +1,28 @@
+From a0368661ec9c6cc465a3edf85eedf13e7a94e841 Mon Sep 17 00:00:00 2001
+From: Tian Tao <tiantao6@hisilicon.com>
+Date: Wed, 30 Dec 2020 16:20:20 +0800
+Subject: [PATCH 51/51] csky: remove unused including <linux/version.h>
+
+Remove including <linux/version.h> that don't need it.
+
+Signed-off-by: Tian Tao <tiantao6@hisilicon.com>
+Signed-off-by: Guo Ren <guoren@linux.alibaba.com>
+---
+ arch/csky/include/asm/thread_info.h | 1 -
+ 1 file changed, 1 deletion(-)
+
+diff --git a/arch/csky/include/asm/thread_info.h b/arch/csky/include/asm/thread_info.h
+index 68e7a1227170..3e017ce35556 100644
+--- a/arch/csky/include/asm/thread_info.h
++++ b/arch/csky/include/asm/thread_info.h
+@@ -6,7 +6,6 @@
+ 
+ #ifndef __ASSEMBLY__
+ 
+-#include <linux/version.h>
+ #include <asm/types.h>
+ #include <asm/page.h>
+ #include <asm/processor.h>
+-- 
+2.17.1
+

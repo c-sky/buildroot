@@ -1,0 +1,48 @@
+From e2f820de2dac2d7dba848380f6cae5090a55a32c Mon Sep 17 00:00:00 2001
+From: Guo Ren <guoren@linux.alibaba.com>
+Date: Fri, 13 Nov 2020 09:48:27 +0000
+Subject: [PATCH 31/51] csky: Fixup perf probe failed
+
+Current perf init will failed with:
+[    1.452433] csky-pmu: probe of soc:pmu failed with error -16
+
+This patch fix it up with adding CPUHP_AP_PERF_CSKY_ONLINE in
+cpuhotplug.h.
+
+Signed-off-by: Guo Ren <guoren@linux.alibaba.com>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: Ingo Molnar <mingo@redhat.com>
+Cc: Arnaldo Carvalho de Melo <acme@kernel.org>
+---
+ arch/csky/kernel/perf_event.c | 2 +-
+ include/linux/cpuhotplug.h    | 1 +
+ 2 files changed, 2 insertions(+), 1 deletion(-)
+
+diff --git a/arch/csky/kernel/perf_event.c b/arch/csky/kernel/perf_event.c
+index 1a29f1157449..55d5a5379483 100644
+--- a/arch/csky/kernel/perf_event.c
++++ b/arch/csky/kernel/perf_event.c
+@@ -1319,7 +1319,7 @@ int csky_pmu_device_probe(struct platform_device *pdev,
+ 		pr_notice("[perf] PMU request irq fail!\n");
+ 	}
+ 
+-	ret = cpuhp_setup_state(CPUHP_AP_PERF_ONLINE, "AP_PERF_ONLINE",
++	ret = cpuhp_setup_state(CPUHP_AP_PERF_CSKY_ONLINE, "AP_PERF_ONLINE",
+ 				csky_pmu_starting_cpu,
+ 				csky_pmu_dying_cpu);
+ 	if (ret) {
+diff --git a/include/linux/cpuhotplug.h b/include/linux/cpuhotplug.h
+index bc56287a1ed1..086df4b78962 100644
+--- a/include/linux/cpuhotplug.h
++++ b/include/linux/cpuhotplug.h
+@@ -184,6 +184,7 @@ enum cpuhp_state {
+ 	CPUHP_AP_PERF_POWERPC_TRACE_IMC_ONLINE,
+ 	CPUHP_AP_PERF_POWERPC_HV_24x7_ONLINE,
+ 	CPUHP_AP_PERF_POWERPC_HV_GPCI_ONLINE,
++	CPUHP_AP_PERF_CSKY_ONLINE,
+ 	CPUHP_AP_WATCHDOG_ONLINE,
+ 	CPUHP_AP_WORKQUEUE_ONLINE,
+ 	CPUHP_AP_RCUTREE_ONLINE,
+-- 
+2.17.1
+

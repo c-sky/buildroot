@@ -1,0 +1,74 @@
+From 30f222329d0a41c4178b9ea51db9b0ffa6338fcb Mon Sep 17 00:00:00 2001
+From: Guo Ren <guoren@linux.alibaba.com>
+Date: Mon, 28 Dec 2020 12:08:46 +0000
+Subject: [PATCH 43/51] csky: Fixup FAULT_FLAG_XXX param for handle_mm_fault
+
+The past code only passes the FAULT_FLAG_WRITE into
+handle_mm_fault and missing USER & DEFAULT & RETRY.
+
+The patch references to arch/riscv/mm/fault.c, but there is no
+FAULT_FLAG_INSTRUCTION in csky hw.
+
+Signed-off-by: Guo Ren <guoren@linux.alibaba.com>
+---
+ arch/csky/mm/fault.c | 23 +++++++++++++++++++++--
+ 1 file changed, 21 insertions(+), 2 deletions(-)
+
+diff --git a/arch/csky/mm/fault.c b/arch/csky/mm/fault.c
+index e888acf1c403..cecca6729b04 100644
+--- a/arch/csky/mm/fault.c
++++ b/arch/csky/mm/fault.c
+@@ -80,6 +80,7 @@ asmlinkage void do_page_fault(struct pt_regs *regs)
+ 	struct vm_area_struct *vma = NULL;
+ 	struct task_struct *tsk = current;
+ 	struct mm_struct *mm = tsk->mm;
++	unsigned int flags = FAULT_FLAG_DEFAULT;
+ 	int si_code;
+ 	int fault;
+ 	unsigned long address = read_mmu_entryhi() & PAGE_MASK;
+@@ -150,6 +151,13 @@ asmlinkage void do_page_fault(struct pt_regs *regs)
+ 	if (in_atomic() || !mm)
+ 		goto bad_area_nosemaphore;
+ 
++	if (user_mode(regs))
++		flags |= FAULT_FLAG_USER;
++
++	if (is_write(regs))
++		flags |= FAULT_FLAG_WRITE;
++
++retry:
+ 	mmap_read_lock(mm);
+ 	vma = find_vma(mm, address);
+ 	if (!vma)
+@@ -180,8 +188,7 @@ asmlinkage void do_page_fault(struct pt_regs *regs)
+ 	 * make sure we exit gracefully rather than endlessly redo
+ 	 * the fault.
+ 	 */
+-	fault = handle_mm_fault(vma, address, is_write(regs) ? FAULT_FLAG_WRITE : 0,
+-				regs);
++	fault = handle_mm_fault(vma, address, flags, regs);
+ 	if (unlikely(fault & VM_FAULT_ERROR)) {
+ 		if (fault & VM_FAULT_OOM)
+ 			goto out_of_memory;
+@@ -191,6 +198,18 @@ asmlinkage void do_page_fault(struct pt_regs *regs)
+ 			goto bad_area;
+ 		BUG();
+ 	}
++
++	if (unlikely((fault & VM_FAULT_RETRY) && (flags & FAULT_FLAG_ALLOW_RETRY))) {
++		flags |= FAULT_FLAG_TRIED;
++
++		/*
++		 * No need to mmap_read_unlock(mm) as we would
++		 * have already released it in __lock_page_or_retry
++		 * in mm/filemap.c.
++		 */
++		goto retry;
++	}
++
+ 	mmap_read_unlock(mm);
+ 	return;
+ 
+-- 
+2.17.1
+

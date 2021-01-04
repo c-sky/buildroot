@@ -1,0 +1,28 @@
+From 259f22e8e4b7f324f0d22acfa9385a544339a5bc Mon Sep 17 00:00:00 2001
+From: Guo Ren <guoren@linux.alibaba.com>
+Date: Thu, 13 Aug 2020 15:14:10 +0000
+Subject: [PATCH 20/51] riscv: Disable RISC-V Base PMU
+
+Base Perf PMU is conflict with custom PMU, so disable it.
+
+Signed-off-by: Guo Ren <guoren@linux.alibaba.com>
+---
+ arch/riscv/Kconfig | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/arch/riscv/Kconfig b/arch/riscv/Kconfig
+index c9ba5530d8cf..d8a80746b851 100644
+--- a/arch/riscv/Kconfig
++++ b/arch/riscv/Kconfig
+@@ -328,7 +328,7 @@ menu "supported PMU type"
+ 
+ config RISCV_BASE_PMU
+ 	bool "Base Performance Monitoring Unit"
+-	def_bool y
++	def_bool n
+ 	help
+ 	  A base PMU that serves as a reference implementation and has limited
+ 	  feature of perf.  It can run on any RISC-V machines so serves as the
+-- 
+2.17.1
+

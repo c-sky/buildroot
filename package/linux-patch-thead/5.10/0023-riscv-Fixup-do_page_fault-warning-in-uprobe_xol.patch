@@ -1,0 +1,60 @@
+From f2e0f4c4e14a313e3c8be5799ac1dc775f626837 Mon Sep 17 00:00:00 2001
+From: Guo Ren <guoren@linux.alibaba.com>
+Date: Mon, 23 Nov 2020 07:53:53 +0000
+Subject: [PATCH 23/51] riscv: Fixup do_page_fault warning in uprobe_xol
+
+[  670.922295] BUG: sleeping function called from invalid context at kernel/locking/rwsem.c:1491
+[  670.930853] in_atomic(): 0, irqs_disabled(): 1, non_block: 0, pid: 96, name: hello
+[  670.938446] CPU: 0 PID: 96 Comm: hello Tainted: G        W         5.9.3-00875-gaf1498803464-dirty #31
+[  670.947775] Call Trace:
+[  670.950236] [<ffffffe000203dc8>] walk_stackframe+0x0/0xc2
+[  670.955650] [<ffffffe000204078>] show_stack+0x46/0x52
+[  670.960716] [<ffffffe0005a3fce>] dump_stack+0x90/0xb6
+[  670.965783] [<ffffffe0002336b2>] ___might_sleep+0xf8/0x10c
+[  670.971284] [<ffffffe000233716>] __might_sleep+0x50/0x7e
+[  670.976613] [<ffffffe000a71498>] down_read+0x32/0xe0
+[  670.981592] [<ffffffe000207798>] do_page_fault+0xf0/0x3d8
+[  670.987006] [<ffffffe000201de8>] ret_from_exception+0x0/0x14
+
+When CONFIG_DEBUG_ATOMIC_SLEEP is enabled:
+mmap_read_lock()->down_read()->might_sleep->___might_sleep() will
+check irqs_disabled() is 0 or Not. If irqs disabled, kernel prints
+the BUG warning.
+
+Uprobe need prepare a xol_slot to emulate single-step the instruction
+for uprobe with irqs-off in user context. So it's the only case for
+us to meet a irqs-off user context situation.
+
+Second:
+
+/* Enable interrupts if they were enabled in the parent context. */
+if (likely(regs->status & SR_PIE))
+	local_irq_enable();
+
+It's duplicate with the patch by Vincent commit: c82dd6d078a2 ("
+riscv: Avoid interrupts being erroneously enabled in
+handle_exception()")
+
+Signed-off-by: Guo Ren <guoren@linux.alibaba.com>
+Cc: Palmer Dabbelt <palmer@sifive.com>
+Cc: Vincent Chen <vincent.chen@sifive.com>
+---
+ arch/riscv/mm/fault.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/arch/riscv/mm/fault.c b/arch/riscv/mm/fault.c
+index 0c98db99a147..d895064df5dc 100644
+--- a/arch/riscv/mm/fault.c
++++ b/arch/riscv/mm/fault.c
+@@ -221,7 +221,7 @@ asmlinkage void do_page_fault(struct pt_regs *regs)
+ 	}
+ 
+ 	/* Enable interrupts if they were enabled in the parent context. */
+-	if (likely(regs->status & SR_PIE))
++	if (likely(regs->status & SR_PIE) || user_mode(regs))
+ 		local_irq_enable();
+ 
+ 	/*
+-- 
+2.17.1
+
