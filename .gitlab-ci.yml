@@ -288,29 +288,6 @@ wait_for_trigger:
     <<: *810_qemu_test
 
 # chip
-.dh7200_chip_before_test: &dh7200_chip_before_test
-    - RUN="run_test_chip.sh"
-    - BOARD="dh7200"
-
-.dh7200_chip_test: &dh7200_chip_test
-    stage: chip-test
-    before_script: *dh7200_chip_before_test
-    <<: *common_tests
-
-810f_4.9_glibc_dh7200_test:
-    tags:
-      - csky-810-dh7200
-    dependencies:
-      - 810f_4.9_glibc_compat
-    <<: *dh7200_chip_test
-
-810f_4.14_glibc_dh7200_test:
-    tags:
-      - csky-810-dh7200
-    dependencies:
-      - 810f_4.14_glibc_compat
-    <<: *dh7200_chip_test
-
 .dp1000_chip_before_test: &dp1000_chip_before_test
     - RUN="run_test_chip.sh"
     - BOARD="dp1000"
@@ -485,27 +462,6 @@ wait_for_trigger:
     before_script: *by_chip_before_test
     <<: *common_tests
 
-860_4.9_glibc_by_test:
-    tags:
-      - csky-860-by
-    dependencies:
-      - 860_4.9_glibc_compat
-    <<: *by_chip_test
-
-860_4.19_glibc_by_test:
-    tags:
-      - csky-860-by
-    dependencies:
-      - 860_4.19_glibc_compat
-    <<: *by_chip_test
-
-860_next_glibc_by_test:
-    tags:
-      - csky-860-by
-    dependencies:
-      - 860_next_glibc_compat
-    <<: *by_chip_test
-
 #qemu test enhanced
 .860_qemu_test_enhanced: &860_qemu_test_enhanced
     stage: qemu-test-enhanced
@@ -594,36 +550,6 @@ wait_for_trigger:
       - 910_next_glibc_compat
     <<: *910_qemu_test
 
-# fpga
-.910_fpga_before_test: &910_fpga_before_test
-    - RUN="run_test_fpga.sh"
-
-.910_fpga_test: &910_fpga_test
-    stage: chip-test
-    before_script: *910_fpga_before_test
-    <<: *common_tests
-
-910_5.1_glibc_fpga_test:
-    tags:
-      - csky-860-fpga #Use name 860 for now
-    dependencies:
-      - 910_5.1_glibc_compat
-    <<: *910_fpga_test
-
-9xx_5.4_glibc_fpga_test:
-    tags:
-      - csky-860-fpga #Use name 860 for now
-    dependencies:
-      - 9xx_5.4_glibc_compat
-    <<: *910_fpga_test
-
-910_next_glibc_fpga_test:
-    tags:
-      - csky-860-fpga #Use name 860 for now
-    dependencies:
-      - 910_next_glibc_compat
-    <<: *910_fpga_test
-
 #qemu test enhanced
 .910_qemu_test_enhanced: &910_qemu_test_enhanced
     stage: qemu-test-enhanced
@@ -655,10 +581,6 @@ wait_for_trigger:
       - 9xxf_5.10_glibc_enhanced
     <<: *910_qemu_test_enhanced
 
-#910v_5.1_glibc_qemu_test_enhanced:
-#    dependencies:
-#      - 910v_5.1_glibc_enhanced
-#    <<: *910_qemu_test_enhanced
 ################ enhanced ################
 810f_4.9_glibc_enhanced: *enhanced_build
 810f_4.9_uclibc_enhanced: *enhanced_build
