@@ -1,9 +1,10 @@
-From 989fbfc18c3b4a58c175cc36ab49119458ef7513 Mon Sep 17 00:00:00 2001
+From 6d0883fdd32828729a2bf7d6d6550046ab08e0ef Mon Sep 17 00:00:00 2001
 From: Guo Ren <ren_guo@c-sky.com>
 Date: Thu, 18 Jul 2019 07:41:42 +0800
-Subject: [PATCH] support/download/check-hash: Skip hash check
+Subject: [PATCH 05/15] support/download/check-hash: Skip hash check
 
 Signed-off-by: Guo Ren <ren_guo@c-sky.com>
+Signed-off-by: Guo Ren <guoren@linux.alibaba.com>
 ---
  support/download/check-hash | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
@@ -20,5 +21,5 @@ index fe9c105..136af60 100755
 +    exit 0
  fi
 -- 
-2.7.4
+2.17.1
 

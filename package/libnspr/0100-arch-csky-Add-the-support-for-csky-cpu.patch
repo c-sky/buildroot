@@ -71,15 +71,15 @@ diff --git a/nspr/pr/include/md/_linux.h b/nspr/pr/include/md/_linux.h
 index 3a7bb13..1373727 100644
 --- a/nspr/pr/include/md/_linux.h
 +++ b/nspr/pr/include/md/_linux.h
-@@ -67,6 +67,8 @@
- #define _PR_SI_ARCHITECTURE "nios2"
+@@ -71,6 +71,8 @@
+ #define _PR_SI_ARCHITECTURE "microblaze"
  #elif defined(__nds32__)
  #define _PR_SI_ARCHITECTURE "nds32"
 +#elif defined(__csky__)
 +#define _PR_SI_ARCHITECTURE "csky"
+ #elif defined(__xtensa__)
+ #define _PR_SI_ARCHITECTURE "xtensa"
  #else
- #error "Unknown CPU architecture"
- #endif
 -- 
 1.8.3.1
 

@@ -1,17 +1,18 @@
-From 391886a09d3ed1abb24073213f40274a635818c1 Mon Sep 17 00:00:00 2001
+From 182f21141181ec38388043fa90af816e7e9b5372 Mon Sep 17 00:00:00 2001
 From: Guo Ren <ren_guo@c-sky.com>
 Date: Sun, 14 Jul 2019 20:40:01 +0800
-Subject: [PATCH] package/gdb: Support riscv64
+Subject: [PATCH 04/15] package/gdb: Support riscv64
 
+Signed-off-by: Guo Ren <guoren@linux.alibaba.com>
 ---
  package/gdb/Config.in.host | 1 -
  1 file changed, 1 deletion(-)
 
 diff --git a/package/gdb/Config.in.host b/package/gdb/Config.in.host
-index 8257fd4..00ab492 100644
+index 2e33f6f..24c4980 100644
 --- a/package/gdb/Config.in.host
 +++ b/package/gdb/Config.in.host
-@@ -7,7 +7,6 @@ config BR2_PACKAGE_HOST_GDB_ARCH_SUPPORTS
+@@ -5,7 +5,6 @@ config BR2_PACKAGE_HOST_GDB_ARCH_SUPPORTS
  	depends on !BR2_microblaze
  	depends on !BR2_nios2
  	depends on !BR2_or1k
@@ -20,5 +21,5 @@ index 8257fd4..00ab492 100644
  
  comment "Host GDB Options"
 -- 
-2.7.4
+2.17.1
 

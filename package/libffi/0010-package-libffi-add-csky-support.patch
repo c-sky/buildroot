@@ -8,7 +8,6 @@ This patch added the csky cpu support in libffi (3.3-rc0).
 Signed-off-by: Ma Jun <majun258@linux.alibaba.com>
 ---
  Makefile.am          |   2 +
- README.md            |   1 +
  configure.host       |   5 +
  src/csky/ffi.c       | 395 +++++++++++++++++++++++++++++++++++++++++++
  src/csky/ffitarget.h |  63 +++++++
@@ -30,26 +29,14 @@ index f83e444..e528ffd 100644
  	src/frv/ffitarget.h						\
  	src/ia64/ffitarget.h src/ia64/ia64_flags.h			\
  	src/m32r/ffitarget.h						\
-@@ -85,6 +86,7 @@ EXTRA_libffi_la_SOURCES = \
- 	src/avr32/ffi.c src/avr32/sysv.S				\
- 	src/bfin/ffi.c src/bfin/sysv.S					\
- 	src/cris/ffi.c src/cris/sysv.S					\
-+	src/csky/ffi.c src/csky/sysv.S					\
- 	src/frv/ffi.c src/frv/eabi.S					\
- 	src/ia64/ffi.c src/ia64/unix.S					\
- 	src/m32r/ffi.c src/m32r/sysv.S					\
-diff --git a/README.md b/README.md
-index 3caf2fa..bdfe880 100644
---- a/README.md
-+++ b/README.md
-@@ -58,6 +58,7 @@ tested:
- | ARM             | iOS              | GCC                     |
- | AVR32           | Linux            | GCC                     |
- | Blackfin        | uClinux          | GCC                     |
-+| CSKY            | Linux            | GCC                     |
- | HPPA            | HPUX             | GCC                     |
- | IA-64           | Linux            | GCC                     |
- | M68K            | FreeMiNT         | GCC                     |
+@@ -82,6 +83,7 @@
+	src/arm/sysv.S src/arm/ffi.c src/arm/sysv_msvc_arm32.S \
+	src/avr32/ffi.c src/avr32/sysv.S src/bfin/ffi.c \
+	src/bfin/sysv.S src/cris/ffi.c src/cris/sysv.S src/frv/ffi.c \
++       src/csky/sysv.S src/csky/ffi.c \
+	src/frv/eabi.S src/ia64/ffi.c src/ia64/unix.S src/m32r/ffi.c \
+	src/m32r/sysv.S src/m68k/ffi.c src/m68k/sysv.S src/m88k/ffi.c \
+	src/m88k/obsd.S src/metag/ffi.c src/metag/sysv.S \
 diff --git a/configure.host b/configure.host
 index 7634c3a..9201cd4 100644
 --- a/configure.host

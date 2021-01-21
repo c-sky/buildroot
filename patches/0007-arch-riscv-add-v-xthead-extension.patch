@@ -1,7 +1,7 @@
-From 86c0ac82a8d051bf4288351cb230043fa5c9e928 Mon Sep 17 00:00:00 2001
+From 52cccbb1f7f032ecde98a359f5b5f3bd52099530 Mon Sep 17 00:00:00 2001
 From: Guo Ren <ren_guo@c-sky.com>
 Date: Wed, 9 Oct 2019 15:08:35 +0800
-Subject: [PATCH] arch/riscv: add v & xthead extension
+Subject: [PATCH 07/15] arch/riscv: add v & xthead extension
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -27,13 +27,14 @@ Changelog v3:
 Signed-off-by: Guo Ren <ren_guo@c-sky.com>
 Signed-off-by: Mao Han <han_mao@c-sky.com>
 Signed-off-by: Ma Jun  <majun@linux.alibaba.com>
+Signed-off-by: Guo Ren <guoren@linux.alibaba.com>
 ---
  arch/Config.in.riscv | 19 +++++++++++++++++++
  arch/arch.mk.riscv   |  6 ++++++
  2 files changed, 25 insertions(+)
 
 diff --git a/arch/Config.in.riscv b/arch/Config.in.riscv
-index bdd2672..93e068e 100644
+index 1fc20e5..86dacc4 100644
 --- a/arch/Config.in.riscv
 +++ b/arch/Config.in.riscv
 @@ -18,6 +18,12 @@ config BR2_RISCV_ISA_RVD
@@ -64,7 +65,7 @@ index bdd2672..93e068e 100644
  endif
  
  choice
-@@ -106,6 +120,10 @@ config BR2_RISCV_ABI_LP64F
+@@ -110,6 +124,10 @@ config BR2_RISCV_ABI_LP64F
  config BR2_RISCV_ABI_LP64D
  	bool "lp64d"
  	depends on BR2_ARCH_IS_64 && BR2_RISCV_ISA_RVD
@@ -75,7 +76,7 @@ index bdd2672..93e068e 100644
  endchoice
  
  config BR2_ARCH
-@@ -122,6 +140,7 @@ config BR2_GCC_TARGET_ABI
+@@ -126,6 +144,7 @@ config BR2_GCC_TARGET_ABI
  	default "lp64" if BR2_RISCV_ABI_LP64
  	default "lp64f" if BR2_RISCV_ABI_LP64F
  	default "lp64d" if BR2_RISCV_ABI_LP64D
@@ -100,5 +101,5 @@ index f3bf2b3..85c76c0 100644
  
  endif
 -- 
-1.8.3.1
+2.17.1
 

@@ -1,4 +1,4 @@
-BR2_VERSION		= ded3f9954f158b5d9cd08ae76749eade72fcca3a
+BR2_VERSION		= 9d1d4818c39d97ad7a1cdf6e075b9acae6dfff71
 
 
 BRW_ROOT	= $(PWD)
