@@ -519,21 +519,9 @@ wait_for_trigger:
     before_script: *910_qemu_before_test
     <<: *common_tests
 
-910_5.1_glibc_compat: *common_build
-9xx_5.4_glibc_compat: *common_build
 9xx_5.9_glibc_compat: *common_build
 9xx_5.10_glibc_compat: *common_build
 910_next_glibc_compat: *common_build
-
-910_5.1_glibc_qemu_test:
-    dependencies:
-      - 910_5.1_glibc_compat
-    <<: *910_qemu_test
-
-9xx_5.4_glibc_qemu_test:
-    dependencies:
-      - 9xx_5.4_glibc_compat
-    <<: *910_qemu_test
 
 9xx_5.9_glibc_qemu_test:
     dependencies:
