@@ -33,7 +33,7 @@ function start_serial_and_dbg_server()
 	killall DebugServerConsole.elf > /dev/null 2>&1
 	echo 'DebugServer starts...'
 	# -ddc -port 1025 as default
-	./DebugServerConsole.elf &
+	./DebugServerConsole.elf -setclk 6 &
 	cd -
 	sleep 1
 }
@@ -123,5 +123,5 @@ csky_ci_setting
 #Must enter /output/images to execute since we need the configs
 cd $OUT_PATH/images/hw
 chmod 755 ./run.sh
-LD_LIBRARY_PATH=../../host/lib ./run.sh 127.0.0.1:1025 $1
+LD_LIBRARY_PATH=../../host/lib ./run.sh 127.0.0.1:1025 $1 $2
 cd -

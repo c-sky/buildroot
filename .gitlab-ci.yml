@@ -114,7 +114,7 @@ wait_for_trigger:
           xz -d output/images/rootfs.tar.xz;
       fi
     - if [ -f output/host/csky-ci/${RUN} ]; then
-        ./output/host/csky-ci/${RUN} $BOARD;
+        ./output/host/csky-ci/${RUN} $BOARD $CORENUM;
       fi
     - if [ -f output/host/csky-ci/generic_analyze.sh ]; then
         ./output/host/csky-ci/generic_analyze.sh || exit 1;
@@ -194,6 +194,7 @@ wait_for_trigger:
 .gx6605s_chip_before_test: &gx6605s_chip_before_test
     - RUN="run_test_chip.sh"
     - BOARD="gx6605s"
+    - CORENUM="1"
 
 .gx6605s_chip_test: &gx6605s_chip_test
     stage: chip-test
@@ -221,11 +222,11 @@ wait_for_trigger:
       - 610_4.19_glibc_compat
     <<: *gx6605s_chip_test
 
-610_next_glibc_gx6605s_test:
+610_5.10_glibc_gx6605s_test:
     tags:
       - csky-610-gx6622
     dependencies:
-      - 610_next_glibc_compat
+      - 610_5.10_glibc_compat
     <<: *gx6605s_chip_test
 
 ################ 810 ################
@@ -291,6 +292,7 @@ wait_for_trigger:
 .dp1000_chip_before_test: &dp1000_chip_before_test
     - RUN="run_test_chip.sh"
     - BOARD="dp1000"
+    - CORENUM="1"
 
 .dp1000_chip_test: &dp1000_chip_test
     stage: chip-test
@@ -406,61 +408,23 @@ wait_for_trigger:
       - 860_next_glibc_compat
     <<: *860_qemu_test
 
-# fpga
-# .860_fpga_before_test: &860_fpga_before_test
-#    - RUN="run_test_fpga.sh"
-
-# .860_fpga_test: &860_fpga_test
-#    stage: chip-test
-#    before_script: *860_fpga_before_test
-#    <<: *common_tests
-
-# 860_4.9_glibc_fpga_test:
-#    tags:
-#      - csky-860-fpga
-#    dependencies:
-#      - 860_4.9_glibc_compat
-#    <<: *860_fpga_test
-
 # chip test
-.an_chip_before_test: &an_chip_before_test
+.ice860_chip_before_test: &ice860_chip_before_test
     - RUN="run_test_chip.sh"
-    - BOARD="an"
+    - BOARD="ice_evb"
+    - CORENUM="4"
 
-.an_chip_test: &an_chip_test
+.ice860_chip_test: &ice860_chip_test
     stage: chip-test
-    before_script: *an_chip_before_test
+    before_script: *ice860_chip_before_test
     <<: *common_tests
 
-860_4.9_glibc_an_test:
+860_5.10_glibc_ice_test:
     tags:
-      - csky-860-anole
+      - csky-860-ice
     dependencies:
-      - 860_4.9_glibc_compat
-    <<: *an_chip_test
-
-860_4.19_glibc_an_test:
-    tags:
-      - csky-860-anole
-    dependencies:
-      - 860_4.19_glibc_compat
-    <<: *an_chip_test
-
-860_next_glibc_an_test:
-    tags:
-      - csky-860-anole
-    dependencies:
-      - 860_next_glibc_compat
-    <<: *an_chip_test
-
-.by_chip_before_test: &by_chip_before_test
-    - RUN="run_test_chip.sh"
-    - BOARD="by"
-
-.by_chip_test: &by_chip_test
-    stage: chip-test
-    before_script: *by_chip_before_test
-    <<: *common_tests
+      - 860_5.10_glibc_compat
+    <<: *ice860_chip_test
 
 #qemu test enhanced
 .860_qemu_test_enhanced: &860_qemu_test_enhanced
@@ -537,6 +501,24 @@ wait_for_trigger:
     dependencies:
       - 910_next_glibc_compat
     <<: *910_qemu_test
+
+# chip test
+.ice9xx_chip_before_test: &ice9xx_chip_before_test
+    - RUN="run_test_chip.sh"
+    - BOARD="ice_evb"
+    - CORENUM="2"
+
+.ice9xx_chip_test: &ice9xx_chip_test
+    stage: chip-test
+    before_script: *ice9xx_chip_before_test
+    <<: *common_tests
+
+9xx_5.10_glibc_ice_test:
+    tags:
+      - csky-910-ice
+    dependencies:
+      - 9xx_5.10_glibc_compat
+    <<: *ice9xx_chip_test
 
 #qemu test enhanced
 .910_qemu_test_enhanced: &910_qemu_test_enhanced
