@@ -5,7 +5,7 @@ if [ ! -n "$F" ]; then
 	echo "ltp test failed!"
 	return 1
 fi
-if [ $F -lt 50 -o $F -gt 200 -a $F -lt 400 ]; then
+if [ $F -lt 400 ]; then
 	echo "ltp test passed"
 	echo
 else
