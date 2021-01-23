@@ -12,6 +12,8 @@ for idx in "$@"
 do
 if [ $idx == "ice_evb" ]; then
 	BOARD="ice_evb"
+elif [ $idx == "ice_evb_nfs" ]; then
+	BOARD="ice_evb_nfs"
 elif [ $idx == "ice_fpga" ]; then
 	BOARD="ice_fpga"
 elif [ $idx == "an" ]; then

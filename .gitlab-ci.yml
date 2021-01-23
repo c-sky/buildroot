@@ -505,7 +505,7 @@ wait_for_trigger:
 # chip test
 .ice9xx_chip_before_test: &ice9xx_chip_before_test
     - RUN="run_test_chip.sh"
-    - BOARD="ice_evb"
+    - BOARD="ice_evb_nfs"
     - CORENUM="2"
 
 .ice9xx_chip_test: &ice9xx_chip_test

@@ -1,0 +1,232 @@
+/dts-v1/;
+/ {
+	model = "T-HEAD C860 Lite Platform";
+	compatible = "thead,c860-lite-platform";
+	#address-cells = <1>;
+	#size-cells = <1>;
+
+	cpus {
+		#address-cells = <1>;
+		#size-cells = <0>;
+		cpu@0 {
+			device_type = "cpu";
+			reg = <0>;
+			status = "ok";
+		};
+		cpu@1 {
+			device_type = "cpu";
+			reg = <1>;
+			status = "fail";
+		};
+		cpu@2 {
+			device_type = "cpu";
+			reg = <2>;
+			status = "fail";
+		};
+		cpu@3 {
+			device_type = "cpu";
+			reg = <3>;
+			status = "fail";
+		};
+	};
+
+	memory {
+		device_type = "memory";
+		reg = <0x00000000 0x40000000>;
+	};
+
+	aliases {
+		ethernet0 = &gmac;
+		serial0 = &uart0;
+	};
+
+	soc {
+		#address-cells = <1>;
+		#size-cells = <1>;
+		compatible = "simple-bus";
+		ranges;
+
+		dummy_timer: cpu-timer {
+			compatible = "fixed-clock";
+			clock-frequency = <3000000>;
+			clock-output-names = "dummy_timer";
+			#clock-cells = <0>;
+		};
+
+		dummy_apb: apb-clock {
+			compatible = "fixed-clock";
+			clock-frequency = <62500000>;
+			clock-output-names = "dummy_apb";
+			#clock-cells = <0>;
+		};
+
+		dummy_ahb: ahb-clock {
+			compatible = "fixed-clock";
+			clock-frequency = <250000000>;
+			clock-output-names = "dummy_ahb";
+			#clock-cells = <0>;
+		};
+
+		dummy_axi: axi-clock {
+			compatible = "fixed-clock";
+			clock-frequency = <500000000>;
+			clock-output-names = "dummy_axi";
+			#clock-cells = <0>;
+		};
+
+		dummy_gmac: gmac-clock {
+			compatible = "fixed-clock";
+			clock-frequency = <1000000000>;
+			clock-output-names = "dummy_gmac";
+			#clock-cells = <0>;
+		};
+
+		dummy_clk_sdio: dummy-clk-sdio {
+			compatible = "fixed-clock";
+			clock-frequency = <150000000>;
+			clock-output-names = "dummy_clk_sdio";
+			#clock-cells = <0>;
+		};
+
+		intc: interrupt-controller {
+			compatible = "csky,mpintc";
+			interrupt-controller;
+			#interrupt-cells = <1>;
+		};
+
+		mptimer: mptimer {
+			compatible = "csky,mptimer";
+			clocks = <&dummy_timer>;
+			interrupts = <16>;
+			interrupt-parent = <&intc>;
+		};
+
+		timer0: timer0@fff70000 {
+			compatible = "snps,dw-apb-timer";
+			reg = <0xfff70000 0x80>;
+			clocks = <&dummy_apb>;
+			clock-names = "timer";
+			interrupts = <32>;
+			interrupt-parent = <&intc>;
+		};
+
+		timer1: timer1@fff70014 {
+			compatible = "snps,dw-apb-timer";
+			reg = <0xfff70014 0x80>;
+			clocks = <&dummy_apb>;
+			clock-names = "timer";
+			interrupts = <33>;
+			interrupt-parent = <&intc>;
+		};
+
+		timer2: timer2@fff70028 {
+			compatible = "snps,dw-apb-timer";
+			reg = <0xfff70028 0x80>;
+			clocks = <&dummy_apb>;
+			clock-names = "timer";
+			interrupts = <34>;
+			interrupt-parent = <&intc>;
+		};
+
+		timer3: timer3@fff7003c {
+			compatible = "snps,dw-apb-timer";
+			reg = <0xfff7003c 0x80>;
+			clocks = <&dummy_apb>;
+			clock-names = "timer";
+			interrupts = <35>;
+			interrupt-parent = <&intc>;
+		};
+
+		pmu0: pmu {
+			compatible = "csky,csky-pmu";
+			interrupts = <23 1>;
+			interrupt-parent = <&intc>;
+		};
+
+		uart0: serial@FFF73000 {
+			compatible = "snps,dw-apb-uart";
+			reg = <0xfff73000 0x1000>;
+			interrupt-parent = <&intc>;
+			interrupts = <39>;
+			clocks = <&dummy_apb>;
+			clock-names = "baudclk";
+			reg-shift = <2>;
+			reg-io-width = <4>;
+		};
+
+		dmac0: dmac@3fffd0000 {
+			compatible = "snps,axi-dma-1.01a";
+			reg = <0xfffd0000 0x1000>;
+			interrupt-parent = <&intc>;
+			interrupts = <65>;
+			clocks = <&dummy_axi>, <&dummy_ahb>;
+			clock-names = "core-clk", "cfgr-clk";
+
+			dma-channels = <8>;
+			snps,block-size = <65536 65536 65536 65536 65536 65536 65536 65536>;
+			snps,priority = <0 1 2 3 4 5 6 7>;
+			snps,dma-masters = <1>;
+			snps,data-width = <4>;
+			snps,axi-max-burst-len = <16>;
+
+			status = "disabled";
+		};
+
+		sdhc0: sdhc0@fffb0000 {
+			compatible = "snps,dw-mshc";
+			reg = <0xfffb0000 0x1000>;
+			interrupt-parent = <&intc>;
+			interrupts = <37>;
+			clocks = <&dummy_clk_sdio>, <&dummy_clk_sdio>;
+			clock-names = "ciu", "biu";
+			num-slots = <1>;
+			card-detect-delay = <200>;
+			cap-mmc-highspeed;
+			cap-cmd23;
+			non-removable;
+			bus-width = <8>;
+		};
+
+		stmmac_axi_setup: stmmac-axi-config {
+			snps,wr_osr_lmt = <3>;
+			snps,rd_osr_lmt = <3>;
+			snps,blen = <16 8 4 0 0 0 0>;
+		};
+
+		gmac: ethernet@3fffc0000 {
+			compatible = "thead,dwmac";
+			reg = < 0xfffc0000 0x2000
+				0xfe83025c 0x4
+				0xfe83031c 0x4
+				0xfff770c0 0x1c>;
+			reg-names = "gmac", "phy_if_reg", "txclk_dir_reg", "clk_mgr_reg";
+			interrupt-parent = <&intc>;
+			interrupts = <56>;
+			interrupt-names = "macirq";
+			clocks = <&dummy_ahb>, <&dummy_gmac>;
+			clock-names = "stmmaceth", "gmac_pll_clk";
+			snps,pbl = <32>;
+			snps,fixed-burst;
+			snps,axi-config = <&stmmac_axi_setup>;
+
+			phy-mode = "rgmii-id";
+			rx-clk-delay = <0x1f>; /* for RGMII */
+			tx-clk-delay = <0x1f>; /* for RGMII */
+
+			phy-handle = <&eth_phy_0>;
+			mdio0 {
+				#address-cells = <1>;
+				#size-cells = <0>;
+				compatible = "snps,dwmac-mdio";
+
+				eth_phy_0: ethernet-phy@0 {
+					reg = <0>;
+				};
+			};
+		};
+	};
+
+	chosen {
+		bootargs = "console=ttyS0,115200 rootwait init=/sbin/init root=/dev/nfs rw nfsroot=192.168.101.200:/tmp/rootfs_nfs,v3,tcp,nolock ip=192.168.101.23 c910_mmu_v1";
+	};
+};

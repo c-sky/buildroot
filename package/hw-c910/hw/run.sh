@@ -20,6 +20,9 @@ if [ $idx == "an" ]; then
 elif [ $idx == "ice_evb" ]; then
 	BOARD="ice_evb"
 	GDBRESET="noreset"
+elif [ $idx == "ice_evb_nfs" ]; then
+	BOARD="ice_evb_nfs"
+	GDBRESET="noreset"
 elif [ $idx == "ice_fpga" ]; then
 	BOARD="ice_fpga"
 	GDBRESET="noreset"
