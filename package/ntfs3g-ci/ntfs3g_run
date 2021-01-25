@@ -5,13 +5,13 @@ LOOP_NUM=200
 function mount_prepare()
 {
 	umount /mnt
-	rm -f ntfs.img
+	rm -f /tmp/ntfs.img
 
 	set -e
 
-	dd if=/dev/zero of=ntfs.img bs=5242880 count=2
-	mkfs.ntfs ntfs.img -F
-	ntfs-3g ntfs.img /mnt/
+	dd if=/dev/zero of=/tmp/ntfs.img bs=5242880 count=2
+	mkfs.ntfs /tmp/ntfs.img -F
+	ntfs-3g /tmp/ntfs.img /mnt/
 	touch /mnt/test_abc.gz
 	mount_res=`mount | grep ntfs.img`
 	if [ -z "${mount_res}" ]; then
