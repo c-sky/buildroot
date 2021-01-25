@@ -1,7 +1,7 @@
 From 7a15550cc437560dbdfa088bfe3b23bc0a35334a Mon Sep 17 00:00:00 2001
 From: Guo Ren <guoren@linux.alibaba.com>
 Date: Fri, 14 Aug 2020 01:25:44 +0000
-Subject: [PATCH 13/51] riscv: Fixup kernel function tracer enable failed
+Subject: [PATCH 13/59] riscv: Fixup kernel function tracer enable failed
 
 Signed-off-by: Guo Ren <guoren@linux.alibaba.com>
 ---

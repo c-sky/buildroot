@@ -1,0 +1,92 @@
+From 5a4285e28f5c30fad3d1cd622a1032fcb5ee057d Mon Sep 17 00:00:00 2001
+From: Guo Ren <guoren@linux.alibaba.com>
+Date: Mon, 11 Jan 2021 20:16:28 +0800
+Subject: [PATCH 53/59] csky: Fixup _PAGE_ACCESSED for default pgprot
+
+When the system memory is exhausted, linux will trigger kswapd to
+shrink memory page cache. We found the csky's .text file mapping
+pages would be reclaimed earlier than arm's elf. Because csky
+doesn't give _PAGE_ACCESSED for default pgprot and in zap_pte_range
+
+if (pte_young(ptent) &&
+    likely(!(vma->vm_flags & VM_SEQ_READ)))
+        mark_page_accessed(page);
+
+mark_page_accessed will put the pages into active lru list.
+
+[    3.652722] delete busybox page from inactive file list
+Call Trace:
+[<9012a376>] dump_stack+0xe/0x24
+[<9012a370>] dump_stack+0x8/0x24
+[<9005b780>] activate_page+0x2b4/0x2d4
+[<90132502>] vsnprintf+0x2c6/0x374
+[<9005b880>] mark_page_accessed+0xe0/0x150
+[<9006903e>] unmap_page_range+0x166/0x33c
+[<90021844>] get_signal+0x98/0x3b4
+[<90069232>] unmap_single_vma+0x1e/0x24
+[<90069462>] unmap_vmas+0x26/0x40
+[<9006d3d8>] exit_mmap+0x60/0xbc
+[<9006a140>] handle_mm_fault+0x700/0xcec
+[<900426b2>] ktime_get_with_offset+0x86/0x130
+[<90017566>] mmput+0x2e/0x90
+[<9001a30a>] do_exit+0x13e/0x6f0
+[<90015448>] page_fault_end+0x14/0x74
+[<9001b4bc>] SyS_exit_group+0x0/0xc
+[<9001b47c>] do_group_exit+0x2c/0x6c
+[<9001b4c8>] __wake_up_parent+0x0/0x20
+[<9001399e>] csky_systemcall+0x6e/0x72
+
+csky will throw the pages at first and keep them in active lru
+list later after real accessed, but arm would keep them in active
+lru list at the beginning.
+
+The following are statistics of different architecture styles:
+
+Default _PAGE_ACCESSED: alpha, arm, arm64, ia64, m68k, microblaze,
+			openrisc, powerpc, riscv, sh, um, x86,
+			xtensa
+Not def _PAGE_ACCESSED: arc, c6x, h8300, hexgon, mips, s390, nds32,
+			nios2, parisc, sparc
+
+Signed-off-by: Guo Ren <guoren@linux.alibaba.com>
+Co-developed-by: Xu Kai <xukai@nationalchip.com>
+Signed-off-by: Xu Kai <xukai@nationalchip.com>
+---
+ arch/csky/include/asm/pgtable.h | 16 +++++++++-------
+ 1 file changed, 9 insertions(+), 7 deletions(-)
+
+diff --git a/arch/csky/include/asm/pgtable.h b/arch/csky/include/asm/pgtable.h
+index 2485db84dba8..429d96f66620 100644
+--- a/arch/csky/include/asm/pgtable.h
++++ b/arch/csky/include/asm/pgtable.h
+@@ -63,18 +63,20 @@
+  * read. Also, write permissions imply read permissions. This is the closest
+  * we can get by reasonable means..
+  */
+-#define PAGE_NONE	__pgprot(_PAGE_PRESENT | _CACHE_CACHED)
+-#define PAGE_SHARED	__pgprot(_PAGE_PRESENT | _PAGE_READ | _PAGE_WRITE | \
++#define _PAGE_BASE	(_PAGE_PRESENT | _PAGE_ACCESSED)
++
++#define PAGE_NONE	__pgprot(_PAGE_BASE | _CACHE_CACHED)
++#define PAGE_SHARED	__pgprot(_PAGE_BASE | _PAGE_READ | _PAGE_WRITE | \
+ 				_CACHE_CACHED)
+-#define PAGE_COPY	__pgprot(_PAGE_PRESENT | _PAGE_READ | _CACHE_CACHED)
+-#define PAGE_READONLY	__pgprot(_PAGE_PRESENT | _PAGE_READ | _CACHE_CACHED)
+-#define PAGE_KERNEL	__pgprot(_PAGE_PRESENT | __READABLE | __WRITEABLE | \
++#define PAGE_COPY	__pgprot(_PAGE_BASE | _PAGE_READ | _CACHE_CACHED)
++#define PAGE_READONLY	__pgprot(_PAGE_BASE | _PAGE_READ | _CACHE_CACHED)
++#define PAGE_KERNEL	__pgprot(_PAGE_BASE | __READABLE | __WRITEABLE | \
+ 				_PAGE_GLOBAL | _CACHE_CACHED)
+-#define PAGE_USERIO	__pgprot(_PAGE_PRESENT | _PAGE_READ | _PAGE_WRITE | \
++#define PAGE_USERIO	__pgprot(_PAGE_BASE | _PAGE_READ | _PAGE_WRITE | \
+ 				_CACHE_CACHED)
+ 
+ #define _PAGE_IOREMAP \
+-	(_PAGE_PRESENT | __READABLE | __WRITEABLE | _PAGE_GLOBAL | \
++	(_PAGE_BASE | __READABLE | __WRITEABLE | _PAGE_GLOBAL | \
+ 	 _CACHE_UNCACHED | _PAGE_SO)
+ 
+ #define __P000	PAGE_NONE
+-- 
+2.17.1
+

@@ -1,0 +1,31 @@
+From eaec533ac211908e941316bcb31a2f33cae27fdf Mon Sep 17 00:00:00 2001
+From: Guo Ren <guoren@linux.alibaba.com>
+Date: Wed, 20 Jan 2021 16:35:03 +0800
+Subject: [PATCH 59/59] csky: Fixup pfn_valid error with wrong max_mapnr
+
+The max_mapnr is the number of PFNs, not absolute PFN offset.
+
+Signed-off-by: Guo Ren <guoren@linux.alibaba.com>
+---
+ arch/csky/mm/init.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/arch/csky/mm/init.c b/arch/csky/mm/init.c
+index 03970f4408f5..81e4e5e78f38 100644
+--- a/arch/csky/mm/init.c
++++ b/arch/csky/mm/init.c
+@@ -86,9 +86,9 @@ void __init mem_init(void)
+ #ifdef CONFIG_HIGHMEM
+ 	unsigned long tmp;
+ 
+-	set_max_mapnr(highend_pfn);
++	set_max_mapnr(highend_pfn - ARCH_PFN_OFFSET);
+ #else
+-	set_max_mapnr(max_low_pfn);
++	set_max_mapnr(max_low_pfn - ARCH_PFN_OFFSET);
+ #endif
+ 	high_memory = (void *) __va(max_low_pfn << PAGE_SHIFT);
+ 
+-- 
+2.17.1
+

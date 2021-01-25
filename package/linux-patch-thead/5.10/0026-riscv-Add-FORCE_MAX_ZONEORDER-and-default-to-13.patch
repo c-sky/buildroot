@@ -1,7 +1,7 @@
 From 2891dd00c44603131111925b918e3102946ee999 Mon Sep 17 00:00:00 2001
 From: Liu Yibin <jiulong@linux.alibaba.com>
 Date: Wed, 30 Dec 2020 20:53:40 +0800
-Subject: [PATCH 26/51] riscv: Add FORCE_MAX_ZONEORDER and default to 13
+Subject: [PATCH 26/59] riscv: Add FORCE_MAX_ZONEORDER and default to 13
 
 Add FORCE_MAX_ZONEORDER to support custom max order requirements.
 Default 13 is 16MB for requesting large(16MB) contiguous memory.

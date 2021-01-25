@@ -1,7 +1,7 @@
 From 43db6e9eae3f51e00cd71b2099a9f66312639d55 Mon Sep 17 00:00:00 2001
 From: Guo Ren <guoren@linux.alibaba.com>
 Date: Mon, 4 Jan 2021 03:37:07 +0000
-Subject: [PATCH 49/51] csky: Reconstruct VDSO framework
+Subject: [PATCH 49/59] csky: Reconstruct VDSO framework
 
 Reconstruct vdso framework to support future vsyscall,
 vgettimeofday features. These are very important features to reduce

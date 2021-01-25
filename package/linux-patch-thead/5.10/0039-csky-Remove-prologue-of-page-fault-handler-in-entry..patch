@@ -1,7 +1,7 @@
 From b292f716e76374a8addf07e60a3ecec9cbcab3f8 Mon Sep 17 00:00:00 2001
 From: Guo Ren <guoren@linux.alibaba.com>
 Date: Thu, 24 Dec 2020 02:02:55 +0000
-Subject: [PATCH 39/51] csky: Remove prologue of page fault handler in entry.S
+Subject: [PATCH 39/59] csky: Remove prologue of page fault handler in entry.S
 
 There is a prologue on page fault handler which marking pages dirty
 and/or accessed in page attributes, but all of these have been

@@ -1,0 +1,35 @@
+From 3a777b6f8ff71923a0c3d39835cfd6e6255c7c31 Mon Sep 17 00:00:00 2001
+From: unknown <unknown@unknown.org>
+Date: Fri, 8 Jan 2021 14:38:05 +0800
+Subject: [PATCH 52/59] Add specific cpu info
+
+Signed-off-by: Guo Ren <guoren@linux.alibaba.com>
+---
+ arch/riscv/kernel/cpu.c | 11 +++++++++++
+ 1 file changed, 11 insertions(+)
+
+diff --git a/arch/riscv/kernel/cpu.c b/arch/riscv/kernel/cpu.c
+index 6d59e6906fdd..f7a3ff623fc6 100644
+--- a/arch/riscv/kernel/cpu.c
++++ b/arch/riscv/kernel/cpu.c
+@@ -117,6 +117,17 @@ static int c_show(struct seq_file *m, void *v)
+ 	if (!of_property_read_string(node, "compatible", &compat)
+ 	    && strcmp(compat, "riscv"))
+ 		seq_printf(m, "uarch\t\t: %s\n", compat);
++#if CONFIG_SOC_THEAD
++	seq_printf(m, "model name\t: T-HEAD C910\n");
++	seq_printf(m, "freq\t\t: 1.2GHz\n");
++	seq_printf(m, "icache\t\t: 64kB\n");
++	seq_printf(m, "dcache\t\t: 64kB\n");
++	seq_printf(m, "l2cache\t\t: 2MB\n");
++	seq_printf(m, "tlb\t\t: 1024 4-ways\n");
++	seq_printf(m, "cache line\t: 64Bytes\n");
++	seq_printf(m, "address sizes\t: 40 bits physical, 39 bits virtual\n");
++	seq_printf(m, "vector version\t: 0.7.1\n");
++#endif
+ 	seq_puts(m, "\n");
+ 	of_node_put(node);
+ 
+-- 
+2.17.1
+

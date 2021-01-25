@@ -1,7 +1,7 @@
 From 27cb89b42fadeb54bfe75cb10f7a9766ecb3dfb7 Mon Sep 17 00:00:00 2001
 From: lihm <koumei.lhm@alibaba-inc.com>
 Date: Thu, 31 Dec 2020 12:54:53 +0800
-Subject: [PATCH 27/51] Add dc8000 driver
+Subject: [PATCH 27/59] Add dc8000 driver
 
 Signed-off-by: Guo Ren <guoren@linux.alibaba.com>
 ---

@@ -1,0 +1,108 @@
+From 1bfdf4bd9fd114b0838fd09b13217b4ed3476f6b Mon Sep 17 00:00:00 2001
+From: Guo Ren <guoren@linux.alibaba.com>
+Date: Thu, 14 Jan 2021 07:54:37 +0000
+Subject: [PATCH 56/59] csky: kprobe: fix code in simulate without 'long'
+
+The type of 'val' is 'unsigned long' in simulate_blz32, so 'val < 0'
+can't be true.
+
+Cast 'val' to 'long' here to determine branch token or not,
+
+Fixup instructions: bnezad32, bhsz32, bhz32, blsz32, blz32
+
+Link: https://lore.kernel.org/linux-csky/CAJF2gTQjKXR9gpo06WAWG1aquiT87mATiMGorXs6ChxOxoe90Q@mail.gmail.com/T/#t
+Signed-off-by: Guo Ren <guoren@linux.alibaba.com>
+Co-developed-by: Menglong Dong <dong.menglong@zte.com.cn>
+Signed-off-by: Menglong Dong <dong.menglong@zte.com.cn>
+---
+ arch/csky/kernel/probes/simulate-insn.c | 22 +++++++---------------
+ 1 file changed, 7 insertions(+), 15 deletions(-)
+
+diff --git a/arch/csky/kernel/probes/simulate-insn.c b/arch/csky/kernel/probes/simulate-insn.c
+index 4e464fed52ec..d6e8d092c9b7 100644
+--- a/arch/csky/kernel/probes/simulate-insn.c
++++ b/arch/csky/kernel/probes/simulate-insn.c
+@@ -274,9 +274,9 @@ void __kprobes
+ simulate_bnezad32(u32 opcode, long addr, struct pt_regs *regs)
+ {
+ 	unsigned long tmp = opcode & 0x1f;
+-	unsigned long val;
++	long val;
+ 
+-	csky_insn_reg_get_val(regs, tmp, &val);
++	csky_insn_reg_get_val(regs, tmp, (unsigned long *)&val);
+ 
+ 	val -= 1;
+ 
+@@ -286,7 +286,7 @@ simulate_bnezad32(u32 opcode, long addr, struct pt_regs *regs)
+ 	} else
+ 		instruction_pointer_set(regs, addr + 4);
+ 
+-	csky_insn_reg_set_val(regs, tmp, val);
++	csky_insn_reg_set_val(regs, tmp, (unsigned long)val);
+ }
+ 
+ void __kprobes
+@@ -297,13 +297,11 @@ simulate_bhsz32(u32 opcode, long addr, struct pt_regs *regs)
+ 
+ 	csky_insn_reg_get_val(regs, tmp, &val);
+ 
+-	if (val >= 0) {
++	if ((long) val >= 0) {
+ 		instruction_pointer_set(regs,
+ 			addr + sign_extend32((opcode & 0xffff0000) >> 15, 15));
+ 	} else
+ 		instruction_pointer_set(regs, addr + 4);
+-
+-	csky_insn_reg_set_val(regs, tmp, val);
+ }
+ 
+ void __kprobes
+@@ -314,13 +312,11 @@ simulate_bhz32(u32 opcode, long addr, struct pt_regs *regs)
+ 
+ 	csky_insn_reg_get_val(regs, tmp, &val);
+ 
+-	if (val > 0) {
++	if ((long) val > 0) {
+ 		instruction_pointer_set(regs,
+ 			addr + sign_extend32((opcode & 0xffff0000) >> 15, 15));
+ 	} else
+ 		instruction_pointer_set(regs, addr + 4);
+-
+-	csky_insn_reg_set_val(regs, tmp, val);
+ }
+ 
+ void __kprobes
+@@ -331,13 +327,11 @@ simulate_blsz32(u32 opcode, long addr, struct pt_regs *regs)
+ 
+ 	csky_insn_reg_get_val(regs, tmp, &val);
+ 
+-	if (val <= 0) {
++	if ((long) val <= 0) {
+ 		instruction_pointer_set(regs,
+ 			addr + sign_extend32((opcode & 0xffff0000) >> 15, 15));
+ 	} else
+ 		instruction_pointer_set(regs, addr + 4);
+-
+-	csky_insn_reg_set_val(regs, tmp, val);
+ }
+ 
+ void __kprobes
+@@ -348,13 +342,11 @@ simulate_blz32(u32 opcode, long addr, struct pt_regs *regs)
+ 
+ 	csky_insn_reg_get_val(regs, tmp, &val);
+ 
+-	if (val < 0) {
++	if ((long) val < 0) {
+ 		instruction_pointer_set(regs,
+ 			addr + sign_extend32((opcode & 0xffff0000) >> 15, 15));
+ 	} else
+ 		instruction_pointer_set(regs, addr + 4);
+-
+-	csky_insn_reg_set_val(regs, tmp, val);
+ }
+ 
+ void __kprobes
+-- 
+2.17.1
+

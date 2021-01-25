@@ -1,7 +1,7 @@
 From d06ca94e89dc4007d6d039d628f2377f72940dfc Mon Sep 17 00:00:00 2001
 From: unknown <unknown@unknown.org>
 Date: Mon, 7 Dec 2020 16:20:15 +0000
-Subject: [PATCH 25/51] drivers/i2c/buses: Designware I2C driver
+Subject: [PATCH 25/59] drivers/i2c/buses: Designware I2C driver
 
 Please help to maintain the driver, it's just could work with hw.
 

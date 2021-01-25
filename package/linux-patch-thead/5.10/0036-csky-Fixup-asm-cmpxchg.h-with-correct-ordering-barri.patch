@@ -1,7 +1,7 @@
 From 513ec6c2d3eb4a00e5e822f48a56f89c7f0bc0b0 Mon Sep 17 00:00:00 2001
 From: Guo Ren <guoren@linux.alibaba.com>
 Date: Sun, 20 Dec 2020 07:10:23 +0000
-Subject: [PATCH 36/51] csky: Fixup asm/cmpxchg.h with correct ordering barrier
+Subject: [PATCH 36/59] csky: Fixup asm/cmpxchg.h with correct ordering barrier
 
 Optimize the performance of cmpxchg by using more fine-grained
 acquire/release barriers.

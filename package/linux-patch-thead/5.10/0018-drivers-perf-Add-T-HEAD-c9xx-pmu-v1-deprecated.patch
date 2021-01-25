@@ -1,7 +1,7 @@
 From d81616fe44eceb31d3d59dffb3db248bdd4b0e98 Mon Sep 17 00:00:00 2001
 From: Mao Han <han_mao@linux.alibaba.com>
 Date: Thu, 7 May 2020 09:48:35 +0800
-Subject: [PATCH 18/51] drivers/perf: Add T-HEAD c9xx pmu v1 (deprecated)
+Subject: [PATCH 18/59] drivers/perf: Add T-HEAD c9xx pmu v1 (deprecated)
 
 This patch add basic perf counter access and hw event sampling support
 for T-HEAD XuanTie. The PMU can support various hardware event, including

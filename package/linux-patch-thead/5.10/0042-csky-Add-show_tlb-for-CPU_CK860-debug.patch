@@ -1,7 +1,7 @@
 From 63fd4d5261bd7e22399dbbf11ba2cdd41891bfb2 Mon Sep 17 00:00:00 2001
 From: Guo Ren <guoren@linux.alibaba.com>
 Date: Thu, 24 Dec 2020 06:23:31 +0000
-Subject: [PATCH 42/51] csky: Add show_tlb for CPU_CK860 debug
+Subject: [PATCH 42/59] csky: Add show_tlb for CPU_CK860 debug
 
 Print all 1024 jtlb entries and 16 iutlb entries and 16 dutlb
 entries in show_regs.

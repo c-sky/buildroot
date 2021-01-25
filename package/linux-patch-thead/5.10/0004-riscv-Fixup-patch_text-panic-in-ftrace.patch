@@ -1,7 +1,7 @@
 From 144e49b4d830b211273b0d931ea8a90ce1337140 Mon Sep 17 00:00:00 2001
 From: Guo Ren <guoren@linux.alibaba.com>
 Date: Tue, 3 Nov 2020 06:10:55 +0000
-Subject: [PATCH 04/51] riscv: Fixup patch_text panic in ftrace
+Subject: [PATCH 04/59] riscv: Fixup patch_text panic in ftrace
 
 Just like arm64, we can't trace the function in the patch_text path.
 

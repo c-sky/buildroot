@@ -1,7 +1,7 @@
 From 880a4411a8db007a926540836883bcc6a75329f4 Mon Sep 17 00:00:00 2001
 From: Guo Ren <guoren@linux.alibaba.com>
 Date: Sun, 9 Aug 2020 00:19:54 +0000
-Subject: [PATCH 05/51] riscv: Using PATCHABLE_FUNCTION_ENTRY instead of MCOUNT
+Subject: [PATCH 05/59] riscv: Using PATCHABLE_FUNCTION_ENTRY instead of MCOUNT
 
 This patch changes the current detour mechanism of dynamic ftrace
 which has been discussed during LPC 2020 RISCV-MC [1].

@@ -1,0 +1,31 @@
+From 28c063bc69e99463986fa50f662e8425192b0fd4 Mon Sep 17 00:00:00 2001
+From: Guo Ren <guoren@linux.alibaba.com>
+Date: Wed, 20 Jan 2021 17:21:57 +0800
+Subject: [PATCH 58/59] csky: Using set_max_mapnr api
+
+Using set_max_mapnr API instead of setting the value directly.
+
+Signed-off-by: Guo Ren <guoren@linux.alibaba.com>
+---
+ arch/csky/mm/init.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/arch/csky/mm/init.c b/arch/csky/mm/init.c
+index bc05a3be9d57..03970f4408f5 100644
+--- a/arch/csky/mm/init.c
++++ b/arch/csky/mm/init.c
+@@ -86,9 +86,9 @@ void __init mem_init(void)
+ #ifdef CONFIG_HIGHMEM
+ 	unsigned long tmp;
+ 
+-	max_mapnr = highend_pfn;
++	set_max_mapnr(highend_pfn);
+ #else
+-	max_mapnr = max_low_pfn;
++	set_max_mapnr(max_low_pfn);
+ #endif
+ 	high_memory = (void *) __va(max_low_pfn << PAGE_SHIFT);
+ 
+-- 
+2.17.1
+

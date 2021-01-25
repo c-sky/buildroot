@@ -1,7 +1,7 @@
 From b677050b7f2515d20a2b84c9b79febe03dbd62d1 Mon Sep 17 00:00:00 2001
 From: Guo Ren <guoren@linux.alibaba.com>
 Date: Sun, 20 Dec 2020 02:01:50 +0000
-Subject: [PATCH 33/51] csky: Remove custom asm/atomic.h implementation
+Subject: [PATCH 33/59] csky: Remove custom asm/atomic.h implementation
 
 Use generic atomic implementation based on cmpxchg. So remove csky
 asm/atomic.h.

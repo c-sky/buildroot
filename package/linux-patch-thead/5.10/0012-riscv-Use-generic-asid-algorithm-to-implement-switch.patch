@@ -1,7 +1,7 @@
 From 31b10e57d74f85dfdf4280fe7fe18298404a17e8 Mon Sep 17 00:00:00 2001
 From: Guo Ren <guoren@linux.alibaba.com>
 Date: Wed, 9 Oct 2019 15:20:26 +0800
-Subject: [PATCH 12/51] riscv: Use generic asid algorithm to implement
+Subject: [PATCH 12/59] riscv: Use generic asid algorithm to implement
  switch_mm
 
 The patch is based on (riscv: Add new asid lib code from arm). We
