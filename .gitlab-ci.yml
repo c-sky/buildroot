@@ -411,7 +411,7 @@ wait_for_trigger:
 # chip test
 .ice860_chip_before_test: &ice860_chip_before_test
     - RUN="run_test_chip.sh"
-    - BOARD="ice_evb"
+    - BOARD="ice_evb_nfs"
     - CORENUM="4"
 
 .ice860_chip_test: &ice860_chip_test
