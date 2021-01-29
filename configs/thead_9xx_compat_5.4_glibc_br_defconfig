@@ -26,11 +26,11 @@ BR2_PACKAGE_HOST_LINUX_HEADERS_CUSTOM_5_1=y
 # Kernel
 BR2_LINUX_KERNEL=y
 BR2_LINUX_KERNEL_CUSTOM_VERSION=y
-BR2_LINUX_KERNEL_CUSTOM_VERSION_VALUE="5.10.4"
+BR2_LINUX_KERNEL_CUSTOM_VERSION_VALUE="5.4.36"
 BR2_LINUX_KERNEL_USE_ARCH_DEFAULT_CONFIG=y
 BR2_LINUX_KERNEL_IMAGE=y
-BR2_LINUX_KERNEL_PATCH="package/linux-patch-thead/5.10/"
-BR2_LINUX_KERNEL_CONFIG_FRAGMENT_FILES="package/linux-patch-thead/linux-5.9.config.fragment board/csky-ci/defconfigs/kernel.pci-9pfs-gpu.fragment"
+BR2_LINUX_KERNEL_PATCH="package/linux-patch-c910/5.4/"
+BR2_LINUX_KERNEL_CONFIG_FRAGMENT_FILES="package/linux-patch-c910/linux-5.1.config.fragment board/csky-ci/defconfigs/kernel.pci-9pfs-gpu.fragment"
 
 # Bootloader
 BR2_TARGET_OPENSBI=y

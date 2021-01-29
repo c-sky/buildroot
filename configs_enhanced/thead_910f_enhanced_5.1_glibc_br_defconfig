@@ -25,7 +25,6 @@ BR2_LINUX_KERNEL_CONFIG_FRAGMENT_FILES="package/linux-patch-c910/linux-5.1.confi
 
 # Bootloader
 BR2_TARGET_OPENSBI=y
-BR2_TARGET_OPENSBI_PLAT="qemu/virt"
 
 # Qemu
 BR2_PACKAGE_QEMU_ENHANCED=y

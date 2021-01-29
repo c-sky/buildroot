@@ -18,11 +18,34 @@ set $mxstatus = 0x638000
 set $mhint = 0x16e30c
 
 # L2PMP
+
+#plic
 set *0x3f4020108 = 0x3f0000000 >> 12
-set *0x3f402010c = 0x400000000 >> 12
+set *0x3f402010c = 0x3f8000000 >> 12
+
+#serial
+set *0x3f4020110 = 0x3fff73000 >> 12
+set *0x3f4020114 = 0x3fff74000 >> 12
+
+#gmac
+set *0x3f4020118 = 0x3fffc0000 >> 12
+set *0x3f402011c = 0x3fffc2000 >> 12
+
+#ddr
 set *0x3f4020100 = 0x0 >> 12
 set *0x3f4020104 = 0x200000000 >> 12
-set *0x3f4020000 = 0b1100001111000111
+
+#mrmr
+set *0x3f4020120 = 0x3fe830000 >> 12
+set *0x3f4020124 = 0x3fe831000 >> 12
+
+#11000011 11000011 11000011 11000111
+#11000011
+set *0x3f4020000 = 0b11000011110000111100001111000111
+set *0x3f4020004 = 0b11000011
+
+#all deny
+set *0x3f4020020 = 0b11000000
 
 # Reset DW AXI DMAC
 set *0x3fff78050 |= (1 << 0)
@@ -45,3 +68,5 @@ restore ../Image binary $vmlinux_addr
 # Load opensbi
 restore fw_jump_0G.bin binary $opensbi_addr
 set $pc = $opensbi_addr
+
+c

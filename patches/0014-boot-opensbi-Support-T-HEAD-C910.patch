@@ -1,7 +1,7 @@
-From ba89d972c381a688fe42feb4ad00e79f03dc6c97 Mon Sep 17 00:00:00 2001
+From 2b24633cd86102649a2ebb6dfd32c0df4f7741ff Mon Sep 17 00:00:00 2001
 From: Yibin Liu <jiulong@linux.alibaba.com>
 Date: Tue, 25 Feb 2020 16:11:49 +0800
-Subject: [PATCH 14/15] boot/opensbi: Support T-HEAD C910
+Subject: [PATCH 15/20] boot/opensbi: Support T-HEAD C910
 
  - Update the sbi version from 0.3 to 0.6.
  - Add the buidl command for c910
@@ -15,14 +15,23 @@ Signed-off-by: Yibin Liu <jiulong@linux.alibaba.com>
 Signed-off-by: Ma Jun <majun258@linux.alibaba.com>
 Signed-off-by: Guo Ren <guoren@linux.alibaba.com>
 ---
- boot/opensbi/Config.in  |  9 +++++++++
+ boot/opensbi/Config.in  | 11 ++++++++++-
  boot/opensbi/opensbi.mk | 31 +++++++++++++++++++++++++++++++
- 2 files changed, 40 insertions(+)
+ 2 files changed, 41 insertions(+), 1 deletion(-)
 
 diff --git a/boot/opensbi/Config.in b/boot/opensbi/Config.in
-index b9b0ace..0ff1fc4 100644
+index b9b0ace..6c7fe98 100644
 --- a/boot/opensbi/Config.in
 +++ b/boot/opensbi/Config.in
+@@ -15,7 +15,7 @@ config BR2_TARGET_OPENSBI
+ if BR2_TARGET_OPENSBI
+ config BR2_TARGET_OPENSBI_PLAT
+ 	string "OpenSBI Platform"
+-	default ""
++	default "generic"
+ 	help
+ 	  Specifies the OpenSBI platform to build. If no platform is
+ 	  specified only the OpenSBI platform independent static
 @@ -31,4 +31,13 @@ config BR2_TARGET_OPENSBI_LINUX_PAYLOAD
  	help
  	  Build OpenSBI with the Linux kernel as a Payload.
