@@ -2,7 +2,7 @@ config BR2_PACKAGE_FEDORA_NEED
 	bool "more packages for fedora"
 	depends on BR2_LINUX_KERNEL
 	default y if (BR2_csky || BR2_riscv)
-	select BR2_PACKAGE_HOST_DTC if !BR2_ck610
+	select BR2_PACKAGE_HOST_DTC
 	select BR2_PACKAGE_OPENSSH if !BR2_riscv
 	select BR2_PACKAGE_LIBFFI
 	select BR2_PACKAGE_BOTAN

@@ -60,6 +60,9 @@ wait_for_trigger:
     - if [ -f output/images/Image ]; then
           xz -z output/images/Image;
       fi
+    - if [ -f output/images/usb.img ]; then
+          xz -z output/images/usb.img;
+      fi
     - if [ -f output/images/rootfs.ext2 ]; then
           xz -z output/images/rootfs.ext2;
       fi

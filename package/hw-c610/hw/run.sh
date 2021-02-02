@@ -3,7 +3,7 @@ if [ $# -lt 1 ]; then
 	return 0
 fi
 
-dtc -I dts -O dtb gx6605s.dts.txt > hw.dtb
+./dtc -I dts -O dtb gx6605s.dts.txt > hw.dtb
 
 set -ex
 
