@@ -4,7 +4,7 @@
 #
 ################################################################################
 
-CSKY_ARCH_VERSION_4_9  = 719ae020c186b397af6752f162a7d6d73b3c44fe
+CSKY_ARCH_VERSION_4_9  = d0119869267485e447e3111fafce406a6c16d4a5
 CSKY_ARCH_VERSION_4_14 = 05bdfa78c4eb8c097ae4f3679f373a551e19259f
 CSKY_ARCH_VERSION_4_19 = 75203c166b7ff63d1b9c4369226828aeb6b4054b
 
