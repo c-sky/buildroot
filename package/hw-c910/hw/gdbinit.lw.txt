@@ -1,0 +1,34 @@
+set confirm off
+set height 0
+
+# Invalidate & Clear IBP BTB BHT ICache & DCache
+set $mcor = 0x70013
+
+# Enable L2 Cache
+set $mccr2 = 0xe24b0009
+
+# Enable L1 Cache
+set $mhcr = 0x11ff
+
+# Enable CPU Features
+set $mxstatus = 0x638000
+set $mhint = 0x6e30c
+
+set $opensbi_addr = 0x00000000
+set $vmlinux_addr = $opensbi_addr + 0x00200000
+set $rootfs_addr  = $opensbi_addr + 0x04000000
+set $dtb_addr  = $rootfs_addr - 0x00100000
+
+# Load rootfs
+restore ../rootfs.cpio.gz binary $rootfs_addr
+
+# Load dtb
+restore hw.dtb binary $dtb_addr
+set $a1 = $dtb_addr
+
+# Load kernel
+restore ../Image binary $vmlinux_addr
+
+# Load opensbi
+restore fw_jump_0G.bin binary $opensbi_addr
+set $pc = $opensbi_addr

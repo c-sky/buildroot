@@ -17,6 +17,8 @@ for idx in "$@"
 do
 if [ $idx == "an" ]; then
 	BOARD="an"
+elif [ $idx == "lw" ]; then
+	BOARD="lw"
 elif [ $idx == "ice_evb" ]; then
 	BOARD="ice_evb"
 	GDBRESET="noreset"

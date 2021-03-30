@@ -1,0 +1,10 @@
+# Set gdb environment
+set height 0
+
+# Don't confirm when quit
+set confirm off
+
+# Setup clock and ddr
+#file u-boot-spl.lw
+#load
+#c
