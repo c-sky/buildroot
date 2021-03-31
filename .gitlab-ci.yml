@@ -13,9 +13,9 @@ stages:
   - wait-for-trigger
   - build
   - qemu-test
-  - chip-test
   - build-enhanced
   - qemu-test-enhanced
+  - chip-test
 
 variables:
     PREFIX: ""
@@ -232,6 +232,13 @@ wait_for_trigger:
       - 610_5.10_glibc_compat
     <<: *gx6605s_chip_test
 
+610_next_glibc_gx6605s_test:
+    tags:
+      - csky-610-gx6622
+    dependencies:
+      - 610_next_glibc_compat
+    <<: *gx6605s_chip_test
+
 ################ 810 ################
 # qemu
 .810_qemu_before_test: &810_qemu_before_test
@@ -314,6 +321,20 @@ wait_for_trigger:
       - csky-810-dp1000
     dependencies:
       - 810f_4.14_glibc_compat
+    <<: *dp1000_chip_test
+
+810f_5.10_glibc_dp1000_test:
+    tags:
+      - csky-810-dp1000
+    dependencies:
+      - 810f_5.10_glibc_compat
+    <<: *dp1000_chip_test
+
+810f_next_glibc_dp1000_test:
+    tags:
+      - csky-810-dp1000
+    dependencies:
+      - 810f_next_glibc_compat
     <<: *dp1000_chip_test
 
 #qemu test enhanced
