@@ -77,6 +77,11 @@ do
 	done
 done
 cd -
-
-sleep 60
+echo ""
+echo ""
+echo ""
 echo "ntfs-3g test pass."
+echo ""
+echo ""
+echo ""
+sleep 60
