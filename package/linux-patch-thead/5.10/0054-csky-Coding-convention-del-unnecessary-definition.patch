@@ -1,7 +1,7 @@
 From 5ceb5a29a96647ea9d18492c59038cdf2c9bfcf7 Mon Sep 17 00:00:00 2001
 From: Guo Ren <guoren@linux.alibaba.com>
 Date: Mon, 11 Jan 2021 23:02:38 +0800
-Subject: [PATCH 54/59] csky: Coding convention del unnecessary definition
+Subject: [PATCH 54/65] csky: Coding convention del unnecessary definition
 
 Remove _PAGE_IOREMAP, __READABLE, __WRITEABLE, abi/pgtable-bits.h
 definition, they are no use at all.

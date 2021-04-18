@@ -230,6 +230,42 @@
 		compatible = "simple-bus";
 		ranges;
 
+		reset: reset-sample {
+			compatible = "thead,reset-sample";
+			plic-delegate = <0x0 0xf01ffffc>;
+			using-csr-reset;
+			csr-copy = <
+				0x7c0 0x7c1 0x7c2 0x7c3 0x7c5 0x7cc
+				0x3b0 0x3b1 0x3b2 0x3b3
+				0x3b4 0x3b5 0x3b6 0x3b7
+				0x3a0
+				>;
+		};
+
+		clint0: clint@f4000000 {
+			compatible = "riscv,clint0";
+			interrupts-extended = <
+				&cpu0_intc  3 &cpu0_intc  7
+				&cpu1_intc  3 &cpu1_intc  7
+				&cpu2_intc  3 &cpu2_intc  7
+				&cpu3_intc  3 &cpu3_intc  7
+				&cpu4_intc  3 &cpu4_intc  7
+				&cpu5_intc  3 &cpu5_intc  7
+				&cpu6_intc  3 &cpu6_intc  7
+				&cpu7_intc  3 &cpu7_intc  7
+				&cpu8_intc  3 &cpu8_intc  7
+				&cpu9_intc  3 &cpu9_intc  7
+				&cpu10_intc 3 &cpu10_intc 7
+				&cpu11_intc 3 &cpu11_intc 7
+				&cpu12_intc 3 &cpu12_intc 7
+				&cpu13_intc 3 &cpu13_intc 7
+				&cpu14_intc 3 &cpu14_intc 7
+				&cpu15_intc 3 &cpu15_intc 7
+				>;
+			reg = <0x0 0xf4000000 0x0 0x04000000>;
+			clint,has-no-64bit-mmio;
+		};
+
 		intc: interrupt-controller@F0000000 {
 			#interrupt-cells = <1>;
 			compatible = "riscv,plic0";

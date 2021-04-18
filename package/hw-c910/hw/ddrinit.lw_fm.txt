@@ -1,0 +1,13 @@
+# Set gdb environment
+set height 0
+
+# Don't confirm when quit
+set confirm off
+
+# Reset SoC
+reset
+shell $(sleep 1)
+
+# Set DDR_CFG0 to enable DDR
+set *0xffff005000 = (0x1ff << 4)
+shell $(sleep 1)

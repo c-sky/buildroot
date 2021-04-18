@@ -1,0 +1,24 @@
+From c37f2e25a4254c22a37989523167f10e81d02b40 Mon Sep 17 00:00:00 2001
+From: Xianting Tian <tianxianting.txt@alibaba-inc.com>
+Date: Mon, 22 Feb 2021 17:08:47 +0800
+Subject: [PATCH 61/65] add config for ice wdt
+
+---
+ arch/riscv/configs/ice_defconfig | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/arch/riscv/configs/ice_defconfig b/arch/riscv/configs/ice_defconfig
+index c34766e1917b..5fd9a157e41f 100644
+--- a/arch/riscv/configs/ice_defconfig
++++ b/arch/riscv/configs/ice_defconfig
+@@ -87,6 +87,7 @@ CONFIG_GPIO_DWAPB=y
+ CONFIG_POWER_RESET=y
+ CONFIG_POWER_SUPPLY=y
+ # CONFIG_HWMON is not set
++CONFIG_WATCHDOG=y
+ CONFIG_FB=y
+ CONFIG_FB_VIRTUAL=m
+ CONFIG_FB_SIMPLE=y
+-- 
+2.17.1
+

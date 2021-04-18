@@ -1,7 +1,7 @@
 From 30f222329d0a41c4178b9ea51db9b0ffa6338fcb Mon Sep 17 00:00:00 2001
 From: Guo Ren <guoren@linux.alibaba.com>
 Date: Mon, 28 Dec 2020 12:08:46 +0000
-Subject: [PATCH 43/59] csky: Fixup FAULT_FLAG_XXX param for handle_mm_fault
+Subject: [PATCH 43/65] csky: Fixup FAULT_FLAG_XXX param for handle_mm_fault
 
 The past code only passes the FAULT_FLAG_WRITE into
 handle_mm_fault and missing USER & DEFAULT & RETRY.

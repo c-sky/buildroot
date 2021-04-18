@@ -1,7 +1,7 @@
 From e2f820de2dac2d7dba848380f6cae5090a55a32c Mon Sep 17 00:00:00 2001
 From: Guo Ren <guoren@linux.alibaba.com>
 Date: Fri, 13 Nov 2020 09:48:27 +0000
-Subject: [PATCH 31/59] csky: Fixup perf probe failed
+Subject: [PATCH 31/65] csky: Fixup perf probe failed
 
 Current perf init will failed with:
 [    1.452433] csky-pmu: probe of soc:pmu failed with error -16

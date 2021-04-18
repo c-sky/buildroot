@@ -1,7 +1,7 @@
 From 259f22e8e4b7f324f0d22acfa9385a544339a5bc Mon Sep 17 00:00:00 2001
 From: Guo Ren <guoren@linux.alibaba.com>
 Date: Thu, 13 Aug 2020 15:14:10 +0000
-Subject: [PATCH 20/59] riscv: Disable RISC-V Base PMU
+Subject: [PATCH 20/65] riscv: Disable RISC-V Base PMU
 
 Base Perf PMU is conflict with custom PMU, so disable it.
 

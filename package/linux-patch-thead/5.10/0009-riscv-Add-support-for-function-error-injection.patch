@@ -1,7 +1,7 @@
 From eec0dba08b616d916d3e9dea18ec5a3c1559dc48 Mon Sep 17 00:00:00 2001
 From: Guo Ren <guoren@linux.alibaba.com>
 Date: Mon, 13 Jul 2020 15:50:30 +0000
-Subject: [PATCH 09/59] riscv: Add support for function error injection
+Subject: [PATCH 09/65] riscv: Add support for function error injection
 
 Inspired by the commit 42d038c4fb00 ("arm64: Add support for function
 error injection"), this patch supports function error injection for

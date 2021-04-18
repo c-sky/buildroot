@@ -1,7 +1,7 @@
 From 1bfdf4bd9fd114b0838fd09b13217b4ed3476f6b Mon Sep 17 00:00:00 2001
 From: Guo Ren <guoren@linux.alibaba.com>
 Date: Thu, 14 Jan 2021 07:54:37 +0000
-Subject: [PATCH 56/59] csky: kprobe: fix code in simulate without 'long'
+Subject: [PATCH 56/65] csky: kprobe: fix code in simulate without 'long'
 
 The type of 'val' is 'unsigned long' in simulate_blz32, so 'val < 0'
 can't be true.

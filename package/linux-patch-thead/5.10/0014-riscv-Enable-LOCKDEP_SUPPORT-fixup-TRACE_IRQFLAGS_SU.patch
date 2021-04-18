@@ -1,7 +1,7 @@
 From bafba40101cdcbfb84cef2ca6e44141fc5632fbf Mon Sep 17 00:00:00 2001
 From: Guo Ren <guoren@linux.alibaba.com>
 Date: Tue, 16 Jun 2020 14:27:30 +0000
-Subject: [PATCH 14/59] riscv: Enable LOCKDEP_SUPPORT & fixup
+Subject: [PATCH 14/65] riscv: Enable LOCKDEP_SUPPORT & fixup
  TRACE_IRQFLAGS_SUPPORT
 
 Lockdep is needed by proving the spinlocks and rwlocks. To suupport

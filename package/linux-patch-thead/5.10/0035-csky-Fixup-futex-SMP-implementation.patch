@@ -1,7 +1,7 @@
 From 876d07c6dcfc8b915fce17b21051eaf194d50589 Mon Sep 17 00:00:00 2001
 From: Guo Ren <guoren@linux.alibaba.com>
 Date: Sun, 20 Dec 2020 01:35:09 +0000
-Subject: [PATCH 35/59] csky: Fixup futex SMP implementation
+Subject: [PATCH 35/65] csky: Fixup futex SMP implementation
 
 Arnd said:
 I would guess that for csky, this is a mistake, as the architecture

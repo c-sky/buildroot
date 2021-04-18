@@ -21,6 +21,9 @@ si
 set $pc=0
 si
 
+set $pmpaddr0=0x1fffffffff
+set $pmpcfg0=0x9f
+
 #################################
 # Release GPU reset
 #################################

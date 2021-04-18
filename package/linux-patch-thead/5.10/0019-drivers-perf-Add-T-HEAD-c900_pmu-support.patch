@@ -1,7 +1,7 @@
 From 7ea64b4396079906dacb4a0d13c1ce8497ef1bfd Mon Sep 17 00:00:00 2001
 From: Guo Ren <guoren@linux.alibaba.com>
 Date: Tue, 18 Aug 2020 03:24:41 +0000
-Subject: [PATCH 19/59] drivers/perf: Add T-HEAD c900_pmu support
+Subject: [PATCH 19/65] drivers/perf: Add T-HEAD c900_pmu support
 
 T-HEAD c900_pmu follows riscv pmu spec and extend bunches of CPU
 hardware events. The 'perf stat' and 'perf record' all support the

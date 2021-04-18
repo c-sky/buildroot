@@ -1,7 +1,7 @@
 From cd14f4b52d9bb4c5d23dce6a451ea7ec36836344 Mon Sep 17 00:00:00 2001
 From: Guo Ren <guoren@linux.alibaba.com>
 Date: Thu, 24 Dec 2020 05:59:57 +0000
-Subject: [PATCH 41/59] csky: Fix TLB maintenance synchronization problem
+Subject: [PATCH 41/65] csky: Fix TLB maintenance synchronization problem
 
 TLB invalidate didn't contain a barrier operation in csky cpu and
 we need to prevent previous PTW response after TLB invalidation

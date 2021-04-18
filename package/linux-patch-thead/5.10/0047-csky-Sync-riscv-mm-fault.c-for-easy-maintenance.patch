@@ -1,7 +1,7 @@
 From a337acca5724f231a93ed8334214d743cea46d85 Mon Sep 17 00:00:00 2001
 From: Guo Ren <guoren@linux.alibaba.com>
 Date: Tue, 29 Dec 2020 05:50:55 +0000
-Subject: [PATCH 47/59] csky: Sync riscv mm/fault.c for easy maintenance
+Subject: [PATCH 47/65] csky: Sync riscv mm/fault.c for easy maintenance
 
 Sync arch/riscv/mm/fault.c into arch/csky for easy maintenance.
 Here are the patches related to the modification:

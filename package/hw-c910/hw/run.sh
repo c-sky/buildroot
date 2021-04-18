@@ -19,6 +19,22 @@ if [ $idx == "an" ]; then
 	BOARD="an"
 elif [ $idx == "lw" ]; then
 	BOARD="lw"
+elif [ $idx == "lw_nfs" ]; then
+	BOARD="lw_nfs"
+elif [ $idx == "lw1" ]; then
+	BOARD="lw1"
+elif [ $idx == "lw2" ]; then
+	BOARD="lw2"
+elif [ $idx == "lw3" ]; then
+	BOARD="lw3"
+elif [ $idx == "lw_fm" ]; then
+	BOARD="lw_fm"
+elif [ $idx == "lw_fm1" ]; then
+	BOARD="lw_fm1"
+elif [ $idx == "lw_fm2" ]; then
+	BOARD="lw_fm2"
+elif [ $idx == "lw_fm3" ]; then
+	BOARD="lw_fm3"
 elif [ $idx == "ice_evb" ]; then
 	BOARD="ice_evb"
 	GDBRESET="noreset"
@@ -91,9 +107,7 @@ if [ $GDBRESET == "reset" ]; then
 fi
 
 # Init DDR
-if [ $BOARD == "ve" ]; then
-	echo "No need ddr_init for veloce"
-elif [ $BOARD == "eg" -o $BOARD == "eg2" ]; then
+if [ $BOARD == "eg" -o $BOARD == "eg2" ]; then
 ./riscv64-elf-gdb -ex "tar remote $1" -x $DDRINIT ddr_init_eg_elf -ex "c" -ex "q" > /dev/null
 else
 ./riscv64-elf-gdb -ex "tar remote $1" -x $DDRINIT -ex "q"

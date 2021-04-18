@@ -1,7 +1,7 @@
 From 917833208b78c6fae146918e383dc3ff86e8d526 Mon Sep 17 00:00:00 2001
 From: Guo Ren <guoren@linux.alibaba.com>
 Date: Sun, 20 Dec 2020 08:12:45 +0000
-Subject: [PATCH 37/59] csky: Cleanup asm/spinlock.h
+Subject: [PATCH 37/65] csky: Cleanup asm/spinlock.h
 
 There are two implementation of spinlock in arch/csky:
  - simple one (NR_CPU = 1,2)

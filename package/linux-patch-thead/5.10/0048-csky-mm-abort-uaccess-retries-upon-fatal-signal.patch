@@ -1,7 +1,7 @@
 From 5e6e7185bc62a91f3bb0f267c306f85e2dbb25be Mon Sep 17 00:00:00 2001
 From: Guo Ren <guoren@linux.alibaba.com>
 Date: Wed, 30 Dec 2020 10:06:22 +0000
-Subject: [PATCH 48/59] csky: mm: abort uaccess retries upon fatal signal
+Subject: [PATCH 48/65] csky: mm: abort uaccess retries upon fatal signal
 
 Pick up the patch from the 'Link' made by Mark Rutland. Keep the
 same with x86, arm, arm64, arc, sh, power.

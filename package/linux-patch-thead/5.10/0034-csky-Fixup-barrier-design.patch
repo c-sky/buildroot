@@ -1,7 +1,7 @@
 From 00c5913bae502491247b4fa629480c6559814a44 Mon Sep 17 00:00:00 2001
 From: Guo Ren <guoren@linux.alibaba.com>
 Date: Sun, 20 Dec 2020 03:39:27 +0000
-Subject: [PATCH 34/59] csky: Fixup barrier design
+Subject: [PATCH 34/65] csky: Fixup barrier design
 
 Remove shareable bit for ordering barrier, just keep ordering
 in current hart is enough for SMP. Using three continuous

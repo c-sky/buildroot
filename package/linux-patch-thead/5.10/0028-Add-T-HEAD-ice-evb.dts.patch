@@ -1,9 +1,8 @@
 From 610cdcb90f9e7f6e1844acb333dba2682ca3f8aa Mon Sep 17 00:00:00 2001
 From: lihm <koumei.lhm@alibaba-inc.com>
 Date: Thu, 31 Dec 2020 12:41:29 +0800
-Subject: [PATCH 28/59] Add T-HEAD ice-evb.dts
+Subject: [PATCH 28/65] Add T-HEAD ice-evb.dts
 
-Signed-off-by: Guo Ren <guoren@linux.alibaba.com>
 ---
  arch/riscv/Kconfig.socs            |   5 +
  arch/riscv/boot/dts/Makefile       |   1 +

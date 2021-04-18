@@ -1,9 +1,8 @@
 From d12de48865c4b39d26ffab9690412ed8c2f978f8 Mon Sep 17 00:00:00 2001
 From: lihm <koumei.lhm@alibaba-inc.com>
 Date: Thu, 31 Dec 2020 12:54:13 +0800
-Subject: [PATCH 29/59] Add ice_defconfig
+Subject: [PATCH 29/65] Add ice_defconfig
 
-Signed-off-by: Guo Ren <guoren@linux.alibaba.com>
 ---
  arch/riscv/configs/ice_defconfig | 155 +++++++++++++++++++++++++++++++
  1 file changed, 155 insertions(+)

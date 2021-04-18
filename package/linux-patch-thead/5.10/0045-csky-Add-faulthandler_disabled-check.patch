@@ -1,7 +1,7 @@
 From ab851dc88f727fad20423eaf695ec10fce93b0f0 Mon Sep 17 00:00:00 2001
 From: Guo Ren <guoren@linux.alibaba.com>
 Date: Mon, 28 Dec 2020 13:01:00 +0000
-Subject: [PATCH 45/59] csky: Add faulthandler_disabled() check
+Subject: [PATCH 45/65] csky: Add faulthandler_disabled() check
 
 Similar to other architectures:
 In addition to in_atomic, we also need pagefault_disabled() to

@@ -1,7 +1,7 @@
 From 142038d3a30aa5a26220469c96ae3ff9aa5a128a Mon Sep 17 00:00:00 2001
 From: Guo Ren <guoren@linux.alibaba.com>
 Date: Fri, 25 Dec 2020 06:37:08 +0000
-Subject: [PATCH 44/59] csky: Fixup update_mmu_cache called with user io
+Subject: [PATCH 44/65] csky: Fixup update_mmu_cache called with user io
  mapping
 
 The function update_mmu_cache could be called by user-io mapping.

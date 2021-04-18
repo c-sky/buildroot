@@ -1,7 +1,7 @@
 From 4b42e7171c535fc7652104195607a717df5c1d21 Mon Sep 17 00:00:00 2001
 From: Zhenzhong Duan <zhenzhong.duan@gmail.com>
 Date: Tue, 22 Sep 2020 17:15:05 +0800
-Subject: [PATCH 50/59] csky: Fix a size determination in gpr_get()
+Subject: [PATCH 50/65] csky: Fix a size determination in gpr_get()
 
 "*" is missed  in size determination as we are passing register set
 rather than a pointer.

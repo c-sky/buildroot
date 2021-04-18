@@ -1,7 +1,7 @@
 From 2c1d3368047182eced48a1f4c336f0494a171661 Mon Sep 17 00:00:00 2001
 From: Guo Ren <ren_guo@c-sky.com>
 Date: Tue, 31 Dec 2019 20:20:27 +0800
-Subject: [PATCH 22/59] riscv: Add vector ISA support
+Subject: [PATCH 22/65] riscv: Add vector ISA support
 
 The implementation follow the RISC-V "V" Vector Extension with 128bit-vlen.
 In this patch, we implement basic context switch, singal and ptrace interface
@@ -12,7 +12,6 @@ the maximum size of vlen for libc signal context structure.
 This patch has been tested on T-HEAD XuanTie 910 CPU fpga platform.
 
 Signed-off-by: Guo Ren <ren_guo@c-sky.com>
-Signed-off-by: Guo Ren <guoren@linux.alibaba.com>
 ---
  arch/riscv/Kconfig                       |   9 ++
  arch/riscv/Makefile                      |  19 ++-

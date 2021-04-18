@@ -1,9 +1,6 @@
 set confirm off
 set height 0
 
-# Enable smp
-set $msmpr = 0x1
-
 # Invalidate & Clear IBP BTB BHT ICache & DCache
 set $mcor = 0x70013
 
@@ -17,56 +14,28 @@ set $mhcr = 0x11ff
 set $mxstatus = 0x638000
 set $mhint = 0x16e30c
 
-# L2PMP
-
-#plic
-set *0x3f4020108 = 0x3f0000000 >> 12
-set *0x3f402010c = 0x3f8000000 >> 12
-
-#serial
-set *0x3f4020110 = 0x3fff73000 >> 12
-set *0x3f4020114 = 0x3fff74000 >> 12
-
-#gmac
-set *0x3f4020118 = 0x3fffc0000 >> 12
-set *0x3f402011c = 0x3fffc2000 >> 12
-
-#ddr
-set *0x3f4020100 = 0x0 >> 12
-set *0x3f4020104 = 0x200000000 >> 12
-
-#mrmr
-set *0x3f4020120 = 0x3fe830000 >> 12
-set *0x3f4020124 = 0x3fe831000 >> 12
-
-#11000011 11000011 11000011 11000111
-#11000011
-set *0x3f4020000 = 0b11000011110000111100001111000111
-set *0x3f4020004 = 0b11000011
-
-#all deny
-set *0x3f4020020 = 0b11000000
-
-# Reset DW AXI DMAC
-set *0x3fff78050 |= (1 << 0)
-
 set $opensbi_addr = 0x00000000
 set $vmlinux_addr = $opensbi_addr + 0x00200000
-set $rootfs_addr  = $opensbi_addr + 0x02000000
+set $rootfs_addr  = $opensbi_addr + 0x04000000
 set $dtb_addr  = $rootfs_addr - 0x00100000
+set $dyn_info_addr  = $rootfs_addr - 0x40
 
-# Load rootfs
+# Load rootfs & kernel
 restore ../rootfs.cpio.gz binary $rootfs_addr
+restore ../Image binary $vmlinux_addr
 
 # Load dtb
 restore hw.dtb binary $dtb_addr
 set $a1 = $dtb_addr
+set $a2 = $dyn_info_addr
 
-# Load kernel
-restore ../Image binary $vmlinux_addr
+set *(unsigned long *)($dyn_info_addr) = 0x4942534f
+set *(unsigned long *)($dyn_info_addr + 8) = 0x1
+set *(unsigned long *)($dyn_info_addr + 16) = $vmlinux_addr
+set *(unsigned long *)($dyn_info_addr + 24) = 0x1
+set *(unsigned long *)($dyn_info_addr + 32) = 0x0
+set *(unsigned long *)($dyn_info_addr + 48) = 0x0
 
 # Load opensbi
-restore fw_jump_0G.bin binary $opensbi_addr
+restore ../fw_dynamic.bin binary $opensbi_addr
 set $pc = $opensbi_addr
-
-c

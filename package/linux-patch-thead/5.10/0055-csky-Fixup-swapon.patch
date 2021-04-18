@@ -1,7 +1,7 @@
 From 660cc198a5867cf48054e17d3bb8637b1e147b49 Mon Sep 17 00:00:00 2001
 From: Guo Ren <guoren@linux.alibaba.com>
 Date: Wed, 13 Jan 2021 15:28:16 +0800
-Subject: [PATCH 55/59] csky: Fixup swapon
+Subject: [PATCH 55/65] csky: Fixup swapon
 
 Current csky's swappon is broken by wrong swap PTE entry format.
 Now redesign the new format for abiv1 & abiv2 and make swappon +

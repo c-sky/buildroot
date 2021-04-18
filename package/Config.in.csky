@@ -1,7 +1,6 @@
 menu "T-HEAD extension"
 	source "package/csky-arch/Config.in"
 	source "package/csky-ci/Config.in"
-	source "package/riscv-pk-c910/Config.in"
 	source "package/hackbench/Config.in"
 	source "package/zero-stage-boot/Config.in"
 	source "package/ltp-ci/Config.in"

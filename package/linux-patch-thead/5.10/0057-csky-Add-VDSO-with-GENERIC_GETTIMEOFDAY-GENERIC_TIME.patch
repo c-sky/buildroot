@@ -1,7 +1,7 @@
 From e370606e47b7fc75e7765aadd72b188dcca0a0a7 Mon Sep 17 00:00:00 2001
 From: Guo Ren <guoren@linux.alibaba.com>
 Date: Sun, 17 Jan 2021 23:38:18 +0800
-Subject: [PATCH 57/59] csky: Add VDSO with GENERIC_GETTIMEOFDAY,
+Subject: [PATCH 57/65] csky: Add VDSO with GENERIC_GETTIMEOFDAY,
  GENERIC_TIME_VSYSCALL, HAVE_GENERIC_VDSO
 
 It could help to reduce the latency of the time-related functions

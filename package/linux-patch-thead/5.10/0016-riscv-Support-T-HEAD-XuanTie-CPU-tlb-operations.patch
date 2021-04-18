@@ -1,7 +1,7 @@
 From bed3c2b36afd44a86513f0e1f29da47d0c74f305 Mon Sep 17 00:00:00 2001
 From: Guo Ren <guoren@linux.alibaba.com>
 Date: Mon, 13 Jan 2020 14:29:27 +0800
-Subject: [PATCH 16/59] riscv: Support T-HEAD XuanTie CPU tlb operations
+Subject: [PATCH 16/65] riscv: Support T-HEAD XuanTie CPU tlb operations
 
 T-HEAD XuanTie CPU sfence.vma support broadcast to all harts and
 no need to IPI all harts with sbi call.

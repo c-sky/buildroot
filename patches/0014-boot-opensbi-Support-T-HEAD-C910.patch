@@ -1,23 +1,11 @@
 From 2b24633cd86102649a2ebb6dfd32c0df4f7741ff Mon Sep 17 00:00:00 2001
 From: Yibin Liu <jiulong@linux.alibaba.com>
 Date: Tue, 25 Feb 2020 16:11:49 +0800
-Subject: [PATCH 15/20] boot/opensbi: Support T-HEAD C910
+Subject: [PATCH 15/20] boot/opensbi: Enable generic
 
- - Update the sbi version from 0.3 to 0.6.
- - Add the buidl command for c910
-
-Changelog:
- - Yibin give the first version
- - MaJun update opensbi version
- - Guo Ren cleanup code and update new buildroot version
-
-Signed-off-by: Yibin Liu <jiulong@linux.alibaba.com>
-Signed-off-by: Ma Jun <majun258@linux.alibaba.com>
-Signed-off-by: Guo Ren <guoren@linux.alibaba.com>
 ---
- boot/opensbi/Config.in  | 11 ++++++++++-
- boot/opensbi/opensbi.mk | 31 +++++++++++++++++++++++++++++++
- 2 files changed, 41 insertions(+), 1 deletion(-)
+ boot/opensbi/Config.in  | 2 +-
+ 1 files changed,  1 insertions(+), 1 deletion(-)
 
 diff --git a/boot/opensbi/Config.in b/boot/opensbi/Config.in
 index b9b0ace..6c7fe98 100644
@@ -32,67 +20,6 @@ index b9b0ace..6c7fe98 100644
  	help
  	  Specifies the OpenSBI platform to build. If no platform is
  	  specified only the OpenSBI platform independent static
-@@ -31,4 +31,13 @@ config BR2_TARGET_OPENSBI_LINUX_PAYLOAD
- 	help
- 	  Build OpenSBI with the Linux kernel as a Payload.
- 
-+config BR2_TARGET_OPENSBI_C9XX_PLAT
-+	string "T-HEAD C9XX SBI Platform"
-+	default "thead/c910"
-+	help
-+	  Specifies the OpenSBI platform to build. If no platform is
-+	  specified only the OpenSBI platform independent static
-+	  library libsbi.a is built. If a platform is specified then
-+	  the platform specific static library libplatsbi.a and firmware
-+	  examples are built.
- endif
-diff --git a/boot/opensbi/opensbi.mk b/boot/opensbi/opensbi.mk
-index 60b87c2..6af7ebd 100644
---- a/boot/opensbi/opensbi.mk
-+++ b/boot/opensbi/opensbi.mk
-@@ -19,12 +19,43 @@ ifneq ($(OPENSBI_PLAT),)
- OPENSBI_MAKE_ENV += PLATFORM=$(OPENSBI_PLAT)
- endif
- 
-+OPENSBI_C9XX_MAKE_ENV = \
-+	CROSS_COMPILE=$(TARGET_CROSS)
-+OPENSBI_C9XX_PLAT = $(call qstrip,$(BR2_TARGET_OPENSBI_C9XX_PLAT))
-+ifneq ($(OPENSBI_C9XX_PLAT),)
-+OPENSBI_C9XX_MAKE_ENV += PLATFORM=$(OPENSBI_C9XX_PLAT)
-+endif
-+
- ifeq ($(BR2_TARGET_OPENSBI_LINUX_PAYLOAD),y)
- OPENSBI_DEPENDENCIES += linux
- OPENSBI_MAKE_ENV += FW_PAYLOAD_PATH="$(BINARIES_DIR)/Image"
- endif
- 
- define OPENSBI_BUILD_CMDS
-+	$(TARGET_MAKE_ENV) $(OPENSBI_C9XX_MAKE_ENV) \
-+	FW_TEXT_START=0xc0000000 \
-+	FW_JUMP_ADDR=0xc0200000 \
-+	$(MAKE) -C $(@D)
-+	mv $(@D)/build/platform/$(OPENSBI_C9XX_PLAT)/firmware/fw_jump.elf $(@D)/fw_jump_3G.elf
-+	mv $(@D)/build/platform/$(OPENSBI_C9XX_PLAT)/firmware/fw_jump.bin $(@D)/fw_jump_3G.bin
-+	mv $(@D)/fw_jump*.elf $(BINARIES_DIR)/hw/
-+	mv $(@D)/fw_jump*.bin $(BINARIES_DIR)/hw/
-+
-+	$(MAKE) -C $(@D) distclean
-+	$(MAKE) -C $(@D) clean
-+
-+	$(TARGET_MAKE_ENV) $(OPENSBI_C9XX_MAKE_ENV) \
-+	FW_TEXT_START=0x00000000 \
-+	FW_JUMP_ADDR=0x00200000 \
-+	$(MAKE) -C $(@D)
-+	mv $(@D)/build/platform/$(OPENSBI_C9XX_PLAT)/firmware/fw_jump.elf $(@D)/fw_jump_0G.elf
-+	mv $(@D)/build/platform/$(OPENSBI_C9XX_PLAT)/firmware/fw_jump.bin $(@D)/fw_jump_0G.bin
-+	mv $(@D)/fw_jump*.elf $(BINARIES_DIR)/hw/
-+	mv $(@D)/fw_jump*.bin $(BINARIES_DIR)/hw/
-+
-+	$(MAKE) -C $(@D) distclean
-+	$(MAKE) -C $(@D) clean
-+
- 	$(TARGET_MAKE_ENV) $(OPENSBI_MAKE_ENV) $(MAKE) -C $(@D)
- endef
  
 -- 
 2.17.1

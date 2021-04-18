@@ -1,7 +1,7 @@
 From 09994cbaaf39e6edf7c1e3e44b543e51cc7dcaa6 Mon Sep 17 00:00:00 2001
 From: Guo Ren <guoren@linux.alibaba.com>
 Date: Thu, 24 Dec 2020 00:12:06 +0000
-Subject: [PATCH 38/59] csky: Fixup PTE global for 2.5:1.5 virtual memory
+Subject: [PATCH 38/65] csky: Fixup PTE global for 2.5:1.5 virtual memory
 
 Fixup commit c2d1adfa9a24 "csky: Add memory layout 2.5G(user):1.5G
 (kernel)". That patch broke the global bit in PTE.

@@ -1,7 +1,7 @@
 From 28c063bc69e99463986fa50f662e8425192b0fd4 Mon Sep 17 00:00:00 2001
 From: Guo Ren <guoren@linux.alibaba.com>
 Date: Wed, 20 Jan 2021 17:21:57 +0800
-Subject: [PATCH 58/59] csky: Using set_max_mapnr api
+Subject: [PATCH 58/65] csky: Using set_max_mapnr api
 
 Using set_max_mapnr API instead of setting the value directly.
 

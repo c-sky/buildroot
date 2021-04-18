@@ -7,13 +7,13 @@
 
 	memory@0 {
 		device_type = "memory";
-		reg = <0x0 0x200000 0x0 0x20000000>;
+		reg = <0x0 0x200000 0x0 0x40000000>;
 	};
 
 	cpus {
 		#address-cells = <1>;
 		#size-cells = <0>;
-		timebase-frequency = <0x2dc6c0>;
+		timebase-frequency = <3000000>;
 		cpu@0 {
 			device_type = "cpu";
 			reg = <0>;
@@ -231,6 +231,42 @@
 		compatible = "simple-bus";
 		ranges;
 
+		reset: reset-sample {
+			compatible = "thead,reset-sample";
+			plic-delegate = <0xff 0xd81ffffc>;
+			using-csr-reset;
+			csr-copy = <
+				0x7c0 0x7c1 0x7c2 0x7c3 0x7c5 0x7cc
+				0x3b0 0x3b1 0x3b2 0x3b3
+				0x3b4 0x3b5 0x3b6 0x3b7
+				0x3a0
+				>;
+		};
+
+		clint0: clint@ffdc000000 {
+			compatible = "riscv,clint0";
+			interrupts-extended = <
+				&cpu0_intc  3 &cpu0_intc  7
+				&cpu1_intc  3 &cpu1_intc  7
+				&cpu2_intc  3 &cpu2_intc  7
+				&cpu3_intc  3 &cpu3_intc  7
+				&cpu4_intc  3 &cpu4_intc  7
+				&cpu5_intc  3 &cpu5_intc  7
+				&cpu6_intc  3 &cpu6_intc  7
+				&cpu7_intc  3 &cpu7_intc  7
+				&cpu8_intc  3 &cpu8_intc  7
+				&cpu9_intc  3 &cpu9_intc  7
+				&cpu10_intc 3 &cpu10_intc 7
+				&cpu11_intc 3 &cpu11_intc 7
+				&cpu12_intc 3 &cpu12_intc 7
+				&cpu13_intc 3 &cpu13_intc 7
+				&cpu14_intc 3 &cpu14_intc 7
+				&cpu15_intc 3 &cpu15_intc 7
+				>;
+			reg = <0xff 0xdc000000 0x0 0x04000000>;
+			clint,has-no-64bit-mmio;
+		};
+
 		intc: interrupt-controller@ffd8000000 {
 			#interrupt-cells = <1>;
 			compatible = "riscv,plic0";
@@ -253,7 +289,7 @@
 				&cpu14_intc 0xffffffff &cpu14_intc 9
 				&cpu15_intc 0xffffffff &cpu15_intc 9
 				>;
-			reg = <0xff 0xd8000000 0x0 0x08000000>;
+			reg = <0xff 0xd8000000 0x0 0x04000000>;
 			reg-names = "control";
 			riscv,max-priority = <7>;
 			riscv,ndev = <80>;
@@ -261,8 +297,23 @@
 
 		dummy_apb: apb-clock {
 			compatible = "fixed-clock";
-			clock-frequency = <0x3b9aca0>;
+			clock-frequency = <62500000>;
 			clock-output-names = "dummy_apb";
+			#clock-cells = <0>;
+		};
+
+		dummy_clock_sdhci: sdhci-clock {
+			compatible = "fixed-clock";
+			reg = <4>;	/* Not address, just for index */
+			clock-frequency = <198000000>;
+			clock-output-names = "dummy_clock_sdhci";
+			#clock-cells = <0>;
+		};
+
+		dummy_clock_gmac: gmac-clock {
+			compatible = "fixed-clock";
+			clock-frequency = <1000000000>;
+			clock-output-names = "dummy_clock_gmac";
 			#clock-cells = <0>;
 		};
 
@@ -277,6 +328,70 @@
 			reg-io-width = <4>;
 		};
 
+		stmmac_axi_setup: stmmac-axi-config {
+			snps,wr_osr_lmt = <3>;
+			snps,rd_osr_lmt = <3>;
+			snps,blen = <16 8 4 0 0 0 0>;
+		};
+
+		gmac: ethernet@ffe7070000 {
+			compatible = "snps,dwmac";
+			reg = <0xff 0xe7070000 0x0 0x2000>;
+			interrupt-parent = <&intc>;
+			interrupts = <66>;
+			interrupt-names = "macirq";
+			clocks = <&dummy_clock_gmac>;
+			clock-names = "stmmaceth";
+			snps,pbl = <32>;
+			snps,fixed-burst;
+			snps,axi-config = <&stmmac_axi_setup>;
+
+			phy-mode = "rgmii-txid";
+			phy-handle = <&phy_88E1111>;
+			mdio0 {
+				#address-cells = <1>;
+				#size-cells = <0>;
+				compatible = "snps,dwmac-mdio";
+
+				phy_88E1111: ethernet-phy@0 {
+					reg = <0x1>;
+				};
+			};
+		};
+
+		emmc: sdhci@ffe7080000 {
+			compatible = "snps,dwcmshc-sdhci-light-mpw";
+			reg = <0xff 0xe7080000 0x0 0x10000
+			       0xff 0xEF014060 0x0 0x4>;
+			interrupt-parent = <&intc>;
+			interrupts = <62>;
+			interrupt-names = "sdhciirq";
+			clocks = <&dummy_clock_sdhci>;
+			clock-names = "core";
+			max-frequency = <198000000>;
+			non-removable;
+            		is_emmc;
+			no-sdio;
+			no-sd;
+            		no-1-8-v;
+			bus-width = <8>;
+			status = "okay";
+		};
+
+		sdcard: sd@ffe7090000 {
+			compatible = "snps,dwcmshc-sdhci-light-mpw";
+			reg = <0xff 0xe7090000 0x0 0x10000
+                	       0xff 0xEF014064 0x0 0x4>;
+			interrupt-parent = <&intc>;
+			interrupts = <64>;
+			interrupt-names = "sdhci0irq";
+			clocks = <&dummy_clock_sdhci>;
+			clock-names = "core";
+			max-frequency = <198000000>;
+			bus-width = <4>;
+			status = "okay";
+		};
+
 		pmu: pmu {
 			interrupt-parent = <&cpu0_intc>;
 			interrupts = <17>;
@@ -286,7 +401,7 @@
 
 	chosen {
 		bootargs = "console=ttyS0,115200";
-		linux,initrd-start = <0x0 0x4000000>;
+		linux,initrd-start = <0x00000000 0x04000000>;
 		linux,initrd-end = <0x0 0x0>;
 		stdout-path = "/soc/serial@ffe7014000:115200";
 	};
