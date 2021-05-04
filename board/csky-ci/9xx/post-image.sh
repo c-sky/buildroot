@@ -6,6 +6,7 @@ rm -rf ${BUILD_DIR}/boot_ext4
 mkdir ${BUILD_DIR}/boot_ext4
 cp ${BINARIES_DIR}/uImage ${BUILD_DIR}/boot_ext4/
 cp ${BINARIES_DIR}/fw_dynamic.* ${BUILD_DIR}/boot_ext4/
+cp ${BINARIES_DIR}/readme.txt ${BUILD_DIR}/boot_ext4/
 cp ${BINARIES_DIR}/fw_dynamic.bin ${BUILD_DIR}/boot_ext4/fw_jump.bin
 cp ${BUILD_DIR}/linux-custom/arch/riscv/boot/dts/thead/*.dtb ${BUILD_DIR}/boot_ext4/
 cp ${BUILD_DIR}/boot_ext4/light_mpw.dtb ${BUILD_DIR}/boot_ext4/hw.dtb
