@@ -43,6 +43,5 @@ set *(unsigned long *)($dyn_info_addr + 48) = 0x0
 
 # Load opensbi
 restore ../fw_dynamic.bin binary $opensbi_addr
-file fw_jump_0G.elf
 
 set $pc = $opensbi_addr

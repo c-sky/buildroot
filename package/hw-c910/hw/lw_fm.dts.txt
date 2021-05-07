@@ -316,6 +316,31 @@
 			interrupts = <17>;
 			compatible = "riscv,c910_pmu";
 		};
+
+                gmac: ethernet@ffe7070000 {
+                        compatible = "snps,dwmac";
+                        reg = <0xff 0xe7070000 0x0 0x2000>;
+                        interrupt-parent = <&intc>;
+                        interrupts = <66>;
+                        interrupt-names = "macirq";
+                        clocks = <&dummy_apb>;
+                        clock-names = "stmmaceth";
+                        snps,pbl = <32>;
+                        snps,fixed-burst;
+
+                        max-speed = <100>;
+                        phy-mode = "mii";
+                        phy-handle = <&phy_88E1111>;
+                        mdio0 {
+                                #address-cells = <1>;
+                                #size-cells = <0>;
+                                compatible = "snps,dwmac-mdio";
+
+                                phy_88E1111: ethernet-phy@0 {
+                                        reg = <0x0 0x0>;
+                                };
+                        };
+                };
 	};
 
 	chosen {
