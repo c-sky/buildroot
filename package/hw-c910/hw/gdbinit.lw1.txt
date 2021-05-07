@@ -42,6 +42,5 @@ restore ../Image binary $vmlinux_addr
 
 # Load opensbi
 restore ../fw_dynamic.bin binary $opensbi_addr
-file fw_jump_0G.elf
 
 set $pc = $opensbi_addr
