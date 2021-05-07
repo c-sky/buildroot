@@ -544,6 +544,23 @@ wait_for_trigger:
       - 9xx_5.10_glibc_compat
     <<: *ice9xx_chip_test
 
+.lw9xx_chip_before_test: &lw9xx_chip_before_test
+    - RUN="run_test_chip.sh"
+    - BOARD="lw_nfs"
+    - CORENUM="4"
+
+.lw9xx_chip_test: &lw9xx_chip_test
+    stage: chip-test
+    before_script: *lw9xx_chip_before_test
+    <<: *common_tests
+
+9xx_5.10_glibc_lw_test:
+    tags:
+      - csky-910-lw
+    dependencies:
+      - 9xx_5.10_glibc_compat
+    <<: *lw9xx_chip_test
+
 #qemu test enhanced
 .910_qemu_test_enhanced: &910_qemu_test_enhanced
     stage: qemu-test-enhanced
