@@ -149,7 +149,6 @@ wait_for_trigger:
 610_4.14_uclibc_compat: *common_build
 610_4.14_glibc_compat: *common_build
 610_4.19_glibc_compat: *common_build
-610_5.9_glibc_compat: *common_build
 610_5.10_glibc_compat: *common_build
 610_next_glibc_compat: *common_build
 
@@ -176,11 +175,6 @@ wait_for_trigger:
 610_4.19_glibc_qemu_test:
     dependencies:
       - 610_4.19_glibc_compat
-    <<: *610_qemu_test
-
-610_5.9_glibc_qemu_test:
-    dependencies:
-      - 610_5.9_glibc_compat
     <<: *610_qemu_test
 
 610_5.10_glibc_qemu_test:
@@ -254,7 +248,6 @@ wait_for_trigger:
 810f_4.14_uclibc_compat: *common_build
 810f_4.14_glibc_compat: *common_build
 810f_4.19_glibc_compat: *common_build
-810f_5.9_glibc_compat: *common_build
 810f_5.10_glibc_compat: *common_build
 810f_next_glibc_compat: *common_build
 
@@ -281,11 +274,6 @@ wait_for_trigger:
 810f_4.19_glibc_qemu_test:
     dependencies:
       - 810f_4.19_glibc_compat
-    <<: *810_qemu_test
-
-810f_5.9_glibc_qemu_test:
-    dependencies:
-      - 810f_5.9_glibc_compat
     <<: *810_qemu_test
 
 810f_5.10_glibc_qemu_test:
@@ -388,7 +376,6 @@ wait_for_trigger:
 860_4.14_glibc_compat: *common_build
 860_4.14_uclibc_compat: *common_build
 860_4.19_glibc_compat: *common_build
-860_5.9_glibc_compat: *common_build
 860_5.10_glibc_compat: *common_build
 860_next_glibc_compat: *common_build
 
@@ -415,11 +402,6 @@ wait_for_trigger:
 860_4.19_glibc_qemu_test:
     dependencies:
       - 860_4.19_glibc_compat
-    <<: *860_qemu_test
-
-860_5.9_glibc_qemu_test:
-    dependencies:
-      - 860_5.9_glibc_compat
     <<: *860_qemu_test
 
 860_5.10_glibc_qemu_test:
@@ -504,53 +486,30 @@ wait_for_trigger:
       - 860v_4.19_glibc_enhanced
     <<: *860_qemu_test_enhanced
 
-################ 910 ################
+################ 9xx ################
 # qemu
-.910_qemu_before_test: &910_qemu_before_test
+.9xx_qemu_before_test: &9xx_qemu_before_test
     - RUN="run_test_qemu_riscv64.sh"
 
-.910_qemu_test: &910_qemu_test
+.9xx_qemu_test: &9xx_qemu_test
     stage: qemu-test
-    before_script: *910_qemu_before_test
+    before_script: *9xx_qemu_before_test
     <<: *common_tests
 
-9xx_5.9_glibc_compat: *common_build
 9xx_5.10_glibc_compat: *common_build
-910_next_glibc_compat: *common_build
-
-9xx_5.9_glibc_qemu_test:
-    dependencies:
-      - 9xx_5.9_glibc_compat
-    <<: *910_qemu_test
+9xx_next_glibc_compat: *common_build
 
 9xx_5.10_glibc_qemu_test:
     dependencies:
       - 9xx_5.10_glibc_compat
-    <<: *910_qemu_test
+    <<: *9xx_qemu_test
 
-910_next_glibc_qemu_test:
+9xx_next_glibc_qemu_test:
     dependencies:
-      - 910_next_glibc_compat
-    <<: *910_qemu_test
+      - 9xx_next_glibc_compat
+    <<: *9xx_qemu_test
 
 # chip test
-.ice9xx_chip_before_test: &ice9xx_chip_before_test
-    - RUN="run_test_chip.sh"
-    - BOARD="ice_evb_nfs"
-    - CORENUM="2"
-
-.ice9xx_chip_test: &ice9xx_chip_test
-    stage: chip-test
-    before_script: *ice9xx_chip_before_test
-    <<: *common_tests
-
-9xx_5.10_glibc_ice_test:
-    tags:
-      - csky-910-ice
-    dependencies:
-      - 9xx_5.10_glibc_compat
-    <<: *ice9xx_chip_test
-
 .lw9xx_chip_before_test: &lw9xx_chip_before_test
     - RUN="run_test_chip.sh"
     - BOARD="lw_nfs"
@@ -569,35 +528,20 @@ wait_for_trigger:
     <<: *lw9xx_chip_test
 
 #qemu test enhanced
-.910_qemu_test_enhanced: &910_qemu_test_enhanced
+.9xx_qemu_test_enhanced: &9xx_qemu_test_enhanced
     stage: qemu-test-enhanced
-    before_script: *910_qemu_before_test
+    before_script: *9xx_qemu_before_test
     <<: *common_tests
-
-910_5.1_glibc_qemu_test_enhanced:
-    dependencies:
-      - 910_5.1_glibc_enhanced
-    <<: *910_qemu_test_enhanced
-
-910f_5.1_glibc_qemu_test_enhanced:
-    dependencies:
-      - 910f_5.1_glibc_enhanced
-    <<: *910_qemu_test_enhanced
 
 9xxf_5.4_glibc_qemu_test_enhanced:
     dependencies:
       - 9xxf_5.4_glibc_enhanced
-    <<: *910_qemu_test_enhanced
-
-9xxf_5.9_glibc_qemu_test_enhanced:
-    dependencies:
-      - 9xxf_5.9_glibc_enhanced
-    <<: *910_qemu_test_enhanced
+    <<: *9xx_qemu_test_enhanced
 
 9xxf_5.10_glibc_qemu_test_enhanced:
     dependencies:
       - 9xxf_5.10_glibc_enhanced
-    <<: *910_qemu_test_enhanced
+    <<: *9xx_qemu_test_enhanced
 
 ################ enhanced ################
 810f_4.9_glibc_enhanced: *enhanced_build
@@ -616,12 +560,8 @@ wait_for_trigger:
 860v_4.9_uclibc_enhanced: *enhanced_build
 860v_4.19_glibc_enhanced: *enhanced_build
 
-910_5.1_glibc_enhanced: *enhanced_build
-910f_5.1_glibc_enhanced: *enhanced_build
-910v_5.1_glibc_enhanced: *enhanced_build
 9xxf_5.4_glibc_enhanced: *enhanced_build
 9xxf_5.4_12hzglibc_enhanced: *enhanced_build
 9xxv_5.4_glibc_enhanced: *enhanced_build
 9xxv_5.4_12hzglibc_enhanced: *enhanced_build
-9xxf_5.9_glibc_enhanced: *enhanced_build
 9xxf_5.10_glibc_enhanced: *enhanced_build
