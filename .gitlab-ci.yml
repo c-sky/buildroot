@@ -450,6 +450,13 @@ wait_for_trigger:
       - 860_5.10_glibc_compat
     <<: *ice860_chip_test
 
+860_next_glibc_ice_test:
+    tags:
+      - csky-860-ice
+    dependencies:
+      - 860_next_glibc_compat
+    <<: *ice860_chip_test
+
 #qemu test enhanced
 .860_qemu_test_enhanced: &860_qemu_test_enhanced
     stage: qemu-test-enhanced
