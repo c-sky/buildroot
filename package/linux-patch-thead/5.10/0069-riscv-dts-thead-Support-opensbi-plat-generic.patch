@@ -1,0 +1,489 @@
+From 36674229d3231b272ad160820252a01a9c256829 Mon Sep 17 00:00:00 2001
+From: Guo Ren <guoren@linux.alibaba.com>
+Date: Thu, 6 May 2021 17:44:49 +0800
+Subject: [PATCH 69/72] riscv: dts: thead: Support opensbi plat/generic
+
+Add reset-sample & clint in dts. Remove unnecessary cpu nodes
+description.
+
+Signed-off-by: Guo Ren <guoren@linux.alibaba.com>
+---
+ arch/riscv/boot/dts/thead/ice.dts       | 219 +++---------------------
+ arch/riscv/boot/dts/thead/light_mpw.dts | 197 +++------------------
+ 2 files changed, 48 insertions(+), 368 deletions(-)
+
+diff --git a/arch/riscv/boot/dts/thead/ice.dts b/arch/riscv/boot/dts/thead/ice.dts
+index eb94b02e626f..772d10f9bd3d 100644
+--- a/arch/riscv/boot/dts/thead/ice.dts
++++ b/arch/riscv/boot/dts/thead/ice.dts
+@@ -45,189 +45,6 @@
+ 				interrupt-controller;
+ 			};
+ 		};
+-		cpu@2 {
+-			device_type = "cpu";
+-			reg = <2>;
+-			status = "fail";
+-			compatible = "riscv";
+-			riscv,isa = "rv64imafdcsu";
+-			mmu-type = "riscv,sv39";
+-			cpu2_intc: interrupt-controller {
+-				#interrupt-cells = <1>;
+-				compatible = "riscv,cpu-intc";
+-				interrupt-controller;
+-			};
+-		};
+-		cpu@3 {
+-			device_type = "cpu";
+-			reg = <3>;
+-			status = "fail";
+-			compatible = "riscv";
+-			riscv,isa = "rv64imafdcsu";
+-			mmu-type = "riscv,sv39";
+-			cpu3_intc: interrupt-controller {
+-				#interrupt-cells = <1>;
+-				compatible = "riscv,cpu-intc";
+-				interrupt-controller;
+-			};
+-		};
+-		cpu@4 {
+-			device_type = "cpu";
+-			reg = <4>;
+-			status = "fail";
+-			compatible = "riscv";
+-			riscv,isa = "rv64imafdcsu";
+-			mmu-type = "riscv,sv39";
+-			cpu4_intc: interrupt-controller {
+-				#interrupt-cells = <1>;
+-				compatible = "riscv,cpu-intc";
+-				interrupt-controller;
+-			};
+-		};
+-		cpu@5 {
+-			device_type = "cpu";
+-			reg = <5>;
+-			status = "fail";
+-			compatible = "riscv";
+-			riscv,isa = "rv64imafdcsu";
+-			mmu-type = "riscv,sv39";
+-			cpu5_intc: interrupt-controller {
+-				#interrupt-cells = <1>;
+-				compatible = "riscv,cpu-intc";
+-				interrupt-controller;
+-			};
+-		};
+-		cpu@6 {
+-			device_type = "cpu";
+-			reg = <6>;
+-			status = "fail";
+-			compatible = "riscv";
+-			riscv,isa = "rv64imafdcsu";
+-			mmu-type = "riscv,sv39";
+-			cpu6_intc: interrupt-controller {
+-				#interrupt-cells = <1>;
+-				compatible = "riscv,cpu-intc";
+-				interrupt-controller;
+-			};
+-		};
+-		cpu@7 {
+-			device_type = "cpu";
+-			reg = <7>;
+-			status = "fail";
+-			compatible = "riscv";
+-			riscv,isa = "rv64imafdcsu";
+-			mmu-type = "riscv,sv39";
+-			cpu7_intc: interrupt-controller {
+-				#interrupt-cells = <1>;
+-				compatible = "riscv,cpu-intc";
+-				interrupt-controller;
+-			};
+-		};
+-		cpu@8 {
+-			device_type = "cpu";
+-			reg = <8>;
+-			status = "fail";
+-			compatible = "riscv";
+-			riscv,isa = "rv64imafdcsu";
+-			mmu-type = "riscv,sv39";
+-			cpu8_intc: interrupt-controller {
+-				#interrupt-cells = <1>;
+-				compatible = "riscv,cpu-intc";
+-				interrupt-controller;
+-			};
+-		};
+-		cpu@9 {
+-			device_type = "cpu";
+-			reg = <9>;
+-			status = "fail";
+-			compatible = "riscv";
+-			riscv,isa = "rv64imafdcsu";
+-			mmu-type = "riscv,sv39";
+-			cpu9_intc: interrupt-controller {
+-				#interrupt-cells = <1>;
+-				compatible = "riscv,cpu-intc";
+-				interrupt-controller;
+-			};
+-		};
+-		cpu@10 {
+-			device_type = "cpu";
+-			reg = <10>;
+-			status = "fail";
+-			compatible = "riscv";
+-			riscv,isa = "rv64imafdcsu";
+-			mmu-type = "riscv,sv39";
+-			cpu10_intc: interrupt-controller {
+-				#interrupt-cells = <1>;
+-				compatible = "riscv,cpu-intc";
+-				interrupt-controller;
+-			};
+-		};
+-		cpu@11 {
+-			device_type = "cpu";
+-			reg = <11>;
+-			status = "fail";
+-			compatible = "riscv";
+-			riscv,isa = "rv64imafdcsu";
+-			mmu-type = "riscv,sv39";
+-			cpu11_intc: interrupt-controller {
+-				#interrupt-cells = <1>;
+-				compatible = "riscv,cpu-intc";
+-				interrupt-controller;
+-			};
+-		};
+-		cpu@12 {
+-			device_type = "cpu";
+-			reg = <12>;
+-			status = "fail";
+-			compatible = "riscv";
+-			riscv,isa = "rv64imafdcsu";
+-			mmu-type = "riscv,sv39";
+-			cpu12_intc: interrupt-controller {
+-				#interrupt-cells = <1>;
+-				compatible = "riscv,cpu-intc";
+-				interrupt-controller;
+-			};
+-		};
+-		cpu@13 {
+-			device_type = "cpu";
+-			reg = <13>;
+-			status = "fail";
+-			compatible = "riscv";
+-			riscv,isa = "rv64imafdcsu";
+-			mmu-type = "riscv,sv39";
+-			cpu13_intc: interrupt-controller {
+-				#interrupt-cells = <1>;
+-				compatible = "riscv,cpu-intc";
+-				interrupt-controller;
+-			};
+-		};
+-		cpu@14 {
+-			device_type = "cpu";
+-
+-			reg = <14>;
+-			status = "fail";
+-			compatible = "riscv";
+-			riscv,isa = "rv64imafdcsu";
+-			mmu-type = "riscv,sv39";
+-			cpu14_intc: interrupt-controller {
+-				#interrupt-cells = <1>;
+-				compatible = "riscv,cpu-intc";
+-				interrupt-controller;
+-			};
+-		};
+-		cpu@15 {
+-			device_type = "cpu";
+-			reg = <15>;
+-			status = "fail";
+-			compatible = "riscv";
+-			riscv,isa = "rv64imafdcsu";
+-			mmu-type = "riscv,sv39";
+-			cpu15_intc: interrupt-controller {
+-				#interrupt-cells = <1>;
+-				compatible = "riscv,cpu-intc";
+-				interrupt-controller;
+-			};
+-		};
+ 	};
+ 
+ 	soc {
+@@ -236,6 +53,28 @@
+ 		compatible = "simple-bus";
+ 		ranges;
+ 
++		reset: reset-sample {
++			compatible = "thead,reset-sample";
++			plic-delegate = <0x3 0xf01ffffc>;
++			using-csr-reset;
++			csr-copy = <
++				0x7c0 0x7c1 0x7c2 0x7c3 0x7c5 0x7cc
++				0x3b0 0x3b1 0x3b2 0x3b3
++				0x3b4 0x3b5 0x3b6 0x3b7
++				0x3a0
++				>;
++		};
++
++		clint0: clint@3f4000000 {
++			compatible = "riscv,clint0";
++			interrupts-extended = <
++				&cpu0_intc  3 &cpu0_intc  7
++				&cpu1_intc  3 &cpu1_intc  7
++				>;
++			reg = <0x3 0xf4000000 0x0 0x04000000>;
++			clint,has-no-64bit-mmio;
++		};
++
+ 		intc: interrupt-controller@3f0000000 {
+ 			#interrupt-cells = <1>;
+ 			compatible = "riscv,plic0";
+@@ -243,20 +82,6 @@
+ 			interrupts-extended = <
+ 				&cpu0_intc  0xffffffff &cpu0_intc  9
+ 				&cpu1_intc  0xffffffff &cpu1_intc  9
+-				&cpu2_intc  0xffffffff &cpu2_intc  9
+-				&cpu3_intc  0xffffffff &cpu3_intc  9
+-				&cpu4_intc  0xffffffff &cpu4_intc  9
+-				&cpu5_intc  0xffffffff &cpu5_intc  9
+-				&cpu6_intc  0xffffffff &cpu6_intc  9
+-				&cpu7_intc  0xffffffff &cpu7_intc  9
+-				&cpu8_intc  0xffffffff &cpu8_intc  9
+-				&cpu9_intc  0xffffffff &cpu9_intc  9
+-				&cpu10_intc 0xffffffff &cpu10_intc 9
+-				&cpu11_intc 0xffffffff &cpu11_intc 9
+-				&cpu12_intc 0xffffffff &cpu12_intc 9
+-				&cpu13_intc 0xffffffff &cpu13_intc 9
+-				&cpu14_intc 0xffffffff &cpu14_intc 9
+-				&cpu15_intc 0xffffffff &cpu15_intc 9
+ 				>;
+ 			reg = <0x3 0xf0000000 0x0 0x04000000>;
+ 			reg-names = "control";
+diff --git a/arch/riscv/boot/dts/thead/light_mpw.dts b/arch/riscv/boot/dts/thead/light_mpw.dts
+index b14aa25a25af..d60a737e92d9 100644
+--- a/arch/riscv/boot/dts/thead/light_mpw.dts
++++ b/arch/riscv/boot/dts/thead/light_mpw.dts
+@@ -1,7 +1,7 @@
+ /dts-v1/;
+ / {
+-	model = "T-HEAD c910 ice evb";
+-	compatible = "thead,c910_ice_evb";
++	model = "T-HEAD c910 light mpw";
++	compatible = "thead,c910_light_mpw";
+ 	#address-cells = <2>;
+ 	#size-cells = <2>;
+ 
+@@ -66,163 +66,6 @@
+ 				interrupt-controller;
+ 			};
+ 		};
+-		cpu@4 {
+-			device_type = "cpu";
+-			reg = <4>;
+-			status = "fail";
+-			compatible = "riscv";
+-			riscv,isa = "rv64imafdcvsu";
+-			mmu-type = "riscv,sv39";
+-			cpu4_intc: interrupt-controller {
+-				#interrupt-cells = <1>;
+-				compatible = "riscv,cpu-intc";
+-				interrupt-controller;
+-			};
+-		};
+-		cpu@5 {
+-			device_type = "cpu";
+-			reg = <5>;
+-			status = "fail";
+-			compatible = "riscv";
+-			riscv,isa = "rv64imafdcvsu";
+-			mmu-type = "riscv,sv39";
+-			cpu5_intc: interrupt-controller {
+-				#interrupt-cells = <1>;
+-				compatible = "riscv,cpu-intc";
+-				interrupt-controller;
+-			};
+-		};
+-		cpu@6 {
+-			device_type = "cpu";
+-			reg = <6>;
+-			status = "fail";
+-			compatible = "riscv";
+-			riscv,isa = "rv64imafdcvsu";
+-			mmu-type = "riscv,sv39";
+-			cpu6_intc: interrupt-controller {
+-				#interrupt-cells = <1>;
+-				compatible = "riscv,cpu-intc";
+-				interrupt-controller;
+-			};
+-		};
+-		cpu@7 {
+-			device_type = "cpu";
+-			reg = <7>;
+-			status = "fail";
+-			compatible = "riscv";
+-			riscv,isa = "rv64imafdcvsu";
+-			mmu-type = "riscv,sv39";
+-			cpu7_intc: interrupt-controller {
+-				#interrupt-cells = <1>;
+-				compatible = "riscv,cpu-intc";
+-				interrupt-controller;
+-			};
+-		};
+-		cpu@8 {
+-			device_type = "cpu";
+-			reg = <8>;
+-			status = "fail";
+-			compatible = "riscv";
+-			riscv,isa = "rv64imafdcvsu";
+-			mmu-type = "riscv,sv39";
+-			cpu8_intc: interrupt-controller {
+-				#interrupt-cells = <1>;
+-				compatible = "riscv,cpu-intc";
+-				interrupt-controller;
+-			};
+-		};
+-		cpu@9 {
+-			device_type = "cpu";
+-			reg = <9>;
+-			status = "fail";
+-			compatible = "riscv";
+-			riscv,isa = "rv64imafdcvsu";
+-			mmu-type = "riscv,sv39";
+-			cpu9_intc: interrupt-controller {
+-				#interrupt-cells = <1>;
+-				compatible = "riscv,cpu-intc";
+-				interrupt-controller;
+-			};
+-		};
+-		cpu@10 {
+-			device_type = "cpu";
+-			reg = <10>;
+-			status = "fail";
+-			compatible = "riscv";
+-			riscv,isa = "rv64imafdcvsu";
+-			mmu-type = "riscv,sv39";
+-			cpu10_intc: interrupt-controller {
+-				#interrupt-cells = <1>;
+-				compatible = "riscv,cpu-intc";
+-				interrupt-controller;
+-			};
+-		};
+-		cpu@11 {
+-			device_type = "cpu";
+-			reg = <11>;
+-			status = "fail";
+-			compatible = "riscv";
+-			riscv,isa = "rv64imafdcvsu";
+-			mmu-type = "riscv,sv39";
+-			cpu11_intc: interrupt-controller {
+-				#interrupt-cells = <1>;
+-				compatible = "riscv,cpu-intc";
+-				interrupt-controller;
+-			};
+-		};
+-		cpu@12 {
+-			device_type = "cpu";
+-			reg = <12>;
+-			status = "fail";
+-			compatible = "riscv";
+-			riscv,isa = "rv64imafdcvsu";
+-			mmu-type = "riscv,sv39";
+-			cpu12_intc: interrupt-controller {
+-				#interrupt-cells = <1>;
+-				compatible = "riscv,cpu-intc";
+-				interrupt-controller;
+-			};
+-		};
+-		cpu@13 {
+-			device_type = "cpu";
+-			reg = <13>;
+-			status = "fail";
+-			compatible = "riscv";
+-			riscv,isa = "rv64imafdcvsu";
+-			mmu-type = "riscv,sv39";
+-			cpu13_intc: interrupt-controller {
+-				#interrupt-cells = <1>;
+-				compatible = "riscv,cpu-intc";
+-				interrupt-controller;
+-			};
+-		};
+-		cpu@14 {
+-			device_type = "cpu";
+-
+-			reg = <14>;
+-			status = "fail";
+-			compatible = "riscv";
+-			riscv,isa = "rv64imafdcvsu";
+-			mmu-type = "riscv,sv39";
+-			cpu14_intc: interrupt-controller {
+-				#interrupt-cells = <1>;
+-				compatible = "riscv,cpu-intc";
+-				interrupt-controller;
+-			};
+-		};
+-		cpu@15 {
+-			device_type = "cpu";
+-			reg = <15>;
+-			status = "fail";
+-			compatible = "riscv";
+-			riscv,isa = "rv64imafdcvsu";
+-			mmu-type = "riscv,sv39";
+-			cpu15_intc: interrupt-controller {
+-				#interrupt-cells = <1>;
+-				compatible = "riscv,cpu-intc";
+-				interrupt-controller;
+-			};
+-		};
+ 	};
+ 
+ 	soc {
+@@ -231,6 +74,30 @@
+ 		compatible = "simple-bus";
+ 		ranges;
+ 
++		reset: reset-sample {
++			compatible = "thead,reset-sample";
++			plic-delegate = <0xff 0xd81ffffc>;
++			using-csr-reset;
++			csr-copy = <
++				0x7c0 0x7c1 0x7c2 0x7c3 0x7c5 0x7cc
++				0x3b0 0x3b1 0x3b2 0x3b3
++				0x3b4 0x3b5 0x3b6 0x3b7
++				0x3a0
++				>;
++		};
++
++		clint0: clint@ffdc000000 {
++			compatible = "riscv,clint0";
++			interrupts-extended = <
++				&cpu0_intc  3 &cpu0_intc  7
++				&cpu1_intc  3 &cpu1_intc  7
++				&cpu2_intc  3 &cpu2_intc  7
++				&cpu3_intc  3 &cpu3_intc  7
++				>;
++			reg = <0xff 0xdc000000 0x0 0x04000000>;
++			clint,has-no-64bit-mmio;
++		};
++
+ 		intc: interrupt-controller@ffd8000000 {
+ 			#interrupt-cells = <1>;
+ 			compatible = "riscv,plic0";
+@@ -240,18 +107,6 @@
+ 				&cpu1_intc  0xffffffff &cpu1_intc  9
+ 				&cpu2_intc  0xffffffff &cpu2_intc  9
+ 				&cpu3_intc  0xffffffff &cpu3_intc  9
+-				&cpu4_intc  0xffffffff &cpu4_intc  9
+-				&cpu5_intc  0xffffffff &cpu5_intc  9
+-				&cpu6_intc  0xffffffff &cpu6_intc  9
+-				&cpu7_intc  0xffffffff &cpu7_intc  9
+-				&cpu8_intc  0xffffffff &cpu8_intc  9
+-				&cpu9_intc  0xffffffff &cpu9_intc  9
+-				&cpu10_intc 0xffffffff &cpu10_intc 9
+-				&cpu11_intc 0xffffffff &cpu11_intc 9
+-				&cpu12_intc 0xffffffff &cpu12_intc 9
+-				&cpu13_intc 0xffffffff &cpu13_intc 9
+-				&cpu14_intc 0xffffffff &cpu14_intc 9
+-				&cpu15_intc 0xffffffff &cpu15_intc 9
+ 				>;
+ 			reg = <0xff 0xd8000000 0x0 0x08000000>;
+ 			reg-names = "control";
+-- 
+2.17.1
+

@@ -1,0 +1,120 @@
+From ab09cfc090f360d761b7d1a524ca65b7e17ce872 Mon Sep 17 00:00:00 2001
+From: liweiwei <liweiwei@iscas.ac.cn>
+Date: Wed, 3 Mar 2021 15:11:05 +0800
+Subject: [PATCH 68/72] riscv: thead: Support vector e64 emulate for v0.7
+
+---
+ arch/riscv/Kconfig                 |  5 +++++
+ arch/riscv/include/asm/processor.h | 12 ++++++++++++
+ arch/riscv/kernel/Makefile         |  1 +
+ arch/riscv/kernel/traps.c          |  9 +++++++++
+ arch/riscv/kernel/vector.S         | 10 +++++++++-
+ 5 files changed, 36 insertions(+), 1 deletion(-)
+
+diff --git a/arch/riscv/Kconfig b/arch/riscv/Kconfig
+index 7e7bf6529255..022228681c3e 100644
+--- a/arch/riscv/Kconfig
++++ b/arch/riscv/Kconfig
+@@ -368,6 +368,11 @@ config VECTOR
+ 
+ 	  If you don't know what to do here, say Y.
+ 
++config VECTOR_EMU
++	bool "VECTOR e64 emulate for c906 v1"
++	depends on VECTOR
++	default n
++
+ endmenu
+ 
+ menu "Kernel features"
+diff --git a/arch/riscv/include/asm/processor.h b/arch/riscv/include/asm/processor.h
+index a8ac8ecb6ac3..a865168c6a07 100644
+--- a/arch/riscv/include/asm/processor.h
++++ b/arch/riscv/include/asm/processor.h
+@@ -27,6 +27,15 @@
+ struct task_struct;
+ struct pt_regs;
+ 
++#ifdef CONFIG_VECTOR_EMU
++struct vsetvl_info {
++	unsigned long last_vector_pc;
++	unsigned long regid;
++	unsigned long vl;
++	unsigned long vtype;
++};
++#endif
++
+ /* CPU-specific state of a task */
+ struct thread_struct {
+ 	/* Callee-saved registers */
+@@ -36,6 +45,9 @@ struct thread_struct {
+ 	struct __riscv_d_ext_state fstate;
+ 	unsigned long bad_cause;
+ 	struct __riscv_v_state vstate;
++#ifdef CONFIG_VECTOR_EMU
++	struct vsetvl_info vsetvl_state;
++#endif
+ };
+ 
+ #define INIT_THREAD {					\
+diff --git a/arch/riscv/kernel/Makefile b/arch/riscv/kernel/Makefile
+index ede26c81b217..1cead0d98ed9 100644
+--- a/arch/riscv/kernel/Makefile
++++ b/arch/riscv/kernel/Makefile
+@@ -32,6 +32,7 @@ obj-y	+= cacheinfo.o
+ obj-y	+= patch.o
+ obj-y	+= probes/
+ obj-$(CONFIG_MMU) += vdso.o vdso/
++obj-$(CONFIG_VECTOR_EMU) += soft_vector/
+ 
+ obj-$(CONFIG_RISCV_M_MODE)	+= traps_misaligned.o
+ obj-$(CONFIG_FPU)		+= fpu.o
+diff --git a/arch/riscv/kernel/traps.c b/arch/riscv/kernel/traps.c
+index 2bca2fab2d27..6632bedcf740 100644
+--- a/arch/riscv/kernel/traps.c
++++ b/arch/riscv/kernel/traps.c
+@@ -57,10 +57,19 @@ void die(struct pt_regs *regs, const char *str)
+ 		do_exit(SIGSEGV);
+ }
+ 
++#ifdef CONFIG_VECTOR_EMU
++extern bool decode_exec_insn(struct pt_regs *regs, uint64_t insn);
++#endif
+ void do_trap(struct pt_regs *regs, int signo, int code, unsigned long addr)
+ {
+ 	struct task_struct *tsk = current;
+ 
++#ifdef CONFIG_VECTOR_EMU
++	if (signo == SIGILL)
++		if (decode_exec_insn(regs, regs->badaddr))
++			return;
++#endif
++
+ 	if (show_unhandled_signals && unhandled_signal(tsk, signo)
+ 	    && printk_ratelimit()) {
+ 		pr_info("%s[%d]: unhandled signal %d code 0x%x at 0x" REG_FMT,
+diff --git a/arch/riscv/kernel/vector.S b/arch/riscv/kernel/vector.S
+index c7f45e1821cd..a1c22729052d 100644
+--- a/arch/riscv/kernel/vector.S
++++ b/arch/riscv/kernel/vector.S
+@@ -77,8 +77,16 @@ ENTRY(__vstate_restore)
+ 	csrw	CSR_VXRM, t0
+ 	ld	t0,  TASK_THREAD_VL_V0(a0)
+ 	ld	t2,  TASK_THREAD_VTYPE_V0(a0)
++#ifdef CONFIG_VECTOR_EMU
++	srli	t3, t2, 63
++	bne	t3,zero,1f
++#endif
+ 	vsetvl	t3, t0, t2
+-
++#ifdef CONFIG_VECTOR_EMU
++	j	2f
++1:	vsetvli zero,zero,e64,m2,d1
++2:
++#endif
+ 	csrc	sstatus, t1
+ 	ret
+ ENDPROC(__vstate_restore)
+-- 
+2.17.1
+
