@@ -9,6 +9,10 @@ shell $(sleep 1)
 # FPGA demultiplex
 set *(unsigned int *) 0x1fbad008=0xff
 
+# Load the debugging elf file
+load
+c
+
 # 0x1fba4000 ~ 0x1fba5000 serial NAPOT rw
 set $pmpaddr0 = 0x1fba4000 >> 2 | ((0x1000 - 1) >> 3)
 
@@ -35,7 +39,5 @@ set $pmpaddr7 = 0xffffffffff >> 2
 # Access needn't lock bit for the m state.
 set $pmpcfg0 = 0x8898809f9b9b9b9b
 
-# Load the debugging elf file
-load
-
 disp /i $pc
+q
