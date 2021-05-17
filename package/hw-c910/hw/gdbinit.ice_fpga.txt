@@ -5,7 +5,7 @@ set height 0
 set $mcor = 0x70013
 
 # Enable L2 Cache
-set $mccr2 = 0xe0010009
+set $mccr2 = 0xe001000a
 
 # Enable L1 Cache
 set $mhcr = 0x11ff
@@ -13,6 +13,7 @@ set $mhcr = 0x11ff
 # Enable CPU Features
 set $mxstatus = 0x638000
 set $mhint = 0x16e30c
+set $mhint2 = 0x8000
 
 set $opensbi_addr = 0x00000000
 set $vmlinux_addr = $opensbi_addr + 0x00200000
