@@ -17,6 +17,8 @@ for idx in "$@"
 do
 if [ $idx == "an" ]; then
 	BOARD="an"
+elif [ $idx == "d1_nfs" ]; then
+	BOARD="d1_nfs"
 elif [ $idx == "lw" ]; then
 	BOARD="lw"
 elif [ $idx == "lw_nfs" ]; then

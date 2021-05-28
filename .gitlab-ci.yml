@@ -527,6 +527,23 @@ wait_for_trigger:
       - 9xx_5.10_glibc_compat
     <<: *lw910_chip_test
 
+#.d1906_chip_before_test: &d1906_chip_before_test
+#    - RUN="run_test_chip.sh"
+#    - BOARD="d1_nfs"
+#    - CORENUM="1"
+
+#.d1906_chip_test: &d1906_chip_test
+#    stage: chip-test
+#    before_script: *d1906_chip_before_test
+#    <<: *common_tests
+
+#906_next_glibc_lw_test:
+#    tags:
+#      - csky-906-d1
+#    dependencies:
+#      - 9xx_next_glibc_compat
+#    <<: *d1906_chip_test
+
 #qemu test enhanced
 .9xx_qemu_test_enhanced: &9xx_qemu_test_enhanced
     stage: qemu-test-enhanced
