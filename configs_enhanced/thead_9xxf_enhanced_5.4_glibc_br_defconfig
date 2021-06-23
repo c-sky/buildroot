@@ -3,7 +3,6 @@ BR2_riscv=y
 BR2_riscv_custom=y
 
 # System
-BR2_TARGET_GENERIC_GETTY_PORT="ttyS0"
 
 # Rootfs
 BR2_TARGET_ROOTFS_CPIO=y
