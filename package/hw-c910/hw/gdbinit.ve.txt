@@ -37,5 +37,5 @@ set *(unsigned long *)($dyn_info_addr + 32) = 0x0
 set *(unsigned long *)($dyn_info_addr + 48) = 0x0
 
 # Load opensbi (Done by veloce)
-# restore opensbi_0G.bin binary $opensbi_addr
+# restore fw_dynamic.bin binary $opensbi_addr
 set $pc = $opensbi_addr
