@@ -11,6 +11,8 @@ CSKY_README_BD_CONFIG=$(shell grep BR2_DEFCONFIG $(CONFIG_DIR)/.config | awk -F/
 CSKY_README_CK860=$(shell grep BR2_ck860=y $(CONFIG_DIR)/.config)
 CSKY_README_CK610=$(shell grep BR2_ck610=y $(CONFIG_DIR)/.config)
 CSKY_README_CK910=$(shell grep BR2_riscv=y $(CONFIG_DIR)/.config)
+CSKY_README_KERNEL_CUSTOM=$(shell grep BR2_LINUX_KERNEL_CUSTOM_TARBALL=y $(CONFIG_DIR)/.config)
+CSKY_README_GCC_EXT=$(shell grep BR2_PACKAGE_HAS_TOOLCHAIN_EXTERNAL=y $(CONFIG_DIR)/.config)
 
 define CSKY_README_INSTALL_IMAGES_CMDS
 	cp package/csky-readme/readme.txt $(BINARIES_DIR)/
@@ -19,6 +21,10 @@ define CSKY_README_INSTALL_IMAGES_CMDS
 	sed -i 's/<buildroot-config>/$(CSKY_README_BD_CONFIG)/g' $(BINARIES_DIR)/readme.txt
 	sed -i 's/<buildroot-version>/$(CSKY_README_BD_VERSION)/g' $(BINARIES_DIR)/readme.txt
 	sed -i 's/<kernel-version>/$(LINUX_VERSION)/g' $(BINARIES_DIR)/readme.txt
+	if [ -n "${CSKY_README_KERNEL_CUSTOM}" ]; then \
+		sed -i 's/cdn.kernel.org\/pub\/linux\/kernel\/v4.x\/linux-custom.tar.xz/github.com\/c-sky\/csky-linux\/archive\/$(CSKY_LINUX_NEXT_RISCV_VERSION).tar.gz/g' $(BINARIES_DIR)/readme.txt;\
+		sed -i 's/tar -Jxf linux-custom.tar.xz/tar -zxf $(CSKY_LINUX_NEXT_RISCV_VERSION).tar.gz; mv csky-linux-* linux-custom/g' $(BINARIES_DIR)/readme.txt;\
+	fi; \
 	if [ "5" == $(shell echo ${LINUX_VERSION} | cut -d "." -f1) ]; then \
 		sed -i 's/cdn.kernel.org\/pub\/linux\/kernel\/v4.x/cdn.kernel.org\/pub\/linux\/kernel\/v5.x/g' $(BINARIES_DIR)/readme.txt;\
 	fi;\
@@ -31,7 +37,10 @@ define CSKY_README_INSTALL_IMAGES_CMDS
 	elif [ -n "$(CSKY_README_CK610)" ]; then \
 		sed -i 's/qemu_start_cmd/.\/host\/csky-qemu\/bin\/qemu-system-cskyv1 -M virt -kernel Image -nographic -append "console=ttyS0,115200 rdinit=\/sbin\/init rootwait root=\/dev\/vda ro" -drive file=rootfs.ext2,format=raw,id=hd0 -device virtio-blk-device,drive=hd0/g' $(BINARIES_DIR)/readme.txt; \
 		sed -i 's/linux_compile_cmd/LD_LIBRARY_PATH=..\/host\/lib make ARCH=csky CROSS_COMPILE=..\/host\/bin\/csky-linux- Image/g' $(BINARIES_DIR)/readme.txt; \
-	elif [ -n "$(CSKY_README_CK910)" ]; then \
+	elif [ -n "$(CSKY_README_CK910)" ] && [ -z $(CSKY_README_GCC_EXT) ]; then \
+		sed -i 's/qemu_start_cmd/LD_LIBRARY_PATH=.\/host\/lib .\/host\/csky-qemu\/bin\/qemu-system-riscv64 -M virt -kernel fw_jump.elf -device loader,file=Image,addr=0x80200000 -append "rootwait root=\/dev\/vda ro" -drive file=rootfs.ext2,format=raw,id=hd0 -device virtio-blk-device,drive=hd0 -nographic -smp 1/g' $(BINARIES_DIR)/readme.txt; \
+		sed -i 's/linux_compile_cmd/LD_LIBRARY_PATH=..\/host\/lib make ARCH=riscv CROSS_COMPILE=..\/host\/bin\/riscv64-buildroot-linux-gnu- Image/g' $(BINARIES_DIR)/readme.txt; \
+	elif [ -n "$(CSKY_README_CK910)" ] && [ -n $(CSKY_README_GCC_EXT) ]; then \
 		sed -i 's/qemu_start_cmd/LD_LIBRARY_PATH=.\/host\/lib .\/host\/csky-qemu\/bin\/qemu-system-riscv64 -M virt -kernel fw_jump.elf -device loader,file=Image,addr=0x80200000 -append "rootwait root=\/dev\/vda ro" -drive file=rootfs.ext2,format=raw,id=hd0 -device virtio-blk-device,drive=hd0 -nographic -smp 1/g' $(BINARIES_DIR)/readme.txt; \
 		sed -i 's/linux_compile_cmd/LD_LIBRARY_PATH=..\/host\/lib make ARCH=riscv CROSS_COMPILE=..\/host\/bin\/riscv64-unknown-linux-gnu- Image/g' $(BINARIES_DIR)/readme.txt; \
 	else \
