@@ -1,0 +1,40 @@
+# Set gdb environment
+set confirm off
+set height  0
+
+#plic delegate
+set *0x081ffffc=1
+
+# memory layout
+set $opensbi_addr = 0x80000000
+set $vmlinux_addr = $opensbi_addr + 0x00400000
+set $rootfs_addr  = $opensbi_addr + 0x04000000
+set $dtb_addr     = $rootfs_addr  - 0x00100000
+set $zsb_addr     = $rootfs_addr  - 0x00008000
+set $dyninfo_addr = $rootfs_addr  - 0x40
+
+# Load kernel
+restore zero_stage_boot.bin binary          $zsb_addr
+restore hw.dtb binary						$dtb_addr
+restore ../fw_dynamic.bin binary			$opensbi_addr
+restore ../Image binary						$vmlinux_addr
+restore ../rootfs.cpio.gz binary			$rootfs_addr
+
+# Set opensbi dynamic info param
+set *(unsigned long *)($dyninfo_addr)      = 0x4942534f
+set *(unsigned long *)($dyninfo_addr + 8)  = 2
+set *(unsigned long *)($dyninfo_addr + 16) = $vmlinux_addr
+set *(unsigned long *)($dyninfo_addr + 24) = 1
+set *(unsigned long *)($dyninfo_addr + 32) = 0
+set *(unsigned long *)($dyninfo_addr + 40) = -1
+
+# Set all harts reset address
+set *0x18030010 = $zsb_addr
+set *0x18030018 = $zsb_addr
+set *0x18030020 = $zsb_addr
+set *0x18030028 = $zsb_addr
+set *0x18030030 = $zsb_addr
+set $pc         = $zsb_addr
+
+# Release all harts from reset
+set *0x18030000 = 0x7f

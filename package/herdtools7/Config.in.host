@@ -1,0 +1,10 @@
+config BR2_PACKAGE_HOST_HERDTOOLS7
+	bool "host herdtools7"
+	depends on BR2_PACKAGE_HOST_OCAML
+	help
+	  The Herd toolsuite to deal with .cat memory models (version 7.xx)
+
+	  https://github.com/herd/herdtools7
+
+comment "herdtools7 needs ocaml ocaml-dune ocaml-menhir"
+	depends on  !BR2_PACKAGE_HOST_OCAML

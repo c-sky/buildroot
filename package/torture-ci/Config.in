@@ -1,0 +1,3 @@
+config BR2_PACKAGE_TORTURE_CI
+	bool "torture-test"
+	depends on BR2_PACKAGE_CSKY_CI

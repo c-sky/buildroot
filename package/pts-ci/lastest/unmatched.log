@@ -1,0 +1,126 @@
+================== pts test start ==================
+pts atomicbench start
+cpus: 1 will run 17 case
+Total Thread: 1  Loop: 10000
+========================================
+thread: 0 on cpu 0 total_time 3361700 ns
+             add test cost: 172000
+             and test cost: 150800
+              or test cost: 149100
+             sub test cost: 147300
+             xor test cost: 148800
+            weak test cost: 321400
+          strong test cost: 314800
+           weak2 test cost: 318400
+         strong2 test cost: 641100
+            load test cost: 46300
+           store test cost: 147900
+        exchange test cost: 149200
+          sfence test cost: 30600
+          tfence test cost: 74800
+    test_and_set test cost: 187500
+           clear test cost: 169700
+compare_and_swap test cost: 192000
+----------------------------------------
+score :                       19
+========================================
+pts atomicbench end
+pts circustent start
+RAND_ADD
+RUNNING WITH NUM_THREADS = 1
+================================================
+ Timing (secs)        : 0.005273
+ Giga AMOs/sec (GAMS) : 1.89645e-05
+================================================
+RAND_CAS
+RUNNING WITH NUM_THREADS = 1
+================================================
+ Timing (secs)        : 0.005186
+ Giga AMOs/sec (GAMS) : 1.92827e-05
+================================================
+STRIDE1_ADD
+RUNNING WITH NUM_THREADS = 1
+================================================
+ Timing (secs)        : 0.005125
+ Giga AMOs/sec (GAMS) : 1.95122e-05
+================================================
+STRIDE1_CAS
+RUNNING WITH NUM_THREADS = 1
+================================================
+ Timing (secs)        : 0.004981
+ Giga AMOs/sec (GAMS) : 2.00763e-05
+================================================
+STRIDEN_ADD
+RUNNING WITH NUM_THREADS = 1
+================================================
+ Timing (secs)        : 0.004958
+ Giga AMOs/sec (GAMS) : 2.01694e-05
+================================================
+STRIDEN_CAS
+RUNNING WITH NUM_THREADS = 1
+================================================
+ Timing (secs)        : 0.005045
+ Giga AMOs/sec (GAMS) : 1.98216e-05
+================================================
+PTRCHASE_ADD
+RUNNING WITH NUM_THREADS = 1
+================================================
+ Timing (secs)        : 0.005155
+ Giga AMOs/sec (GAMS) : 1.93986e-05
+================================================
+PTRCHASE_CAS
+RUNNING WITH NUM_THREADS = 1
+================================================
+ Timing (secs)        : 0.004997
+ Giga AMOs/sec (GAMS) : 2.0012e-05
+================================================
+CENTRAL_ADD
+RUNNING WITH NUM_THREADS = 1
+================================================
+ Timing (secs)        : 0.005302
+ Giga AMOs/sec (GAMS) : 1.88608e-05
+================================================
+CENTRAL_CAS
+RUNNING WITH NUM_THREADS = 1
+================================================
+ Timing (secs)        : 0.0053
+ Giga AMOs/sec (GAMS) : 1.88679e-05
+================================================
+SG_ADD
+RUNNING WITH NUM_THREADS = 1
+================================================
+ Timing (secs)        : 0.005103
+ Giga AMOs/sec (GAMS) : 7.83853e-05
+================================================
+SG_CAS
+RUNNING WITH NUM_THREADS = 1
+================================================
+ Timing (secs)        : 0.004967
+ Giga AMOs/sec (GAMS) : 8.05315e-05
+================================================
+SCATTER_ADD
+RUNNING WITH NUM_THREADS = 1
+================================================
+ Timing (secs)        : 0.004984
+ Giga AMOs/sec (GAMS) : 6.01926e-05
+================================================
+SCATTER_CAS
+RUNNING WITH NUM_THREADS = 1
+================================================
+ Timing (secs)        : 0.00492
+ Giga AMOs/sec (GAMS) : 6.09756e-05
+================================================
+GATHER_ADD
+RUNNING WITH NUM_THREADS = 1
+================================================
+ Timing (secs)        : 0.00512
+ Giga AMOs/sec (GAMS) : 5.85937e-05
+================================================
+GATHER_CAS
+RUNNING WITH NUM_THREADS = 1
+================================================
+ Timing (secs)        : 0.004996
+ Giga AMOs/sec (GAMS) : 6.0048e-05
+================================================
+pts circustent end
+================== pts test end ==================

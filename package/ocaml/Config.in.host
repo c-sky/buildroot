@@ -1,0 +1,19 @@
+# All host ocaml packages should depend on this option
+config BR2_PACKAGE_HOST_OCAML_ARCH_SUPPORTS
+	bool
+	default y if BR2_HOSTARCH = "x86_64" || BR2_HOSTARCH = "x86"
+
+config BR2_PACKAGE_HOST_OCAML
+	bool "host ocaml"
+	depends on BR2_TOOLCHAIN_HAS_THREADS
+	depends on !BR2_STATIC_LIBS
+	depends on BR2_HOST_GCC_AT_LEAST_4_9
+    depends on BR2_PACKAGE_HOST_OCAML_ARCH_SUPPORTS
+	help
+	  Ocaml Language.
+
+	  https://www.ocaml.org/
+
+comment "ocaml needs a toolchain w/ wchar, threads, dynamic library, gcc >= 4.9, host gcc >= 4.9"
+	depends on  !BR2_TOOLCHAIN_HAS_THREADS || \
+		BR2_STATIC_LIBS || 	!BR2_HOST_GCC_AT_LEAST_4_9

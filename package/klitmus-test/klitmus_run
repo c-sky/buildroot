@@ -1,0 +1,20 @@
+#!/bin/bash
+
+if [ "$(ls -A /lib/modules/*/kernel/klitmus/)" ]; then
+	cd /lib/modules/*/kernel/klitmus
+	for file in ./*
+	do
+		if test -d $file
+		then
+			echo $file
+			if test -f $file/litmus000.ko
+			then
+				insmod $file/litmus000.ko
+				cat /proc/litmus
+				rmmod litmus000
+			fi
+		fi
+	done
+else
+	echo "klitmus doesn't exist!!!"
+fi

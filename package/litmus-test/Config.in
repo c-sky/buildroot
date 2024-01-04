@@ -1,0 +1,38 @@
+config BR2_PACKAGE_LITMUS_TEST
+	bool "riscv litmus test"
+	depends on BR2_riscv
+	depends on BR2_PACKAGE_HOST_HERDTOOLS7
+	help
+	  The tests can also be used for memroy order test.
+
+	  https://github.com/litmus-tests/litmus-tests-riscv
+
+if BR2_PACKAGE_LITMUS_TEST
+
+choice
+	prompt "LITMUS TEST MODE"
+	default BR2_PACKAGE_LITMUS_TEST_PART
+	help
+	  Select the mode of litmus you wish to use.
+
+	config BR2_PACKAGE_LITMUS_TEST_PART
+		bool "part"
+
+	config BR2_PACKAGE_LITMUS_TEST_FULL
+		bool "full"
+endchoice
+
+config BR2_PACKAGE_LITMUS_TEST_MODE
+	string "LITMUS TEST MODE"
+	default "part"
+	help
+	  support part and master
+
+config BR2_PACKAGE_LITMUS_TEST_CORE
+	int "riscv litmus test core num"
+	default 4
+
+endif
+
+comment "riscv litmus test needs herdtools7"
+	depends on  !BR2_PACKAGE_HOST_HERDTOOLS7

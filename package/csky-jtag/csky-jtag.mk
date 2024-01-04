@@ -7,7 +7,7 @@
 CSKY_JTAG_VERSION = CSKY-DebugServer-linux-x86_64-V5.10.4-20200429
 CSKY_JTAG_FILE = $(CSKY_JTAG_VERSION).sh
 CSKY_JTAG_SOURCE = $(CSKY_JTAG_FILE).tar.gz
-CSKY_JTAG_SITE = https://occ-oss-prod.oss-cn-hangzhou.aliyuncs.com/resource/1355977/1590483269667
+CSKY_JTAG_SITE = http://occ-oss-prod.oss-cn-hangzhou.aliyuncs.com/resource/1355977/1590483269667
 CSKY_JTAG_LINENUM = 277
 
 define CSKY_JTAG_EXTRACT_CMDS

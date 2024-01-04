@@ -1,0 +1,14 @@
+#!/bin/bash
+
+cpunum=`cat /proc/cpuinfo | grep isa | wc -l`
+if [ $cpunum -gt 1 ]
+then
+		echo "RISC-V Litmus Test"
+		if [ -f "/usr/bin/litmus/run.exe" ]; then
+			/usr/bin/litmus/run.exe -st 1 -s 100 -r 10
+		else
+			echo "litmus doesn't exist!!!"
+		fi
+else
+		echo "litmus run on smp"
+fi

@@ -1,0 +1,7 @@
+#!/bin/bash
+
+if [ -f "ptssmp.log" ]; then
+	cp pts.log $REPORT_PATH/ptssmp.log
+else
+	echo "ptssmp.log not exist"
+fi

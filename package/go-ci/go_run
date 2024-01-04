@@ -1,0 +1,46 @@
+#!/bin/bash
+
+
+cd /ci/go/
+#bunzip2 go-linux-riscv64-bootstrap.tbz
+tar -xf go-linux-riscv64-bootstrap.tar
+
+mkdir -p gocode
+export GOOS=linux
+export CGO_ENABLED=0
+export GOPATH=/ci/go/gocode
+#cat /proc/cmdline | grep -E 'qemuci'
+#if [ $? -ne 0 ]
+#then
+#		echo "Skip the ci test"
+#		exit 0
+#else
+		echo "Just do go dist test build"
+		export GOROOT=/ci/go/go-linux-riscv64-bootstrap
+		export PATH=$PATH:$GOROOT/bin
+		go version
+		go env -w GOPROXY=none
+		go tool dist test -compile-only
+#fi
+
+cat /proc/cmdline | grep -E 'chipci'
+if [ $? -ne 0 ]
+then
+		echo "Skip the chip ci test"
+		exit 0
+else
+		echo "Do go build and dist test"
+		gunzip go1.16.5.src.tar.gz
+		tar -xf go1.16.5.src.tar
+		cd go/src/
+		GOROOT_BOOTSTRAP=/ci/go/go-linux-riscv64-bootstrap ./make.bash
+		export GOROOT=/ci/go/go
+		export PATH=$PATH:$GOROOT/bin
+		go version
+		go env -w GOPROXY=none
+		go tool dist test -k
+fi
+
+
+
+

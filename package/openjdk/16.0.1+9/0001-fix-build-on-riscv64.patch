@@ -1,0 +1,26 @@
+diff --git a/make/autoconf/build-aux/autoconf-config.guess b/make/autoconf/build-aux/autoconf-config.guess
+index 15ee43892..e5df2ca57 100644
+--- a/make/autoconf/build-aux/autoconf-config.guess
++++ b/make/autoconf/build-aux/autoconf-config.guess
+@@ -1000,6 +1000,9 @@ EOF
+     ppc:Linux:*:*)
+ 	echo powerpc-unknown-linux-gnu
+ 	exit ;;
++    riscv64:Linux:*:*)
++        echo riscv64-unknown-linux-gnu
++        exit ;;
+     s390:Linux:*:* | s390x:Linux:*:*)
+ 	echo ${UNAME_MACHINE}-ibm-linux
+ 	exit ;;
+diff --git a/make/autoconf/build-aux/autoconf-config.sub b/make/autoconf/build-aux/autoconf-config.sub
+index 1aab2b303..53599eb32 100644
+--- a/make/autoconf/build-aux/autoconf-config.sub
++++ b/make/autoconf/build-aux/autoconf-config.sub
+@@ -383,6 +383,7 @@ case $basic_machine in
+ 	| pdp10-* | pdp11-* | pj-* | pjl-* | pn-* | power-* \
+ 	| powerpc-* | powerpc64-* | powerpc64le-* | powerpcle-* | ppcbe-* \
+ 	| pyramid-* \
++	| riscv64-* \
+ 	| romp-* | rs6000-* \
+ 	| sh-* | sh[1234]-* | sh[24]a-* | sh[23]e-* | sh[34]eb-* | sheb-* | shbe-* \
+ 	| shle-* | sh[1234]le-* | sh3ele-* | sh64-* | sh64le-* \

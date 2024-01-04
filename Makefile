@@ -10,6 +10,7 @@ ifneq ($(INSIDE_SITE),)
 BRW_SITE	= $(INSIDE_SITE)/buildroot-$(BR2_VERSION).tar.gz
 endif
 
+DEFCONFIG = $(CONF)
 O ?= $(CONF)
 BR2_DL_DIR ?= $(BRW_ROOT)/dl
 
@@ -62,5 +63,5 @@ endef
 all .DEFAULT:
 	@$(call DOWNLOAD)
 	@$(call COPYFILES)
-	make -C $(BRW_DIR) $(CONF) O=$(BRW_ROOT)/$(O)
-	make -C $(BRW_ROOT)/$(O) $@
+	make -C $(BRW_DIR) $(DEFCONFIG) CONF= O=$(BRW_ROOT)/$(O)
+	make -C  $(BRW_ROOT)/$(O) CONF=  $@

@@ -1,0 +1,5 @@
+config BR2_PACKAGE_ILLEGAL_CI
+	bool "illegal-ci"
+	help
+		illegal inst test for CPU bit
+

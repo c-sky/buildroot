@@ -1,0 +1,11 @@
+config BR2_PACKAGE_CIRCUSTENT
+ bool "circustent"
+ help
+  The CircusTent infrastructure is designed to provide users 
+  and architects the ability to discover the relevant performance 
+  of a target system architecture's memory subsystem using atomic memory operations. 
+  Atomic memory operations have traditionally been considered to be latent or low performance 
+  given the difficulty in their respective implementations.
+
+  https://github.com/tactcomplabs/circustent
+

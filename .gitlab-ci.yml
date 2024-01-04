@@ -93,6 +93,8 @@ wait_for_trigger:
             - build.log.xz
 
 .common_build: &common_build
+    tags:
+      - thead_build
     stage: build
     <<: *common_builds
 
@@ -500,6 +502,8 @@ wait_for_trigger:
 9xx_next_glibc_compat: *common_build
 
 9xx_5.10_glibc_qemu_test:
+    tags:
+      - thead_build
     dependencies:
       - 9xx_5.10_glibc_compat
     <<: *9xx_qemu_test

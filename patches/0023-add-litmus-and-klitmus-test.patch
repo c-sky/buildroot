@@ -1,0 +1,41 @@
+From 5f8d3821fd499c411d7443eb61611a86641a5a16 Mon Sep 17 00:00:00 2001
+From: Wang Junqiang <wangjunqiang@iscas.ac.cn>
+Date: Wed, 23 Feb 2022 14:22:58 +0800
+Subject: [PATCH] add litmus and klitmus test
+
+Signed-off-by: Wang Junqiang <wangjunqiang@iscas.ac.cn>
+---
+ package/Config.in      | 2 ++
+ package/Config.in.host | 4 ++++
+ 2 files changed, 6 insertions(+)
+
+diff --git a/package/Config.in b/package/Config.in
+index 7c354111..8818a404 100644
+--- a/package/Config.in
++++ b/package/Config.in
+@@ -153,6 +153,8 @@ menu "Debugging, profiling and benchmark"
+ 	source "package/valgrind/Config.in"
+ 	source "package/vmtouch/Config.in"
+ 	source "package/whetstone/Config.in"
++	source "package/litmus-test/Config.in"
++	source "package/klitmus-test/Config.in"
+ endmenu
+ 
+ menu "Development tools"
+diff --git a/package/Config.in.host b/package/Config.in.host
+index 6e5a5c5f..0a708891 100644
+--- a/package/Config.in.host
++++ b/package/Config.in.host
+@@ -94,5 +94,9 @@ menu "Host utilities"
+ 	source "package/xorriso/Config.in.host"
+ 	source "package/zip/Config.in.host"
+ 	source "package/zstd/Config.in.host"
++	source "package/ocaml/Config.in.host"
++	source "package/ocaml-dune/Config.in.host"
++	source "package/ocaml-menhir/Config.in.host"
++	source "package/herdtools7/Config.in.host"
+ 
+ endmenu
+-- 
+2.17.1
+

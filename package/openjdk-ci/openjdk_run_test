@@ -1,0 +1,99 @@
+#!/bin/bash
+
+#if [ -f "/usr/bin/java" ]; then
+#       java -version
+#else
+#       echo "java doesn't exist!!!"
+#       exit
+#fi
+TOPDIR=`pwd`
+SCRIPT_DIR=$(cd `dirname $0`;pwd)
+RESULT_DIR="$TOPDIR/sit"
+mkdir -p ${RESULT_DIR}
+
+now=`date "+%Y%m%d_%H%M"`
+outputFile=${RESULT_DIR}/openjdk_${now}.txt
+touch ${outputFile}
+
+if [ -z $JAVA_HOME ] ; then
+        if [ ! -d /usr/lib/jvm ];then
+                echo "cp jvm ..."
+                cp -rdpf ${SCRIPT_DIR}/openjdk/jvm /usr/lib/
+        fi
+        echo "Set JAVA_HOME first to unpack SPECjvm2008!"
+        export JAVA_HOME=/usr/lib/jvm
+        export CLASSPATH=.:${JAVA_HOME}/lib
+        export PATH=$JAVA_HOME/bin:$PATH
+fi
+
+if [ -f "${JAVA_HOME}/bin/java" ]; then
+        java -version >> ${outputFile} 2>&1 
+else
+        echo "java doesn't exist!!!"
+        exit
+fi
+#export HOME="$HOME:${JAVA_HOME}/../"
+export SPECJVM_HOME=/root/specjvm2008
+if [ ! -d "/root/specjvm2008" ]; then
+        if [ -f "/ci/openjdk/SPECjvm2008_1_01_setup.jar" ] ; then
+                echo "Installing SPECjvm2008..."
+                java -jar /ci/openjdk/SPECjvm2008_1_01_setup.jar -DUSER_INSTALL_DIR=$SPECJVM_HOME -i silent >> ${outputFile} 2>&1
+        elif [ -d ${SCRIPT_DIR}/openjdk/specjvm2008 ];then
+                echo "cp SPECjvm2008..."
+                cp -rdpf ${SCRIPT_DIR}/openjdk/specjvm2008 /root/
+        else
+                echo "SPECjvm2008 doesn't exist!!!"
+                exit 1
+        fi
+        #java -jar ${JAVA_HOME}/../SPECjvm2008_1_01_setup.jar -DUSER_INSTALL_DIR=$SPECJVM_HOME -i silent >> ${outputFile} 2>&1
+else
+        echo "SPECjvm2008 exist!!!"
+fi
+TESTPATH=$SPECJVM_HOME
+if [ "$(ls -A $TESTPATH)" ]; then
+        echo $TESTPATH
+        cd $TESTPATH
+                #startup.helloworld
+                #startup.compiler.compiler
+                #startup.compiler.sunflow
+                #startup.compress
+                #startup.crypto.aes
+                #startup.crypto.rsa
+                #startup.crypto.signverify
+                #startup.mpegaudio
+                #startup.scimark.fft
+                #startup.scimark.lu
+                #startup.scimark.monte_carlo
+                #startup.scimark.sor
+                #startup.scimark.sparse
+                #startup.serial
+                #startup.sunflow
+                #startup.xml.transform
+                #startup.xml.validation
+        TESTCASE=(
+                startup.helloworld
+                startup.compiler.compiler
+                startup.compiler.sunflow
+                startup.compress
+                startup.crypto.aes
+                startup.crypto.rsa
+                startup.crypto.signverify
+                startup.mpegaudio
+                startup.scimark.fft
+                startup.scimark.lu
+                startup.scimark.monte_carlo
+                startup.scimark.sor
+                startup.scimark.sparse
+                startup.serial
+                startup.sunflow
+        )
+        for element in ${TESTCASE[@]}
+        do
+                java -jar SPECjvm2008.jar -ikv -ict -coe $element -crf false -ctf false -chf false >> ${outputFile} 2>&1 
+        done
+        cd -
+else
+        echo "specjvm2008 not install"
+        exit
+fi
+

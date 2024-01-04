@@ -1,0 +1,24 @@
+From ca30de017e96a8319020be8eb7e5ef65635938f8 Mon Sep 17 00:00:00 2001
+From: xuhaijiang <xhj01292589@alibaba-inc.com>
+Date: Mon, 20 Nov 2023 11:18:26 +0800
+Subject: [PATCH] /Ci directory skipping arch check
+
+---
+ support/scripts/check-bin-arch | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/support/scripts/check-bin-arch b/support/scripts/check-bin-arch
+index 27cc59b..eacc6f4 100755
+--- a/support/scripts/check-bin-arch
++++ b/support/scripts/check-bin-arch
+@@ -28,6 +28,7 @@ declare -a IGNORES=(
+ 
+ 	# Guile modules are ELF files, with a "None" machine
+ 	"/usr/lib/guile"
++	"/ci"
+ )
+ 
+ while getopts p:l:r:a:i: OPT ; do
+-- 
+2.17.1
+

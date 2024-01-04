@@ -1,0 +1,9 @@
+config BR2_PACKAGE_PYTHON3_CI
+	bool "openjdk-ci"
+	depends on BR2_PACKAGE_CSKY_CI
+	depends on BR2_PACKAGE_PYTHON3
+	help
+		python3 ci for python test
+
+comment "python3 ci needs python3"
+	depends on !BR2_PACKAGE_PYTHON3

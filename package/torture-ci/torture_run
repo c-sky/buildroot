@@ -1,0 +1,16 @@
+#!/bin/bash
+
+if [ "$(ls -A /lib/modules/*/kernel/kernel/)" ]; then
+	echo "will run torture test"
+	modprobe rcutorture
+	sleep 180
+	rmmod rcutorture
+	dmesg | grep torture:
+
+	modprobe locktorture
+	sleep 180
+	rmmod locktorture
+	dmesg | grep torture:
+else
+	echo "torture doesn't exist!!!"
+fi

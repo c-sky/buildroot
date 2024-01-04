@@ -1,0 +1,645 @@
+From eb5159443629be3e648f4c77a8b246d75bcf3cf0 Mon Sep 17 00:00:00 2001
+From: Your name <xhj01292589@alibaba-inc.com>
+Date: Tue, 16 Aug 2022 14:57:40 +0800
+Subject: [PATCH] add codes to herdtools
+This patch modifies the litmus7 tool and adds the parameters single, ebreakrig, ebreakprint and getcond to run a single use case in litmus and ebreak when the conditions are met
+
+---
+ litmus/compCond.ml     |  29 +++++++++
+ litmus/compCond.mli    |   7 ++
+ litmus/dumpRun.ml      |  61 +++++++++++++++++-
+ litmus/libdir/_utils.c | 138 ++++++++++++++++++++++++++++++++++++++++
+ litmus/myName.ml       |   6 ++
+ litmus/myName.mli      |   3 +-
+ litmus/run_litmus.ml   |   3 +-
+ litmus/skel.ml         | 141 +++++++++++++++++++++++++++++++++++++----
+ 8 files changed, 370 insertions(+), 18 deletions(-)
+
+diff --git a/litmus/compCond.ml b/litmus/compCond.ml
+index 05e0a07..abacbcb 100644
+--- a/litmus/compCond.ml
++++ b/litmus/compCond.ml
+@@ -37,6 +37,14 @@ module Make (O:Indent.S) (I:CompCondUtils.I) :
+       val funcall :
+           I.C.cond ->
+             (I.Loc.t -> string) -> (string -> string) -> string
++
++      val funcall_list :
++        I.C.cond ->
++         (I.Loc.t -> string) -> (string -> string) -> string list
++
++      val funcall_custom :
++          string -> string -> I.C.cond ->
++            (I.Loc.t -> string) -> (string -> string) -> string
+     end = struct
+       open Printf
+       open ConstrGen
+@@ -167,7 +175,28 @@ module Make (O:Indent.S) (I:CompCondUtils.I) :
+         let pvals = List.map dump_val vals in
+         sprintf "%s(%s)" fname (String.concat "," (plocs@pvals))
+ 
++      let getargs cond dump_loc dump_val =
++	let prop = (ConstrGen.prop_of cond) in
++	let locs = I.C.locations_prop prop in
++	let plocs = I.C.LocSet.map_list dump_loc locs in
++	let vals = I.C.location_values_prop prop in
++	let pvals = List.map dump_val vals in
++	(plocs@pvals)
++
++      let funcall_list cond dump_loc dump_val = getargs cond dump_loc dump_val
++
++      let funcall_prop_custom strconcat strend prop dump_loc dump_val =
++        let locs = I.C.locations_prop prop in
++        let plocs = I.C.LocSet.map_list dump_loc locs in
++        let vals = I.C.location_values_prop prop in
++        let pvals = List.map dump_val vals in
++	let addends = List.map (fun s -> sprintf "((%s) %s )" s strend ) (plocs@pvals) in
++        sprintf "%s" (String.concat strconcat addends )
++
+       let funcall cond dump_loc dump_val =
+         funcall_prop funname  (ConstrGen.prop_of cond) dump_loc dump_val
+ 
++      let funcall_custom strconcat strend  cond dump_loc dump_val =
++        funcall_prop_custom strconcat strend (ConstrGen.prop_of cond) dump_loc dump_val
++
+     end
+diff --git a/litmus/compCond.mli b/litmus/compCond.mli
+index 89b5250..da3b809 100644
+--- a/litmus/compCond.mli
++++ b/litmus/compCond.mli
+@@ -38,4 +38,11 @@ module Make: functor (O:Indent.S) -> functor (I:CompCondUtils.I) ->
+         I.C.cond ->
+           (I.Loc.t -> string) -> (string -> string) -> string
+ 
++    val funcall_custom :
++        string -> string -> I.C.cond ->
++         (I.Loc.t -> string) -> (string -> string) -> string
++
++    val funcall_list :
++        I.C.cond ->
++         (I.Loc.t -> string) -> (string -> string) -> string list
+   end
+diff --git a/litmus/dumpRun.ml b/litmus/dumpRun.ml
+index 9d88b97..0b1d8a3 100644
+--- a/litmus/dumpRun.ml
++++ b/litmus/dumpRun.ml
+@@ -372,6 +372,7 @@ let dump_c xcode names =
+       | ThreadStyle.Cached -> O.o "extern void set_pool(void);"
+       | _ -> ()
+       end ;
++
+       O.o "" ;
+       O.o "/* Declarations of tests entry points */" ;
+       let arch,docs,srcs,utils = run_tests names out_chan in
+@@ -380,8 +381,10 @@ let dump_c xcode names =
+         include (val (get_arch arch) : ArchConf)
+       end in
+       let module RU = RunUtils.Make(C) in
+-
++      let totalLen = List.length docs in
+       O.o "" ;
++      O.o "#include <string.h>" ;
++      O.f "#define TOTAL %d" totalLen ;
+       O.o "/* Date function */" ;
+       O.o "#include <time.h>" ;
+       O.o "static void my_date(FILE *out) {" ;
+@@ -409,10 +412,12 @@ let dump_c xcode names =
+         | ThreadStyle.Cached -> O.oi "set_pool();"
+         | _ -> ()
+         end ;
++	let total = List.length docs - 1 in
+         List.iteri
+           (fun k doc ->
+             if k > 0 && Cfg.sleep > 0 then  O.fi "sleep(%i);" Cfg.sleep ;
+             O.fi "%s(argc,argv,out);" (MyName.as_symbol doc) ;
++	    O.fi "//num:%d,name:%s" k (MyName.chop_c ( List.nth srcs ( total - k ) )) ;
+             if xcode then O.oi "[tick tick];")
+           (List.rev docs) ;
+         O.oi "end_report(argc,argv,out);" ;
+@@ -437,8 +442,57 @@ let dump_c xcode names =
+         O.o "" ;
+         O.o "@end"
+       end else  begin
+-        O.o"int main(int argc,char **argv) {" ;
+-        O.oi "run(argc,argv,stdout);" ;
++	O.o "typedef int (*Fun)(int,  char **, FILE *);" ;
++	O.o "typedef char *(*GetCaseCond)(void);" ;
++	O.o "void litmus_free(void);" ;
++	O.o "static void run_single(int argc,char **argv,FILE *out, char * name, int showCond) {" ;
++	O.oi "char ** filenames;" ;
++	O.oi "Fun * fun_addrs ; " ;
++	O.oi "GetCaseCond *getCaseCond;" ;
++	O.oi "int i ;" ;
++	O.oi "filenames = (char **)malloc(sizeof(char *) * TOTAL);" ;
++	O.oi "fun_addrs = (Fun *)malloc(sizeof(Fun) * TOTAL);" ;
++	O.oi "getCaseCond = (GetCaseCond *)malloc(sizeof(GetCaseCond) * TOTAL);" ;
++
++	let dlen = List.length docs - 1 in
++        List.iteri
++          (fun k doc ->
++            if k > 0 && Cfg.sleep > 0 then  O.fi "sleep(%i);" Cfg.sleep ;
++            O.fi "filenames[%d] = \"%s\";" k (MyName.chop_c (List.nth srcs (dlen - k))) ;
++	    O.fi "fun_addrs[%d] = %s;" k (MyName.as_symbol doc)  ;
++	    O.fi "getCaseCond[%d] = %s_str;" k (MyName.as_symbol doc)  ;
++            )
++          (List.rev docs) ;
++	O.oi "if(!showCond) my_date(out);" ;
++	O.oi "for (i = 0 ;i < TOTAL ; i++){" ;
++	O.oi "	if (!strcmp(filenames[i],name)) {" ;
++	O.oi "	    if (showCond){" ;
++	O.oi "		printf(\"%s condition order is :%s\\n\",name, getCaseCond[i]());" ;
++	O.oi "	    } else {" ;
++	O.oi "		fun_addrs[i](argc,argv,out);" ;
++	O.oi "	        litmus_free(); " ;
++	O.oi "	    }" ;
++
++	O.oi "	    break;" ;
++	O.oi "	}" ;
++	O.oi "}" ;
++	O.oi "if(!showCond){ " ;
++	O.oi "	end_report(argc,argv,out);" ;
++	O.oi "	my_date(out);" ;
++	O.oi "}" ;
++	O.oi "free(fun_addrs);" ;
++	O.oi "free(getCaseCond);" ;
++	O.oi "free(filenames);" ;
++	O.o "}" ;
++O.o "extern int litmus_switch; // 1:Master switch ; 2: custom values ; 4: show condition; 8: print ; 16: noprint 32: set ebreak " ;
++O.o "char * handlerCustomArgs(argc, argv);" ;
++        O.o "int main(int argc,char **argv) {" ;
++	O.oi "char *name = handlerCustomArgs(argc, argv);" ;
++	O.oi "if (strcmp(name, \"\")) {" ;
++	O.oi "	run_single(argc,argv,stdout,name,(litmus_switch & 4) == 4);" ;
++	O.oi "}	else {" ;
++        O.oi "	run(argc,argv,stdout);" ;
++	O.oi "}" ;
+         O.oi "return 0;" ;
+         O.o"}"
+       end ;
+@@ -570,6 +624,7 @@ let dump_cross _arch =
+       sprintf
+         "mv %s %s && mv %s %s && mv %s %s && /bin/rm -rf %s"
+         tgt tmp dir tgt tmp src top in
++	printf "xhj add ===%s;\n"com ;
+     MySys.exec_stdout com
+   end
+ 
+diff --git a/litmus/libdir/_utils.c b/litmus/libdir/_utils.c
+index e55382a..3243f5b 100644
+--- a/litmus/libdir/_utils.c
++++ b/litmus/libdir/_utils.c
+@@ -435,6 +435,10 @@ void custom_affinity (st_t *st,cpus_t *cm,int **color,int *diff,cpus_t *aff_cpus
+ 
+ static void usage(char *prog, cmd_t *d) {
+   log_error("usage: %s (options)*\n",prog) ;
++  log_error("  --single <name>  run case name\n") ;
++  log_error("  --ebreaktrig <\"0:x7=0; 1:x7=0; 1:x8=1; 1:x12=0; y=0;|| 0:x7=0; 1:x7=0; 1:x8=1; 1:x12=0; y=0;\">  format is \"0:x7=0; 1:x7=0; 1:x8=1; 1:x12=0; y=0;\"\n") ;
++  log_error("  --ebreakprint the ebreak print switch\n") ;
++  log_error("  --getcond  Get condition order\n") ;
+   log_error("  -v      be verbose\n") ;
+   log_error("  -q      be quiet\n") ;
+   log_error("  -a <n>  run maximal number of tests for n available processors (default %i)\n",d->avail) ;
+@@ -794,6 +798,14 @@ void parse_cmd(int argc, char **argv, cmd_t *d, cmd_t *p) {
+       if (!*argv) usage(prog,d) ;
+       int i = argint(prog,argv[0],d) ;
+       p->max_loop = i < 1 ? 1 : i ;
++    } else if(strcmp(*argv,"--single") == 0){
++	--argc ; ++argv ;
++	if (!*argv) usage(prog,d) ;
++    } else if(strcmp(*argv,"--ebreaktrig") == 0){
++	--argc ; ++argv ;
++	if (!*argv) usage(prog,d) ;
++    } else if(strcmp(*argv,"--ebreakprint") == 0){
++    } else if(strcmp(*argv,"--getcond") == 0){
+     } else usage(prog,d) ;
+   }
+ 
+@@ -1324,6 +1336,9 @@ double tsc_ratio(tsc_t t1, tsc_t t2) {
+ double tsc_millions(tsc_t t) {
+   return t / 1000000.0 ;
+ }
++char * parse_spec_str(char * str) {
++    return "";
++}
+ 
+ /*******************/
+ /* String handling */
+@@ -1335,3 +1350,126 @@ int find_string(char *t[], int sz, char *s) {
+   }
+   return -1 ;
+ }
++
++int litmus_switch; // 1:Master switch ; 2: custom values ; 4: show condition; 8: print ; 16: noprint 32: set ebreak
++int litmus_size;
++int *litmus_values;
++void handerCustomValues(char *str) {
++	litmus_size = 0;
++	int pos;
++	int j;
++	char *values = strtok(str, "||");
++	char *items[20];
++	int num = 1;
++	while (values != NULL) {
++		items[litmus_size] = values;
++		litmus_size++;
++		values = strtok(NULL, "||");
++	}
++	for (pos = 0; pos < (int) strlen(items[0]); pos++) {
++		if (str[pos] == ';')
++			num++;
++	}
++	litmus_values = (int *)malloc(num*litmus_size*sizeof(int));
++	for (pos = 0; pos < litmus_size; pos++) {
++		values = strtok(items[pos], ";");
++		j = 0;
++		while (values != NULL) {
++			litmus_values[pos*num + j]=atoi(values);
++			values = strtok(NULL, ";");
++			j++;
++		}
++	}
++	for(pos = 0; pos < litmus_size; pos++){
++		for(j = 0; j < num; j++){
++			printf("data[%d][%d]=%d\n",pos ,j , litmus_values[pos*num + j]);
++		}
++	}
++}
++void litmus_free(void){
++	if (NULL != litmus_values)
++		free(litmus_values);
++}
++//format 0:x7=0; 1:x7=0; 1:x8=1; 1:x12=0; y=0;
++void handerSpecValues(char *str) {
++	litmus_size = 0;
++	int pos;
++	int j;
++	char *values = strtok(str, "||");
++	char *items[20];
++	int num = 0;
++	int len;
++	char *tmp;
++	while (values != NULL) {
++		items[litmus_size] = values;
++		litmus_size++;
++		values = strtok(NULL, "||");
++	}
++	len = strlen(items[0]);
++	for (pos = 0; pos < len; pos++) {
++		if (items[0][pos] == '=')
++			num++;
++	}
++	litmus_values = (int *)malloc(num*litmus_size*sizeof(int));
++	for (pos = 0; pos < litmus_size; pos++) {
++		values = strtok(items[pos], ";");
++		j = 0;
++		while (values != NULL && j < num) {
++			litmus_values[pos*num + j] = atoi(strchr(values, '=') + 1);
++			values = strtok(NULL, ";");
++			j++;
++		}
++	}
++	for(pos = 0; pos < litmus_size; pos++){
++		for(j = 0; j < num; j++){
++			printf("data[%d][%d]=%d\n",pos ,j , litmus_values[pos*num + j]);
++		}
++	}
++
++}
++void handlerEbreakState(char * status) {
++	if (strcmp(status, "print") == 0) {
++		litmus_switch = litmus_switch | 8 ;
++	} else if (strcmp(status, "ebreak") == 0) {
++		litmus_switch = litmus_switch | 32 ;
++	} else {
++		litmus_switch = litmus_switch | 16 ;
++	}
++}
++char* handlerCustomArgs(int argc, char **argv) {
++	int argc_tmp = argc;
++	char **argv_tmp = argv;
++	char *name = "";
++	for (;argc_tmp>0;) {
++		--argc_tmp;
++		++argv_tmp;
++		if(*argv_tmp == NULL) break;
++		if (strcmp(*argv_tmp, "--single") == 0) {
++			--argc_tmp;
++			++argv_tmp;
++			if (!*argv_tmp) {
++				printf("please add litmus case name\n");
++				exit(0);
++			}
++			name = *argv_tmp;
++		} else if (strcmp(*argv_tmp, "--ebreaktrig") == 0) {
++			--argc_tmp;
++			++argv_tmp;
++			if (!*argv_tmp) {
++				printf("please input --ebreaktrig <'0:x7=0; 1:x7=0; 1:x8=1; 1:x12=0; y=0;||0:x7=0; 1:x7=0; 1:x8=1; 1:x12=0; y=0;'>\n");
++				exit(0);
++			}
++			handerSpecValues(*argv_tmp);
++			litmus_switch = litmus_switch | 3 ;
++			litmus_switch = litmus_switch | 32 ;
++		} else if (strcmp(*argv_tmp, "--ebreakprint") == 0) {
++			litmus_switch = litmus_switch | 1 ;
++			litmus_switch = litmus_switch | 8 ;
++		} else if (strcmp(*argv_tmp, "--getcond") == 0) {
++			litmus_switch = litmus_switch | 4;
++		}
++		if (argc_tmp == 0)
++			break;
++	}
++	return name;
++}
+diff --git a/litmus/myName.ml b/litmus/myName.ml
+index 6cd79a6..3dca9f2 100644
+--- a/litmus/myName.ml
++++ b/litmus/myName.ml
+@@ -25,6 +25,12 @@ let chop_litmus source =
+   else
+     source
+ 
++let chop_c source =
++  if Filename.check_suffix source ".c" then
++    Filename.chop_extension source
++  else
++    source
++
+ let outname source ext =
+   let base = Filename.basename (chop_litmus source) in
+   base ^ ext
+diff --git a/litmus/myName.mli b/litmus/myName.mli
+index 3f2a7f4..1288d11 100644
+--- a/litmus/myName.mli
++++ b/litmus/myName.mli
+@@ -20,7 +20,8 @@
+ 
+ (* Chop ".litmus" extension, if present *)
+ val chop_litmus : string -> string
+-
++(* Chop ".c" extension, if present *)
++val chop_c : string -> string
+ (* outname base ext returns output file name *)
+ val outname : string -> string -> string
+ 
+diff --git a/litmus/run_litmus.ml b/litmus/run_litmus.ml
+index 62583e6..2c70ee4 100644
+--- a/litmus/run_litmus.ml
++++ b/litmus/run_litmus.ml
+@@ -176,7 +176,8 @@ module Make(O:Config)(Tar:Tar.S)(D:Test) =
+ 
+     let run name chan doc test source =
+       if do_c then begin
+-        fprintf chan "extern int %s(int argc,char **argv,FILE *out);\n" (MyName.as_symbol doc)
++        fprintf chan "extern int %s(int argc,char **argv,FILE *out);\n" (MyName.as_symbol doc) ;
++	fprintf chan "extern char * %s_str(void);\n" (MyName.as_symbol doc)
+       end else
+         report name doc test source chan
+ 
+diff --git a/litmus/skel.ml b/litmus/skel.ml
+index f588cf3..2fbbc9e 100644
+--- a/litmus/skel.ml
++++ b/litmus/skel.ml
+@@ -327,6 +327,23 @@ module Make
+ 
+       let dump_loc = dump_ctx_loc ""
+ 
++      let dump_ctx_only loc = match loc with
++      | A.Location_reg (proc,reg) ->
++          sprintf "%s" (A.Out.dump_out_reg  proc reg)
++      | A.Location_global s ->
++          begin match memory with
++          | Direct ->
++              sprintf "%s" s
++          | Indirect ->
++              sprintf "*(%s)" s
++          end
++      | A.Location_deref (s,idx) ->
++          begin match memory with
++          | Direct ->
++              sprintf "%s[%i]" s idx
++          | Indirect ->
++              sprintf "(*(%s))[%i]" s idx
++          end
+ 
+ (* Dump left value *)
+       let dump_leftval a = match memory with
+@@ -540,10 +557,13 @@ module Make
+         in
+         Insert.insert O.o (fname Cfg.sysarch)
+ 
+-      let dump_user_barrier_vars () = O.oi "int volatile *barrier;"
++      let dump_user_barrier_vars () =
++	O.oi "int volatile *barrier;" ;
++	O.oi "int volatile *barrier_end;"
+ 
+       let dump_tb_barrier_vars () =
+         O.oi "sense_t barrier;" ;
++        O.oi "sense_t barrier_end;" ;
+         if have_timebase then O.oi "tb_t volatile next_tb;"
+ 
+ 
+@@ -554,7 +574,9 @@ module Make
+       let pthread_barrier_def () =
+         O.o DefString.pthread_barrier_def
+ 
+-      let dump_pthread_barrier_vars () = O.oi "barrier_t *barrier;"
++      let dump_pthread_barrier_vars () =
++	O.oi "barrier_t *barrier;" ;
++	O.oi "barrier_t *barrier_end;"
+ 
+       let dump_barrier_vars test =
+         O.o "/* Barrier for litmus loop */" ;
+@@ -866,6 +888,9 @@ module Make
+       let dump_cond_fun_call test dump_loc dump_val =
+         DC.funcall test.T.condition dump_loc dump_val
+ 
++      let dump_cond_custom_call strconcat strend test dump_loc dump_val =
++        DC.funcall_custom strconcat strend test.T.condition dump_loc dump_val
++
+       let register_type loc t = U.register_type loc t
+ 
+       let dump_defs_outs doc env test =
+@@ -1443,10 +1468,13 @@ module Make
+         end ;
+         begin match barrier with
+         | NoBarrier -> ()
+-        | Pthread -> O.oi "_a->barrier = barrier_create();"
+-        | User|UserFence|UserFence2 -> set_or_malloc indent "barrier"
++        | Pthread -> (O.oi "_a->barrier = barrier_create();" ;
++		     O.oi "_a->barrier_end = barrier_create();" )
++        | User|UserFence|UserFence2 -> (set_or_malloc indent "barrier" ;
++					set_or_malloc indent "barrier_end" )
+         | TimeBase -> ()
+-        | User2 -> set_or_malloc2 indent "barrier"
++        | User2 -> (set_or_malloc2 indent "barrier" ;
++		   set_or_malloc2 indent "barrier_end" 	)
+         end ;
+         if do_verbose_barrier && have_timebase then begin
+           loop_proc_prelude indent ;
+@@ -1538,8 +1566,10 @@ module Make
+         end ;
+         begin match barrier with
+         | NoBarrier -> ()
+-        | Pthread -> O.oi "barrier_free(_a->barrier);"
+-        | User|User2|UserFence|UserFence2 -> nop_or_free indent "barrier"
++        | Pthread -> ( O.oi "barrier_free(_a->barrier);" ;
++		       O.oi "barrier_free(_a->barrier_end);" )
++        | User|User2|UserFence|UserFence2 -> (nop_or_free indent "barrier" ;
++					     nop_or_free indent "barrier_end" )
+         | TimeBase -> ()
+         end ;
+         if do_verbose_barrier && have_timebase then begin
+@@ -1620,7 +1650,8 @@ module Make
+         end ;
+         begin match barrier with
+         | User|UserFence|UserFence2 ->
+-            O.oii "_a->barrier[_i] = 0;"
++            (O.oii "_a->barrier[_i] = 0;" ;
++	     O.oii "_a->barrier_end[_i] = 0;" )
+         | Pthread|NoBarrier|User2|TimeBase -> ()
+         end ;
+         if do_self then begin
+@@ -1637,9 +1668,11 @@ module Make
+             O.o "/* Initialisation is a bit complex, due to decreasing index in litmus loop */" ;
+             O.oi "for (int _i = 0 ; _i < N ; _i++) {" ;
+             O.oii "_a->barrier[_i] = !(((_a->_p->size_of_test -_i -1) % (2*N)) < N);" ;
++            O.oii "_a->barrier_end[_i] = !(((_a->_p->size_of_test -_i -1) % (2*N)) < N);" ;
+             O.oi "}"
+         | TimeBase ->
+-            O.oi "barrier_init(&_a->barrier,N);"
++           ( O.oi "barrier_init(&_a->barrier,N);" ;
++             O.oi "barrier_init(&_a->barrier_end,N);" )
+         | NoBarrier|Pthread|User|UserFence|UserFence2 -> ()
+         end ;
+         if do_self then begin
+@@ -1656,7 +1689,66 @@ module Make
+         O.o "}" ;
+         O.o ""
+ 
+-      let dump_templates (env:U.env) tname test =
++	let user_barrier_end_def fence test env =
++        O.o "extern int litmus_switch;" ;
++        O.o "extern int litmus_size;   " ;
++        O.o "extern int *litmus_values;" ;
++	 O.f  "const static int totals = %d;" (List.length (DC.funcall_list test.T.condition (dump_ctx_loc "_a->") dump_a_addr )) ;
++        O.o "" ;
++	 O.o "static inline void watch(ctx_t *_a, int _i, int cpu) {" ;
++        begin match fence with
++        | No -> if Cfg.cautious then O.oii "mcautious();"
++        | FenceW|Fence2 -> O.oii "mbar();"
++        end ;
++	 O.oi "//todo insert my condition"  ;
++        O.o "  int cond = 0;" ;
++        O.o "  int num = 0;" ;
++        O.o "  int pos = 0;" ;
++        O.o "  static int witness = 0;" ;
++        O.o "  if ((litmus_switch & 2) == 2){" ;
++	 O.o "    for(;pos <litmus_size; pos++){" ;
++        O.o "      num = pos * totals;" ;
++	 O.f "      cond =(%s);" (dump_cond_custom_call " && " " == litmus_values[num++] " test (dump_ctx_loc "_a->") dump_a_addr ) ;
++	 O.o "      if (cond) break; " ;
++	 O.o "    }" ;
++	 O.o "  } else {" ;
++        O.f "    cond = final_ok(%s);"
++                (dump_cond_fun_call test
++                   (dump_ctx_loc "_a->") dump_a_addr) ;
++	 O.o "  }" ;
++        O.o "  if (cond) { " ;
++	 O.o "  	//hist->n_pos++; " ;
++	 O.o "      if ((litmus_switch & 8) == 8){" ;
++	 O.o "        witness++ ;" ;
++	 O.o "        printf(\"======witness:%d\\n\",witness);" ;
++	 O.o "      } else if ((litmus_switch & 32) == 32){" ;
++	 O.o "        asm __volatile__ (\"ebreak\\n\");;" ;
++	 O.o "      }" ;
++	 O.o "  } else { " ;
++	 O.o "    //hist->n_neg++; " ;
++	 O.o "  }" ;
++        O.o "}" ;
++        O.o "" ;
++        O.o "/* Barriers end macros */" ;
++        O.o "inline static void barrier_wait_end(unsigned int id, unsigned int k, int volatile *b, ctx_t *_a) {" ;
++        O.oi "if ((k % N) == id) {" ;
++        O.oii "*b = 1 ;" ;
++        begin match fence with
++        | No -> if Cfg.cautious then O.oii "mcautious();"
++        | FenceW|Fence2 -> O.oii "mbar();"
++        end ;
++        O.oi "} else {" ;
++        O.oii "while (*b == 0) ;" ;
++        begin match fence with
++        | No|FenceW -> if Cfg.cautious then O.oii "mcautious();"
++        | Fence2 -> O.oii "mbar();"
++        end ;
++	 O.oii "watch(_a,k,id);" ;
++        O.oi "}" ;
++        O.o "}" ;
++        O.o ""
++
++	let dump_templates (env:U.env) tname test =
+         O.f "/***************/" ;
+         O.f "/* Litmus code */" ;
+         O.f "/***************/" ;
+@@ -1670,6 +1762,16 @@ module Make
+         O.fi "ctx_t *_a;   /* In this context */" ;
+         O.f "} parg_t;" ;
+         O.o "" ;
++        begin match barrier with
++        | User ->
++            user_barrier_end_def No test env
++        | UserFence ->
++            user_barrier_end_def FenceW test env
++        | UserFence2 ->
++            user_barrier_end_def Fence2 test env
++        | _ ->
++            ()
++        end ;
+         begin match test.T.global_code with
+         | [] -> ()
+         | _::_ as cs -> O.f "%s\n\n" (String.concat "\n" cs)
+@@ -1747,11 +1849,14 @@ module Make
+             begin match barrier with
+             | User|User2|UserFence|UserFence2 ->
+                 O.fi "int _th_id = _b->th_id;" ;
+-                O.fi "int volatile *barrier = _a->barrier;"
++                O.fi "int volatile *barrier = _a->barrier;" ;
++                O.fi "int volatile *barrier_end = _a->barrier_end;"
+             | TimeBase ->
+-                O.fi "sense_t *barrier = &_a->barrier;"
++                O.fi "sense_t *barrier = &_a->barrier;" ;
++                O.fi "sense_t *barrier_end = &_a->barrier_end;"
+             | Pthread ->
+-                O.fi "barrier_t *barrier = _a->barrier;"
++                O.fi "barrier_t *barrier = _a->barrier;" ;
++                O.fi "barrier_t *barrier_end = _a->barrier_end;"
+             | NoBarrier -> ()
+             end ;
+             O.fi "int _size_of_test = _a->_p->size_of_test;" ;
+@@ -1971,6 +2076,13 @@ module Make
+               (*          O.fx iloop "barrier_wait(barrier);"
+                           Problematic 4.2W on squale *)
+             end  ;
++	    O.oi "// todo insert my code!!!" ;
++            begin match barrier with
++            | User|UserFence|UserFence2 ->
++                O.fx iloop "if((litmus_switch & 1) == 1) barrier_wait_end(_th_id,_i,&barrier_end[_i],_a);" ;
++                ()
++	    | _ -> ()
++	    end ;
+             if Stride.some stride then begin
+               loop_test_postlude indent2 ;
+               loop_test_postlude indent
+@@ -2761,6 +2873,9 @@ module Make
+             ()
+         | None|Some _ -> ()
+         end ;
++	 O.f "char * %s_str(void) {"  (MyName.as_symbol doc) ;
++	 O.fi "return \"%s\";" (dump_cond_fun_call test (dump_ctx_only ) dump_a_addr)  ;
++	 O.o "}" ;
+         let outchan =
+           match driver with
+           | Driver.Shell ->
+-- 
+2.17.1
+

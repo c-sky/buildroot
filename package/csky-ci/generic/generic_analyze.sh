@@ -4,7 +4,8 @@ OUT_PATH=$(dirname "$0")/../../
 
 #Parsh the result from lmbench & LTP etc.
 echo "============= csky test sum ============="
-sed -i 's///g' $ROOT_PATH/test.log
+sed -i 's/
+//g' $ROOT_PATH/test.log
 sed -i 's///g' $ROOT_PATH/test.log
 
 function shut_down()
@@ -16,7 +17,7 @@ function shut_down()
 
 shut_down
 
-if grep -q "Freeing unused kernel memory" $ROOT_PATH/test.log; then
+if grep -q "Freeing unused kernel" $ROOT_PATH/test.log; then
 	echo "Linux kernel start successed!"
 else
 	echo "Linux kernel start failed!"

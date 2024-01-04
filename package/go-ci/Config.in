@@ -1,0 +1,24 @@
+config BR2_PACKAGE_GO_CI
+	bool "go ci test"
+	depends on BR2_RISCV_64
+	help
+	  base on buildroot GO CI test
+
+comment "go ci need host go bootstrap supports"
+	depends on !BR2_RISCV_64
+
+if BR2_PACKAGE_GO_CI
+
+choice
+	prompt "Code Source"
+	default BR2_PACKAGE_GO_CI_INTERNAL
+	help
+		Select the code source
+config BR2_PACKAGE_GO_CI_INTERNAL
+	bool "internal code"
+config BR2_PACKAGE_GO_CI_EXTERNAL
+	bool "external code"
+
+endchoice
+
+endif

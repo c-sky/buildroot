@@ -1,0 +1,28 @@
+
+if [ -f "/usr/bin/mhz" ]; then
+	echo "CPU Freq"
+	mhz
+else
+	echo "atomicbench doesn't exist!!!"
+fi
+
+if [ -f "/usr/bin/atomicbench" ]; then
+	echo "pts atomicbench start"
+	atomicbench
+	echo "pts atomicbench end"
+else
+	echo "atomicbench doesn't exist!!!"
+fi
+
+CIRCUSTENT_BENCH="RAND_ADD RAND_CAS STRIDE1_ADD STRIDE1_CAS STRIDEN_ADD STRIDEN_CAS PTRCHASE_ADD PTRCHASE_CAS CENTRAL_ADD CENTRAL_CAS SG_ADD SG_CAS SCATTER_ADD SCATTER_CAS GATHER_ADD GATHER_CAS"
+if [ -f "/usr/bin/circustent" ]; then
+	echo "pts circustent start"
+	for BENCH in $CIRCUSTENT_BENCH; do
+		echo $BENCH
+		circustent -b $BENCH -m 10240 -p 1 -i 100
+	done
+	echo "pts circustent end"
+else
+	echo "circustent doesn't exist!!!"
+fi
+

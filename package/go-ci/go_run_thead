@@ -1,0 +1,49 @@
+#!/bin/bash
+
+ulimit -c unlimited
+ulimit -a
+echo 1 > /proc/sys/kernel/core_uses_pid
+cat /proc/sys/kernel/core_uses_pid
+
+echo "core-%e-%p-%t" > /proc/sys/kernel/core_pattern
+cat /proc/sys/kernel/core_pattern
+
+cd /ci/go/
+#bunzip2 go-linux-riscv64-bootstrap.tbz
+#tar -xf go-linux-riscv64-bootstrap.tar
+
+mkdir -p gocode
+export GOOS=linux
+export CGO_ENABLED=0
+export GOPATH=/ci/go/gocode
+export GOTRACEBACK=crash
+export GOTMPDIR=/ci/go/gotmpdir
+export GOCACHE=/ci/go/gocache
+export GO_TEST_TIMEOUT_SCALE=2
+mkdir -p ${GOTMPDIR}
+mkdir -p ${GOCACHE}
+
+#cat /proc/cmdline | grep -E 'qemuci'
+#if [ $? -ne 0 ]
+#then
+#		echo "Skip the ci test"
+#		exit 0
+#else
+		echo "Just do go dist test build"
+		export GOROOT=/ci/go/GO-T-HEAD
+		export PATH=$PATH:$GOROOT/bin
+		go version
+		go env -w GOPROXY=none
+		echo "startdate:`date`"
+		#while [ 1 ]
+		#do
+			go clean -cache
+			go clean -testcache
+			go clean
+			go tool dist test -compile-only
+			#go tool dist test -compile-only -run cmd/compile/internal/
+			#go tool dist test -k
+		#done
+		echo "enddate:`date`"
+#fi
+

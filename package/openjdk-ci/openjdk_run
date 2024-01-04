@@ -1,0 +1,54 @@
+#!/bin/bash
+
+if [ -f "/usr/bin/java" ]; then
+	java -version
+else
+	echo "java doesn't exist!!!"
+	exit
+fi
+
+if [ -z $JAVA_HOME ] ; then
+	echo "Set JAVA_HOME first to unpack SPECjvm2008!"
+	export JAVA_HOME=/usr/lib/jvm
+	export PATH=$JAVA_HOME/bin:$PATH
+fi
+
+if [ -f "/ci/openjdk/SPECjvm2008_1_01_setup.jar" ]; then
+	echo "Installing SPECjvm2008..."
+	export SPECJVM_HOME=$HOME/specjvm2008
+	java -jar /ci/openjdk/SPECjvm2008_1_01_setup.jar -DUSER_INSTALL_DIR=$SPECJVM_HOME -i silent
+else
+	echo "SPECjvm2008_1_01_setup.jar doesn't exist!!!"
+    exit
+fi
+
+if [ "$(ls -A $HOME/specjvm2008)" ]; then
+	echo $HOME/specjvm2008
+	cd $HOME/specjvm2008/
+	TESTCASE=(
+		startup.helloworld
+		startup.compiler.compiler
+		startup.compiler.sunflow
+		startup.compress
+		startup.crypto.aes
+		startup.crypto.rsa
+		startup.crypto.signverify
+		startup.mpegaudio
+		startup.scimark.fft
+		startup.scimark.lu
+		startup.scimark.monte_carlo
+		startup.scimark.sor
+		startup.scimark.sparse
+		startup.serial
+		startup.sunflow
+		startup.xml.transform
+		startup.xml.validation
+	)
+	for element in ${TESTCASE[@]}
+	do
+		java -jar SPECjvm2008.jar -ikv -ict -coe $element -crf false -ctf false -chf false
+	done
+else
+	echo "specjvm2008 not install"
+	exit
+fi

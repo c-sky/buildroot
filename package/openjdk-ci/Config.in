@@ -1,0 +1,9 @@
+config BR2_PACKAGE_OPENJDK_CI
+	bool "openjdk-ci"
+	depends on BR2_PACKAGE_CSKY_CI
+	depends on BR2_PACKAGE_OPENJDK
+	help
+		openjdk ci for jdk test
+
+comment "openjdk ci needs openjdk"
+	depends on !BR2_PACKAGE_OPENJDK

@@ -1,0 +1,11 @@
+config BR2_PACKAGE_HOST_OCAML_MENHIR
+	bool "host ocaml-menhir"
+	depends on BR2_PACKAGE_HOST_OCAML
+	depends on BR2_PACKAGE_HOST_OCAML_DUNE
+	help
+	  Ocaml Language Menhir Package.
+
+	  https://gitlab.inria.fr/fpottier/menhir
+
+comment "ocaml-menhir needs ocaml and ocaml-dune"
+	depends on  !BR2_PACKAGE_HOST_OCAML || !BR2_PACKAGE_HOST_OCAML_DUNE

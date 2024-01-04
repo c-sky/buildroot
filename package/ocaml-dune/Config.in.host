@@ -1,0 +1,10 @@
+config BR2_PACKAGE_HOST_OCAML_DUNE
+	bool "host ocaml-dune"
+	depends on BR2_PACKAGE_HOST_OCAML
+	help
+	  Ocaml Language Dune Package.
+
+	  https://github.com/ocaml/dune
+
+comment "ocaml-dune needs ocaml"
+	depends on  !BR2_PACKAGE_HOST_OCAML
